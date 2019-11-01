@@ -86,6 +86,7 @@ class named_stream(io.StringIO):
         self._metadata_filename = None
         self._dir = None
         self._symlink_dir = None
+        self._symlink_files = set()
         # save from gc, for __del__ method
         self._sys = sys
         self._open = open
@@ -157,6 +158,21 @@ class named_stream(io.StringIO):
         """
         assert not os.path.isabs(symlink_dir)
         self._symlink_dir = symlink_dir
+    #
+    @property
+    def symlink_files(self):
+        "a `set` of symlinks (relative to `basepath`) pointing to the blob"
+        return self._symlink_files
+    @symlink_files.setter
+    def symlink_files(self, symlink_file):
+        " please use `symlink_file_add`"
+        raise NotImplementedError(" please use `symlink_file_add`")
+    #
+    def symlink_file_add(self, symlink_file):
+        """ add a name for a symlink (relative to `basepath`) for this blob
+        """
+        assert not os.path.isabs(symlink_file)
+        self._symlink_files.add(symlink_file)
     #
     @property
     def filename(self):
@@ -262,6 +278,10 @@ class named_stream(io.StringIO):
                 os_rel_symlink(self._dir,self._symlink_dir,basedir=self._basepath,
                                target_is_directory=True)
                 r = osjoin(self._symlink_dir, os.path.basename(filename))
+            if self._symlink_files:
+                for j in self._symlink_files:
+                    os_rel_symlink(r, j ,basedir=self._basepath,
+                                   target_is_directory=False)
             return r
     def __del__(self):
         if not self._was_written :
@@ -381,6 +401,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     stack = EnvStreamStack()
     output = named_stream(blobs_dir,'main_file')
     output.add_metadata('original_filename',input_file)
+    output.symlink_file_add('main.tex')
     stack.push(output)
     del output
     def pop_section():
@@ -736,8 +757,6 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
         M = stack.pop()
         if M.environ == 'main_file':
             r = M.writeout()
-            os_rel_symlink(r, 'main.tex', cmdargs.blobs_dir ,
-                           target_is_directory=False, force=True)
         else:
             logger.error('disaligned stack, blob %r is not the MainFile' % (M,))
     except:
