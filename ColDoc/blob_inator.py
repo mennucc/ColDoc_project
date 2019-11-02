@@ -402,6 +402,8 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     output = named_stream(blobs_dir,'main_file')
     output.add_metadata('original_filename',input_file)
     output.symlink_file_add('main.tex')
+    if cmdargs.symlink_input:
+        output.symlink_file_add(os.path.basename( input_file))
     stack.push(output)
     del output
     def pop_section():
@@ -504,6 +506,8 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     newoutput = named_stream(blobs_dir,tok.macroName,parent=stack.topstream)
                     newoutput.add_metadata(r'original_filename',inputfile)
                     stack.push(newoutput)
+                    if cmdargs.symlink_input:
+                        newoutput.symlink_file_add( inputfile + ('' if inputfile[-4:] == '.tex' else '.tex'))
                     del newoutput
                     if not os.path.isabs(inputfile):
                         inputfile = os.path.join(input_basedir,inputfile)
@@ -590,6 +594,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         logger.info(' copying %r to %r' % (fii,fo+ext) )
                         shutil.copy(fii,osjoin(blobs_dir,fo+ext))
                         fm.write('extension=%s\n' % (ext,))
+                        if cmdargs.symlink_input:
+                            os_rel_symlink(fo+ext,fii,cmdargs.blobs_dir ,
+                                           target_is_directory=False)
                     fm.close()
                     del do,fo,fm,exts,cmd,fi,di,bi,ei,ext,fii
                 elif tok.macroName == "item":
@@ -788,6 +795,7 @@ if __name__ == '__main__':
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
     parser.add_argument('--zip-sections','--ZS',action='store_true',help='omit intermediate blob for \\include{} of a single section')
     parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
+    parser.add_argument('--symlink-input','--SI',action='store_true',help='create a symlink for each file that is parsed (by `\\input` or `\\include` or `\\includegraphics`)')
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
     #https://stackoverflow.com/a/31347222/5058564
     stripgroup = parser.add_mutually_exclusive_group()
