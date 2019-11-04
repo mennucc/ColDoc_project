@@ -6,7 +6,7 @@ splits the input into blobs
 
 ############## system modules
 
-import itertools, sys, os, io, copy, string, argparse, importlib
+import itertools, sys, os, io, copy, string, argparse, importlib, shutil
 import os.path
 from os.path import join as osjoin
 import logging
@@ -51,7 +51,7 @@ from plasTeX import TeXDocument, Command
 
 from plasTeX.Base.LaTeX import  documentclass
 
-from plasTeX.Packages import amsthm
+from plasTeX.Packages import amsthm , graphicx
 
 #import plasTeX.Base.LaTeX as LaTeX
 #import plasTeX.Base.LaTeX.Environments as Environments
@@ -271,6 +271,29 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     a = depth.pop()
                     out_list[-1].write('\\%s{%s}' % (a,r))
                     assert a in ('input','include')
+                elif cmdargs.copy_graphicx and tok.macroName == "includegraphics":
+                    obj = graphicx.includegraphics()
+                    obj.parse(thetex)
+                    inputfile = obj.attributes['file']
+                    assert not os.path.isabs(inputfile)
+                    for ext in ['','.png','.jpg','.jpeg','.gif','.pdf','.ps','.eps', None]:
+                        if ext is not None and \
+                           os.path.isfile(osjoin(input_basedir,inputfile+ext)):
+                            inputfile += ext
+                            break
+                    assert ext is not None, 'graphicx file %r not found' % obj.source
+                    u = new_uuid(blobs_dir=blobs_dir)
+                    d = uuid_to_dir(u, blobs_dir=blobs_dir, create=True)
+                    f = osjoin(d,'blob'+ext)
+                    logger.info(' copying %r to %r' % (inputfile,f) )
+                    shutil.copy(osjoin(input_basedir,inputfile),osjoin(blobs_dir,f))
+                    open(osjoin(blobs_dir,d,"metadata"),'w').write('\\originalFileName{%s}\n\extension{%s}' % (inputfile,ext))
+                    # does not work... obj.attributes['file'] = f
+                    a = obj.source
+                    j = a.index('{')
+                    a = a[:j] + '{' + f + '}'
+                    out_list[-1].write(a)
+                    del u,d,f,a,j,ext
                 elif tok.macroName == "begin":
                     name = mytex.readArgument(type=str)
                     if name == 'document':
@@ -354,6 +377,7 @@ if __name__ == '__main__':
     parser.add_argument('--split-environment','--SE',action='append',help='split the content of this LaTeX environment in a separate blob', default=[])
     parser.add_argument('--metadata-command','--MC',action='append',help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)', default = [])
     parser.add_argument('--split-all-theorems','--AT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
+    parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
     parser.add_argument('--EDB-metadata',action='store_true',help='add EDB metadata to --metadata-command')
     parser.add_argument('--EDB-environment',action='store_true',help='add EDB environments to --split_theorems')
     args = parser.parse_args()
