@@ -135,6 +135,7 @@ class named_stream(io.StringIO):
         " relative to basepath "
         assert not os.path.isabs(filename)
         self._filename = filename
+        self._dir = os.path.dirname(filename)
     def __len__(self):
         return len(self.getvalue())
     def add_metadata(self,T,E):
@@ -150,7 +151,7 @@ class named_stream(io.StringIO):
         if self._filename is None:
             self._find_unused_UUID()
         filename = osjoin(self._basepath, self._filename)
-        metadata_file = filename + '~metadata'
+        metadata_file = osjoin(self._basepath, self._dir, 'metadata')
         if True: #len(self.getvalue()) > 0:
             self.flush()
             logger.info("writeout %r" % self._filename)
