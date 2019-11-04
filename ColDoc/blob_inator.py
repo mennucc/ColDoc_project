@@ -378,11 +378,13 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
             else:
                 out_list[-1].write(str(tok))
         out_list.pop().writeout()
+        if depth :
+            logger.critical(' depth is %r' % depth)
     except:
         raise
     finally:
         while out_list:
-            logger.critical('writing output')
+            logger.critical('writing orphan output')
             out_list.pop().writeout()
 
 
@@ -409,7 +411,7 @@ if __name__ == '__main__':
     assert type(verbose) == int and verbose >= 0
     #hack
     #input_file = '/home/andrea/Work/CORSI/EDB/EDB.tex'
-    assert os.path.isdir(args.blobs_dir)
+    assert os.path.isdir(args.blobs_dir), ' not a dir %r' % args.blobs_dir
     assert os.path.isfile(input_file)
     input_basedir = os.path.dirname(input_file)
 
