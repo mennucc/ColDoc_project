@@ -403,8 +403,7 @@ if __name__ == '__main__':
     parser.add_argument('--metadata-command','--MC',action='append',help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)', default = [])
     parser.add_argument('--split-all-theorems','--AT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
-    parser.add_argument('--EDB-metadata',action='store_true',help='add EDB metadata to --metadata-command')
-    parser.add_argument('--EDB-environment',action='store_true',help='add EDB environments to --split_theorems')
+    parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
     args = parser.parse_args()
     input_file = args.input_file
     verbose = args.verbose
@@ -421,7 +420,7 @@ if __name__ == '__main__':
         mycontext.newcommand('subsection',1,r'\subsection{#1}')
 
     MC = [ 'label' ]
-    if args.EDB_metadata :
+    if args.EDB :
         MC += ['difficulty','index','notes', \
                  'keywords', 'prerequisites',  'difficulty','indexiten']
     for name in MC :
@@ -434,11 +433,16 @@ if __name__ == '__main__':
         mycontext.addGlobal(name, newclass)
         args.metadata_command.append(name)
 
+    if args.EDB:
+        for name in 'Exercises',:
+            # fixme should create list type environment in mycontext
+            args.split_list.append(name)
+
     args.split_environment.append('document')
-    if args.EDB_environment:
+    if args.EDB:
         thecounter = 'thmCount'
         mycontext.newcounter(thecounter, initial=0) #, resetby=parent)
-        for name in 'Exercise','wipExercise','Definition','Theorem','Example','delasol','Remark':
+        for name in 'wipExercise','extrastuff','delasol':
             data = {
                     'macroName': name,
                     'counter': thecounter,
