@@ -296,11 +296,11 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     del u,d,f,a,j,ext
                 elif tok.macroName == "begin":
                     name = mytex.readArgument(type=str)
+                    depth.append(name)
                     if name == 'document':
                         in_preamble = False
                     out_list[-1].write(r'\begin{%s}' % name)
-                    if name in cmdargs.split_environment : #thetex.ownerDocument.context.keys():
-                        #tex.pushTokens(names)
+                    if name in cmdargs.split_environment :
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_BEGIN
                         obj.ownerDocument = thedocument
@@ -312,13 +312,8 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         #if out is not None:
                         #    obj = out
                         logger.info( 'will split \\begin{%r}' % (name,) )
-                        newoutput = named_stream(blobs_dir,name,depth)
-                        #out_list[-1].write(r'\\inputUUID{%s}' % newoutput.filename)
-                        out_list.append(newoutput)
-                        del newoutput
-                        depth.append(name)
+                        out_list.append(named_stream(blobs_dir,name,depth))
                     else:
-                        depth.append(name)
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
                 elif tok.macroName == "end":
                     old = depth.pop()
