@@ -219,8 +219,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     output.add_metadata(r'\originalFileName',input_file)
     out_list = [output]
     del output
+    itertokens = thetex.itertokens()
     try:
-        for tok in thetex.itertokens():
+        for tok in itertokens:
             n += len(tok.source)
             if isinstance(tok, plasTeX.Tokenizer.Comment):
                 out_list[-1].write('%'+tok.source)
@@ -294,6 +295,15 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     a = a[:j] + '{' + f + '}'
                     out_list[-1].write(a)
                     del u,d,f,a,j,ext
+                elif tok.macroName == "item" and depth[-1] in cmdargs.split_list :
+                    r = out_list[-1].writeout()
+                    logger.info('end item, writing %r',r)
+                    out_list.pop()
+                    out_list[-1].write('\\input{%s}\\item' % (r,))
+                    _,source = thetex.readArgumentAndSource('[]')
+                    if source:
+                        out_list[-1].write(source)
+                    out_list.append(named_stream(blobs_dir,depth[-1],depth))
                 elif tok.macroName == "begin":
                     name = mytex.readArgument(type=str)
                     depth.append(name)
@@ -313,14 +323,32 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         #    obj = out
                         logger.info( 'will split \\begin{%r}' % (name,) )
                         out_list.append(named_stream(blobs_dir,name,depth))
+                    elif name in cmdargs.split_list :
+                        logger.debug( ' will split items out of \\begin{%r}' % (name,) )
+                        t = next(itertokens)
+                        while t is not None:
+                            # checkme, tok.source may be messing up with comments,
+                            out_list[-1].write(t.source)
+                            if isinstance(t, plasTeX.Tokenizer.EscapeSequence):
+                                if t.macroName == "item":
+                                    _,s = thetex.readArgumentAndSource(spec='[]')
+                                    if s:
+                                        out_list[-1].write(s)
+                                    t = None
+                                else:
+                                    logger.critical('cannot parse %r inside %r' % (t.source,name) )
+                                    t = next(itertokens)
+                            else:
+                                logger.debug('passing %r inside %r' % (t.source,name) )
+                                t = next(itertokens)
+                        out_list.append(named_stream(blobs_dir,name,depth))
                     else:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
                 elif tok.macroName == "end":
                     old = depth.pop()
                     name = thetex.readArgument(type=str)
                     assert name == old , (' environ \\begin{%r} does not match \\end{%r}' % (old,name))
-                    if name in cmdargs.split_environment: #thetex.ownerDocument.context.keys():
-                        #tex.pushTokens(names)
+                    if name in cmdargs.split_environment or name in cmdargs.split_list:
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_END
                         obj.ownerDocument = thedocument
@@ -370,6 +398,7 @@ if __name__ == '__main__':
     parser.add_argument('--verbose','-v',action='count',default=0)
     parser.add_argument('--split-sections','--SS',action='store_true',help='split each section in a separate blob')
     parser.add_argument('--split-environment','--SE',action='append',help='split the content of this LaTeX environment in a separate blob', default=[])
+    parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
     parser.add_argument('--metadata-command','--MC',action='append',help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)', default = [])
     parser.add_argument('--split-all-theorems','--AT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
