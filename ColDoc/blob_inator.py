@@ -355,7 +355,6 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         out = obj.invoke(thetex)
                         if out is not None:
                             obj = out
-                        #logger.info('end %r %r %r' % (tok,obj,old))
                         r = out_list[-1].writeout()
                         out_list.pop()
                         out_list[-1].write(r'\input{%s}' % r)
@@ -452,14 +451,8 @@ if __name__ == '__main__':
             args.split_environment.append(name)
 
 
-    #mycontext.newenvironment('Theorem', 0, [r'\begingroup\em Thm:', r'\endgroup'])
-    #mycontext.newenvironment('extrastuff', 0, [r'\begingroup\em Thm:', r'\endgroup'])
-    mycontext.newenvironment('Exercises', 0, [r'\begingroup\em wipExe:', r'\endgroup'])
-
     mydocument = TeXDocument(context = mycontext)
     mytex = TeX(ownerDocument=mydocument)
-
-    #myfile = open(osjoin(EDB_standard,input_file+'.tex'))
 
     out = open(osjoin(args.blobs_dir,'main.tex'),'w')
 
