@@ -259,7 +259,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     a.write('\\'+specialblobinatorEOFcommand+'\n')
                     a.seek(0)
                     a.name='specialblobinatorEOFcommand'
-                    depth.append('input')
+                    depth.append(tok.macroName)
                     thetex.input(a, Tokenizer=TokenizerPassThru.TokenizerPassThru)
                     del a
                     thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
@@ -268,8 +268,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     r = out_list[-1].writeout()
                     logger.info('end input, writing %r',r)
                     out_list.pop()
-                    out_list[-1].write(r'\input{%s}' % r)
-                    assert depth.pop() == 'input'
+                    a = depth.pop()
+                    out_list[-1].write('\\%s{%s}' % (a,r))
+                    assert a in ('input','include')
                 elif tok.macroName == "begin":
                     name = mytex.readArgument(type=str)
                     if name == 'document':
