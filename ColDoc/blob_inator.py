@@ -79,7 +79,7 @@ class named_stream(io.StringIO):
         self._lang = lang
         self._depth = copy.copy(depth)
         # prepare internal stuff
-        self._metadata_txt = '\\lang{%s}\n\\environ{%s}\n' % ( lang,  environ)        
+        self._metadata_txt = '\\environ{%s}\n\\extension{%s}\n\\lang{%s}\n' % ( environ, extension, lang )
         if parent_file:
             self.add_metadata(r'\parentFile', parent_file)
         #
