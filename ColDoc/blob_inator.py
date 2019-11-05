@@ -255,7 +255,6 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     depth = []
     thetex.input(open(input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     output = named_stream(blobs_dir,'MainFile',depth)
-    output.filename = 'main.tex'
     output.add_metadata(r'\originalFileName',input_file)
     out_list = [output]
     del output
@@ -541,8 +540,6 @@ if __name__ == '__main__':
 
     mydocument = TeXDocument(context = mycontext)
     mytex = TeX(ownerDocument=mydocument)
-
-    out = open(osjoin(args.blobs_dir,'main.tex'),'w')
 
     for j in 'UUIDs', 'SECs':
         d = osjoin(args.blobs_dir,j)
