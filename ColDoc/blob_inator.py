@@ -71,8 +71,9 @@ class named_stream(io.StringIO):
     """
     #
     def __init__(self, basepath, environ , depth,
-                lang = ColDoc_lang, parent_file = None, extension = '.tex',
+                lang = ColDoc_lang, extension = '.tex',
                 early_UUID = ColDoc_early_UUID,
+                parentFile = None, parentUUID = None, parent = None,
                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         # store parameters
@@ -84,8 +85,13 @@ class named_stream(io.StringIO):
         self._depth = copy.copy(depth)
         # prepare internal stuff
         self._metadata_txt = '\\environ{%s}\n\\extension{%s}\n\\lang{%s}\n' % ( environ, extension, lang )
-        if parent_file:
-            self.add_metadata(r'\parentFile', parent_file)
+        if parent:
+            if parentFile is None : parentFile = parent.filename
+            if parentUUID is None : parentUUID = parent.uuid
+        if parentFile:
+            self.add_metadata(r'\parentFile', parentFile)
+        if parentUUID:
+            self.add_metadata(r'\parentUUID', parentUUID)
         self._was_written = False
         #
         self._uuid = None
@@ -276,7 +282,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     f = 'SECs/%s_%s.tex' % (u , slugify(name) )
                     logger.info('starting section %r in file %r' % (name,f))
                     depth.append('section')
-                    out_list.append(named_stream(blobs_dir,'section',depth))
+                    out_list.append(named_stream(blobs_dir,'section',depth, parent=out_list[-1]))
                     out_list[-1].filename = f
                     out_list[-1].write('\\section'+argSource)
                     #if len(out_list[-1]) < 30:
@@ -295,7 +301,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     del th
                 elif tok.macroName in ("input","include"):
                     inputfile = thetex.readArgument(type=str)
-                    newoutput = named_stream(blobs_dir,'File',depth)
+                    newoutput = named_stream(blobs_dir,'File',depth,parent=out_list[-1])
                     newoutput.add_metadata(r'\originalFileName',inputfile)
                     out_list.append(newoutput)
                     del newoutput
@@ -353,7 +359,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     _,source = thetex.readArgumentAndSource('[]')
                     if source:
                         out_list[-1].write(source)
-                    out_list.append(named_stream(blobs_dir,depth[-1],depth))
+                    out_list.append(named_stream(blobs_dir,depth[-1],depth,parent=out_list[-1]))
                 elif tok.macroName == "begin":
                     name = mytex.readArgument(type=str)
                     depth.append(name)
@@ -372,7 +378,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         #if out is not None:
                         #    obj = out
                         logger.info( 'will split \\begin{%r}' % (name,) )
-                        out_list.append(named_stream(blobs_dir,name,depth))
+                        out_list.append(named_stream(blobs_dir,name,depth,parent=out_list[-1]))
                     elif name in cmdargs.split_list :
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
@@ -391,7 +397,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                             else:
                                 logger.debug('passing %r inside %r' % (t.source,name) )
                                 t = next(itertokens)
-                        out_list.append(named_stream(blobs_dir,name,depth))
+                        out_list.append(named_stream(blobs_dir,name,depth,parent=out_list[-1]))
                     else:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
                 elif tok.macroName == "end":
