@@ -280,6 +280,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     thecontext.loadPackage(thetex, a['name']+'.cls',
                                            a['options'])
                     out_list[-1].write(obj.source)
+                    if cmdargs.split_preamble:
+                        out_list.append(named_stream(blobs_dir,'Preamble',depth, parent=out_list[-1]))
+                        depth.append('Preamble')
                 elif cmdargs.split_sections and tok.macroName == 'section':
                     pops_sections()
                     #obj = section()
@@ -378,9 +381,17 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     out_list.append(named_stream(blobs_dir,depth[-1],depth,parent=out_list[-1]))
                 elif tok.macroName == "begin":
                     name = mytex.readArgument(type=str)
-                    depth.append(name)
                     if name == 'document':
                         in_preamble = False
+                        if cmdargs.split_preamble:
+                            old = depth.pop()
+                            assert old == 'Preamble', " in preamble, the element %r does not match" % old
+                            r = out_list[-1].writeout()
+                            os_rel_symlink(r,'preamble.tex', cmdargs.blobs_dir ,
+                                           target_is_directory=False, force=True)
+                            out_list.pop()
+                            out_list[-1].write(r'\input{%s}' % r)
+                    depth.append(name)
                     out_list[-1].write(r'\begin{%s}' % name)
                     if name in cmdargs.split_environment :
                         obj = thedocument.createElement(name)
@@ -483,6 +494,7 @@ if __name__ == '__main__':
     parser.add_argument('--split-sections','--SS',action='store_true',help='split each section in a separate blob')
     parser.add_argument('--split-environment','--SE',action='append',help='split the content of this LaTeX environment in a separate blob', default=[])
     parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
+    parser.add_argument('--split-preamble','--SP',action='store_true',help='split the preamble a separate blob')
     parser.add_argument('--metadata-command','--MC',action='append',help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)', default = [])
     parser.add_argument('--split-all-theorems','--AT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
