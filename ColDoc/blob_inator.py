@@ -65,8 +65,11 @@ from plasTeX.Packages import amsthm , graphicx
 
 
 class named_stream(io.StringIO):
-    " stream with a filename attached, and metadata; data will be written by 'writeout' method"
-    _filename = None
+    """ stream with a filename attached, and metadata; data will be written by 'writeout' method
+      the file will be written in a new UUID under `basepath` ; but see `self.filename`
+      and `self.metadata_filename`
+    """
+    #
     def __init__(self, basepath, environ , depth,
                 lang = ColDoc_lang, parent_file = None, extension = '.tex',
                 *args, **kwargs):
@@ -86,26 +89,29 @@ class named_stream(io.StringIO):
         #
         self._uuid = None
         self._filename = None
+        self._metadata_filename = None
+        self._dir = None
         # save from gc, for __del__ method
         self._sys = sys
         self._open = open
         self._logger = logger
 
     def _find_unused_UUID(self):
-        " relative to basepath "
+        "set `filename` and `metadata_filename`, using a new UUID"
         filename = None
         while not filename:
             u = new_uuid(blobs_dir=self._basepath)
             d = uuid_to_dir(u, blobs_dir=self._basepath, create=True)
-            self._dir = d
             filename = osjoin(d, 'blob_' + self._lang + self._extension)
-            self._uuid = u
             if os.path.exists( osjoin(self._basepath, filename) ):
-                logger.warn(' output exists',filename)
+                logger.warn(' output exists %r, trying next UUID' % filename)
                 filename = None
         assert not os.path.isabs(filename)
         assert not os.path.exists ( osjoin(self._basepath, filename) )
-        self.filename = filename
+        self._filename = filename
+        self._metadata_filename = osjoin(d, 'metadata')
+        self._dir = d
+        self._uuid = u
     @property
     def depth(self):
         return self._depth
@@ -129,14 +135,21 @@ class named_stream(io.StringIO):
     #    print(self._filename)
     @property
     def filename(self):
-        " relative to basepath "
+        "the filename relative to `basepath` where the content will be saved"
         return self._filename
     @filename.setter
     def filename(self, filename):
-        " relative to basepath "
+        """ set the filename (relative to `basepath`) where the content will be saved ;
+            this changes also the metadata filename
+        """
         assert not os.path.isabs(filename)
         self._filename = filename
         self._dir = os.path.dirname(filename)
+        self._metadata_filename = filename + '~metadata'
+    @property
+    def metadata_filename(self):
+        "the filename relative to `basepath` where the metadata will be saved"
+        return self._metadata_filename
     def __len__(self):
         return len(self.getvalue())
     def add_metadata(self,T,E):
@@ -152,10 +165,10 @@ class named_stream(io.StringIO):
             self._find_unused_UUID()
         assert not self._was_written , 'file %r was already written ' % self._filename
         filename = osjoin(self._basepath, self._filename)
-        metadata_file = osjoin(self._basepath, self._dir, 'metadata')
+        metadata_file = osjoin(self._basepath, self._metadata_filename)
         if True: #len(self.getvalue()) > 0:
             self.flush()
-            logger.info("writeout %r" % self._filename)
+            logger.info("writeout file %r metadata %r " % (self._filename, self._metadata_filename))
             self._open(filename ,'w').write(self.getvalue())
             self._open(metadata_file,'w').write(self._metadata_txt)
             r =  self._filename
