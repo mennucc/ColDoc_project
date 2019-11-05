@@ -13,7 +13,8 @@ from config import *
 
 from base32_crockford import base32_crockford
 
-__all__ = ( "slugify", "uuid_to_dir", "uuid_to_int", "int_to_uuid", "new_uuid", "new_section_nr" , "uuid_symlink")
+__all__ = ( "slugify", "uuid_to_dir", "uuid_to_int", "int_to_uuid", "new_uuid",
+            "new_section_nr" , "uuid_symlink", "os_rel_symlink")
 
 def int_to_uuid(n ):
     assert isinstance(n,int)
@@ -117,3 +118,21 @@ def slugify(value, allow_unicode=False):
 #    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
 #    value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
 #    value = unicode(re.sub('[-\s]+', '-', value))
+
+def os_rel_symlink(src, dst, basedir, target_is_directory, force = False, **kwargs):
+    """ Create a symbolic link pointing to src named dst. Both must be relative paths,
+    (relative to `basedir`). `target_is_directory` must be set. `force` will delete
+    target if it exists and it is a symlink.
+    """
+    assert not os.path.isabs(src)
+    assert not os.path.isabs(dst)
+    assert os.path.isdir(basedir)
+    src = os.path.abspath(os.path.join(basedir, src))
+    dst = os.path.abspath(os.path.join(basedir, dst))
+    dst_dir = os.path.dirname(dst) #if target_is_directory else 
+    src = os.path.relpath(src, dst_dir)
+    if force and os.path.islink(dst):
+        logger.warning(' substituting symlink %r' % dst)
+        os.unlink(dst)
+    logger.debug(" os.symlink (%r, %r )" % (src, dst) )
+    os.symlink(src, dst, target_is_directory=target_is_directory, **kwargs)
