@@ -72,6 +72,7 @@ class named_stream(io.StringIO):
     #
     def __init__(self, basepath, environ , depth,
                 lang = ColDoc_lang, parent_file = None, extension = '.tex',
+                early_UUID = ColDoc_early_UUID,
                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         # store parameters
@@ -91,6 +92,9 @@ class named_stream(io.StringIO):
         self._filename = None
         self._metadata_filename = None
         self._dir = None
+        #
+        if early_UUID:
+            self._find_unused_UUID()
         # save from gc, for __del__ method
         self._sys = sys
         self._open = open
