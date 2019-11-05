@@ -543,7 +543,9 @@ if __name__ == '__main__':
     assert os.path.isfile(input_file)
     input_basedir = os.path.dirname(input_file)
 
-    mycontext = plasTeX.Context.Context(load = False)
+    mytex = TeX()
+    mydocument = mytex.ownerDocument
+    mycontext = mydocument.context
     if args.split_sections:
         mycontext.newcommand('section',1,r'\section{#1}')
         mycontext.newcommand('subsection',1,r'\subsection{#1}')
@@ -584,10 +586,6 @@ if __name__ == '__main__':
             th = type(name, (amsthm.theoremCommand,), data)
             mycontext.addGlobal(name, th)
             args.split_environment.append(name)
-
-
-    mydocument = TeXDocument(context = mycontext)
-    mytex = TeX(ownerDocument=mydocument)
 
     for j in 'UUIDs', 'SECs':
         d = osjoin(args.blobs_dir,j)
