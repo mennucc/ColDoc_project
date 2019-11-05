@@ -355,7 +355,8 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     a = depth.pop()
                     out_list[-1].write('\\%s{%s}' % (a,r))
                     assert a in ('input','include')
-                elif cmdargs.copy_graphicx and tok.macroName == "includegraphics":
+                elif not in_preamble and cmdargs.copy_graphicx \
+                     and tok.macroName == "includegraphics":
                     obj = graphicx.includegraphics()
                     obj.parse(thetex)
                     inputfile = obj.attributes['file']
@@ -399,9 +400,10 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                                            target_is_directory=False, force=True)
                             out_list.pop()
                             out_list[-1].write(r'\input{%s}' % r)
-                    depth.append(name)
+                    if not in_preamble:
+                        depth.append('\\begin{'+name+'}')
                     out_list[-1].write(r'\begin{%s}' % name)
-                    if name in cmdargs.split_environment :
+                    if not in_preamble and name in cmdargs.split_environment :
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_BEGIN
                         obj.ownerDocument = thedocument
@@ -414,7 +416,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         #    obj = out
                         logger.info( 'will split \\begin{%r}' % (name,) )
                         out_list.append(named_stream(blobs_dir,name,depth,parent=out_list[-1]))
-                    elif name in cmdargs.split_list :
+                    elif not in_preamble and name in cmdargs.split_list :
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
                         while t is not None:
@@ -433,15 +435,20 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                                 logger.debug('passing %r inside %r' % (t.source,name) )
                                 t = next(itertokens)
                         out_list.append(named_stream(blobs_dir,name,depth,parent=out_list[-1]))
-                    else:
+                    elif not in_preamble:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
+                    else:
+                        logger.info( ' ignore \\begin{%r} in preamble' % (name,) )
                 elif tok.macroName == "end":
                     name = thetex.readArgument(type=str)
-                    if name == 'document':
-                        pops_sections()
-                    old = depth.pop()
-                    assert name == old , (' environ \\begin{%r} does not match \\end{%r}' % (old,name))
-                    if name in cmdargs.split_environment or name in cmdargs.split_list:
+                    if not in_preamble:
+                        if name in ('document','Filesave'):
+                            pops_sections()
+                        old = depth.pop()
+                        assert ('\\begin{'+name+'}') == old , \
+                               (' nesting error, %s ended by  \\end{%s}' % (old,name))
+                    if not in_preamble and \
+                       (name in cmdargs.split_environment or name in cmdargs.split_list):
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_END
                         obj.ownerDocument = thedocument
@@ -455,8 +462,10 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         out_list.pop()
                         out_list[-1].write(r'\input{%s}' % r)
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
-                    else:
+                    elif not in_preamble:
                         logger.debug( ' did not split \\end{%r}' % (name,) )
+                    else:
+                        logger.info( ' ignore \\end{%r} in preamble' % (name,) )
                     out_list[-1].write(r'\end{%s}' % name)
                 elif not in_preamble and \
                      tok.macroName in cmdargs.metadata_command :
