@@ -49,7 +49,7 @@ import plasTeX.TeX, plasTeX.Base.LaTeX, plasTeX.Context , plasTeX.Tokenizer , pl
 from plasTeX.TeX import TeX
 from plasTeX import TeXDocument, Command
 
-from plasTeX.Base.LaTeX import  documentclass
+from plasTeX.Base.LaTeX import  documentclass , section
 
 from plasTeX.Packages import amsthm , graphicx
 
@@ -226,13 +226,19 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     in_preamble = False
     n = 0
     depth = []
-    section_name = None
     thetex.input(open(input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     output = named_stream(blobs_dir,'MainFile',depth)
     output.filename = 'main.tex'
     output.add_metadata(r'\originalFileName',input_file)
     out_list = [output]
     del output
+    def pops_sections():
+        while depth and depth[-1] == 'section':
+            r = out_list[-1].writeout()
+            out_list.pop()
+            out_list[-1].write('\\input{%s}' % r)
+            depth.pop()
+    #
     itertokens = thetex.itertokens()
     try:
         for tok in itertokens:
@@ -248,6 +254,31 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     thecontext.loadPackage(thetex, a['name']+'.cls',
                                            a['options'])
                     out_list[-1].write(obj.source)
+                elif cmdargs.split_sections and tok.macroName == 'section':
+                    pops_sections()
+                    #obj = section()
+                    #obj.parse(thetex)
+                    # the above fails, we are not providing the full context to it
+                    # so we imitate it, iterating over obj.arguments:
+                    argSource = ''
+                    for spec in '*','[]',None: 
+                        output, source = thetex.readArgumentAndSource(spec=spec) #parentNode=obj,                                                                   name=arg.name,                                                                   **arg.options)
+                        #logger.debug(' spec %r output %r source %r ' % (spec,output,source) )
+                        argSource += source
+                    name = source[1:-1]
+                    n = new_section_nr(blobs_dir = blobs_dir)
+                    u = base32_crockford.encode(n)
+                    u = u.rjust(3,'0')
+                    f = 'SECs/%s_%s.tex' % (u , slugify(name) )
+                    logger.info('starting section %r in file %r' % (name,f))
+                    depth.append('section')
+                    out_list.append(named_stream(blobs_dir,'section',depth))
+                    out_list[-1].filename = f
+                    out_list[-1].write('\\section'+argSource)
+                    #if len(out_list[-1]) < 30:
+                    #    out_list[-1].filename = f
+                    #    out_list[-1].add_metadata('\\section',name)
+                    #else:
                 elif cmdargs.split_all_theorems and tok.macroName == 'newtheorem':
                     obj = amsthm.newtheorem()
                     obj.parse(thetex)
@@ -279,6 +310,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     del a
                     thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
                 elif tok.macroName == specialblobinatorEOFcommand:
+                    pops_sections()
                     # pops the output when it ends
                     r = out_list[-1].writeout()
                     logger.info('end input, writing %r',r)
@@ -359,8 +391,10 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     else:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
                 elif tok.macroName == "end":
-                    old = depth.pop()
                     name = thetex.readArgument(type=str)
+                    if name == 'document':
+                        pops_sections()
+                    old = depth.pop()
                     assert name == old , (' environ \\begin{%r} does not match \\end{%r}' % (old,name))
                     if name in cmdargs.split_environment or name in cmdargs.split_list:
                         obj = thedocument.createElement(name)
@@ -391,6 +425,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     out_list[-1].write(tok.source)
             else:
                 out_list[-1].write(str(tok))
+        pops_sections()
         out_list.pop().writeout()
         if depth :
             logger.critical(' depth is %r' % depth)
