@@ -357,28 +357,39 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     assert a in ('input','include')
                 elif not in_preamble and cmdargs.copy_graphicx \
                      and tok.macroName == "includegraphics":
-                    obj = graphicx.includegraphics()
-                    obj.parse(thetex)
-                    inputfile = obj.attributes['file']
+                    if use_plastex_parse:
+                        obj = graphicx.includegraphics()
+                        a = obj.parse(thetex)
+                        inputfile = a['file']
+                        a = obj.source
+                        j = a.index('{')
+                        c = a[:j]
+                        del a, obj
+                    else:
+                        c = ''
+                        for spec in '*','[]',None: 
+                            output, source = thetex.readArgumentAndSource(spec=spec)
+                            if spec:
+                                c += source
+                            else:
+                                inputfile = source[1:-1]
+                    assert isinstance(inputfile,str)
                     assert not os.path.isabs(inputfile)
                     for ext in ['','.png','.jpg','.jpeg','.gif','.pdf','.ps','.eps', None]:
-                        if ext is not None and \
-                           os.path.isfile(osjoin(input_basedir,inputfile+ext)):
-                            inputfile += ext
-                            break
-                    assert ext is not None, 'graphicx file %r not found' % obj.source
+                        if ext is not None:
+                            f = osjoin(input_basedir,inputfile+ext)
+                            if os.path.isfile(f):
+                                inputfile += ext
+                                break
+                    assert ext is not None, 'graphicx file %r not found' % inputfile
                     u = new_uuid(blobs_dir=blobs_dir)
                     d = uuid_to_dir(u, blobs_dir=blobs_dir, create=True)
                     f = osjoin(d,'blob'+ext)
                     logger.info(' copying %r to %r' % (inputfile,f) )
                     shutil.copy(osjoin(input_basedir,inputfile),osjoin(blobs_dir,f))
                     open(osjoin(blobs_dir,d,"metadata"),'w').write('\\originalFileName{%s}\n\extension{%s}' % (inputfile,ext))
-                    # does not work... obj.attributes['file'] = f
-                    a = obj.source
-                    j = a.index('{')
-                    a = a[:j] + '{' + f + '}'
-                    out_list[-1].write(a)
-                    del u,d,f,a,j,ext
+                    out_list[-1].write('\includegraphics'+c+'{'+f+'}')
+                    del u,d,f,c,ext,inputfile
                 elif tok.macroName == "item" and depth[-1] in cmdargs.split_list :
                     r = out_list[-1].writeout()
                     logger.info('end item, writing %r',r)
