@@ -45,7 +45,7 @@ import plasTeX.TeX, plasTeX.Base.LaTeX, plasTeX.Context , plasTeX.Tokenizer , pl
 from plasTeX.TeX import TeX
 from plasTeX import TeXDocument, Command
 
-from plasTeX.Base.LaTeX import  documentclass , section
+import plasTeX.Base as Base
 
 from plasTeX.Packages import amsthm , graphicx
 
@@ -274,7 +274,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
             elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 if tok.macroName == 'documentclass':
                     in_preamble = True
-                    obj = documentclass()
+                    obj = Base.documentclass()
                     a = obj.parse(thetex)
                     # implement obj.load(thetex, a['name'], a['options'])
                     thecontext.loadPackage(thetex, a['name']+'.cls',
@@ -285,7 +285,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         depth.append('Preamble')
                 elif cmdargs.split_sections and tok.macroName == 'section':
                     pops_sections()
-                    #obj = section()
+                    #obj = Base.section()
                     #obj.parse(thetex)
                     # the above fails, we are not providing the full context to it
                     # so we imitate it, iterating over obj.arguments:
