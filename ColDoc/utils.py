@@ -89,7 +89,7 @@ def new_section_nr(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
         n = v.get('last_section_n', 1)
         n = n + 1
         v['last_section_n'] = n
-    logger.debug('new section n = %r uuid = %r',n)
+    logger.debug('new section n = %r ' % (n,))
     return n
 
 
