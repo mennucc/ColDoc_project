@@ -3,10 +3,11 @@ import itertools, sys, os, io, copy, logging, shelve, unicodedata, re
 import os.path
 from os.path import join as osjoin
 
-logger = logging.Logger('utils')
-basepath = os.path.realpath('/home/andrea/Work/CORSI/EDB_online/ColDoc')
+import ColDocLogging
 
-assert os.path.realpath(os.path.dirname(sys.argv[0])) == basepath
+import logging
+
+logger = logging.getLogger(__name__)
 
 from config import *
 

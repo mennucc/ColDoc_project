@@ -9,15 +9,11 @@ splits the input into blobs
 import itertools, sys, os, io, copy, string, argparse, importlib, shutil
 import os.path
 from os.path import join as osjoin
-import logging
-from logging import Logger, StreamHandler, Formatter
 
-logger = Logger('blob_inator')
-handler = StreamHandler(sys.stderr)
-LOG_FORMAT = '[%(name)s] %(levelname)s: %(message)s'
-handler.setFormatter(Formatter(LOG_FORMAT))
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
+import ColDocLogging
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 a = os.path.realpath(sys.argv[0])
@@ -467,6 +463,12 @@ if __name__ == '__main__':
     input_file = args.input_file
     verbose = args.verbose
     assert type(verbose) == int and verbose >= 0
+    if verbose > 1:
+        logging.getLogger().setLevel(logging.DEBUG)
+    elif verbose:
+        logging.getLogger().setLevel(logging.INFO)
+    else:
+        logging.getLogger().setLevel(logging.WARNING)
     #hack
     #input_file = '/home/andrea/Work/CORSI/EDB/EDB.tex'
     assert os.path.isdir(args.blobs_dir), ' not a dir %r' % args.blobs_dir
