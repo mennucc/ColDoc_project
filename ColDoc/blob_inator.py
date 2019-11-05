@@ -295,11 +295,11 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     n = new_section_nr(blobs_dir = blobs_dir)
                     u = base32_crockford.encode(n)
                     u = u.rjust(3,'0')
-                    f = 'SECs/%s_%s.tex' % (u , slugify(name) )
-                    logger.info('starting section %r in file %r' % (name,f))
+                    f = 'SECs/%s_%s' % (u , slugify(name) )
+                    logger.info('starting section %r . linked by dir %r' % (name,f))
                     depth.append('section')
                     out_list.append(named_stream(blobs_dir,'section',depth, parent=out_list[-1]))
-                    out_list[-1].filename = f
+                    out_list[-1].symlink_dir = f
                     out_list[-1].write('\\section'+argSource)
                     #if len(out_list[-1]) < 30:
                     #    out_list[-1].filename = f
@@ -430,6 +430,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         if out is not None:
                             obj = out
                         r = out_list[-1].writeout()
+                        if name == 'document':
+                            os_rel_symlink(r,'document.tex', cmdargs.blobs_dir ,
+                                           target_is_directory=False, force=True)
                         out_list.pop()
                         out_list[-1].write(r'\input{%s}' % r)
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
@@ -452,7 +455,12 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
             else:
                 out_list[-1].write(str(tok))
         pops_sections()
-        out_list.pop().writeout()
+        # main
+        M = out_list.pop()
+        r = M.writeout()
+        if not out_list:
+            os_rel_symlink(r, 'main.tex', cmdargs.blobs_dir ,
+                           target_is_directory=False, force=True)
         if depth :
             logger.critical(' depth is %r' % depth)
     except:
