@@ -82,6 +82,7 @@ class named_stream(io.StringIO):
         self._metadata_txt = '\\environ{%s}\n\\extension{%s}\n\\lang{%s}\n' % ( environ, extension, lang )
         if parent_file:
             self.add_metadata(r'\parentFile', parent_file)
+        self._was_written = False
         #
         self._uuid = None
         self._filename = None
@@ -147,9 +148,9 @@ class named_stream(io.StringIO):
         else:
             self._metadata_txt += '%s{%s}\n' %(  T,E)
     def writeout(self):
-        assert self._filename is not False
         if self._filename is None:
             self._find_unused_UUID()
+        assert not self._was_written , 'file %r was already written ' % self._filename
         filename = osjoin(self._basepath, self._filename)
         metadata_file = osjoin(self._basepath, self._dir, 'metadata')
         if True: #len(self.getvalue()) > 0:
@@ -159,11 +160,11 @@ class named_stream(io.StringIO):
             self._open(metadata_file,'w').write(self._metadata_txt)
             r =  self._filename
             # no more messing with this class
-            self._filename = False
+            self._was_written = True
             self.close()
             return r
     def __del__(self):
-        if self._filename:
+        if not self._was_written :
             self._logger.critical('this file was not written %r' % self._filename)
 
 def new_theorem(a,doc,con):
