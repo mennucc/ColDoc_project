@@ -94,6 +94,7 @@ class named_stream(io.StringIO):
         self._filename = None
         self._metadata_filename = None
         self._dir = None
+        self._symlink_dir = None
         #
         if early_UUID:
             self._find_unused_UUID()
@@ -140,14 +141,27 @@ class named_stream(io.StringIO):
     ##    self._metadata_file = osjoin(uuid_to_dir(u),'metadata')
     #    print(self._filename)
     @property
+    def symlink_dir(self):
+        "a symlink (relative to `basepath`) pointing to the directory where the content will be saved"
+        return self._symlink_dir
+    @symlink_dir.setter
+    def symlink_dir(self, symlink_dir):
+        """ set the symlink (relative to `basepath`)
+        """
+        assert not os.path.isabs(symlink_dir)
+        self._symlink_dir = symlink_dir
+    #
+    @property
     def filename(self):
         "the filename relative to `basepath` where the content will be saved"
         return self._filename
     @filename.setter
     def filename(self, filename):
         """ set the filename (relative to `basepath`) where the content will be saved ;
-            this changes also the metadata filename
+            this changes also the metadata filename.
+            Please use `self.symlink_dir` and not this call.
         """
+        logger.warn("Please do not use self.filename = %r, use self.symlink " % (filename,))
         assert not os.path.isabs(filename)
         self._filename = filename
         self._dir = os.path.dirname(filename)
@@ -167,6 +181,9 @@ class named_stream(io.StringIO):
         else:
             self._metadata_txt += '%s{%s}\n' %(  T,E)
     def writeout(self):
+        """Writes the content of the file; returns the `filename` where the content was stored,
+        relative to `basedir` (using the `symlink_dir` if provided)
+        """
         if self._filename is None:
             self._find_unused_UUID()
         assert not self._was_written , 'file %r was already written ' % self._filename
@@ -181,6 +198,10 @@ class named_stream(io.StringIO):
             # no more messing with this class
             self._was_written = True
             self.close()
+            if self._symlink_dir:
+                os_rel_symlink(self._dir,self._symlink_dir,basedir=self._basepath,
+                               target_is_directory=True)
+                r = osjoin(self._symlink_dir, os.path.basename(filename))
             return r
     def __del__(self):
         if not self._was_written :
