@@ -247,6 +247,7 @@ def new_theorem(a,doc,con):
     return th
 
 def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
+    use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
     input_basedir = os.path.dirname(cmdargs.input_file)
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
@@ -319,7 +320,14 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     thecontext.addGlobal(name, th)
                     del th
                 elif tok.macroName in ("input","include"):
-                    inputfile = thetex.readArgument(type=str)
+                    if use_plastex_parse:
+                        obj = Base.input()
+                        a = obj.parse(thetex)
+                        inputfile = a['name']
+                        # only follow local files
+                        #inputfile = thetex.kpsewhich(inputfile)
+                    else:
+                        inputfile = thetex.readArgument(type=str)
                     newoutput = named_stream(blobs_dir,'File',depth,parent=out_list[-1])
                     newoutput.add_metadata(r'\originalFileName',inputfile)
                     out_list.append(newoutput)
