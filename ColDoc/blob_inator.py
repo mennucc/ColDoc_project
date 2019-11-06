@@ -531,7 +531,17 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         stack.topstream.write(r'\input{%s}' % r)
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
                     else:
-                        stack.pop_str(stopafter = ('E_'+name))
+                        if stack.topenv != 'E_'+name:
+                            a = stack.topenv
+                            if a[:2] == 'E_':
+                                a = '\\begin{' + a[2:] + '}'
+                            else:
+                                a = 'blob `' + a + '`'
+                            logger.error(' LaTeX Error: %s ended by \end{%s} ' % (a,name))
+                            # trying to recover
+                            stack.pop_str(stopafter = ('E_'+name))
+                        else:
+                            stack.pop()
                         logger.debug( ' did not split \\end{%r}' % (name,) )
                     #
                     stack.topstream.write(r'\end{%s}' % name)
