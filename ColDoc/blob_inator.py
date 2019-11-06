@@ -466,7 +466,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                                            target_is_directory=False, force=True)
                             stack.topstream.write(r'\input{%s}' % r)
                     stack.topstream.write(r'\begin{%s}' % name)
-                    if not in_preamble and name in cmdargs.split_environment :
+                    if in_preamble:
+                        logger.info( ' ignore \\begin{%r} in preamble' % (name,) )                    
+                    elif name in cmdargs.split_environment :
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_BEGIN
                         obj.ownerDocument = thedocument
@@ -479,7 +481,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         #    obj = out
                         logger.info( 'will split \\begin{%r}' % (name,) )
                         stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
-                    elif not in_preamble and name in cmdargs.split_list :
+                    elif name in cmdargs.split_list :
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
                         while t is not None:
@@ -498,11 +500,10 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                                 logger.debug('passing %r inside %r' % (t.source,name) )
                                 t = next(itertokens)
                         stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
-                    elif not in_preamble:
+                    else:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
                         stack.push('E_'+name) 
-                    else:
-                        logger.info( ' ignore \\begin{%r} in preamble' % (name,) )
+
                 elif tok.macroName == "end":
                     name = thetex.readArgument(type=str)
                     if not in_preamble and \
