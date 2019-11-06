@@ -66,7 +66,7 @@ class named_stream(io.StringIO):
       and `self.metadata_filename`
     """
     #
-    def __init__(self, basepath, environ , depth,
+    def __init__(self, basepath, environ ,
                 lang = ColDoc_lang, extension = '.tex',
                 early_UUID = ColDoc_early_UUID,
                 parentFile = None, parentUUID = None, parent = None,
@@ -78,7 +78,6 @@ class named_stream(io.StringIO):
         self._environ = environ
         self._extension = extension
         self._lang = lang
-        self._depth = copy.copy(depth)
         # prepare internal stuff
         self._metadata_txt = '\\environ{%s}\n\\extension{%s}\n\\lang{%s}\n' % ( environ, extension, lang )
         if parent:
@@ -119,9 +118,6 @@ class named_stream(io.StringIO):
         self._metadata_filename = osjoin(d, 'metadata')
         self._dir = d
         self._uuid = u
-    @property
-    def depth(self):
-        return self._depth
     @property
     def lang(self):
         return self._lang   
@@ -299,6 +295,7 @@ class EnvStreamStack(object):
                 self._stack.pop()
             else:
                 break
+
 def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
@@ -306,25 +303,25 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     in_preamble = False
     n = 0
-    depth = []
     thetex.input(open(input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
-    output = named_stream(blobs_dir,'MainFile',depth)
+    stack = EnvStreamStack()
+    output = named_stream(blobs_dir,'MainFile')
     output.add_metadata(r'\originalFileName',input_file)
-    out_list = [output]
+    stack.push(output)
     del output
-    def pops_sections():
-        while depth and depth[-1] == 'section':
-            r = out_list[-1].writeout()
-            out_list.pop()
-            out_list[-1].write('\\input{%s}' % r)
-            depth.pop()
+    def pop_section():
+        stack.pop_str()
+        if stack.topenv == 'section':
+            r = stack.pop().writeout()
+            stack.topstream.write(r'\input{%s}' % r)
+        stack.pop_str()
     #
     itertokens = thetex.itertokens()
     try:
         for tok in itertokens:
             n += len(tok.source)
             if isinstance(tok, plasTeX.Tokenizer.Comment):
-                out_list[-1].write('%'+tok.source)
+                stack.topstream.write('%'+tok.source)
             elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 if tok.macroName == 'documentclass':
                     in_preamble = True
@@ -333,12 +330,11 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     # implement obj.load(thetex, a['name'], a['options'])
                     thecontext.loadPackage(thetex, a['name']+'.cls',
                                            a['options'])
-                    out_list[-1].write(obj.source)
+                    stack.topstream.write(obj.source)
                     if cmdargs.split_preamble:
-                        out_list.append(named_stream(blobs_dir,'Preamble',depth, parent=out_list[-1]))
-                        depth.append('Preamble')
+                        stack.push(named_stream(blobs_dir,'Preamble', parent=stack.topstream))
                 elif cmdargs.split_sections and tok.macroName == 'section':
-                    pops_sections()
+                    pop_section()
                     #obj = Base.section()
                     #obj.parse(thetex)
                     # the above fails, we are not providing the full context to it
@@ -354,18 +350,13 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     u = u.rjust(3,'0')
                     f = 'SECs/%s_%s' % (u , slugify(name) )
                     logger.info('starting section %r . linked by dir %r' % (name,f))
-                    depth.append('section')
-                    out_list.append(named_stream(blobs_dir,'section',depth, parent=out_list[-1]))
-                    out_list[-1].symlink_dir = f
-                    out_list[-1].write('\\section'+argSource)
-                    #if len(out_list[-1]) < 30:
-                    #    out_list[-1].filename = f
-                    #    out_list[-1].add_metadata('\\section',name)
-                    #else:
+                    stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
+                    stack.topstream.symlink_dir = f
+                    stack.topstream.write('\\section'+argSource)
                 elif cmdargs.split_all_theorems and tok.macroName == 'newtheorem':
                     obj = amsthm.newtheorem()
                     obj.parse(thetex)
-                    out_list[-1].write(obj.source)
+                    stack.topstream.write(obj.source)
                     logger.info('adding to splited environments: %r' % obj.source)
                     th = new_theorem(obj.attributes, thedocument, thecontext)
                     name = obj.attributes['name']
@@ -373,6 +364,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     thecontext.addGlobal(name, th)
                     del th
                 elif tok.macroName in ("input","include"):
+                    if tok.macroName == "include" and stack.topenv == "section":
+                        r = stack.pop().writeout()
+                        stack.topstream.write('\\input{%s}' % (r,))
                     if use_plastex_parse:
                         obj = Base.input()
                         a = obj.parse(thetex)
@@ -381,9 +375,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         #inputfile = thetex.kpsewhich(inputfile)
                     else:
                         inputfile = thetex.readArgument(type=str)
-                    newoutput = named_stream(blobs_dir,'File',depth,parent=out_list[-1])
+                    newoutput = named_stream(blobs_dir,tok.macroName,parent=stack.topstream)
                     newoutput.add_metadata(r'\originalFileName',inputfile)
-                    out_list.append(newoutput)
+                    stack.push(newoutput)
                     del newoutput
                     if not os.path.isabs(inputfile):
                         inputfile = os.path.join(input_basedir,inputfile)
@@ -395,19 +389,21 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     a.write('\\'+specialblobinatorEOFcommand+'\n')
                     a.seek(0)
                     a.name='specialblobinatorEOFcommand'
-                    depth.append(tok.macroName)
                     thetex.input(a, Tokenizer=TokenizerPassThru.TokenizerPassThru)
                     del a
                     thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
                 elif tok.macroName == specialblobinatorEOFcommand:
-                    pops_sections()
+                    pop_section()
                     # pops the output when it ends
-                    r = out_list[-1].writeout()
+                    z = stack.pop()
+                    r = z.writeout()
                     logger.info('end input, writing %r',r)
-                    out_list.pop()
-                    a = depth.pop()
-                    out_list[-1].write('\\%s{%s}' % (a,r))
+                    a=z.environ
+                    if a == 'include' and r[-4:] == '.tex':
+                        r=r[:-4]
+                    stack.topstream.write('\\%s{%s}' % (a,r))
                     assert a in ('input','include')
+                    del r,z,a
                 elif not in_preamble and cmdargs.copy_graphicx \
                      and tok.macroName == "includegraphics":
                     if use_plastex_parse:
@@ -419,7 +415,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         c = a[:j]
                         del a, obj
                     else:
-                        c = ''
+                        c = '\\includegraphics'
                         for spec in '*','[]',None: 
                             output, source = thetex.readArgumentAndSource(spec=spec)
                             if spec:
@@ -441,32 +437,35 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     logger.info(' copying %r to %r' % (inputfile,f) )
                     shutil.copy(osjoin(input_basedir,inputfile),osjoin(blobs_dir,f))
                     open(osjoin(blobs_dir,d,"metadata"),'w').write('\\originalFileName{%s}\n\extension{%s}' % (inputfile,ext))
-                    out_list[-1].write('\includegraphics'+c+'{'+f+'}')
+                    stack.topstream.write(c+'{'+f+'}')
                     del u,d,f,c,ext,inputfile
-                elif tok.macroName == "item" and depth[-1] in cmdargs.split_list :
-                    r = out_list[-1].writeout()
-                    logger.info('end item, writing %r',r)
-                    out_list.pop()
-                    out_list[-1].write('\\input{%s}\\item' % (r,))
-                    _,source = thetex.readArgumentAndSource('[]')
-                    if source:
-                        out_list[-1].write(source)
-                    out_list.append(named_stream(blobs_dir,depth[-1],depth,parent=out_list[-1]))
+                elif tok.macroName == "item":
+                    e = stack.topenv
+                    if len(e) >= 3 and e[:2] == 'E_' and e[2:] in cmdargs.split_list :
+                        r = stack.pop().writeout()
+                        logger.info('end item, writing %r',r)
+                        stack.topstream.write('\\input{%s}%%\n\\item' % (r,))
+                        _,source = thetex.readArgumentAndSource('[]')
+                        if source: 
+                            stack.topstream.write(source)
+                        stack.push(named_stream(blobs_dir,e,parent=stack.topstream))
+                        del r
+                    else:
+                        stack.topstream.write('\\item')
+                    del e
                 elif tok.macroName == "begin":
                     name = mytex.readArgument(type=str)
                     if name == 'document':
                         in_preamble = False
                         if cmdargs.split_preamble:
-                            old = depth.pop()
-                            assert old == 'Preamble', " in preamble, the element %r does not match" % old
-                            r = out_list[-1].writeout()
+                            old = stack.pop()
+                            assert old.environ == 'Preamble', " in preamble, the element %r does not match" % old
+                            r = old.writeout()
+                            del old
                             os_rel_symlink(r,'preamble.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
-                            out_list.pop()
-                            out_list[-1].write(r'\input{%s}' % r)
-                    if not in_preamble:
-                        depth.append('\\begin{'+name+'}')
-                    out_list[-1].write(r'\begin{%s}' % name)
+                            stack.topstream.write(r'\input{%s}' % r)
+                    stack.topstream.write(r'\begin{%s}' % name)
                     if not in_preamble and name in cmdargs.split_environment :
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_BEGIN
@@ -474,23 +473,23 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         if isinstance(obj, amsthm.theoremCommand):
                             _,source = thetex.readArgumentAndSource('[]')
                             if source:
-                                out_list[-1].write(source)
+                                stack.topstream.write(source)
                         #out = obj.invoke(tex) mangles everything
                         #if out is not None:
                         #    obj = out
                         logger.info( 'will split \\begin{%r}' % (name,) )
-                        out_list.append(named_stream(blobs_dir,name,depth,parent=out_list[-1]))
+                        stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
                     elif not in_preamble and name in cmdargs.split_list :
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
                         while t is not None:
                             # checkme, tok.source may be messing up with comments,
-                            out_list[-1].write(t.source)
+                            stack.topstream.write(t.source)
                             if isinstance(t, plasTeX.Tokenizer.EscapeSequence):
                                 if t.macroName == "item":
                                     _,s = thetex.readArgumentAndSource(spec='[]')
                                     if s:
-                                        out_list[-1].write(s)
+                                        stack.topstream.write(s)
                                     t = None
                                 else:
                                     logger.critical('cannot parse %r inside %r' % (t.source,name) )
@@ -498,19 +497,14 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                             else:
                                 logger.debug('passing %r inside %r' % (t.source,name) )
                                 t = next(itertokens)
-                        out_list.append(named_stream(blobs_dir,name,depth,parent=out_list[-1]))
+                        stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
                     elif not in_preamble:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
+                        stack.push('E_'+name) 
                     else:
                         logger.info( ' ignore \\begin{%r} in preamble' % (name,) )
                 elif tok.macroName == "end":
                     name = thetex.readArgument(type=str)
-                    if not in_preamble:
-                        if name in ('document','Filesave'):
-                            pops_sections()
-                        old = depth.pop()
-                        assert ('\\begin{'+name+'}') == old , \
-                               (' nesting error, %s ended by  \\end{%s}' % (old,name))
                     if not in_preamble and \
                        (name in cmdargs.split_environment or name in cmdargs.split_list):
                         obj = thedocument.createElement(name)
@@ -519,18 +513,20 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         out = obj.invoke(thetex)
                         if out is not None:
                             obj = out
-                        r = out_list[-1].writeout()
+                        pop_section()
+                        assert stack.topenv == 'E_'+name
+                        r = stack.pop().writeout()
                         if name == 'document':
                             os_rel_symlink(r,'document.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
-                        out_list.pop()
-                        out_list[-1].write(r'\input{%s}' % r)
+                        stack.topstream.write(r'\input{%s}' % r)
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
                     elif not in_preamble:
+                        stack.pop_str(stopafter = ('E_'+name))
                         logger.debug( ' did not split \\end{%r}' % (name,) )
                     else:
                         logger.info( ' ignore \\end{%r} in preamble' % (name,) )
-                    out_list[-1].write(r'\end{%s}' % name)
+                    stack.topstream.write(r'\end{%s}' % name)
                 elif not in_preamble and \
                      tok.macroName in cmdargs.metadata_command :
                     obj = thetex.ownerDocument.createElement(tok.macroName)
@@ -539,28 +535,28 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     logger.info('metadata %r  %r' % (tok,args))
                     for j in args:
                         j =  j.translate({'\n':' '})
-                        out_list[-1].add_metadata('\\'+tok.macroName,j)
-                    out_list[-1].write(obj.source+''.join(args))
+                        stack.topstream.add_metadata('\\'+tok.macroName,j)
+                    stack.topstream.write(obj.source+''.join(args))
                 else:
                     #logger.debug(' unprocessed %r', tok.source)
-                    out_list[-1].write(tok.source)
+                    stack.topstream.write(tok.source)
             else:
-                out_list[-1].write(str(tok))
-        pops_sections()
+                stack.topstream.write(str(tok))
+        pop_section()
         # main
-        M = out_list.pop()
+        M = stack.pop()
         r = M.writeout()
-        if not out_list:
+        if not stack:
             os_rel_symlink(r, 'main.tex', cmdargs.blobs_dir ,
                            target_is_directory=False, force=True)
-        if depth :
-            logger.critical(' depth is %r' % depth)
     except:
         raise
     finally:
-        while out_list:
+        while stack:
             logger.critical('writing orphan output')
-            out_list.pop().writeout()
+            M = stack.pop()
+            if isinstance(M,named_stream):
+                M.writeout()
 
 
 if __name__ == '__main__':
