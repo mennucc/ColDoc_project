@@ -86,7 +86,7 @@ def new_section_nr(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
     if not os.path.isabs(variables):
         variables = osjoin(blobs_dir, variables)
     with shelve.open(variables, flag='c') as v:
-        n = v.get('last_section_n', 1)
+        n = v.get('last_section_n', 0)
         n = n + 1
         v['last_section_n'] = n
     logger.debug('new section n = %r ' % (n,))
