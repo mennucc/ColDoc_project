@@ -468,6 +468,18 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
                         logger.info( ' ignore \\begin{%r} in preamble' % (name,) )                    
+                    elif name in ('verbatim','Filesave'):
+                        class MyVerbatim(Base.verbatim):
+                            macroName = name
+                        obj = MyVerbatim()
+                        obj.ownerDocument = thetex.ownerDocument
+                        t = obj.invoke(thetex)
+                        # the above pushes the \end{verbatim} back on stack
+                        next(itertokens)
+                        for j in t[1:]:
+                            stack.topstream.write(j)
+                        stack.topstream.write('\\end{%s}' % name)
+                        del obj,j,t
                     elif name in cmdargs.split_environment :
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_BEGIN
