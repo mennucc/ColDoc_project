@@ -246,6 +246,59 @@ def new_theorem(a,doc,con):
     th = type(name, (amsthm.theoremCommand,), data)
     return th
 
+class EnvStreamStack(object):
+    """ a class that manages a stack of named_stream and LaTeX environments,
+    interspersed"""
+    def __init__(self):
+        self._stack=[]
+        self._topstream = None
+    def __len__(self):
+        return len(self._stack)
+    #property
+    def top(self):
+        " the top element"
+        return self._stack[-1]
+    @property
+    def topstream(self):
+        " the topmost stream"
+        return self._topstream
+    @property
+    def topenv(self):
+        "the top environment"
+        s = self._stack[-1]
+        if isinstance(s,named_stream):
+            return s.environ
+        return s
+    #
+    def _set_topstream(self):
+        self._topstream = None
+        for j in reversed(self._stack):
+            if isinstance(j,named_stream):
+                self._topstream = j
+                break
+    def push(self,o):
+        assert isinstance(o, (str,named_stream))
+        self._stack.append(o)
+        if isinstance(o,named_stream):
+            self._topstream = o
+    def pop(self):
+        o = self._stack.pop()
+        if isinstance(o, named_stream):
+            self._set_topstream()
+        return o
+    def pop_str(self, warn=True, stopafter=None):
+        " pop strings, until a stream is reached or after popping `stopafter`"
+        while self._stack:
+            s = self._stack[-1]
+            if isinstance(s,str):
+                if stopafter is not None and stopafter == s:
+                    self._stack.pop()
+                    break
+                if warn:
+                    logger.warning(' environment was not closed: %r' % s)
+                self._stack.pop()
+            else:
+                break
 def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
