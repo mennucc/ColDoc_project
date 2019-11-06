@@ -506,8 +506,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
 
                 elif tok.macroName == "end":
                     name = thetex.readArgument(type=str)
-                    if not in_preamble and \
-                       (name in cmdargs.split_environment or name in cmdargs.split_list):
+                    if in_preamble:
+                        logger.info( ' ignore \\end{%r} in preamble' % (name,) )
+                    elif (name in cmdargs.split_environment or name in cmdargs.split_list):
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_END
                         obj.ownerDocument = thedocument
@@ -522,11 +523,10 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                                            target_is_directory=False, force=True)
                         stack.topstream.write(r'\input{%s}' % r)
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
-                    elif not in_preamble:
+                    else:
                         stack.pop_str(stopafter = ('E_'+name))
                         logger.debug( ' did not split \\end{%r}' % (name,) )
-                    else:
-                        logger.info( ' ignore \\end{%r} in preamble' % (name,) )
+                    #
                     stack.topstream.write(r'\end{%s}' % name)
                 elif not in_preamble and \
                      tok.macroName in cmdargs.metadata_command :
