@@ -437,7 +437,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     a=z.environ
                     if a == 'include' and r[-4:] == '.tex':
                         r=r[:-4]
-                    stack.topstream.write('\\%s{%s}' % (a,r))
+                    stack.topstream.write('\\%s{%s}%%\n' % (a,r))
                     assert a in ('input','include')
                     del r,z,a
                 elif not in_preamble and cmdargs.copy_graphicx \
@@ -501,7 +501,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                             del old
                             os_rel_symlink(r,'preamble.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
-                            stack.topstream.write(r'\input{%s}' % r)
+                            stack.topstream.write('\\input{%s}%%\n' % r)
                         in_preamble = False
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
@@ -587,7 +587,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         if name == 'document':
                             os_rel_symlink(r,'document.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
-                        stack.topstream.write(r'\input{%s}' % r)
+                        stack.topstream.write('\\input{%s}%%\n' % r)
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
                     else:
                         if stack.topenv != 'E_'+name:
