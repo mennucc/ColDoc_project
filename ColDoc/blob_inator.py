@@ -281,10 +281,19 @@ class EnvStreamStack(object):
         self._stack.append(o)
         if isinstance(o,named_stream):
             self._topstream = o
-    def pop(self):
+    def pop(self, add_as_child = True):
+        """ pops topmost element ;
+        if `add_as_child` and topmost element was a stream,
+        write its UUID and filename in metadata of the parent stream"""
         o = self._stack.pop()
         if isinstance(o, named_stream):
             self._set_topstream()
+            if add_as_child and self._topstream is not None \
+               and isinstance(self._topstream,named_stream):
+                if o.uuid:
+                    self._topstream.add_metadata('\\childUUID',o.uuid)
+                if o.filename:
+                    self._topstream.add_metadata('\\childFilename',o.filename)
         return o
     def pop_str(self, warn=True, stopafter=None):
         " pop strings, until a stream is reached or after popping `stopafter`"
