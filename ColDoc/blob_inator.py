@@ -526,6 +526,8 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                             _,source = thetex.readArgumentAndSource('[]')
                             if source:
                                 stack.topstream.write(source)
+                                if stack.top is stack.topstream:
+                                    stack.topstream.add_metadata('\\optarg',source)
                         #out = obj.invoke(tex) mangles everything
                         #if out is not None:
                         #    obj = out
