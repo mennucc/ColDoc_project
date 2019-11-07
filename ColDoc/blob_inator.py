@@ -629,8 +629,10 @@ if __name__ == '__main__':
     parser.add_argument('--split-environment','--SE',action='append',help='split the content of this LaTeX environment in a separate blob', default=[])
     parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
     parser.add_argument('--split-preamble','--SP',action='store_true',help='split the preamble a separate blob')
-    parser.add_argument('--metadata-command','--MC',action='append',help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)', default = [])
     parser.add_argument('--split-all-theorems','--AT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
+    parser.add_argument('--metadata-command','--MC',action='append',
+                        help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)',
+                        default = [ 'label', 'uuid', 'index' ] )
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
     parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
@@ -657,19 +659,16 @@ if __name__ == '__main__':
         mycontext.newcommand('section',1,r'\section{#1}')
         mycontext.newcommand('subsection',1,r'\subsection{#1}')
 
-    MC = [ 'label' ]
     if args.EDB :
-        MC += ['difficulty','index','notes', \
-                 'keywords', 'prerequisites',  'difficulty','indexiten']
-    for name in MC :
-        n = 1 if name != r'\indexiten' else 2
+        args.metadata_command += [ 'keywords', 'prerequisites',  'difficulty','indexLit', 'indexLen']
+    for name in args.metadata_command :
         d =  '\\' + name + '{#1}'
         #mycontext.newcommand(name, n, d)
+        n = 1
         newclass = type(name, (plasTeX.NewCommand,),
                        {'nargs':n, 'opt':None, 'definition':d})
         assert newclass.nargs == n
         mycontext.addGlobal(name, newclass)
-        args.metadata_command.append(name)
 
     if args.EDB:
         for name in 'Exercises',:
