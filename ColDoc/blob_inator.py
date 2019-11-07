@@ -483,7 +483,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
                         logger.info( ' ignore \\begin{%r} in preamble' % (name,) )                    
-                    elif name in ('verbatim','Filesave'):
+                    elif name in cmdargs.verbatim_environment:
                         class MyVerbatim(Base.verbatim):
                             macroName = name
                         obj = MyVerbatim()
@@ -620,6 +620,7 @@ if __name__ == '__main__':
     parser.add_argument('--metadata-command','--MC',action='append',help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)', default = [])
     parser.add_argument('--split-all-theorems','--AT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
+    parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
     args = parser.parse_args()
     input_file = args.input_file
