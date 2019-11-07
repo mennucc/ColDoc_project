@@ -176,14 +176,20 @@ class named_stream(io.StringIO):
             self._metadata_txt += '%s%s\n' %(  T,E)
         else:
             self._metadata_txt += '%s{%s}\n' %(  T,E)
-    def writeout(self, prepend_UUID = None):
+    #
+    _comment_out_uuid_in = ('document','MainFile','Preamble','section')
+    #
+    def writeout(self, prepend_UUID = 'auto'):
         """Writes the content of the file; returns the `filename` where the content was stored,
         relative to `basedir` (using the `symlink_dir` if provided).
-        If `prepend_UUID` is `None`, will not prepend the uuid in 
+        If `prepend_UUID` is `True`, will write the UUID at the beginning of a block 
+        If `prepend_UUID` is `'auto'`, the UUID will be written,will comment out the uuid in 
         'document','MainFile','Preamble','section'
         """
-        if prepend_UUID is None:
-            prepend_UUID = self.environ not in ('document','MainFile','Preamble','section')
+        cmt = ''
+        if prepend_UUID == 'auto' and  self.environ in self._comment_out_uuid_in:
+            cmt = '%%'
+            prepend_UUID = True
         if self._filename is None:
             self._find_unused_UUID()
         assert not self._was_written , 'file %r was already written ' % self._filename
@@ -194,7 +200,7 @@ class named_stream(io.StringIO):
             logger.info("writeout file %r metadata %r " % (self._filename, self._metadata_filename))
             z = self._open(filename ,'w')
             if prepend_UUID and self.uuid:
-                z.write("\\uuid{%s}%%\n" % (self.uuid,))
+                z.write("%s\\uuid{%s}%%\n" % (cmt,self.uuid,))
             z.write(self.getvalue())
             z.close()
             self._open(metadata_file,'w').write(self._metadata_txt)
