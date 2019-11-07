@@ -176,10 +176,14 @@ class named_stream(io.StringIO):
             self._metadata_txt += '%s%s\n' %(  T,E)
         else:
             self._metadata_txt += '%s{%s}\n' %(  T,E)
-    def writeout(self, prepend_UUID = True):
+    def writeout(self, prepend_UUID = None):
         """Writes the content of the file; returns the `filename` where the content was stored,
-        relative to `basedir` (using the `symlink_dir` if provided)
+        relative to `basedir` (using the `symlink_dir` if provided).
+        If `prepend_UUID` is `None`, will not prepend the uuid in 
+        'document','MainFile','Preamble','section'
         """
+        if prepend_UUID is None:
+            prepend_UUID = self.environ not in ('document','MainFile','Preamble','section')
         if self._filename is None:
             self._find_unused_UUID()
         assert not self._was_written , 'file %r was already written ' % self._filename
