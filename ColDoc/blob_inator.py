@@ -332,6 +332,16 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
             r = stack.pop().writeout()
             stack.topstream.write(r'\input{%s}' % r)
         stack.pop_str()
+    def log_mismatch(beg,end):
+        if beg[:2] == 'E_':
+            beg = '\\begin{' + beg[2:] + '}'
+        else:
+            beg = 'blob `' + beg + '`'
+        if end[:2] == 'E_':
+            end = '\\end{' + end[2:] + '}'
+        else:
+            end = 'blob `' + end + '`'
+        logger.error(' LaTeX Error: %s ended by %s ' % (beg,end))    
     #
     itertokens = thetex.itertokens()
     try:
@@ -554,7 +564,10 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         if out is not None:
                             obj = out
                         pop_section()
-                        assert stack.topenv == 'E_'+name
+                        if stack.topenv != 'E_'+name:
+                            log_mismatch(stack.topenv,name)
+                            # go on, hope for the best
+                            continue
                         r = stack.pop().writeout()
                         if name == 'document':
                             os_rel_symlink(r,'document.tex', cmdargs.blobs_dir ,
@@ -563,12 +576,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
                     else:
                         if stack.topenv != 'E_'+name:
-                            a = stack.topenv
-                            if a[:2] == 'E_':
-                                a = '\\begin{' + a[2:] + '}'
-                            else:
-                                a = 'blob `' + a + '`'
-                            logger.error(' LaTeX Error: %s ended by \end{%s} ' % (a,name))
+                            log_mismatch(stack.topenv,name)
                             # trying to recover
                             stack.pop_str(stopafter = ('E_'+name))
                         else:
