@@ -176,7 +176,7 @@ class named_stream(io.StringIO):
             self._metadata_txt += '%s%s\n' %(  T,E)
         else:
             self._metadata_txt += '%s{%s}\n' %(  T,E)
-    def writeout(self):
+    def writeout(self, prepend_UUID = True):
         """Writes the content of the file; returns the `filename` where the content was stored,
         relative to `basedir` (using the `symlink_dir` if provided)
         """
@@ -188,7 +188,11 @@ class named_stream(io.StringIO):
         if True: #len(self.getvalue()) > 0:
             self.flush()
             logger.info("writeout file %r metadata %r " % (self._filename, self._metadata_filename))
-            self._open(filename ,'w').write(self.getvalue())
+            z = self._open(filename ,'w')
+            if prepend_UUID and self.uuid:
+                z.write("\\uuid{%s}%%\n" % (self.uuid,))
+            z.write(self.getvalue())
+            z.close()
             self._open(metadata_file,'w').write(self._metadata_txt)
             r =  self._filename
             # no more messing with this class
