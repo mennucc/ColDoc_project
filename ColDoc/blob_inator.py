@@ -322,6 +322,7 @@ class EnvStreamStack(object):
 def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
+    shift_eol=True
     input_basedir = os.path.dirname(cmdargs.input_file)
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     in_preamble = False
@@ -527,6 +528,12 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         #if out is not None:
                         #    obj = out
                         logger.info( 'will split \\begin{%r}' % (name,) )
+                        if shift_eol:
+                            t=next(itertokens)
+                            while str(t) in ('\n',' '):
+                                stack.topstream.write(str(t))
+                                t=next(itertokens)
+                            thetex.pushToken(t)
                         stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
                     elif name in cmdargs.split_list :
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
