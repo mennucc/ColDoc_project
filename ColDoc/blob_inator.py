@@ -456,8 +456,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                 elif tok.macroName == "begin":
                     name = mytex.readArgument(type=str)
                     if name == 'document':
-                        in_preamble = False
-                        if cmdargs.split_preamble:
+                        if not in_preamble:
+                            logger.error(' \\begin{document} can only be used in preamble')
+                        elif cmdargs.split_preamble:
                             old = stack.pop()
                             assert old.environ == 'Preamble', " in preamble, the element %r does not match" % old
                             r = old.writeout()
@@ -465,6 +466,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                             os_rel_symlink(r,'preamble.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
                             stack.topstream.write(r'\input{%s}' % r)
+                        in_preamble = False
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
                         logger.info( ' ignore \\begin{%r} in preamble' % (name,) )                    
