@@ -387,6 +387,8 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
                     stack.topstream.symlink_dir = f
                     stack.topstream.write('\\section'+argSource)
+                    if stack.topstream.uuid:
+                        stack.topstream.write("\\uuid{%s}%%\n" % (stack.topstream.uuid,))
                 elif cmdargs.split_all_theorems and tok.macroName == 'newtheorem':
                     obj = amsthm.newtheorem()
                     obj.parse(thetex)
