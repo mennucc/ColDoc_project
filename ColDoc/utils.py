@@ -18,7 +18,7 @@ __all__ = ( "slugify", "uuid_to_dir", "uuid_to_int", "int_to_uuid", "new_uuid",
 
 def int_to_uuid(n ):
     assert isinstance(n,int)
-    return base32_crockford.encode(n) #, checksum = 31)
+    return base32_crockford.encode(n).rjust(3,'0') #, checksum = 31)
 
 def uuid_to_int(u ):
     assert isinstance(u,str)
@@ -65,8 +65,7 @@ def new_uuid(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
     if not os.path.isabs(variables):
         variables = osjoin(blobs_dir, variables)
     with shelve.open(variables, flag='c') as v:
-        j = base32_crockford.base
-        n = v.get('last_uuid_n', j*j)
+        n = v.get('last_uuid_n', 0)
         while True:
             n = n + 1
             uuid = int_to_uuid(n)
