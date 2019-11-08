@@ -209,7 +209,9 @@ class named_stream(io.StringIO):
             write_UUID = True
         if self._filename is None:
             self._find_unused_UUID()
-        assert not self._was_written , 'file %r was already written ' % self._filename
+        if self._was_written :
+            logger.critical('file %r was already written ' % self._filename)
+            return self._filename
         filename = osjoin(self._basepath, self._filename)
         metadata_file = osjoin(self._basepath, self._metadata_filename)
         if True: #len(self.getvalue()) > 0:
