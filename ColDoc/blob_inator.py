@@ -174,11 +174,16 @@ class named_stream(io.StringIO):
         return self._metadata_filename
     def __len__(self):
         return len(self.getvalue())
-    def add_metadata(self,T,E):
+    def add_metadata(self,T,E, braces=None):
+        """ The parameter `braces` dictates if `E` will be enclosed in {};
+        `braces` may be `True`,`False` or `None` (which means 'autodetect')
+        """
         assert isinstance(E,str)
         assert E
+        assert braces in (True,False,None)
         E = E.translate({10:32})
-        if E[0] == '{':
+        if braces is False or \
+           ( E[0] == '{' and E[-1] == '}' and braces is None ):
             self._metadata_txt += '%s%s\n' %(  T,E)
         else:
             self._metadata_txt += '%s{%s}\n' %(  T,E)
@@ -392,6 +397,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     logger.info('starting section %r . linked by dir %r' % (name,f))
                     stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
                     stack.topstream.symlink_dir = f
+                    stack.topstream.add_metadata('\\section',argSource, braces=False)
                     stack.topstream.write('\\section'+argSource)
                     if stack.topstream.uuid:
                         stack.topstream.write("\\uuid{%s}%%\n" % (stack.topstream.uuid,))
