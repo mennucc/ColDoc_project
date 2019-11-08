@@ -190,17 +190,23 @@ class named_stream(io.StringIO):
     #
     _comment_out_uuid_in = ('document','MainFile','Preamble','section')
     #
-    def writeout(self, prepend_UUID = 'auto'):
+    def writeout(self, write_UUID = ColDoc_write_UUID):
         """Writes the content of the file; returns the `filename` where the content was stored,
         relative to `basedir` (using the `symlink_dir` if provided).
-        If `prepend_UUID` is `True`, will write the UUID at the beginning of a block 
-        If `prepend_UUID` is `'auto'`, the UUID will be written,will comment out the uuid in 
-        'document','MainFile','Preamble','section'
+        
+        - If `write_UUID` is `True`, the UUID will be written at the beginning of the blob.
+        
+        - If `write_UUID` is 'auto', the UUID will be written,
+          but it will be commented out in 'document', 'MainFile', 'Preamble', 'section' blobs.
+          (It is anyway added after each '\section' command).
+        
+        - If `write_UUID` is `False`, no UUID will be written.
         """
         cmt = ''
-        if prepend_UUID == 'auto' and  self.environ in self._comment_out_uuid_in:
+        assert write_UUID in (True,False,'auto')
+        if write_UUID == 'auto' and self.environ in self._comment_out_uuid_in:
             cmt = '%%'
-            prepend_UUID = True
+            write_UUID = True
         if self._filename is None:
             self._find_unused_UUID()
         assert not self._was_written , 'file %r was already written ' % self._filename
@@ -210,7 +216,7 @@ class named_stream(io.StringIO):
             self.flush()
             logger.info("writeout file %r metadata %r " % (self._filename, self._metadata_filename))
             z = self._open(filename ,'w')
-            if prepend_UUID and self.uuid:
+            if write_UUID and self.uuid:
                 z.write("%s\\uuid{%s}%%\n" % (cmt,self.uuid,))
             z.write(self.getvalue())
             z.close()
@@ -399,7 +405,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     stack.topstream.symlink_dir = f
                     stack.topstream.add_metadata('\\section',argSource, braces=False)
                     stack.topstream.write('\\section'+argSource)
-                    if stack.topstream.uuid:
+                    if stack.topstream.uuid and ColDoc_write_UUID:
                         stack.topstream.write("\\uuid{%s}%%\n" % (stack.topstream.uuid,))
                 elif cmdargs.split_all_theorems and tok.macroName == 'newtheorem':
                     obj = amsthm.newtheorem()
