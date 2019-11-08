@@ -656,7 +656,6 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
 
 
 if __name__ == '__main__':
-    print(sys.argv)
     parser = argparse.ArgumentParser(description='Splits a TeX or LaTeX input into blobs',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('input_file', help='the input TeX or LaTeX file')
