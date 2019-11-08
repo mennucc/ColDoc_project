@@ -80,7 +80,7 @@ class named_stream(io.StringIO):
         self._lang = lang
         # prepare internal stuff
         self._metadata_txt = '\\environ{%s}\n\\extension{%s}\n\\lang{%s}\n' % ( environ, extension, lang )
-        if parent:
+        if parent is not None:
             if parentFile is None : parentFile = parent.filename
             if parentUUID is None : parentUUID = parent.uuid
         if parentFile:
