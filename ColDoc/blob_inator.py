@@ -102,6 +102,11 @@ class named_stream(io.StringIO):
         self._open = open
         self._logger = logger
 
+    #
+    def __repr__(self):
+        return ('<named_stream(basepath=%r, environ=%r, lang=%r, extension = %r, uuid=%r)>' % \
+               (self._basepath,self._environ,self._lang,self._extension,self._uuid))
+    #
     def _find_unused_UUID(self):
         "set `filename` and `metadata_filename`, using a new UUID"
         filename = None
