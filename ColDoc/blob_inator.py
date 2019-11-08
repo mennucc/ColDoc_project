@@ -79,6 +79,20 @@ class named_stream(io.StringIO):
         self._extension = extension
         self._lang = lang
         # prepare internal stuff
+        self._was_written = False
+        self._uuid = None
+        self._filename = None
+        self._metadata_filename = None
+        self._dir = None
+        self._symlink_dir = None
+        # save from gc, for __del__ method
+        self._sys = sys
+        self._open = open
+        self._logger = logger
+        # set up UUID
+        if early_UUID:
+            self._find_unused_UUID()
+        # prepare metadata
         self._metadata_txt = '\\environ{%s}\n\\extension{%s}\n\\lang{%s}\n' % ( environ, extension, lang )
         if parent is not None:
             if parentFile is None : parentFile = parent.filename
@@ -87,21 +101,8 @@ class named_stream(io.StringIO):
             self.add_metadata(r'\parentFile', parentFile)
         if parentUUID:
             self.add_metadata(r'\parentUUID', parentUUID)
-        self._was_written = False
-        #
-        self._uuid = None
-        self._filename = None
-        self._metadata_filename = None
-        self._dir = None
-        self._symlink_dir = None
-        #
-        if early_UUID:
-            self._find_unused_UUID()
-        # save from gc, for __del__ method
-        self._sys = sys
-        self._open = open
-        self._logger = logger
-
+        elif environ != 'MainFile':
+            logger.critical('blob %r has parent %r ?' % (self,parent))
     #
     def __repr__(self):
         return ('<named_stream(basepath=%r, environ=%r, lang=%r, extension = %r, uuid=%r)>' % \
