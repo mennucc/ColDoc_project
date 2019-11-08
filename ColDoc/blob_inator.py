@@ -637,10 +637,12 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
         pop_section()
         # main
         M = stack.pop()
-        r = M.writeout()
-        if not stack:
+        if M.environ == 'MainFile':
+            r = M.writeout()
             os_rel_symlink(r, 'main.tex', cmdargs.blobs_dir ,
                            target_is_directory=False, force=True)
+        else:
+            logger.error('disaligned stack, blob %r is not the MainFile' % (M,))
     except:
         raise
     finally:
