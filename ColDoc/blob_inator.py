@@ -468,33 +468,60 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         inputfile = a['file']
                         a = obj.source
                         j = a.index('{')
-                        c = a[:j]
+                        cmd = a[:j]
                         del a, obj
                     else:
-                        c = '\\includegraphics'
+                        cmd = '\\includegraphics'
                         for spec in '*','[]',None: 
                             output, source = thetex.readArgumentAndSource(spec=spec)
                             if spec:
-                                c += source
+                                cmd += source
                             else:
                                 inputfile = source[1:-1]
                     assert isinstance(inputfile,str)
-                    assert not os.path.isabs(inputfile)
-                    for ext in ['','.png','.jpg','.jpeg','.gif','.pdf','.ps','.eps', None]:
-                        if ext is not None:
-                            f = osjoin(input_basedir,inputfile+ext)
-                            if os.path.isfile(f):
-                                inputfile += ext
-                                break
-                    assert ext is not None, 'graphicx file %r not found' % inputfile
-                    u = new_uuid(blobs_dir=blobs_dir)
-                    d = uuid_to_dir(u, blobs_dir=blobs_dir, create=True)
-                    f = osjoin(d,'blob'+ext)
-                    logger.info(' copying %r to %r' % (inputfile,f) )
-                    shutil.copy(osjoin(input_basedir,inputfile),osjoin(blobs_dir,f))
-                    open(osjoin(blobs_dir,d,"metadata"),'w').write('\\originalFileName{%s}\n\extension{%s}' % (inputfile,ext))
-                    stack.topstream.write(c+'{'+f+'}')
-                    del u,d,f,c,ext,inputfile
+                    assert not os.path.isabs(inputfile), "absolute path not supported: "+cmd+'{'+inputfile+'}'
+                    fi=osjoin(input_basedir,inputfile)
+                    di=os.path.dirname(fi)
+                    bi=os.path.basename(fi)
+                    bi,ei=os.path.splitext(bi)
+                    assert fi == osjoin(di,bi+ei)
+                    if ei and not os.path.isfile(fi):
+                        logger.error(' while parsing %r, no  such file: %r' %\
+                            (cmd+'{'+inputfile+'}',fi,))
+                    # find all interesting files
+                    is_graph = False
+                    exts = []
+                    for j in os.listdir(di):
+                        bj,ej = os.path.splitext(j)
+                        if bj == bi:
+                            exts.append(ej)
+                            if ej.lower() in ['','.png','.jpg','.jpeg','.gif','.pdf','.ps','.eps','.tif','.tiff']:
+                                is_graph = True
+                    #
+                    if not exts :
+                        logger.error(' while parsing %r, no files %r.ext were found (for any possible extension `ext`' %\
+                            (cmd+'{'+inputfile+'}',osjoin(di,bi)))
+                    elif not is_graph:
+                        logger.warning(' while parsing %r, no  graphical files %r.ext were found (for extensions `ext` that look like a graphic file' %\
+                            (cmd+'{'+inputfile+'}',osjoin(di,bi)))
+                    #
+                    uuid = new_uuid(blobs_dir=blobs_dir)
+                    do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
+                    fo = osjoin(do,'blob')
+                    fm = open(osjoin(blobs_dir,do,"metadata"),'w')
+                    fm.write('\\uuid{%s}\n\\originalFileName{%s}\n' % (uuid,inputfile,))
+                    del uuid
+                    # will load the same extension, if specified
+                    stack.topstream.write(cmd+'{'+fo+ei+'}')
+                    # copy all files with same base, different extensions
+                    ext = fii = None
+                    for ext in exts:
+                        fii = osjoin(di,bi+ext)
+                        logger.info(' copying %r to %r' % (fii,fo+ext) )
+                        shutil.copy(fii,osjoin(blobs_dir,fo+ext))
+                        fm.write('\\extension{%s}\n' % (ext,))
+                    fm.close()
+                    del do,fo,fm,exts,cmd,fi,di,bi,ei,ext,fii
                 elif tok.macroName == "item":
                     e = stack.topenv
                     if len(e) >= 3 and e[:2] == 'E_' and e[2:] in cmdargs.split_list :
