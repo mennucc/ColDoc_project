@@ -401,7 +401,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     n = new_section_nr(blobs_dir = blobs_dir)
                     u = base32_crockford.encode(n)
                     u = u.rjust(3,'0')
-                    f = 'SECs/%s_%s' % (u , slugify(name) )
+                    f = 'SEC/%s_%s' % (u , slugify(name) )
                     logger.info('starting section %r . linked by dir %r' % (name,f))
                     stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
                     stack.topstream.symlink_dir = f
@@ -758,7 +758,7 @@ if __name__ == '__main__':
             mycontext.addGlobal(name, th)
             args.split_environment.append(name)
 
-    for j in 'UUIDs', 'SECs':
+    for j in 'UUID', 'SEC':
         d = osjoin(args.blobs_dir,j)
         if not os.path.isdir(d):
             os.mkdir(d)

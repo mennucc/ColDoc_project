@@ -30,8 +30,8 @@ def uuid_to_dir(u, blobs_dir = ColDoc_as_blobs, create = False):   #, ColDocCont
     assert os.path.isdir(blobs_dir)
     #d = ColDocContent
     #pieces =  'UUIDs',u[-1],u[:-1]
-    d = 'UUIDs'
     pieces =  u[-1],u[:-1]
+    d = 'UUID'
     for j in pieces:
         d = osjoin(d, j)
         if create and not os.path.isdir( osjoin(blobs_dir,d) ):
@@ -46,7 +46,7 @@ def uuid_symlink(src, dst, blobs_dir = ColDoc_as_blobs, create = True ):
     #assert os.path.isdir(dst_dir)
     assert os.path.isdir(blobs_dir)
     d = blobs_dir
-    pieces =  'UUIDs',dst[-1]
+    pieces =  'UUID',dst[-1]
     for j in pieces:
         d = osjoin(d, j)
         if create and not os.path.isdir(d):
