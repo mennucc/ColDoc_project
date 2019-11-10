@@ -408,7 +408,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     stack.topstream.add_metadata('\\section',argSource, braces=False)
                     stack.topstream.write('\\section'+argSource)
                     if stack.topstream.uuid and ColDoc_write_UUID:
-                        stack.topstream.write("\\uuid{%s}%%\n" % (stack.topstream.uuid,))
+                        stack.topstream.write("\\uuid{%s}" % (stack.topstream.uuid,))
                 elif cmdargs.split_all_theorems and tok.macroName == 'newtheorem':
                     obj = amsthm.newtheorem()
                     obj.parse(thetex)
