@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 from config import *
 
 
-__all__ = ( "slugify", "uuid_to_dir", "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
+__all__ = ( "slugify", "uuid_to_dir", "dir_to_uuid",
+            "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink")
 
 #####################
@@ -74,6 +75,13 @@ def uuid_to_dir(u, blobs_dir = ColDoc_as_blobs, create = False):   #, ColDocCont
         if create and not os.path.isdir( osjoin(blobs_dir,d) ):
             os.mkdir( osjoin(blobs_dir,d) )
     return d
+
+def dir_to_uuid(directory):
+    prefix = 'UUID/'
+    assert directory[:len(prefix)] == prefix
+    directory = directory[len(prefix):]
+    assert directory[1] == directory[3] == os.path.sep
+    return directory[0] + directory[2] + directory[4:]
 
 def uuid_symlink(src, dst, blobs_dir = ColDoc_as_blobs, create = True ):
     " symlink src UUID to dst UUID "
