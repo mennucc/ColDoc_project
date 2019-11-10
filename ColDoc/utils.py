@@ -180,3 +180,28 @@ def os_rel_symlink(src, dst, basedir, target_is_directory, force = False, **kwar
         os.unlink(dst)
     logger.debug(" os.symlink (%r, %r )" % (src, dst) )
     os.symlink(src, dst, target_is_directory=target_is_directory, **kwargs)
+
+############################
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1 and sys.argv[1] == 'test_uuid':
+        assert 1 == uuid_to_int('OOO1')
+        #
+        didnt=True
+        try:
+            uuid_check_normalize('/')
+            didnt=False
+        except ValueError:
+            pass
+        assert didnt
+        #
+        for j in range(0, base ** 4 + base**3, base+3):
+            u = int_to_uuid(j)
+            assert j == uuid_to_int(u)
+            d = uuid_to_dir(u, blobs_dir='/tmp',create=False)
+            u2 = dir_to_uuid(d)
+            assert u == u2
+    else:
+        print(""" Commands:
+%s test_uuid
+""" % (sys.argv[0],))
