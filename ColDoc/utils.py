@@ -11,18 +11,55 @@ logger = logging.getLogger(__name__)
 
 from config import *
 
-from base32_crockford import base32_crockford
 
-__all__ = ( "slugify", "uuid_to_dir", "uuid_to_int", "int_to_uuid", "new_uuid",
+__all__ = ( "slugify", "uuid_to_dir", "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink")
 
-def int_to_uuid(n ):
-    assert isinstance(n,int)
-    return base32_crockford.encode(n).rjust(3,'0') #, checksum = 31)
+#####################
 
-def uuid_to_int(u ):
-    assert isinstance(u,str)
-    return base32_crockford.decode(u) #, checksum = 31)
+# this part of code is taken (simplified) from  base32_crockford
+
+# we omit vowels
+symbols = '0123456789BCDFGHJKMNPQRSTVWXYZ'
+base = len(symbols)
+encode_symbols = dict((i, ch) for (i, ch) in enumerate(symbols))
+decode_symbols = dict((ch, i) for (i, ch) in enumerate(symbols))
+
+normalize_symbols = str.maketrans('IiLlOo', '111100')
+valid_symbols = re.compile('^[%s]+$' % (symbols,))
+
+def int_to_uuid(number):
+    """ convert a positive integer to a UUID :
+    a string of characters from `symbols` that is at least 3 letters long"""
+    assert isinstance(number,int) and number >= 0
+    if number == 0:
+        return '000'
+    symbol_string = ''
+    while number > 0:
+        remainder = number % base
+        number //= base
+        symbol_string = encode_symbols[remainder] + symbol_string
+    return symbol_string.rjust(3,'0')
+
+def uuid_check_normalize(symbol_string):
+    " normalize a string and check that it is a valid UUID "
+    norm_string = symbol_string.translate(normalize_symbols).upper()
+    if not valid_symbols.match(norm_string):
+        raise ValueError("string '%s' contains invalid characters" % norm_string)
+    return norm_string
+
+def uuid_to_int(symbol_string):
+    """  normalize `symbol_string`, check that it is a valid UUID, and convert to integer  """
+    symbol_string = uuid_check_normalize(symbol_string)
+    number = 0
+    for symbol in symbol_string:
+        number = number * base + decode_symbols[symbol]
+    return number
+
+
+
+
+#####################
 
 def uuid_to_dir(u, blobs_dir = ColDoc_as_blobs, create = False):   #, ColDocContent = ColDocContent):
     " returns directory for UUID (relative to `blobs_dir`); it is a two-level dir/dir/ ; if `create` then both levels are created here"

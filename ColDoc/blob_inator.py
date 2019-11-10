@@ -33,8 +33,6 @@ from config import *
 from utils import *
 
 
-from base32_crockford import base32_crockford
-
 
 #########################################################################
 import TokenizerPassThru
@@ -399,8 +397,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         argSource += source
                     name = source[1:-1]
                     n = new_section_nr(blobs_dir = blobs_dir)
-                    u = base32_crockford.encode(n)
-                    u = u.rjust(3,'0')
+                    u = int_to_uuid(n)
                     f = 'SEC/%s_%s' % (u , slugify(name) )
                     logger.info('starting section %r . linked by dir %r' % (name,f))
                     stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
