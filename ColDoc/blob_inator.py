@@ -655,6 +655,19 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         j =  j.translate({'\n':' '})
                         stack.topstream.add_metadata('\\'+tok.macroName,j)
                     stack.topstream.write(obj.source+''.join(args))
+                elif tok.macroName == '[':
+                    logger.debug(' entering math mode')
+                    stack.push('\\[')
+                    stack.topstream.write('\\[')
+                elif tok.macroName == ']':
+                    logger.debug(' exiting math mode')
+                    if stack.topenv != '\\[':
+                        log_mismatch(stack.topenv,name)
+                        # trying to recover
+                        stack.pop_str(stopafter = ('\\['))
+                    else:
+                        stack.pop()
+                    stack.topstream.write('\\]')
                 else:
                     #logger.debug(' unprocessed %r', tok.source)
                     stack.topstream.write(tok.source)
