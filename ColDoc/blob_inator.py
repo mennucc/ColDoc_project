@@ -589,8 +589,10 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
                         while t is not None:
-                            # checkme, tok.source may be messing up with comments,
-                            stack.topstream.write(t.source)
+                            if isinstance(t, plasTeX.Tokenizer.Comment):
+                                stack.topstream.write('%'+t.source)
+                            else:
+                                stack.topstream.write(t.source)
                             if isinstance(t, plasTeX.Tokenizer.EscapeSequence):
                                 if t.macroName == "item":
                                     _,s = thetex.readArgumentAndSource(spec='[]')
