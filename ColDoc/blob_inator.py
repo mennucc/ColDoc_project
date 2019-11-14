@@ -566,12 +566,11 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_BEGIN
                         obj.ownerDocument = thedocument
+                        source = None
                         if isinstance(obj, amsthm.theoremCommand):
                             _,source = thetex.readArgumentAndSource('[]')
                             if source:
                                 stack.topstream.write(source)
-                                if stack.top is stack.topstream:
-                                    stack.topstream.add_metadata('\\optarg',source)
                         #out = obj.invoke(tex) mangles everything
                         #if out is not None:
                         #    obj = out
@@ -583,6 +582,9 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                                 t=next(itertokens)
                             thetex.pushToken(t)
                         stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
+                        if source:
+                            assert source[0] == '[' and source[-1] == ']'
+                            stack.topstream.add_metadata('\\optarg',source[1:-1])
                     elif name in cmdargs.split_list :
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
