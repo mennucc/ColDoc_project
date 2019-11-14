@@ -281,7 +281,7 @@ class EnvStreamStack(object):
         self._topstream = None
     def __len__(self):
         return len(self._stack)
-    #property
+    @property
     def top(self):
         " the top element"
         return self._stack[-1]
