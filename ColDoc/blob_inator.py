@@ -400,7 +400,20 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     u = int_to_uuid(n)
                     f = 'SEC/%s_%s' % (u , slugify(name) )
                     logger.info('starting section %r . linked by dir %r' % (name,f))
-                    stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
+                    add_child = True
+                    if cmdargs.zip_sections:
+                        if stack.topstream != stack.top:
+                            logger.warning("cannot zip section %r , inside an environment" % (name,))
+                        elif stack.topenv == 'section':
+                            logger.warning("cannot zip the section %, it is after a previous section in blob %r" %\
+                                           (name,stack.topstream))
+                        elif len(stack.topstream) > 0:
+                            logger.warning("cannot zip section %r , parent blob %r has length %d (try to remove cruft before \\section)" %\
+                                           (name,stack.topstream,len(stack.topstream)))
+                        else:
+                            add_child = False
+                    if add_child:
+                        stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
                     stack.topstream.symlink_dir = f
                     stack.topstream.add_metadata('\\section',argSource, braces=False)
                     stack.topstream.write('\\section'+argSource)
@@ -713,6 +726,7 @@ if __name__ == '__main__':
                         help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)',
                         default = [ 'label', 'uuid', 'index' ] )
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
+    parser.add_argument('--zip-sections','--ZS',action='store_true',help='omit intermediate blob for \\include{} of a single section')
     parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
     args = parser.parse_args()
