@@ -6,7 +6,7 @@ splits the input into blobs
 
 ############## system modules
 
-import itertools, sys, os, io, copy, string, argparse, importlib, shutil
+import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re
 import os.path
 from os.path import join as osjoin
 
@@ -63,6 +63,9 @@ class named_stream(io.StringIO):
       the file will be written in a new UUID under `basepath` ; but see `self.filename`
       and `self.metadata_filename`
     """
+    #
+    _re_spaces_ =  re.compile('^[ \t\n]+$')
+    _default_rstrip = ColDoc_blob_rstrip
     #
     def __init__(self, basepath, environ ,
                 lang = ColDoc_lang, extension = '.tex',
@@ -188,7 +191,19 @@ class named_stream(io.StringIO):
     #
     _comment_out_uuid_in = ('document','MainFile','Preamble','section')
     #
-    def writeout(self, write_UUID = ColDoc_write_UUID):
+    def rstrip(self):
+        """ returns the internal buffer, but splitting the final lines of the buffer,
+        as long as they are all whitespace ;
+        returns (initial_part, stripped_part) """
+        self.seek(0)
+        l = self.readlines()
+        sp=''
+        while l and l[-1] and self._re_spaces_.match( l[-1]) is not None:
+            sp = l[-1] + sp
+            l.pop()
+        return ''.join(l) , sp
+    #
+    def writeout(self, write_UUID = ColDoc_write_UUID, rstrip = None):
         """Writes the content of the file; returns the `filename` where the content was stored,
         relative to `basedir` (using the `symlink_dir` if provided).
         
@@ -199,7 +214,11 @@ class named_stream(io.StringIO):
           (It is anyway added after each '\section' command).
         
         - If `write_UUID` is `False`, no UUID will be written.
+        
+        - If `rstrip` is `True`, will use `self.rstrip` to strip away final lines of only whitespace
         """
+        if rstrip is None : rstrip = self._default_rstrip
+        #
         cmt = ''
         assert write_UUID in (True,False,'auto')
         if write_UUID == 'auto' and self.environ in self._comment_out_uuid_in:
@@ -218,7 +237,11 @@ class named_stream(io.StringIO):
             z = self._open(filename ,'w')
             if write_UUID and self.uuid:
                 z.write("%s\\uuid{%s}%%\n" % (cmt,self.uuid,))
-            z.write(self.getvalue())
+            if rstrip:
+                cnt, tail = self.rstrip()
+            else:
+                cnt = self.getvalue()
+            z.write(cnt)
             z.close()
             self._open(metadata_file,'w').write(self._metadata_txt)
             r =  self._filename
@@ -729,7 +752,18 @@ if __name__ == '__main__':
     parser.add_argument('--zip-sections','--ZS',action='store_true',help='omit intermediate blob for \\include{} of a single section')
     parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
+    #https://stackoverflow.com/a/31347222/5058564
+    stripgroup = parser.add_mutually_exclusive_group()
+    stripgroup.add_argument('--strip',action='store_true',default=ColDoc_blob_rstrip,\
+                            help='strips the last lines in blobs if they are all made of whitespace')
+    stripgroup.add_argument('--no-strip',action='store_false',dest='strip',\
+                            help='do not --strip')
+    parser.set_defaults(strip=ColDoc_blob_rstrip)
+    #
     args = parser.parse_args()
+    #
+    named_stream._default_rstrip = args.strip
+    #
     input_file = args.input_file
     verbose = args.verbose
     assert type(verbose) == int and verbose >= 0

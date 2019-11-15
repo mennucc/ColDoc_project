@@ -20,3 +20,6 @@ ColDoc_early_UUID = True
 #   Moreover it will be added after each '\section' command.
 #- If `write_UUID` is `False`, no UUID will be written.
 ColDoc_write_UUID = 'auto'
+
+# strips the last lines in blobs if they are all made of whitespace
+ColDoc_blob_rstrip = True
