@@ -243,6 +243,10 @@ class named_stream(io.StringIO):
                 cnt = self.getvalue()
             z.write(cnt)
             z.close()
+            #
+            if len(cnt) == 0:
+                logger.warning('empty blob %r' % self)
+            #
             self._open(metadata_file,'w').write(self._metadata_txt)
             r =  self._filename
             # no more messing with this class
