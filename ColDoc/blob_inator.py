@@ -467,7 +467,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     a=z.environ
                     if a == 'include' and r[-4:] == '.tex':
                         r=r[:-4]
-                    stack.topstream.write('\\%s{%s}%%\n' % (a,r))
+                    stack.topstream.write('\\%s{%s}' % (a,r))
                     assert a in ('input','include')
                     del r,z,a
                 elif not in_preamble and cmdargs.copy_graphicx \
