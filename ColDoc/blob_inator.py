@@ -767,9 +767,9 @@ if __name__ == '__main__':
         for name in 'Exercises',:
             # fixme should create list type environment in mycontext
             args.split_list.append(name)
-
-    args.split_environment.append('document')
-    if args.EDB:
+        #
+        args.split_environment.append('document')
+        #
         thecounter = 'thmCount'
         mycontext.newcounter(thecounter, initial=0) #, resetby=parent)
         for name in 'wipExercise','extrastuff','delasol':
