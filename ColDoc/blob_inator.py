@@ -452,7 +452,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     assert os.path.isfile(inputfile)
                     logger.info(' processing %r ' % (inputfile))
                     a=io.StringIO()
-                    a.write('\\'+specialblobinatorEOFcommand+'\n')
+                    a.write('\\'+specialblobinatorEOFcommand)
                     a.seek(0)
                     a.name='specialblobinatorEOFcommand'
                     thetex.input(a, Tokenizer=TokenizerPassThru.TokenizerPassThru)
