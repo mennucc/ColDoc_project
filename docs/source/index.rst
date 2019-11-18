@@ -11,6 +11,13 @@ Welcome to ColDoc's documentation!
    :caption: Contents:
 
 
+Metadata
+--------
+
+.. toctree::
+
+  metadata
+
 
 
 Indices and tables
