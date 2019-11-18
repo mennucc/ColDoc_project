@@ -193,7 +193,7 @@ class named_stream(io.StringIO):
         else:
             self._metadata_txt += '%s={%s}\n' %(  T,E)
     #
-    _comment_out_uuid_in = ('document','MainFile','Preamble','section','input','include')
+    _comment_out_uuid_in = ColDoc_comment_out_uuid_in
     #
     def rstrip(self):
         """ returns the internal buffer, but splitting the final lines of the buffer,

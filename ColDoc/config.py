@@ -16,10 +16,13 @@ ColDoc_early_UUID = True
 
 #- If `write_UUID` is `True`, the UUID will be written at the beginning of the blob.
 #- If `write_UUID` is 'auto', the UUID will be written,
-#   but it will be commented out in 'document', 'MainFile', 'Preamble', 'section' blobs.
+#   but it will be commented out in `ColDoc_comment_out_uuid_in` blobs.
 #   Moreover it will be added after each '\section' command.
 #- If `write_UUID` is `False`, no UUID will be written.
 ColDoc_write_UUID = 'auto'
+
+# see description of `ColDoc_write_UUID`
+ColDoc_comment_out_uuid_in = ('document','main_file','preamble','section','input','include')
 
 # strips the last lines in blobs if they are all made of whitespace
 ColDoc_blob_rstrip = True
