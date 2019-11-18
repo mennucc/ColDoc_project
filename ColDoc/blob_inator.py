@@ -233,6 +233,8 @@ class named_stream(io.StringIO):
         if self._was_written :
             logger.critical('file %r was already written ' % self._filename)
             return self._filename
+        if self.closed :
+            logger.error('file %r was closed before writeout' % self._filename)
         filename = osjoin(self._basepath, self._filename)
         metadata_file = osjoin(self._basepath, self._metadata_filename)
         if True: #len(self.getvalue()) > 0:
