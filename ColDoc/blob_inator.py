@@ -701,8 +701,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         logger.debug( ' did not split \\end{%r}' % (name,) )
                     #
                     stack.topstream.write(r'\end{%s}' % name)
-                elif not in_preamble and \
-                     tok.macroName in cmdargs.metadata_command :
+                elif not in_preamble and tok.macroName in cmdargs.metadata_command :
                     obj = thetex.ownerDocument.createElement(tok.macroName)
                     args = [ thetex.readArgumentAndSource(type=str)[1] for j in range(obj.nargs)]
                     #obj.parse(thetex)
