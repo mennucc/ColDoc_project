@@ -403,7 +403,13 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
         for tok in itertokens:
             n += len(tok.source)
             if isinstance(tok, plasTeX.Tokenizer.Comment):
-                stack.topstream.write('%'+tok.source)
+                a = tok.source
+                if hasattr(plasTeX.Tokenizer.Comment,'source'):
+                    # my patch adds 'source' to Comment, so that '%' is already prepended
+                    assert a[0] == '%'
+                    stack.topstream.write(a)
+                else:
+                    stack.topstream.write('%'+a)
             elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 if tok.macroName == 'documentclass':
                     in_preamble = True
