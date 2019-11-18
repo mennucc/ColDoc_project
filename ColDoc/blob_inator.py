@@ -70,7 +70,7 @@ class named_stream(io.StringIO):
     def __init__(self, basepath, environ ,
                 lang = ColDoc_lang, extension = '.tex',
                 early_UUID = ColDoc_early_UUID,
-                parentFile = None, parentUUID = None, parent = None,
+                parentUUID = None, parent = None,
                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         # store parameters
@@ -94,15 +94,19 @@ class named_stream(io.StringIO):
         if early_UUID:
             self._find_unused_UUID()
         # prepare metadata
-        self._metadata_txt = '\\environ{%s}\n\\extension{%s}\n\\lang{%s}\n' % ( environ, extension, lang )
+        self._metadata_txt = ''
+        self.add_metadata('environ', environ)
+        self.add_metadata('extension', extension)
+        self.add_metadata('lang', lang)
+        #
         if parent is not None:
-            if parentFile is None : parentFile = parent.filename
+            #if parentFile is None : parentFile = parent.filename
             if parentUUID is None : parentUUID = parent.uuid
-        if parentFile:
-            self.add_metadata(r'\parentFile', parentFile)
+        #if parentFile:
+        #    self.add_metadata('parent_file', parentFile)
         if parentUUID:
-            self.add_metadata(r'\parentUUID', parentUUID)
-        elif environ != 'MainFile':
+            self.add_metadata('parent_uuid', parentUUID)
+        elif environ != 'main_file':
             logger.critical('blob %r has parent %r ?' % (self,parent))
     #
     def __repr__(self):
@@ -175,7 +179,7 @@ class named_stream(io.StringIO):
         return self._metadata_filename
     def __len__(self):
         return len(self.getvalue())
-    def add_metadata(self,T,E, braces=None):
+    def add_metadata(self,T,E, braces=False):
         """ The parameter `braces` dictates if `E` will be enclosed in {};
         `braces` may be `True`,`False` or `None` (which means 'autodetect')
         """
@@ -185,9 +189,9 @@ class named_stream(io.StringIO):
         E = E.translate({10:32})
         if braces is False or \
            ( E[0] == '{' and E[-1] == '}' and braces is None ):
-            self._metadata_txt += '%s%s\n' %(  T,E)
+            self._metadata_txt += '%s=%s\n' %(  T,E)
         else:
-            self._metadata_txt += '%s{%s}\n' %(  T,E)
+            self._metadata_txt += '%s={%s}\n' %(  T,E)
     #
     _comment_out_uuid_in = ('document','MainFile','Preamble','section')
     #
@@ -345,9 +349,9 @@ class EnvStreamStack(object):
             if add_as_child and self._topstream is not None \
                and isinstance(self._topstream,named_stream):
                 if o.uuid:
-                    self._topstream.add_metadata('\\childUUID',o.uuid)
-                if o.filename:
-                    self._topstream.add_metadata('\\childFilename',o.filename)
+                    self._topstream.add_metadata('child_uuid',o.uuid)
+                #if o.filename:
+                #    self._topstream.add_metadata('child_filename',o.filename)
         return o
     def pop_str(self, warn=True, stopafter=None):
         " pop strings, until a stream is reached or after popping `stopafter`"
@@ -373,8 +377,8 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
     n = 0
     thetex.input(open(input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     stack = EnvStreamStack()
-    output = named_stream(blobs_dir,'MainFile')
-    output.add_metadata(r'\originalFileName',input_file)
+    output = named_stream(blobs_dir,'main_file')
+    output.add_metadata('original_filename',input_file)
     stack.push(output)
     del output
     def pop_section():
@@ -410,7 +414,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                                            a['options'])
                     stack.topstream.write(obj.source)
                     if cmdargs.split_preamble:
-                        stack.push(named_stream(blobs_dir,'Preamble', parent=stack.topstream))
+                        stack.push(named_stream(blobs_dir,'preamble', parent=stack.topstream))
                 elif cmdargs.split_sections and tok.macroName == 'section':
                     pop_section()
                     #obj = Base.section()
@@ -442,7 +446,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     if add_child:
                         stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
                     stack.topstream.symlink_dir = f
-                    stack.topstream.add_metadata('\\section',argSource, braces=False)
+                    stack.topstream.add_metadata('section',argSource, braces=False)
                     stack.topstream.write('\\section'+argSource)
                     if stack.topstream.uuid and ColDoc_write_UUID:
                         stack.topstream.write("\\uuid{%s}" % (stack.topstream.uuid,))
@@ -469,7 +473,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     else:
                         inputfile = thetex.readArgument(type=str)
                     newoutput = named_stream(blobs_dir,tok.macroName,parent=stack.topstream)
-                    newoutput.add_metadata(r'\originalFileName',inputfile)
+                    newoutput.add_metadata(r'original_filename',inputfile)
                     stack.push(newoutput)
                     del newoutput
                     if not os.path.isabs(inputfile):
@@ -546,7 +550,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
                     fo = osjoin(do,'blob')
                     fm = open(osjoin(blobs_dir,do,"metadata"),'w')
-                    fm.write('\\uuid{%s}\n\\originalFileName{%s}\n' % (uuid,inputfile,))
+                    fm.write('uuid=%s\noriginal_filename=%s\n' % (uuid,inputfile,))
                     del uuid
                     # will load the same extension, if specified
                     stack.topstream.write(cmd+'{'+fo+ei+'}')
@@ -556,7 +560,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         fii = osjoin(di,bi+ext)
                         logger.info(' copying %r to %r' % (fii,fo+ext) )
                         shutil.copy(fii,osjoin(blobs_dir,fo+ext))
-                        fm.write('\\extension{%s}\n' % (ext,))
+                        fm.write('extension=%s\n' % (ext,))
                     fm.close()
                     del do,fo,fm,exts,cmd,fi,di,bi,ei,ext,fii
                 elif tok.macroName == "item":
@@ -580,7 +584,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                             logger.error(' \\begin{document} can only be used in preamble')
                         elif cmdargs.split_preamble:
                             old = stack.pop()
-                            assert old.environ == 'Preamble', " in preamble, the element %r does not match" % old
+                            assert old.environ == 'preamble', " in preamble, the element %r does not match" % old
                             r = old.writeout()
                             del old
                             os_rel_symlink(r,'preamble.tex', cmdargs.blobs_dir ,
@@ -624,7 +628,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                         stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
                         if source:
                             assert source[0] == '[' and source[-1] == ']'
-                            stack.topstream.add_metadata('\\optarg',source[1:-1])
+                            stack.topstream.add_metadata('optarg',source[1:-1])
                     elif name in cmdargs.split_list :
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
@@ -695,10 +699,13 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
                     args = [ thetex.readArgumentAndSource(type=str)[1] for j in range(obj.nargs)]
                     #obj.parse(thetex)
                     logger.info('metadata %r  %r' % (tok,args))
+                    j = stack.top
+                    a = '' if j == stack.topstream else ('S_'+stack.topenv+'_')
                     for j in args:
                         j =  j.translate({'\n':' '})
-                        stack.topstream.add_metadata('\\'+tok.macroName,j)
-                    stack.topstream.write(obj.source+''.join(args))
+                        stack.topstream.add_metadata(a+'M_'+tok.macroName,j)
+                    stack.topstream.write('\\'+tok.macroName+''.join(args))
+                    del j,a
                 elif tok.macroName == '[':
                     logger.debug(' entering math mode')
                     stack.push('\\[')
@@ -720,7 +727,7 @@ def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
         pop_section()
         # main
         M = stack.pop()
-        if M.environ == 'MainFile':
+        if M.environ == 'main_file':
             r = M.writeout()
             os_rel_symlink(r, 'main.tex', cmdargs.blobs_dir ,
                            target_is_directory=False, force=True)
