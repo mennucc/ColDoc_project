@@ -404,31 +404,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     in_preamble = False
     # map to avoid duplicating the same input on two different blobs;
-    # each key is an absolute path; the value is either the `named_stream` or
-    # a path relative to `blobs_dir`
-    class absdict(dict):
-        def _norm(self, k):
-            if k != os.path.normpath(k):
-                logger.warning(' weird k = %r',k)
-            k = os.path.normpath(k)
-            if not os.path.isabs(k):
-                k = osjoin(input_basedir,k)
-            return k
-        def __setitem__(self, k, v):
-            assert (not isinstance(v,str)) or (not os.path.isabs(v))
-            k = self._norm(k)
-            logger.debug("file_blob_map[%r] = %r",k,v)
-            return super().__setitem__(k, v)
-        def __getitem__(self, k):
-            k = self._norm(k)
-            return super().__getitem__(k)
-        def get(self, k, d = None):
-            k = self._norm(k)
-            return super().get(k, d)
-        def __contains__(self, k):
-            k = self._norm(k)
-            return super().__contains__(k)
-    file_blob_map = absdict()
+    # each key is converted to an absolute path relative to `blobs_dir`;
+    # the value is either the `named_stream` or a path relative to `blobs_dir`
+    file_blob_map = absdict(basedir = input_basedir, loggingname='file_blob_map')
     #
     n = 0
     thetex.input(open(cmdargs.input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)

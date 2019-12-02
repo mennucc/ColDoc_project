@@ -12,9 +12,37 @@ logger = logging.getLogger(__name__)
 from config import *
 
 
-__all__ = ( "slugify", "uuid_to_dir", "dir_to_uuid",
+__all__ = ( "slugify", "absdict",  "uuid_to_dir", "dir_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink")
+
+class absdict(dict):
+    """ dict() where each key is converted to an absolute path relative to `basedir`"""
+    def __init__(self, basedir, loggingname, **other):
+        self._basedir = basedir
+        self._loggingname = loggingname
+        return super().__init__(**other)
+    def _norm(self, k):
+        if k != os.path.normpath(k):
+            logger.warning('%s, weird key = %r',self._loggingname,k)
+        k = os.path.normpath(k)
+        if not os.path.isabs(k):
+            k = osjoin(self._basedir, k)
+        return k
+    def __setitem__(self, k, v):
+        #assert (not isinstance(v,str)) or (not os.path.isabs(v))
+        k = self._norm(k)
+        logger.debug("%s[%r] = %r", self._loggingname, k, v)
+        return super().__setitem__(k, v)
+    def __getitem__(self, k):
+        k = self._norm(k)
+        return super().__getitem__(k)
+    def get(self, k, d = None):
+        k = self._norm(k)
+        return super().get(k, d)
+    def __contains__(self, k):
+        k = self._norm(k)
+        return super().__contains__(k)
 
 #####################
 
