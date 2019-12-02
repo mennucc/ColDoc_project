@@ -393,15 +393,18 @@ class EnvStreamStack(object):
             else:
                 break
 
-def blob_inator(input_file, thetex, thedocument, thecontext, cmdargs):
+def blob_inator(thetex, thedocument, thecontext, cmdargs):
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
     shift_eol=True
-    input_basedir = os.path.dirname(cmdargs.input_file)
+    # normalize input file path
+    input_file = os.path.abspath(cmdargs.input_file)
+    input_basedir = os.path.dirname(input_file)
+    #
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     in_preamble = False
     n = 0
-    thetex.input(open(input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    thetex.input(open(cmdargs.input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     stack = EnvStreamStack()
     output = named_stream(blobs_dir,'main_file')
     output.add_metadata('original_filename',input_file)
@@ -813,7 +816,6 @@ if __name__ == '__main__':
     #
     named_stream._default_rstrip = args.strip
     #
-    input_file = args.input_file
     verbose = args.verbose
     assert type(verbose) == int and verbose >= 0
     if verbose > 1:
@@ -822,11 +824,9 @@ if __name__ == '__main__':
         logging.getLogger().setLevel(logging.INFO)
     else:
         logging.getLogger().setLevel(logging.WARNING)
-    #hack
-    #input_file = '/home/andrea/Work/CORSI/EDB/EDB.tex'
+    #
     assert os.path.isdir(args.blobs_dir), ' not a dir %r' % args.blobs_dir
-    assert os.path.isfile(input_file)
-    input_basedir = os.path.dirname(input_file)
+    assert os.path.isfile(args.input_file)
 
     mytex = TeX()
     mydocument = mytex.ownerDocument
@@ -875,8 +875,8 @@ if __name__ == '__main__':
             os.mkdir(d)
 
 
-    logger.info("processing %r" % input_file)
-    blob_inator(input_file, mytex, mydocument, mycontext, args)
+    logger.info("processing %r" % args.input_file)
+    blob_inator(mytex, mydocument, mycontext, args)
     logger.info("end of file")
 
 
