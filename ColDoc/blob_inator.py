@@ -234,7 +234,7 @@ class named_stream(io.StringIO):
         - If `write_UUID` is `True`, the UUID will be written at the beginning of the blob.
         
         - If `write_UUID` is 'auto', the UUID will be written,
-          but it will be commented out in 'document', 'MainFile', 'Preamble', 'section' blobs.
+          but it will be commented out in 'document', 'main_file', 'preamble', 'section' blobs.
           (It is anyway added after each '\section' command).
         
         - If `write_UUID` is `False`, no UUID will be written.
@@ -772,7 +772,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
         if M.environ == 'main_file':
             r = M.writeout()
         else:
-            logger.error('disaligned stack, blob %r is not the MainFile' % (M,))
+            logger.error('disaligned stack, blob is not the main_file: %r' % (M,))
     except:
         raise
     finally:
