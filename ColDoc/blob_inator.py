@@ -403,11 +403,39 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
     #
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     in_preamble = False
+    # map to avoid duplicating the same input on two different blobs;
+    # each key is an absolute path; the value is either the `named_stream` or
+    # a path relative to `blobs_dir`
+    class absdict(dict):
+        def _norm(self, k):
+            if k != os.path.normpath(k):
+                logger.warning(' weird k = %r',k)
+            k = os.path.normpath(k)
+            if not os.path.isabs(k):
+                k = osjoin(input_basedir,k)
+            return k
+        def __setitem__(self, k, v):
+            assert (not isinstance(v,str)) or (not os.path.isabs(v))
+            k = self._norm(k)
+            logger.debug("file_blob_map[%r] = %r",k,v)
+            return super().__setitem__(k, v)
+        def __getitem__(self, k):
+            k = self._norm(k)
+            return super().__getitem__(k)
+        def get(self, k, d = None):
+            k = self._norm(k)
+            return super().get(k, d)
+        def __contains__(self, k):
+            k = self._norm(k)
+            return super().__contains__(k)
+    file_blob_map = absdict()
+    #
     n = 0
     thetex.input(open(cmdargs.input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     stack = EnvStreamStack()
     output = named_stream(blobs_dir,'main_file')
     output.add_metadata('original_filename',input_file)
+    file_blob_map[input_file] = output
     output.symlink_file_add('main.tex')
     if cmdargs.symlink_input:
         output.symlink_file_add(os.path.basename( input_file))
@@ -510,25 +538,37 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         #inputfile = thetex.kpsewhich(inputfile)
                     else:
                         inputfile = thetex.readArgument(type=str)
-                    newoutput = named_stream(blobs_dir,tok.macroName,parent=stack.topstream)
-                    newoutput.add_metadata(r'original_filename',inputfile)
-                    stack.push(newoutput)
-                    if cmdargs.symlink_input:
-                        newoutput.symlink_file_add( inputfile + ('' if inputfile[-4:] == '.tex' else '.tex'))
-                    del newoutput
-                    if not os.path.isabs(inputfile):
-                        inputfile = os.path.join(input_basedir,inputfile)
-                    if not os.path.isfile(inputfile):
-                        inputfile += '.tex'
-                    assert os.path.isfile(inputfile)
-                    logger.info(' processing %r ' % (inputfile))
-                    a=io.StringIO()
-                    a.write('\\'+specialblobinatorEOFcommand)
-                    a.seek(0)
-                    a.name='specialblobinatorEOFcommand'
-                    thetex.input(a, Tokenizer=TokenizerPassThru.TokenizerPassThru)
-                    del a
-                    thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
+                    if inputfile in file_blob_map:
+                        O = file_blob_map[inputfile]
+                        if not isinstance(O,named_stream):
+                            logger.error("the input %r was already parsed as object %r ?!?",
+                                         inputfile,O)
+                        elif not O.closed:
+                            logger.critical("recursive input: %r as %r", input_file, O)
+                            raise RuntimeError("recursive input: %r as %r" % (input_file, O))
+                        logger.info("duplicate input, parsed once: %r", inputfile)
+                        stack.topstream.write('\\%s{%s}' % (tok.macroName,O.filename))
+                    else:
+                        newoutput = named_stream(blobs_dir,tok.macroName,parent=stack.topstream)
+                        newoutput.add_metadata(r'original_filename',inputfile)
+                        stack.push(newoutput)
+                        if cmdargs.symlink_input:
+                            newoutput.symlink_file_add( inputfile + ('' if inputfile[-4:] == '.tex' else '.tex'))
+                        if not os.path.isabs(inputfile):
+                            inputfile = os.path.join(input_basedir,inputfile)
+                        if not os.path.isfile(inputfile):
+                            inputfile += '.tex'
+                        assert os.path.isfile(inputfile)
+                        file_blob_map[inputfile] = newoutput
+                        del newoutput
+                        logger.info(' processing %r ' % (inputfile))
+                        a=io.StringIO()
+                        a.write('\\'+specialblobinatorEOFcommand)
+                        a.seek(0)
+                        a.name='specialblobinatorEOFcommand'
+                        thetex.input(a, Tokenizer=TokenizerPassThru.TokenizerPassThru)
+                        del a
+                        thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
                 elif tok.macroName == specialblobinatorEOFcommand:
                     pop_section()
                     # pops the output when it ends
@@ -561,51 +601,68 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                                 inputfile = source[1:-1]
                     assert isinstance(inputfile,str)
                     assert not os.path.isabs(inputfile), "absolute path not supported: "+cmd+'{'+inputfile+'}'
-                    fi=osjoin(input_basedir,inputfile)
-                    di=os.path.dirname(fi)
-                    bi=os.path.basename(fi)
-                    bi,ei=os.path.splitext(bi)
-                    assert fi == osjoin(di,bi+ei)
-                    if ei and not os.path.isfile(fi):
-                        logger.error(' while parsing %r, no  such file: %r' %\
-                            (cmd+'{'+inputfile+'}',fi,))
-                    # find all interesting files
-                    is_graph = False
-                    exts = []
-                    for j in os.listdir(di):
-                        bj,ej = os.path.splitext(j)
-                        if bj == bi:
-                            exts.append(ej)
-                            if ej.lower() in ['','.png','.jpg','.jpeg','.gif','.pdf','.ps','.eps','.tif','.tiff']:
-                                is_graph = True
-                    #
-                    if not exts :
-                        logger.error(' while parsing %r, no files %r.ext were found (for any possible extension `ext`' %\
-                            (cmd+'{'+inputfile+'}',osjoin(di,bi)))
-                    elif not is_graph:
-                        logger.warning(' while parsing %r, no  graphical files %r.ext were found (for extensions `ext` that look like a graphic file' %\
-                            (cmd+'{'+inputfile+'}',osjoin(di,bi)))
-                    #
-                    uuid = new_uuid(blobs_dir=blobs_dir)
-                    do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
-                    fo = osjoin(do,'blob')
-                    fm = open(osjoin(blobs_dir,do,"metadata"),'w')
-                    fm.write('uuid=%s\noriginal_filename=%s\n' % (uuid,inputfile,))
-                    del uuid
-                    # will load the same extension, if specified
-                    stack.topstream.write(cmd+'{'+fo+ei+'}')
-                    # copy all files with same base, different extensions
-                    ext = fii = None
-                    for ext in exts:
-                        fii = osjoin(di,bi+ext)
-                        logger.info(' copying %r to %r' % (fii,fo+ext) )
-                        shutil.copy(fii,osjoin(blobs_dir,fo+ext))
-                        fm.write('extension=%s\n' % (ext,))
-                        if cmdargs.symlink_input:
-                            os_rel_symlink(fo+ext,fii,cmdargs.blobs_dir ,
-                                           target_is_directory=False)
-                    fm.close()
-                    del do,fo,fm,exts,cmd,fi,di,bi,ei,ext,fii
+                    if inputfile in file_blob_map:
+                        O = file_blob_map[inputfile]
+                        if not isinstance(O,str):
+                            logger.critical("the input %r was already parsed as object %r",
+                                            inputfile,O)
+                            raise RuntimeError("the input %r was already parsed as object %r" %
+                                               (inputfile,O))
+                        logger.info("duplicate graphical input, copied once: %r", inputfile)
+                        stack.topstream.write(cmd+'{'+file_blob_map[inputfile]+'}')
+                    else:
+                        di,bi = os.path.split(inputfile)
+                        bi,ei=os.path.splitext(bi)
+                        assert inputfile == osjoin(di,bi+ei)
+                        if ei and not os.path.isfile(osjoin(input_basedir,inputfile)):
+                            logger.error(' while parsing %r, no  such file: %r' %\
+                                (cmd+'{'+inputfile+'}',fi,))
+                        # find all interesting files
+                        is_graph = False
+                        exts = []
+                        for j in os.listdir(osjoin(input_basedir,di)):
+                            bj,ej = os.path.splitext(j)
+                            if bj == bi:
+                                exts.append(ej)
+                                if ej.lower() in ['','.png','.jpg','.jpeg','.gif','.pdf','.ps','.eps','.tif','.tiff']:
+                                    is_graph = True
+                        #
+                        if not exts :
+                            logger.error(' while parsing %r, no files %r.ext were found (for any possible extension `ext`' %\
+                                (cmd+'{'+inputfile+'}',osjoin(di,bi)))
+                        elif not is_graph:
+                            logger.warning(' while parsing %r, no  graphical files %r.ext were found (for extensions `ext` that look like a graphic file' %\
+                                (cmd+'{'+inputfile+'}',osjoin(di,bi)))
+                        #
+                        uuid = new_uuid(blobs_dir=blobs_dir)
+                        do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
+                        fo = osjoin(do,'blob')
+                        fm = open(osjoin(blobs_dir,do,"metadata"),'w')
+                        fm.write('uuid=%s\noriginal_filename=%s\n' % (uuid,inputfile,))
+                        del uuid
+                        # will load the same extension, if specified
+                        stack.topstream.write(cmd+'{'+fo+ei+'}')
+                        #
+                        file_blob_map[inputfile] = fo+ei
+                        file_blob_map[osjoin(di,bi)] = fo
+                        # copy all files with same base, different extensions
+                        ext = fii = None
+                        for ext in exts:
+                            fii = osjoin(di,bi+ext)
+                            logger.info(' copying %r to %r' % (fii,fo+ext) )
+                            shutil.copy(osjoin(input_basedir,fii),osjoin(blobs_dir,fo+ext))
+                            fm.write('extension=%s\n' % (ext,))
+                            if cmdargs.symlink_input:
+                                try:
+                                    os_rel_symlink(fo+ext,fii,cmdargs.blobs_dir ,
+                                                   target_is_directory=False)
+                                except:
+                                    logger.exception("cannot create symlink %r", fii)
+                            #
+                            file_blob_map[fii] = fo+ext
+                            #
+                        fm.close()
+                        del do,fo,fm,exts,cmd,di,bi,ei,ext,fii
                 elif tok.macroName == "item":
                     e = stack.topenv
                     if len(e) >= 3 and e[:2] == 'E_' and e[2:] in cmdargs.split_list :
