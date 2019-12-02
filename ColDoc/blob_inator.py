@@ -95,7 +95,7 @@ class named_stream(io.StringIO):
         if early_UUID:
             self._find_unused_UUID()
         # prepare metadata
-        self._metadata_txt = ''
+        self._metadata = Metadata()
         self.add_metadata('environ', environ)
         self.add_metadata('extension', extension)
         self.add_metadata('lang', lang)
@@ -209,9 +209,9 @@ class named_stream(io.StringIO):
         E = E.translate({10:32})
         if braces is False or \
            ( E[0] == '{' and E[-1] == '}' and braces is None ):
-            self._metadata_txt += '%s=%s\n' %(  T,E)
+            self._metadata.add(T, E)
         else:
-            self._metadata_txt += '%s={%s}\n' %(  T,E)
+            self._metadata.add(T, '{'+E+'}')
     #
     _comment_out_uuid_in = ColDoc_comment_out_uuid_in
     #
@@ -273,7 +273,7 @@ class named_stream(io.StringIO):
             if len(cnt) == 0:
                 logger.warning('empty blob %r' % self)
             #
-            self._open(metadata_file,'w').write(self._metadata_txt)
+            self._metadata.write(metadata_file)
             r =  self._filename
             # no more messing with this class
             self._was_written = True
@@ -616,8 +616,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         uuid = new_uuid(blobs_dir=blobs_dir)
                         do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
                         fo = osjoin(do,'blob')
-                        fm = open(osjoin(blobs_dir,do,"metadata"),'w')
-                        fm.write('uuid=%s\noriginal_filename=%s\n' % (uuid,inputfile,))
+                        fm = Metadata()
+                        fm['uuid'] = uuid
+                        fm['original_filename'] = inputfile
                         del uuid
                         # will load the same extension, if specified
                         stack.topstream.write(cmd+'{'+fo+ei+'}')
@@ -630,7 +631,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                             fii = osjoin(di,bi+ext)
                             logger.info(' copying %r to %r' % (fii,fo+ext) )
                             shutil.copy(osjoin(input_basedir,fii),osjoin(blobs_dir,fo+ext))
-                            fm.write('extension=%s\n' % (ext,))
+                            fm.add('extension', ext)
                             if cmdargs.symlink_input:
                                 try:
                                     os_rel_symlink(fo+ext,fii,cmdargs.blobs_dir ,
@@ -640,7 +641,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                             #
                             file_blob_map[fii] = fo+ext
                             #
-                        fm.close()
+                        fm.write(osjoin(blobs_dir,do,"metadata"))
                         del do,fo,fm,exts,cmd,di,bi,ei,ext,fii
                 elif tok.macroName == "item":
                     e = stack.topenv

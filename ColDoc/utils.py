@@ -12,9 +12,76 @@ logger = logging.getLogger(__name__)
 from config import *
 
 
-__all__ = ( "slugify", "absdict",  "uuid_to_dir", "dir_to_uuid",
+__all__ = ( "slugify", "absdict", "Metadata", "uuid_to_dir", "dir_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink")
+
+
+#####################
+
+# note that from python 3.6 on, `dict` preserves order
+from collections import OrderedDict
+
+class Metadata(OrderedDict):
+    #
+    def __init__(self, file=None, **k):
+        # the keys as a list (to preserve order)
+        self._keys=[]
+        self._file = file
+        #if file is not None:
+        #    self.read(file)
+        return super().__init__(**k)
+    #
+    def read(f):
+        " read key/values from `f` ; if `f` is a string, open that as file"
+        if isinstance(j, str):
+            f = iter( j for f in open(f) )
+        for j in f:
+            if j[-1] == '\n':
+                j = j[:-1]
+            i = j.index('=')
+            assert i > 0, "cannot parse '%r' as key=value " % j
+            k,v = j[:j-1], j[j:]
+            self.add(k,v)
+    #
+    def write(self, f =  None):
+        """ return key/values as a list of strings;
+        if `f` is a string, open it as file and write it
+        if `f` is a file, write the metadata in that file
+        """
+        l = []
+        for k,v in self.items():
+            for j in v:
+                l.append(str(k)+'='+str(j)+'\n')
+        if f is not None:
+            if isinstance(f, str):
+                f = open(f,'w')
+            f.writelines(l)
+        return l
+    #
+    def add(self, k, v):
+        "add `v` as value for key `k`"
+        #assert isinstance(k,str) and isinstance(v,str)
+        assert '=' not in str(k)
+        if k not in self._keys:
+            self._keys.append(k)
+        if k in self:
+            super().__getitem__(k).append(v)
+        else:
+            super().__setitem__(k, [v])
+        #super().setdefault(k,[]).append(v)
+    #
+    def  __setitem__(self, k, v):
+        " set one occurrence of `v` for `k`"
+        if k not in self._keys:
+            self._keys.append(k)
+        super().__setitem__(k, [v])
+    #
+    def setdefault(**o):
+        " unimplemented, may confuse users, semantic unclear"
+        raise NotImplementedError("use `add` instead")
+
+###############
 
 class absdict(dict):
     """ dict() where each key is converted to an absolute path relative to `basedir`"""
