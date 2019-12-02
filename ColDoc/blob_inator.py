@@ -171,8 +171,12 @@ class named_stream(io.StringIO):
     def symlink_file_add(self, symlink_file):
         """ add a name for a symlink (relative to `basepath`) for this blob
         """
-        assert not os.path.isabs(symlink_file)
-        self._symlink_files.add(symlink_file)
+        if '..' in symlink_file.split(os.path.sep):
+            logger.warning(" will not create symlink with '..' in it: %r",symlink_file)
+        elif  os.path.isabs(symlink_file):
+            logger.warning(" will not create absolute symlink: %r",symlink_file)
+        else:
+            self._symlink_files.add(symlink_file)
     #
     @property
     def filename(self):
