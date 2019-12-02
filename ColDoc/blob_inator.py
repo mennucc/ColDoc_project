@@ -600,6 +600,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                             else:
                                 inputfile = source[1:-1]
                     assert isinstance(inputfile,str)
+                    logger.debug('parsing %r' , cmd+'{'+inputfile+'}')
                     assert not os.path.isabs(inputfile), "absolute path not supported: "+cmd+'{'+inputfile+'}'
                     if inputfile in file_blob_map:
                         O = file_blob_map[inputfile]
@@ -693,7 +694,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         in_preamble = False
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
-                        logger.info( ' ignore \\begin{%r} in preamble' % (name,) )                    
+                        logger.info( ' ignore \\begin{%r} in preamble' % (name,) )
                     elif name in cmdargs.verbatim_environment:
                         class MyVerbatim(Base.verbatim):
                             macroName = name
@@ -834,8 +835,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
         raise
     finally:
         while stack:
-            logger.critical('writing orphan output')
             M = stack.pop()
+            logger.critical('writing orphan output %r',M)
             if isinstance(M,named_stream):
                 M.writeout()
 
