@@ -631,6 +631,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         fm = Metadata()
                         fm['uuid'] = uuid
                         fm['original_filename'] = inputfile
+                        fm['original_command'] = cmd
+                        fm['parent_uuid'] = stack.topstream.uuid
                         del uuid
                         # will load the same extension, if specified
                         stack.topstream.write(cmd+'{'+fo+ei+'}')
