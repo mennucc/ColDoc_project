@@ -571,8 +571,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                     a=z.environ
                     if a == 'include' and r[-4:] == '.tex':
                         r=r[:-4]
-                    stack.topstream.write('\\%s{%s}' % (a,r))
-                    assert a in ('input','include')
+                    if a not in ('input','include'):
+                        logger.error("the blob %r ends with an unmatched %r",z,a)
+                        stack.topstream.write('\\input{%s}' % (r,))
+                    else:
+                        stack.topstream.write('\\%s{%s}' % (a,r))
                     del r,z,a
                 elif not in_preamble and cmdargs.copy_graphicx \
                      and tok.macroName == "includegraphics":
