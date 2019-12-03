@@ -354,24 +354,27 @@ class EnvStreamStack(object):
             return s.environ
         return s
     #
-    def _set_topstream(self):
+    def _set_topstream(self, checknonempty=True):
         self._topstream = None
         for j in reversed(self._stack):
             if isinstance(j,named_stream):
                 self._topstream = j
                 break
+        if checknonempty and self._topstream is None:
+            logger.critical('There is no blob to write to! blob_inator crashes!')
+            raise RuntimeError('There is no blob to write to!')
     def push(self,o):
         assert isinstance(o, (str,named_stream))
         self._stack.append(o)
         if isinstance(o,named_stream):
             self._topstream = o
-    def pop(self, add_as_child = True):
+    def pop(self, add_as_child = True, checknonempty=True):
         """ pops topmost element ;
         if `add_as_child` and topmost element was a stream,
         write its UUID and filename in metadata of the parent stream"""
         o = self._stack.pop()
         if isinstance(o, named_stream):
-            self._set_topstream()
+            self._set_topstream(checknonempty=checknonempty)
             if add_as_child and self._topstream is not None \
                and isinstance(self._topstream,named_stream):
                 if o.uuid:
@@ -818,7 +821,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                 stack.topstream.write(str(tok))
         pop_section()
         # main
-        M = stack.pop()
+        M = stack.pop(checknonempty=False)
         if isinstance(M,named_stream) and M.environ == 'main_file':
             r = M.writeout()
         else:
