@@ -392,6 +392,17 @@ class EnvStreamStack(object):
                 self._stack.pop()
             else:
                 break
+    def pop_stream(self):
+        " pops the topmost stream, w/o touching the non-stream elements of the stack"
+        t = None
+        for n,j in enumerate(self._stack):
+            if isinstance(j,named_stream):
+                t=n
+        assert t is not None
+        O = self._stack[t]
+        del self._stack[t]
+        self._set_topstream()
+        return O
 
 def blob_inator(thetex, thedocument, thecontext, cmdargs):
     use_plastex_parse = True
@@ -420,11 +431,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
     stack.push(output)
     del output, input_file
     def pop_section():
-        stack.pop_str()
-        if stack.topenv == 'section':
-            r = stack.pop().writeout()
+        # do not destroy stack, stack.pop_str()
+        if stack.topstream.environ == 'section':
+            r = stack.pop_stream().writeout()
             stack.topstream.write(r'\input{%s}' % r)
-        stack.pop_str()
+        # do not destroy stack, stack.pop_str()
     def log_mismatch(beg,end):
         if beg[:2] == 'E_':
             beg = '\\begin{' + beg[2:] + '}'
@@ -505,8 +516,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                     thecontext.addGlobal(name, th)
                     del th
                 elif tok.macroName in ("input","include"):
-                    if tok.macroName == "include" and stack.topenv == "section":
-                        r = stack.pop().writeout()
+                    if tok.macroName == "include" and stack.topstream.environ == "section":
+                        r = stack.pop_stream().writeout()
                         stack.topstream.write('\\input{%s}' % (r,))
                     if use_plastex_parse:
                         obj = Base.input()
@@ -757,8 +768,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         if stack.topenv != 'E_'+name:
                             log_mismatch(stack.topenv,name)
                             # go on, hope for the best
-                            continue
-                        r = stack.pop().writeout()
+                        r = stack.pop_stream().writeout()
                         if name == 'document':
                             os_rel_symlink(r,'document.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
@@ -807,10 +817,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
         pop_section()
         # main
         M = stack.pop()
-        if M.environ == 'main_file':
+        if isinstance(M,named_stream) and M.environ == 'main_file':
             r = M.writeout()
         else:
-            logger.error('disaligned stack, blob is not the main_file: %r' % (M,))
+            logger.error('disaligned stack, topmost blob is not the main_file: %r' % (M,))
     except:
         raise
     finally:
