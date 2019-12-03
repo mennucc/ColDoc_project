@@ -817,6 +817,14 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                     else:
                         stack.pop()
                     stack.topstream.write('\\]')
+                elif tok.macroName == 'verb':
+                    obj = Base.verb()
+                    obj.ownerDocument = thetex.ownerDocument
+                    t = obj.invoke(thetex)
+                    stack.topstream.write('\\verb')
+                    for j in t[1:]:
+                        stack.topstream.write(j)
+                    del obj,j,t
                 else:
                     #logger.debug(' unprocessed %r', tok.source)
                     stack.topstream.write(tok.source)
