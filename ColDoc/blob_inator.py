@@ -6,7 +6,7 @@ splits the input into blobs
 
 ############## system modules
 
-import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re
+import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json
 import os.path
 from os.path import join as osjoin
 
@@ -910,8 +910,11 @@ if __name__ == '__main__':
         d = osjoin(args.blobs_dir,j)
         if not os.path.isdir(d):
             os.mkdir(d)
-
-
+    # save cmdline args
+    args.cwd = os.getcwd()
+    with open(osjoin(args.blobs_dir, '.blob_inator-args.json'), 'w') as a:
+        json.dump(args.__dict__, a, indent=2)
+    #
     logger.info("processing %r" % args.input_file)
     blob_inator(mytex, mydocument, mycontext, args)
     logger.info("end of file")
