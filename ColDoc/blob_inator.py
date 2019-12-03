@@ -538,7 +538,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         logger.info("duplicate input, parsed once: %r", inputfile)
                         stack.topstream.write('\\%s{%s}' % (tok.macroName,O.filename))
                     else:
-                        newoutput = named_stream(blobs_dir,tok.macroName,parent=stack.topstream)
+                        newoutput = named_stream(blobs_dir,str(tok.macroName),parent=stack.topstream)
                         newoutput.add_metadata(r'original_filename',inputfile)
                         stack.push(newoutput)
                         if cmdargs.symlink_input:
