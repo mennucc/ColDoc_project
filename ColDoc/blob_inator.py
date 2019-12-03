@@ -522,8 +522,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                             logger.error("the input %r was already parsed as object %r ?!?",
                                          inputfile,O)
                         elif not O.closed:
-                            logger.critical("recursive input: %r as %r", input_file, O)
-                            raise RuntimeError("recursive input: %r as %r" % (input_file, O))
+                            logger.critical("recursive input: %r as %r", inputfile, O)
+                            raise RuntimeError("recursive input: %r as %r" % (inputfile, O))
                         logger.info("duplicate input, parsed once: %r", inputfile)
                         stack.topstream.write('\\%s{%s}' % (tok.macroName,O.filename))
                     else:
