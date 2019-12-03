@@ -418,7 +418,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
     if cmdargs.symlink_input:
         output.symlink_file_add(os.path.basename( input_file))
     stack.push(output)
-    del output
+    del output, input_file
     def pop_section():
         stack.pop_str()
         if stack.topenv == 'section':
@@ -547,6 +547,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         thetex.input(a, Tokenizer=TokenizerPassThru.TokenizerPassThru)
                         del a
                         thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
+                    del inputfile
                 elif tok.macroName == specialblobinatorEOFcommand:
                     pop_section()
                     # pops the output when it ends
