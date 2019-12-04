@@ -273,6 +273,7 @@ class named_stream(io.StringIO):
             if len(cnt) == 0:
                 logger.warning('empty blob %r' % self)
             #
+            self._metadata.add('uuid',self._uuid)
             self._metadata.write(metadata_file)
             r =  self._filename
             # no more messing with this class
