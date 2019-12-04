@@ -14,8 +14,15 @@ from config import *
 
 __all__ = ( "slugify", "absdict", "Metadata", "uuid_to_dir", "dir_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
-            "new_section_nr" , "uuid_symlink", "os_rel_symlink")
+            "new_section_nr" , "uuid_symlink", "os_rel_symlink",
+            "ColDocException", "ColDocFileNotFoundError",
+            )
 
+class ColDocException(Exception):
+    pass
+
+class ColDocFileNotFoundError (FileNotFoundError,Exception):
+    pass
 
 #####################
 
