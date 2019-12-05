@@ -888,7 +888,8 @@ if __name__ == '__main__':
                         help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)',
                         default = [ 'label', 'uuid', 'index' ] )
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
-    parser.add_argument('--zip-sections','--ZS',action='store_true',help='omit intermediate blob for \\include{} of a single section')
+    parser.add_argument('--zip-sections','--ZS',action='store_true',
+                        help='omit intermediate blob for \\include{} of a single section; implies --SS')
     parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
     parser.add_argument('--symlink-input','--SI',action='store_true',help='create a symlink for each file that is parsed (by `\\input` or `\\include` or `\\includegraphics`)')
     parser.add_argument('--add-UUID','--AU', type=str,choices={"yes","y", "no","n","auto","a"},
@@ -905,6 +906,7 @@ if __name__ == '__main__':
     #
     args = parser.parse_args()
     # normalize
+    if args.zip_sections: args.split_sections = True
     args.add_UUID = {"yes":True,"y":True,"no":False,"n":False,"a":"auto","auto":"auto"}[args.add_UUID]
     #
     named_stream._default_rstrip = args.strip
