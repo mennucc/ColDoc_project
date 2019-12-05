@@ -522,7 +522,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                     stack.topstream.symlink_dir = f
                     stack.topstream.add_metadata('section',argSource, braces=False)
                     stack.topstream.write('\\section'+argSource)
-                    if stack.topstream.uuid and ColDoc_write_UUID:
+                    if stack.topstream.uuid and cmdargs.add_UUID:
                         stack.topstream.write("\\uuid{%s}" % (stack.topstream.uuid,))
                 elif cmdargs.split_all_theorems and macroname == 'newtheorem':
                     obj = amsthm.newtheorem()
@@ -880,9 +880,9 @@ if __name__ == '__main__':
     parser.add_argument('--zip-sections','--ZS',action='store_true',help='omit intermediate blob for \\include{} of a single section')
     parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
     parser.add_argument('--symlink-input','--SI',action='store_true',help='create a symlink for each file that is parsed (by `\\input` or `\\include` or `\\includegraphics`)')
-    ## TODO this would take 3 values, yes=True, no=False, or "auto"
-    #parser.add_argument('--add-UUID','--AU', type=str,
-    #                    help="add \\uuid{UUID} commands, can be `yes` `no` or `auto`")
+    parser.add_argument('--add-UUID','--AU', type=str,choices={"yes","y", "no","n","auto","a"},
+                        default={True:'yes',False:"no","auto":"auto"}[ColDoc_write_UUID],
+                        help="add \\uuid{UUID} commands, can be `yes` `no` or `auto`")
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
     #https://stackoverflow.com/a/31347222/5058564
     stripgroup = parser.add_mutually_exclusive_group()
@@ -893,8 +893,11 @@ if __name__ == '__main__':
     parser.set_defaults(strip=ColDoc_blob_rstrip)
     #
     args = parser.parse_args()
+    # normalize
+    args.add_UUID = {"yes":True,"y":True,"no":False,"n":False,"a":"auto","auto":"auto"}[args.add_UUID]
     #
     named_stream._default_rstrip = args.strip
+    named_stream._default_write_UUID = args.add_UUID
     #
     verbose = args.verbose
     assert type(verbose) == int and verbose >= 0
