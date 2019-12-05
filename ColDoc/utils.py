@@ -1,5 +1,5 @@
 
-import itertools, sys, os, io, copy, logging, shelve, unicodedata, re
+import itertools, sys, os, io, copy, logging, shelve, unicodedata, re, pathlib
 import os.path
 from os.path import join as osjoin
 

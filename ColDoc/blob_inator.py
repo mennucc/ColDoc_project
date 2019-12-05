@@ -6,7 +6,7 @@ splits the input into blobs
 
 ############## system modules
 
-import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json
+import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json, pathlib
 import os.path
 from os.path import join as osjoin
 
