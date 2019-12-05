@@ -50,7 +50,7 @@ from plasTeX.Packages import amsthm , graphicx
 
 ########################################
 
-def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, internal_EOF=True):
+def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_files, internal_EOF=True):
     logger.debug("starting uuid %r into %r"%(blob_uuid,output_file))
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
@@ -69,6 +69,8 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, internal_EOF=
     #
     input_file, _, metadata, lang, ext = choose_blob(uuid=blob_uuid, blobs_dir=blobs_dir)
     thetex.input(open(input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    #
+    logger.debug("recreating file:%r"%(recreated_files[-1]))
     #
     itertokens = thetex.itertokens()
     n=0
@@ -127,7 +129,8 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, internal_EOF=
                             logger.debug("This \\%s{%s} does not have an `original_filename`" %(macroname,inputfile))
                             if cmdargs.add_UUID_comments:
                                 sub_output.write("%%start_uuid=%s\n"%(subuuid,))
-                            deblob_inator_recurse(subuuid, thetex, cmdargs, output_file)
+                            deblob_inator_recurse(subuuid, thetex, cmdargs, output_file,
+                                                  recreated_files)
                             if cmdargs.add_UUID_comments:
                                 sub_output.write("%%end_uuid=%s\n"%(subuuid,))
                         else:
@@ -143,18 +146,24 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, internal_EOF=
                             if s[-4:] != '.tex':
                                 s += '.tex'
                             a = osjoin(cmdargs.latex_dir,s)
-                            if os.path.exists(a) and not args.overwrite:
-                                raise ColDocException("will not overwrite: %r"%a)
-                            sub_output = open(a,"w")
-                            if cmdargs.add_UUID_comments:
-                                sub_output.write("%%start_uuid=%s\n"%(subuuid,))
-                            #if cmdargs.add_UUID:
-                            #    sub_output.write("\\uuid{%s}%%\n"%(subuuid,))
-                            deblob_inator_recurse(subuuid, thetex, cmdargs, sub_output)
-                            if cmdargs.add_UUID_comments:
-                                sub_output.write("%%end_uuid=%s\n"%(subuuid,))
-                            sub_output.close()
-                            del sub_output
+                            if a in recreated_files:
+                                logger.debug("file was already recreated:%r"%(a,))
+                            else:
+                                logger.debug("recursively recreating file:%r"%(a,))
+                                recreated_files.append(a)
+                                if os.path.exists(a) and not args.overwrite:
+                                    raise ColDocException("will not overwrite: %r"%a)
+                                sub_output = open(a,"w")
+                                if cmdargs.add_UUID_comments:
+                                    sub_output.write("%%start_uuid=%s\n"%(subuuid,))
+                                #if cmdargs.add_UUID:
+                                #    sub_output.write("\\uuid{%s}%%\n"%(subuuid,))
+                                deblob_inator_recurse(subuuid, thetex, cmdargs, sub_output,
+                                                      recreated_files)
+                                if cmdargs.add_UUID_comments:
+                                    sub_output.write("%%end_uuid=%s\n"%(subuuid,))
+                                sub_output.close()
+                                del sub_output
                 elif macroname == specialblobinatorEOFcommand:
                     logger.debug("internal EOF")
                     break
@@ -241,7 +250,8 @@ def deblob_inator(blob_uuid, thetex, cmdargs):
         raise ColDocException("will not overwrite: %r"%a)
     O = open(a,"w")
     #
-    return deblob_inator_recurse(blob_uuid, thetex, cmdargs, O, internal_EOF=False)
+    recreated_files=[a]
+    return deblob_inator_recurse(blob_uuid, thetex, cmdargs, O, recreated_files, internal_EOF=False)
 
 ##############à
 
