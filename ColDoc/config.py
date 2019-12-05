@@ -26,3 +26,6 @@ ColDoc_comment_out_uuid_in = ('document','main_file','preamble','section','input
 
 # strips the last lines in blobs if they are all made of whitespace
 ColDoc_blob_rstrip = True
+
+# `blob_inator` will add it, `deblob_inator` will remove it
+ColDoc_commented_newline_after_blob_input = True

@@ -440,11 +440,16 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
         output.symlink_file_add(os.path.basename( input_file))
     stack.push(output)
     del output, input_file
+    def input_it(r):
+        t = stack.topstream
+        t.write('\\input{%s}' % (r,))
+        if ColDoc_commented_newline_after_blob_input:
+            t.write('%\n')
     def pop_section():
         # do not destroy stack, stack.pop_str()
         if stack.topstream.environ == 'section':
             r = stack.pop_stream().writeout()
-            stack.topstream.write(r'\input{%s}' % r)
+            input_it(r)
         # do not destroy stack, stack.pop_str()
     def log_mismatch(beg,end):
         if beg[:2] == 'E_':
@@ -530,7 +535,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                 elif macroname in ("input","include"):
                     if macroname == "include" and stack.topstream.environ == "section":
                         r = stack.pop_stream().writeout()
-                        stack.topstream.write('\\input{%s}' % (r,))
+                        input_it(r)
                     if use_plastex_parse:
                         obj = Base.input()
                         a = obj.parse(thetex)
@@ -580,6 +585,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         stack.topstream.write('\\input{%s}' % (r,))
                     else:
                         stack.topstream.write('\\%s{%s}' % (a,r))
+                    if a == 'input' and ColDoc_commented_newline_after_blob_input:
+                        stack.topstream.write('%\n')
                     del r,z,a
                 elif not in_preamble and cmdargs.copy_graphicx \
                      and macroname == "includegraphics":
@@ -693,7 +700,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                             del old
                             os_rel_symlink(r,'preamble.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
-                            stack.topstream.write('\\input{%s}%%\n' % r)
+                            input_it(r)
                         in_preamble = False
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
@@ -766,7 +773,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         logger.warning(' a \\section was embedded in \\begin{%s}...\\end{%s}' %\
                                        (name,name))
                         r = stack.pop().writeout()
-                        stack.topstream.write(r'\input{%s}' % (r,) )
+                        input_it(r)
                     if in_preamble:
                         logger.info( ' ignore \\end{%r} in preamble' % (name,) )
                     elif (name in cmdargs.split_environment or name in cmdargs.split_list):
@@ -784,7 +791,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         if name == 'document':
                             os_rel_symlink(r,'document.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
-                        stack.topstream.write('\\input{%s}%%\n' % r)
+                        input_it(r)
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
                     else:
                         if stack.topenv != 'E_'+name:
