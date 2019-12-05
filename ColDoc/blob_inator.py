@@ -971,7 +971,10 @@ if __name__ == '__main__':
             os.mkdir(d)
     # save cmdline args
     args.cwd = os.getcwd()
-    with open(osjoin(args.blobs_dir, '.blob_inator-args.json'), 'w') as a:
+    f = osjoin(args.blobs_dir, '.blob_inator-args.json')
+    if os.path.exists(f):
+        sys.stderr.write("Cannot reuse this same directory: %r"%(f,))
+    with open(f, 'w') as a:
         json.dump(args.__dict__, a, indent=2)
     #
     logger.info("processing %r" % args.input_file)
