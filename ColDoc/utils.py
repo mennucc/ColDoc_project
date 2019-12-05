@@ -31,31 +31,47 @@ from collections import OrderedDict
 
 class Metadata(OrderedDict):
     #
-    def __init__(self, file=None, **k):
+    def __init__(self, filename=None, **k):
+        " If `filename` is provided, it will be the default for all writes"
         # the keys as a list (to preserve order)
         self._keys=[]
-        self._file = file
+        assert filename is None or isinstance(filename, (str, pathlib.Path)),\
+               "filename %r as type unsupported %r"%(filename,type(filename))
+        self._filename = filename
         #if file is not None:
         #    self.read(file)
         return super().__init__(**k)
     #
-    def read(f):
-        " read key/values from `f` ; if `f` is a string, open that as file"
-        if isinstance(j, str):
-            f = iter( j for f in open(f) )
+    @property
+    def filename(self):
+        return self._filename
+    @classmethod
+    def open(cls, f):
+        " read key/values from `f` ; if `f` is a string or a path, open that as file"
+        self = cls()
+        if isinstance(f, (str, pathlib.Path)):
+            self._filename = str(f)
+            f = iter( j for j in open(f) )
+        elif isinstance(f, io.IOBase):
+            self._filename = f.name
+        else:
+            raise NotImplementedError('`f` has type: ',type(f))
         for j in f:
             if j[-1] == '\n':
                 j = j[:-1]
             i = j.index('=')
             assert i > 0, "cannot parse '%r' as key=value " % j
-            k,v = j[:j-1], j[j:]
+            k,v = j[:i], j[i+1:]
             self.add(k,v)
+        return self
     #
     def write(self, f =  None):
         """ return key/values as a list of strings;
         if `f` is a string, open it as file and write it
         if `f` is a file, write the metadata in that file
+        if `f` is None, but a filename was provided when creating the class, write there
         """
+        if f is None: f = self._filename
         l = []
         for k,v in self.items():
             for j in v:
