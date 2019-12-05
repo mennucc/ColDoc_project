@@ -84,7 +84,19 @@ class Metadata(OrderedDict):
         return l
     #
     def add(self, k, v):
-        "add `v` as value for key `k`"
+        "add `v` as value for key `k` (only if the value is not present)"
+        #assert isinstance(k,str) and isinstance(v,str)
+        assert '=' not in str(k)
+        if k not in self._keys:
+            self._keys.append(k)
+        if k in self:
+            if v not in self[k]:
+                super().__getitem__(k).append(v)
+        else:
+            super().__setitem__(k, [v])
+        #super().setdefault(k,[]).append(v)
+    def append(self, k, v):
+        "append `v` as value for key `k` (even if the value is not present)"
         #assert isinstance(k,str) and isinstance(v,str)
         assert '=' not in str(k)
         if k not in self._keys:
