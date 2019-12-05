@@ -423,6 +423,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
     # the value is either the `named_stream` or a path relative to `blobs_dir`
     file_blob_map = absdict(basedir = input_basedir, loggingname='file_blob_map')
     #
+    def write_special_EOF():
+        a=io.StringIO()
+        a.write('\\'+specialblobinatorEOFcommand)
+        a.seek(0)
+        a.name='specialblobinatorEOFcommand'
+        thetex.input(a, Tokenizer=TokenizerPassThru.TokenizerPassThru)
+        del a
     thetex.input(open(cmdargs.input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     stack = EnvStreamStack()
     output = named_stream(blobs_dir,'main_file')
@@ -556,12 +563,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         file_blob_map[inputfile] = newoutput
                         del newoutput
                         logger.info(' processing %r ' % (inputfile))
-                        a=io.StringIO()
-                        a.write('\\'+specialblobinatorEOFcommand)
-                        a.seek(0)
-                        a.name='specialblobinatorEOFcommand'
-                        thetex.input(a, Tokenizer=TokenizerPassThru.TokenizerPassThru)
-                        del a
+                        write_special_EOF()
                         thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
                     del inputfile
                 elif macroname == specialblobinatorEOFcommand:
