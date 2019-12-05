@@ -243,7 +243,7 @@ def uuid_to_int(symbol_string):
 #####################
 
 def uuid_to_dir(u, blobs_dir = ColDoc_as_blobs, create = False):   #, ColDocContent = ColDocContent):
-    " returns directory for UUID (relative to `blobs_dir`); it is a two-level dir/dir/ ; if `create` then both levels are created here"
+    " returns directory for UUID (relative to `blobs_dir`); it is a 3-level dir/dir/dir ; if `create` then all levels are created here"
     assert type(u) == str and len(u) >= 3
     assert os.path.isdir(blobs_dir)
     #d = ColDocContent
