@@ -423,7 +423,6 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
     # the value is either the `named_stream` or a path relative to `blobs_dir`
     file_blob_map = absdict(basedir = input_basedir, loggingname='file_blob_map')
     #
-    n = 0
     thetex.input(open(cmdargs.input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     stack = EnvStreamStack()
     output = named_stream(blobs_dir,'main_file')
@@ -452,6 +451,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
         logger.error(' LaTeX Error: %s ended by %s ' % (beg,end))    
     #
     itertokens = thetex.itertokens()
+    n=0
     try:
         for tok in itertokens:
             n += len(tok.source)
