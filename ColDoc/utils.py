@@ -142,10 +142,14 @@ class absdict(dict):
         return super().__getitem__(k)
     def get(self, k, d = None):
         k = self._norm(k)
-        return super().get(k, d)
+        r = super().get(k, d)
+        logger.debug("%s.get(%r,%r) = %r", self._loggingname, k, d, r)
+        return r
     def __contains__(self, k):
         k = self._norm(k)
-        return super().__contains__(k)
+        r = super().__contains__(k)
+        logger.debug("%r in %s = %r", k, self._loggingname, r)
+        return r
 
 
 #####################
