@@ -186,7 +186,7 @@ def choose_blob(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs, ext = '.t
             logger.error('Blob `%r` not available for lang = %r ext = %r', uuid, lang, ext)
             raise ColDocException()
     #
-    E = m['ext']
+    E = m.get('extension',[''])
     assert len(E) >= 1
     if ext is not None:
         if ext not in E:
@@ -194,7 +194,9 @@ def choose_blob(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs, ext = '.t
             raise ColDocException()
         E = [ext]
     #
-    L=m['lang']
+    L = m.get('lang',[])
+    # as a last resort, try a "no language" choice
+    L.append('')
     if lang is not None:
         if lang not in L:
             logger.error('Language %r is not available for uuid %r',lang, uuid)
@@ -202,11 +204,13 @@ def choose_blob(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs, ext = '.t
         L = [lang]
     for l in L:
         for e in E:
-            input_file = osjoin(blobs_dir, uuid_dir, 'blob_'+l+e)
+            if l:
+                l='_'+l
+            input_file = osjoin(blobs_dir, uuid_dir, 'blob'+l+e)
             if os.path.exists(input_file):
                 return input_file,uuid,m,l,e
     logger.error('Blob `%r` not available for lang in %r, ext in %r', uuid, L, E)
-    raise ColDocException()
+    raise ColDocException('Blob `%r` not available for lang in %r, ext in %r'%(uuid, L, E))
 
 #####################
 
