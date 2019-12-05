@@ -148,8 +148,8 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, internal_EOF=
                             sub_output = open(a,"w")
                             if cmdargs.add_UUID_comments:
                                 sub_output.write("%%start_uuid=%s\n"%(subuuid,))
-                            if cmdargs.add_UUID:
-                                sub_output.write("\\uuid{%s}%%\n"%(subuuid,))
+                            #if cmdargs.add_UUID:
+                            #    sub_output.write("\\uuid{%s}%%\n"%(subuuid,))
                             deblob_inator_recurse(subuuid, thetex, cmdargs, sub_output)
                             if cmdargs.add_UUID_comments:
                                 sub_output.write("%%end_uuid=%s\n"%(subuuid,))
@@ -239,8 +239,8 @@ if __name__ == '__main__':
     parser.add_argument('--overwrite',action='store_true', help="overwrite existing files")
     parser.add_argument('--add-UUID-comments','--AUC',
                         action='store_true', help="add comments to mark beg/end of blobs")
-    parser.add_argument('--add-UUID','--AU',
-                        action='store_true', help="add \\uuid{UUID} commands")
+    #parser.add_argument('--add-UUID','--AU',
+    #                    action='store_true', help="add \\uuid{UUID} commands")
     parser.add_argument('--verbose','-v',action='count',default=0)
     #
     args = parser.parse_args()
