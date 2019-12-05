@@ -546,15 +546,16 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         #inputfile = thetex.kpsewhich(inputfile)
                     else:
                         inputfile = thetex.readArgument(type=str)
-                    if inputfile in file_blob_map:
-                        O = file_blob_map[inputfile]
+                    inputfileext = inputfile + ('' if inputfile[-4:] == '.tex' else '.tex' )
+                    if inputfileext in file_blob_map:
+                        O = file_blob_map[inputfileext]
                         if not isinstance(O,named_stream):
                             logger.error("the input %r was already parsed as object %r ?!?",
                                          inputfile,O)
                         elif not O.closed:
                             logger.critical("recursive input: %r as %r", inputfile, O)
                             raise RuntimeError("recursive input: %r as %r" % (inputfile, O))
-                        m = Metadata.open(osjoin(blobs_dir,os.path.dirname(O),'metadata'))
+                        m = Metadata.open(osjoin(blobs_dir,os.path.dirname(O.filename),'metadata'))
                         m.add('original_filename', inputfile)
                         m.append('parent_uuid',stack.topstream.uuid)
                         del m
@@ -565,7 +566,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         newoutput.add_metadata(r'original_filename',inputfile)
                         stack.push(newoutput)
                         if cmdargs.symlink_input:
-                            newoutput.symlink_file_add( inputfile + ('' if inputfile[-4:] == '.tex' else '.tex'))
+                            newoutput.symlink_file_add(inputfileext)
                         if not os.path.isabs(inputfile):
                             inputfile = os.path.join(input_basedir,inputfile)
                         if not os.path.isfile(inputfile):
