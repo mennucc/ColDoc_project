@@ -248,7 +248,7 @@ class named_stream(io.StringIO):
         if self.environ == 'section' or \
            (write_UUID == 'auto' and self.environ in self._do_not_write_uuid_in):
             write_UUID = False
-        else:
+        elif write_UUID == 'auto':
             write_UUID = True
         if self._filename is None:
             self._find_unused_UUID()
