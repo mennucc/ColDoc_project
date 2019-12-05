@@ -554,7 +554,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         elif not O.closed:
                             logger.critical("recursive input: %r as %r", inputfile, O)
                             raise RuntimeError("recursive input: %r as %r" % (inputfile, O))
-                        logger.info("duplicate input, parsed once: %r", inputfile)
+                        m = Metadata.open(osjoin(blobs_dir,os.path.dirname(O),'metadata'))
+                        m.add('original_filename', inputfile)
+                        m.append('parent_uuid',stack.topstream.uuid)
+                        del m
+                        logger.warning("duplicate input, parsed once: %r", inputfile)
                         stack.topstream.write('\\%s{%s}' % (macroname,O.filename))
                     else:
                         newoutput = named_stream(blobs_dir, macroname, parent=stack.topstream)
