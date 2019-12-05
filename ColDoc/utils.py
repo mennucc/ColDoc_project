@@ -16,6 +16,7 @@ __all__ = ( "slugify", "absdict", "Metadata", "uuid_to_dir", "dir_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
             "ColDocException", "ColDocFileNotFoundError",
+            "choose_blob",
             )
 
 class ColDocException(Exception):
@@ -133,6 +134,67 @@ class absdict(dict):
     def __contains__(self, k):
         k = self._norm(k)
         return super().__contains__(k)
+
+
+#####################
+
+def resolve_uuid(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs):
+    " provide some flexibility in calling argument "
+    assert not (uuid is None and uuid_dir is None), 'one of `uuid` or `uuid_dir` must be provided'
+    assert blobs_dir is not None
+    if isinstance(uuid,int):
+        uuid = int_to_uuid(uuid)
+    if uuid_dir is None:
+        uuid_dir = uuid_to_dir(uuid, blobs_dir=blobs_dir)
+    a = osjoin(blobs_dir, uuid_dir)
+    #if not os.path.isdir(a):
+    #    raise ColDocFileNotFoundError("no dir %r (corresponding to uuid %r)" % (a, uuid))
+    m = Metadata.open(osjoin(a, 'metadata'))
+    U = m['uuid']
+    assert len(U) == 1
+    if uuid==None:
+        uuid = U[0]
+    else:
+        assert uuid_to_int(uuid) == uuid_to_int(U[0])
+    return uuid, uuid_dir, m
+
+def choose_blob(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs, ext = '.tex', lang = ColDoc_lang):
+    """ Choose a blob, trying to satisfy request for language and extension
+    returns `filename`, `uuid`, `metadata`, `lang`, `ext`
+    if `ext` is None, a random extension will be returned
+    if `lang` is None, a random language will be returned
+    """
+    uuid, uuid_dir, m = resolve_uuid(uuid = uuid, uuid_dir = uuid_dir, blobs_dir = blobs_dir)
+    # short circuit the case of given lang and ext
+    if lang is not None and ext is not None:
+        input_file = osjoin(blobs_dir, uuid_dir, 'blob_'+lang+ext)
+        if os.path.exists(input_file):
+            return input_file,uuid,m,lang,ext
+        else:
+            logger.error('Blob `%r` not available for lang = %r ext = %r', uuid, lang, ext)
+            raise ColDocException()
+    #
+    E = m['ext']
+    assert len(E) >= 1
+    if ext is not None:
+        if ext not in E:
+            logger.error('Extension %r is not available for uuid %r',ext, uuid)
+            raise ColDocException()
+        E = [ext]
+    #
+    L=m['lang']
+    if lang is not None:
+        if lang not in L:
+            logger.error('Language %r is not available for uuid %r',lang, uuid)
+            raise ColDocException()
+        L = [lang]
+    for l in L:
+        for e in E:
+            input_file = osjoin(blobs_dir, uuid_dir, 'blob_'+l+e)
+            if os.path.exists(input_file):
+                return input_file,uuid,m,l,e
+    logger.error('Blob `%r` not available for lang in %r, ext in %r', uuid, L, E)
+    raise ColDocException()
 
 #####################
 
