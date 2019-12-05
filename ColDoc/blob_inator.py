@@ -566,7 +566,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                             inputfile = os.path.join(input_basedir,inputfile)
                         if not os.path.isfile(inputfile):
                             inputfile += '.tex'
-                        assert os.path.isfile(inputfile)
+                        assert os.path.isfile(inputfile), "file does not exist: %r"%(inputfile,)
                         file_blob_map[inputfile] = newoutput
                         del newoutput
                         logger.info(' processing %r ' % (inputfile))
