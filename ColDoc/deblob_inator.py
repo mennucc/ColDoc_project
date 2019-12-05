@@ -93,6 +93,16 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, internal_EOF=
                         inputfile = a['name']
                     else:
                         inputfile = thetex.readArgument(type=str)
+                    if inputfile[:4] == 'SEC/':
+                        # resolve symlink
+                        a,b = os.path.split(inputfile)
+                        a = os.readlink(osjoin(blobs_dir,a))
+                        assert a[:8] == '../UUID/'
+                        #a = os.normpath(osjoin(blobs_dir,a))
+                        #a = os.path.relpath(a,blobs_dir)
+                        a = a[3:]
+                        inputfile = osjoin(a,b)
+                        del a,b
                     if inputfile[:5] != 'UUID/':
                         logger.error("There should not be an %s{%s}" %(macroname,inputfile))
                         output_file.write('\\'+macroname+'{'+inputfile+'}')
