@@ -21,7 +21,7 @@ __all__ = ( "slugify", "absdict", "Metadata", "uuid_to_dir", "dir_to_uuid",
 class ColDocException(Exception):
     pass
 
-class ColDocFileNotFoundError (FileNotFoundError,Exception):
+class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
 
 #####################
