@@ -959,7 +959,12 @@ if __name__ == '__main__':
         json.dump(args.__dict__, a, indent=2)
     #
     logger.info("processing %r" % args.input_file)
-    blob_inator(mytex, mydocument, mycontext, args)
-    logger.info("end of file")
+    try:
+        blob_inator(mytex, mydocument, mycontext, args)
+    except:
+        logger.exception('blob_inator killed by exception:')
+        sys.exit(1)
+    else:
+        logger.info("end of file")
 
 
