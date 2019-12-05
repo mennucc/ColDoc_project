@@ -187,8 +187,29 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, internal_EOF=
                     del obj,j,t
                 elif macroname == "includegraphics":
                     # not in_preamble and cmdargs.copy_graphicx \
-                    logger.warning("\\includegraphics unimplemented, TODO")
-                    output_file.write(tok.source)
+                    logger.warning("\\includegraphics badly implemented, TODO")
+                    cmd = src = '\\includegraphics'
+                    #
+                    for spec in '*','[]',None: 
+                        _, s = thetex.readArgumentAndSource(spec=spec)
+                        src += s
+                        if spec:
+                            cmd += s
+                        else:
+                            inputfile = s[1:-1]
+                    del s
+                    #
+                    if inputfile[:5] == 'UUID/':
+                        sub_input_file, _, sub_metadata, sublang, subext = \
+                            choose_blob(uuid_dir=os.path.dirname(inputfile), blobs_dir=blobs_dir,
+                                        lang = None, ext = None)
+                        # TODO this is not really identical to the original,
+                        a = os.path.splitext(sub_metadata['original_filename'][0])[0]
+                        a += os.path.splitext(inputfile)[1]
+                        output_file.write(cmd+'{'+a+'}')
+                    else:
+                        output_file.write(src)
+                    del cmd, src, inputfile
                 else:
                     output_file.write(tok.source)
             else:
