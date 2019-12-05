@@ -600,18 +600,19 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         obj = graphicx.includegraphics()
                         a = obj.parse(thetex)
                         inputfile = a['file']
-                        a = obj.source
-                        j = a.index('{')
-                        cmd = a[:j]
-                        del a, obj
+                        src = obj.source
+                        j = src.index('{')
+                        cmd = src[:j]
+                        del obj, a
                     else:
-                        cmd = '\\includegraphics'
+                        cmd = src = '\\includegraphics'
                         for spec in '*','[]',None: 
-                            output, source = thetex.readArgumentAndSource(spec=spec)
+                            _, s = thetex.readArgumentAndSource(spec=spec)
+                            src += s
                             if spec:
-                                cmd += source
+                                cmd += s
                             else:
-                                inputfile = source[1:-1]
+                                inputfile = s[1:-1]
                     assert isinstance(inputfile,str)
                     logger.debug('parsing %r' , cmd+'{'+inputfile+'}')
                     assert not os.path.isabs(inputfile), "absolute path not supported: "+cmd+'{'+inputfile+'}'
@@ -622,15 +623,21 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                                             inputfile,O)
                             raise RuntimeError("the input %r was already parsed as object %r" %
                                                (inputfile,O))
-                        logger.info("duplicate graphical input, copied once: %r", inputfile)
-                        stack.topstream.write(cmd+'{'+file_blob_map[inputfile]+'}')
+                        m = Metadata.open(osjoin(blobs_dir,os.path.dirname(O),'metadata'))
+                        m.add('original_filename', inputfile)
+                        m.add('original_command', src)
+                        m.append('parent_uuid',stack.topstream.uuid)
+                        m.add('extension',os.path.splitext(inputfile)[1])
+                        m.write()
+                        logger.warning("duplicate graphical input, copied once: %r", inputfile)
+                        stack.topstream.write(cmd+'{'+O+'}')
+                        del cmd,src,m,inputfile
                     else:
                         di,bi = os.path.split(inputfile)
                         bi,ei=os.path.splitext(bi)
                         assert inputfile == osjoin(di,bi+ei)
                         if ei and not os.path.isfile(osjoin(input_basedir,inputfile)):
-                            logger.error(' while parsing %r, no  such file: %r' %\
-                                (cmd+'{'+inputfile+'}',fi,))
+                            logger.error(' while parsing %r, no  such file: %r' %(src,fi,))
                         # find all interesting files
                         is_graph = False
                         exts = []
@@ -654,7 +661,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         fm = Metadata()
                         fm['uuid'] = uuid
                         fm['original_filename'] = inputfile
-                        fm['original_command'] = cmd
+                        fm['original_command'] = src
                         fm['parent_uuid'] = stack.topstream.uuid
                         del uuid
                         # will load the same extension, if specified
@@ -679,7 +686,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                             file_blob_map[fii] = fo+ext
                             #
                         fm.write(osjoin(blobs_dir,do,"metadata"))
-                        del do,fo,fm,exts,cmd,di,bi,ei,ext,fii
+                        del do,fo,fm,exts,cmd,di,bi,ei,ext,fii,src
                 elif macroname == "item":
                     e = stack.topenv
                     if len(e) >= 3 and e[:2] == 'E_' and e[2:] in cmdargs.split_list :
