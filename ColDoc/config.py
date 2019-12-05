@@ -13,16 +13,19 @@ ColDoc_lang = 'it_IT'
 # caveat: if the blob is renamed before saving, that UUID will be unused
 ColDoc_early_UUID = True
 
-
-#- If `write_UUID` is `True`, the UUID will be written at the beginning of the blob.
-#- If `write_UUID` is 'auto', the UUID will be written,
-#   but it will be commented out in `ColDoc_comment_out_uuid_in` blobs.
-#   Moreover it will be added after each '\section' command.
+## this regulates the way that `blob_inator` adds \uuid tags in blobs
+##
+#- If `write_UUID` is `True`, the UUID will be written at the beginning of the blob,
+#  or after \section{}
+#
+#- If `write_UUID` is 'auto', the UUID will be written as above
+#   but not in blobs with environ listed in`ColDoc_do_not_write_uuid_in`.
+#
 #- If `write_UUID` is `False`, no UUID will be written.
 ColDoc_write_UUID = 'auto'
 
 # see description of `ColDoc_write_UUID`
-ColDoc_comment_out_uuid_in = ('document','main_file','preamble','section','input','include')
+ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include')
 
 # strips the last lines in blobs if they are all made of whitespace
 ColDoc_blob_rstrip = True

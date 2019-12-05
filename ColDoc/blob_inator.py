@@ -66,6 +66,8 @@ class named_stream(io.StringIO):
     #
     _re_spaces_ =  re.compile('^[ \t\n]+$')
     _default_rstrip = ColDoc_blob_rstrip
+    _default_write_UUID = ColDoc_write_UUID
+    _do_not_write_uuid_in = ColDoc_do_not_write_uuid_in
     #
     def __init__(self, basepath, environ ,
                 lang = ColDoc_lang, extension = '.tex',
@@ -213,8 +215,6 @@ class named_stream(io.StringIO):
         else:
             self._metadata.add(T, '{'+E+'}')
     #
-    _comment_out_uuid_in = ColDoc_comment_out_uuid_in
-    #
     def rstrip(self):
         """ returns the internal buffer, but splitting the final lines of the buffer,
         as long as they are all whitespace ;
@@ -227,26 +227,28 @@ class named_stream(io.StringIO):
             l.pop()
         return ''.join(l) , sp
     #
-    def writeout(self, write_UUID = ColDoc_write_UUID, rstrip = None):
+    def writeout(self, write_UUID = None, rstrip = None):
         """Writes the content of the file; returns the `filename` where the content was stored,
         relative to `basedir` (using the `symlink_dir` if provided).
         
-        - If `write_UUID` is `True`, the UUID will be written at the beginning of the blob.
+        - If `write_UUID` is `True`, the UUID will be written at the beginning of the blob
+          (but for `section` blobs: for those it is written by another part of the code)
         
-        - If `write_UUID` is 'auto', the UUID will be written,
-          but it will be commented out in 'document', 'main_file', 'preamble', 'section' blobs.
-          (It is anyway added after each '\section' command).
+        - If `write_UUID` is 'auto', the UUID will be not be written in 'section'
+          and in any other environ listed in `ColDoc_do_not_write_uuid_in`
         
         - If `write_UUID` is `False`, no UUID will be written.
         
-        - If `rstrip` is `True`, will use `self.rstrip` to strip away final lines of only whitespace
+        If `rstrip` is `True`, will use `self.rstrip` to strip away final lines of only whitespace
         """
         if rstrip is None : rstrip = self._default_rstrip
+        if write_UUID is None : write_UUID = self._default_write_UUID
         #
-        cmt = ''
         assert write_UUID in (True,False,'auto')
-        if write_UUID == 'auto' and self.environ in self._comment_out_uuid_in:
-            cmt = '%%'
+        if self.environ == 'section' or \
+           (write_UUID == 'auto' and self.environ in self._do_not_write_uuid_in):
+            write_UUID = False
+        else:
             write_UUID = True
         if self._filename is None:
             self._find_unused_UUID()
@@ -262,7 +264,7 @@ class named_stream(io.StringIO):
             logger.info("writeout file %r metadata %r " % (self._filename, self._metadata_filename))
             z = self._open(filename ,'w')
             if write_UUID and self.uuid:
-                z.write("%s\\uuid{%s}%%\n" % (cmt,self.uuid,))
+                z.write("\\uuid{%s}%%\n" % (self.uuid,))
             if rstrip:
                 cnt, tail = self.rstrip()
             else:
@@ -878,6 +880,9 @@ if __name__ == '__main__':
     parser.add_argument('--zip-sections','--ZS',action='store_true',help='omit intermediate blob for \\include{} of a single section')
     parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
     parser.add_argument('--symlink-input','--SI',action='store_true',help='create a symlink for each file that is parsed (by `\\input` or `\\include` or `\\includegraphics`)')
+    ## TODO this would take 3 values, yes=True, no=False, or "auto"
+    #parser.add_argument('--add-UUID','--AU', type=str,
+    #                    help="add \\uuid{UUID} commands, can be `yes` `no` or `auto`")
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
     #https://stackoverflow.com/a/31347222/5058564
     stripgroup = parser.add_mutually_exclusive_group()
