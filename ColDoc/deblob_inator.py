@@ -10,21 +10,20 @@ import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, js
 import os.path
 from os.path import join as osjoin
 
-import ColDocLogging
+
+if __name__ == '__main__':
+    a = os.path.realpath(sys.argv[0])
+    a = os.path.dirname(a)
+    a = os.path.dirname(a)
+    assert os.path.isdir(a), a
+    if a not in sys.path:
+        sys.path.insert(0, a)
+    del a
+    #
+    from ColDoc import ColDocLogging
 
 import logging
 logger = logging.getLogger(__name__)
-
-
-
-a = os.path.realpath(sys.argv[0])
-a = os.path.dirname(a)
-a = os.path.dirname(a)
-assert os.path.isdir(a), a
-a = osjoin(a,'lib')
-assert os.path.isdir(a), a
-sys.path.insert(0, a)
-del a
 
 
 ############## ColDoc stuff
