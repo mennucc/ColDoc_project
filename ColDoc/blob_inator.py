@@ -20,7 +20,7 @@ if __name__ == '__main__':
         sys.path.insert(0, a)
     del a
     #
-    from ColDoc import logging
+    from ColDoc import loggin
 
 import logging
 logger = logging.getLogger(__name__)
