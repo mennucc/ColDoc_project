@@ -3,13 +3,11 @@ import itertools, sys, os, io, copy, logging, shelve, unicodedata, re, pathlib
 import os.path
 from os.path import join as osjoin
 
-import ColDocLogging
-
 import logging
 
 logger = logging.getLogger(__name__)
 
-from config import *
+from ColDoc.config import *
 
 
 __all__ = ( "slugify", "absdict", "Metadata", "uuid_to_dir", "dir_to_uuid",
