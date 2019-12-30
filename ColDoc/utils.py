@@ -114,6 +114,22 @@ class Metadata(OrderedDict):
     def setdefault(**o):
         " unimplemented, may confuse users, semantic unclear"
         raise NotImplementedError("use `add` instead")
+    #
+    @property
+    def uuid(self):
+        return self.get('uuid',[None])[0]
+    #
+    def htmlitems(self):
+        for key,vals in self.items():
+            vallik = []
+            for val in vals:
+                link=''
+                if  key == 'child_uuid' or key == 'parent_uuid':
+                    link="/UUID/{val}".format(val=val)
+                elif  key ==  'extension' :
+                    link="/UUID/{UUID}/?extension={val}".format(UUID=self.uuid,val=val)
+                vallik.append((val,link))
+            yield (key,vallik)
 
 ###############
 
