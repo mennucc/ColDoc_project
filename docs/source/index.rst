@@ -11,11 +11,11 @@ Welcome to ColDoc's documentation!
    :caption: Contents:
 
 
-Metadata
---------
 
 .. toctree::
 
+  install
+  deploy
   metadata
 
 
