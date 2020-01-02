@@ -786,8 +786,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         # this produces weird outline; but just in case..
                         logger.warning(' a \\section was embedded in \\begin{%s}...\\end{%s}' %\
                                        (name,name))
-                        r = stack.pop().writeout()
-                        input_it(r)
+                        pop_section()
                     if in_preamble:
                         logger.info( ' ignore \\end{%r} in preamble' % (name,) )
                     elif (name in cmdargs.split_environment or name in cmdargs.split_list):
