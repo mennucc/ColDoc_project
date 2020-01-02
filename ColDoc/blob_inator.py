@@ -373,11 +373,11 @@ class EnvStreamStack(object):
         self._stack.append(o)
         if isinstance(o,named_stream):
             self._topstream = o
-    def pop(self, add_as_child = True, checknonempty=True):
-        """ pops topmost element ;
+    def pop(self, index=-1, add_as_child = True, checknonempty=True):
+        """ pops topmost element , or `index` element if given;
         if `add_as_child` and topmost element was a stream,
         write its UUID and filename in metadata of the parent stream"""
-        o = self._stack.pop()
+        o = self._stack.pop(index)
         if isinstance(o, named_stream):
             self._set_topstream(checknonempty=checknonempty)
             if add_as_child and self._topstream is not None \
