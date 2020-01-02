@@ -150,8 +150,10 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
                 logger.info("Created pdf %r size %d"%(blob_base_name+e,s))
             os.rename(main_base_name+e,blob_base_name+e)
         else:
-            logger.log(logging.DEBUG if e=='.toc' else logging.WARNING,
-                       "Missing :%r"%(main_base_name+e,))
+            if e=='.toc':
+                logger.debug("Missing :%r"%(main_base_name+e,))
+            else:
+                logger.warning("Missing :%r"%(main_base_name+e,))
 
 
 def latex_tree(blobs_dir, uuid=None, lang=None, warn=False):
