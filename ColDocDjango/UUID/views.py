@@ -4,13 +4,15 @@ import django
 from django.shortcuts import render
 from django.http import HttpResponse, QueryDict
 
+from django.views.decorators.clickjacking import xframe_options_sameorigin
+
 import ColDoc.utils, ColDocDjango
 
 from ColDocDjango import settings
 
 from django.shortcuts import get_object_or_404, render
 
-
+@xframe_options_sameorigin
 def pdf(request, UUID):
     blobs_dir = settings.COLDOC_SITE_CONFIG['coldoc']['blobs_dir']
     msg = ''
