@@ -142,7 +142,7 @@ def latex_engine(blobs_dir, fake_abs_name, save_abs_name):
         logger.warning("Re-using %r",save_abs_name+'.aux')
         shutil.copy2(save_abs_name+'.aux', fake_abs_name+'.aux')
     #
-    extensions = '.tex','.log','.pdf','.aux','.toc'
+    extensions = '.tex','.log','.pdf','.aux','.toc','.out'
     #
     for e in extensions:
         if e not in ('.tex','.aux') and os.path.exists(fake_abs_name+e):
