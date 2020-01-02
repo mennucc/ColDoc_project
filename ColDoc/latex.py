@@ -136,11 +136,13 @@ def latex_engine(blobs_dir, fake_abs_name, save_abs_name):
     # FIXME this is not perfect
     a = os.path.join(blobs_dir,'main.aux')
     if os.path.exists(a):
-        logger.warning("Re-using %r",a)
+        logger.debug("Re-using %r",a)
         shutil.copy2(a,fake_abs_name+'.aux')
     elif os.path.exists(save_abs_name+'.aux'):
-        logger.warning("Re-using %r",save_abs_name+'.aux')
+        logger.debug("Re-using %r",save_abs_name+'.aux')
         shutil.copy2(save_abs_name+'.aux', fake_abs_name+'.aux')
+    else:
+        logger.debug("No aux file for this job")
     #
     extensions = '.tex','.log','.pdf','.aux','.toc','.out'
     #
