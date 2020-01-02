@@ -18,6 +18,7 @@ if __name__ == '__main__':
     assert os.path.isdir(a), a
     if a not in sys.path:
         sys.path.insert(0, a)
+    COLDOC_SRC_ROOT=a
     del a
     #
     from ColDoc import loggin
@@ -487,6 +488,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                     thecontext.loadPackage(thetex, a['name']+'.cls',
                                            a['options'])
                     stack.topstream.write(obj.source)
+                    stack.topstream.add_metadata('documentclass',obj.source)
                     if cmdargs.split_preamble:
                         stack.push(named_stream(blobs_dir,'preamble', parent=stack.topstream))
                 elif cmdargs.split_sections and macroname == 'section':
@@ -716,6 +718,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                                            target_is_directory=False, force=True)
                             input_it(r)
                         in_preamble = False
+                        if ColDoc_write_UUID:
+                            stack.topstream.write(r'\usepackage{uuid}')
+                            os.symlink(osjoin(COLDOC_SRC_ROOT,'ColDoc','uuid.sty'),
+                                       osjoin(blobs_dir,'uuid.sty'))
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
                         logger.info( ' ignore \\begin{%r} in preamble' % (name,) )

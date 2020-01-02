@@ -50,15 +50,22 @@ import plasTeX.Base as Base
 
 from plasTeX.Packages import amsthm , graphicx
 
+# the package uuid.sty defines a LaTeX command \uuid , that can be overriden in the preamble
+
+
 standalone_template=r"""\documentclass[varwidth]{standalone}
+\def\uuidbaseurl{%(urlhostport)s%(urlUUIDbasepath)s}
 \input{preamble.tex}
+\usepackage{uuid}
 \begin{document}
 \input{%(input)s}
 \end{document}
 """
 
 preview_template=r"""\documentclass{article}
+\def\uuidbaseurl{%(urlhostport)s%(urlUUIDbasepath)s}
 \input{preamble.tex}
+\usepackage{uuid}
 \usepackage[active,tightpage]{preview}
 \setlength\PreviewBorder{5pt}
 \begin{document}
@@ -113,6 +120,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
     #
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
          '_lang':_lang,
+         'urlhostport':'http://localhost:8000/', 'urlUUIDbasepath':'UUID/',
          'input':os.path.join(uuid_dir,'blob'+_lang+'.tex')}
     #
     if metadata['environ'][0] == 'main_file':

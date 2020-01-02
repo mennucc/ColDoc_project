@@ -1,0 +1,6 @@
+\ifdefined\uuidbase\else\def\uuidbase{/UUID/}\fi%
+\ifdefined\uuid\else\ifdefined\href%
+\newcommand{\uuid}[1]{\href{\uuidbase#1}{\texttt{[#1]}}}%
+\else%
+\newcommand{\uuid}[#1]{\texttt{[#1]}}%
+\fi\fi%
