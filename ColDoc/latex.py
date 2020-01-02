@@ -165,7 +165,7 @@ def latex_engine(blobs_dir, fake_abs_name, save_abs_name):
         if r == 0 :
             res = True
     else:
-        logger.warning('UUID %r fails, see %r'%(uuid,save_abs_name+'.log'))
+        logger.warning('`pdflatex` fails, see %r'%(save_abs_name+'.log'))
     for e in extensions:
         if os.path.exists(save_abs_name+e):
             os.rename(save_abs_name+e,save_abs_name+e+'~')
