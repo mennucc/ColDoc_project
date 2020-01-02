@@ -136,11 +136,15 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                          stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
     r=p.wait()
+    res = False
     if r == 0:
         p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
         p.wait()
+        if r == 0 :
+            res = True
     else:
+        logger.warning('UUID %r fails, see %r'%(uuid,blob_base_name+'.log'))
     for e in extensions:
         if os.path.exists(blob_base_name+e):
             os.rename(blob_base_name+e,blob_base_name+e+'~')
@@ -154,6 +158,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
                 logger.debug("Missing :%r"%(main_base_name+e,))
             else:
                 logger.warning("Missing :%r"%(main_base_name+e,))
+                if e=='.pdf': res=False
+    return res
 
 
 def latex_tree(blobs_dir, uuid=None, lang=None, warn=False):
