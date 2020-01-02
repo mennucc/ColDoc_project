@@ -49,6 +49,7 @@ class Metadata(OrderedDict):
         " read key/values from `f` ; if `f` is a string or a path, open that as file"
         self = cls()
         if isinstance(f, (str, pathlib.Path)):
+            assert os.path.isfile(f),f
             self._filename = str(f)
             f = iter( j for j in open(f) )
         elif isinstance(f, io.IOBase):
@@ -279,7 +280,7 @@ def uuid_to_int(symbol_string):
 def uuid_to_dir(u, blobs_dir = ColDoc_as_blobs, create = False):   #, ColDocContent = ColDocContent):
     " returns directory for UUID (relative to `blobs_dir`); it is a 3-level dir/dir/dir ; if `create` then all levels are created here"
     assert type(u) == str and len(u) >= 3
-    assert os.path.isdir(blobs_dir)
+    assert os.path.isdir(blobs_dir), blobs_dir
     #d = ColDocContent
     #pieces =  'UUIDs',u[-1],u[:-1]
     d = 'UUID'
