@@ -24,7 +24,7 @@ import ColDocDjango.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('UUID/', include('UUID.urls')),
+    path('UUID/', include('ColDocDjango.UUID.urls')),
 ]
 
 ##if False and not APACHE:
