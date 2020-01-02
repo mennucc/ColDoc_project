@@ -407,9 +407,7 @@ class EnvStreamStack(object):
             if isinstance(j,named_stream):
                 t=n
         assert t is not None
-        O = self._stack[t]
-        del self._stack[t]
-        self._set_topstream()
+        O = self.pop(index=t)
         return O
 
 def blob_inator(thetex, thedocument, thecontext, cmdargs):
