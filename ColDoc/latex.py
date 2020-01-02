@@ -1,5 +1,17 @@
 #!/usr/bin/python3
 
+"""Usage: %(arg0)s [CMD] [OPTIONS]
+
+Create PDF version of a blob
+
+    blob BLOBS_DIR UUID [LANGUAGE]
+       convert the blob UUID in BLOBS_DIR,
+       if LANGUAGE is not specified , for all languages
+    
+    all BLOBS_DIR [UUID]
+       convert all the blobs in BLOBS_DIR, starting from UUID (default: `main`)
+"""
+
 import os,sys,shutil,subprocess
 
 if __name__ == '__main__':
@@ -57,32 +69,54 @@ preview_template=r"""\documentclass{article}
 
 
 
-def latex(blobs_dir,UUID,lang):
-    if lang is not None:
-        lang='_'+lang
-    else:
-        lang=''
-    #
-    extensions = '.tex','.log','.pdf','.aux','.toc'
-    #
-    uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
+def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True):
+    " `latex` the blob identified `uuid`; if `lang` is None, `latex` all languages; ( `metadata` are courtesy , to avoid recomputing )"
+    if metadata is None:
+        uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir)
+    else:
+        uuid_dir = None
     #
     if metadata['environ'][0] == 'preamble':
-        logger.warning('Cannot `pdflatex` preamble')
-        return
+        if warn: logger.warning('Cannot `pdflatex` preamble')
+        return True
     if metadata['environ'][0] == 'E_document':
-        logger.warning('Do not need to `pdflatex` this `document` blob, refer the main blob')
-        return
+        if warn: logger.warning('Do not need to `pdflatex` this `document` blob, refer the main blob')
+        return True
     #
-    
-    blob_base_name = os.path.join(blobs_dir, uuid_dir, 'fakelatex'+lang)
+    if lang is not None:
+        langs=[lang]
+    else:
+        langs=metadata['lang']
     #
-    fake_name = 'fakelatex'+lang+'_'+UUID
+    res = True
+    for l in langs:
+        res = res and latex_blob(blobs_dir, metadata=metadata, lang=l, uuid=uuid, uuid_dir=uuid_dir)
+    return res
+
+def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
+    " `latex` the blob identified by the `metadata`, for the given language `lang`. ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )"
+    if uuid is None:
+        uuid = metadata.uuid
+    if uuid_dir is None:
+        uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
+    #
+    #
+    if lang is None or lang == '':
+        _lang=''
+    else:
+        _lang = '_' + lang
+    #
+    blob_base_name = os.path.join(blobs_dir, uuid_dir, 'fakelatex' + _lang)
+    #
+    fake_name = 'fakelatex' + _lang + '_' + uuid
     main_base_name = os.path.join(blobs_dir, fake_name)
     #
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
-         'input':os.path.join(uuid_dir,'blob'+lang+'.tex')}
+         '_lang':_lang,
+         'input':os.path.join(uuid_dir,'blob'+_lang+'.tex')}
+    #
+    extensions = '.tex','.log','.pdf','.aux','.toc'
     #
     for e in extensions:
         if os.path.exists(main_base_name+e):
@@ -90,7 +124,7 @@ def latex(blobs_dir,UUID,lang):
     if os.path.exists(blob_base_name+'.aux'):
         shutil.copy2(blob_base_name+'.aux',main_base_name+'.aux')
     if metadata['environ'][0] == 'main_file':
-        shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+lang+'.tex'),main_base_name+'.tex')
+        shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'),main_base_name+'.tex')
     else:
         main_file = open(main_base_name+'.tex','w')
         main_file.write(standalone_template % D)
@@ -105,7 +139,6 @@ def latex(blobs_dir,UUID,lang):
         p = subprocess.Popen(args,cwd=blobs_dir)
         p.wait()
     else:
-        logger.warning('UUID %r fails',UUID)
     for e in extensions:
         if os.path.exists(blob_base_name+e):
             os.rename(blob_base_name+e,blob_base_name+e+'~')
@@ -119,14 +152,42 @@ def latex(blobs_dir,UUID,lang):
                        "Missing :%r"%(main_base_name+e,))
 
 
-if __name__ == '__main__':
-    if len(sys.argv)<3:
-        sys.stderr.write("Usage: %s blobs_dir uuid [languagecode]\n"%(sys.argv[0]))
+def latex_tree(blobs_dir, uuid=None, lang=None, warn=False):
+    " latex the whole tree, starting from `uuid` "
+    if uuid is None:
+        uuid = '001'
+    uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
+                                                   blobs_dir = blobs_dir)
+    #
+    if metadata['environ'][0] == 'preamble':
+        if warn: logger.warning('Cannot `pdflatex` preamble , UUID = %r'%(uuid,))
+    elif metadata['environ'][0] == 'E_document':
+        if warn: logger.warning('Do not need to `pdflatex` the `document` blob , UUID = %r , refer the main blob'%(uuid,))
+    else:
+        latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn)
+    for u in metadata.get('child_uuid',[]):
+        latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn)
+
+
+
+def main(argv):
+    if len(argv)<3 or argv[1] not in ('blob','all'):
+        sys.stderr.write(__doc__%{'arg0':argv[0]})
         sys.exit(1)
-    blobs_dir=sys.argv[1]
-    assert os.path.isdir(blobs_dir)
-    UUID=sys.argv[2]
-    lang = None
-    if len(sys.argv)>3:
-        lang = sys.argv[3]
-    latex(blobs_dir,UUID,lang)
+    blobs_dir = argv[2]
+    assert os.path.isdir(blobs_dir), blobs_dir
+    logger.setLevel(logging.INFO)
+    if argv[1] == 'blob':
+        UUID = argv[3]
+        lang = None
+        if len(argv)>4:
+            lang = argv[4]
+        latex_uuid(blobs_dir,UUID,lang)
+    elif argv[1] == 'all':
+        UUID =  None if len(argv) <= 3 else  argv[3]
+        latex_tree(blobs_dir,UUID)
+
+
+if __name__ == '__main__':
+    main(sys.argv)
+
