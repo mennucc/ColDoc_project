@@ -510,7 +510,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                     add_child = True
                     if cmdargs.zip_sections:
                         if stack.topstream != stack.top:
-                            logger.warning("cannot zip section %r , inside an environment" % (name,))
+                            logger.warning("cannot zip section %r (found inside environment %r)" % (name,stack.topenv))
                         elif stack.topenv == 'section':
                             logger.warning("cannot zip the section %, it is after a previous section in blob %r" %\
                                            (name,stack.topstream))
