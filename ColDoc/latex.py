@@ -133,10 +133,12 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
     args = ['pdflatex','-file-line-error','-interaction','batchmode',
             fake_name+'.tex']
     #args = ['/bin/pwd']
-    p = subprocess.Popen(args,cwd=blobs_dir)
+    p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
+                         stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
     r=p.wait()
     if r == 0:
-        p = subprocess.Popen(args,cwd=blobs_dir)
+        p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
+                             stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
         p.wait()
     else:
     for e in extensions:
