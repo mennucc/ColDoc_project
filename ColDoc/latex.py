@@ -101,38 +101,51 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
     if uuid_dir is None:
         uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
     #
-    #
     if lang is None or lang == '':
         _lang=''
     else:
         _lang = '_' + lang
     #
-    blob_base_name = os.path.join(blobs_dir, uuid_dir, 'fakelatex' + _lang)
+    save_abs_name = os.path.join(blobs_dir, uuid_dir, 'view' + _lang)
     #
     fake_name = 'fakelatex' + _lang + '_' + uuid
-    main_base_name = os.path.join(blobs_dir, fake_name)
+    fake_abs_name = os.path.join(blobs_dir, fake_name)
     #
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
          '_lang':_lang,
          'input':os.path.join(uuid_dir,'blob'+_lang+'.tex')}
     #
+    if metadata['environ'][0] == 'main_file':
+        shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'), fake_abs_name+'.tex')
+    else:
+        main_file = open(fake_abs_name+'.tex', 'w')
+        main_file.write(standalone_template % D)
+        main_file.close()
+    #
+    return latex_engine(blobs_dir, fake_abs_name, save_abs_name)
+
+def latex_engine(blobs_dir, fake_abs_name, save_abs_name):
+    # FIXME this is not perfect
+    a = os.path.join(blobs_dir,'main.aux')
+    if os.path.exists(a):
+        logger.warning("Re-using %r",a)
+        shutil.copy2(a,fake_abs_name+'.aux')
+    elif os.path.exists(save_abs_name+'.aux'):
+        logger.warning("Re-using %r",save_abs_name+'.aux')
+        shutil.copy2(save_abs_name+'.aux', fake_abs_name+'.aux')
+    #
     extensions = '.tex','.log','.pdf','.aux','.toc'
     #
     for e in extensions:
-        if os.path.exists(main_base_name+e):
-            logger.warning('Overwriting: %r',main_base_name+e)
-    if os.path.exists(blob_base_name+'.aux'):
-        shutil.copy2(blob_base_name+'.aux',main_base_name+'.aux')
-    if metadata['environ'][0] == 'main_file':
-        shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'),main_base_name+'.tex')
-    else:
-        main_file = open(main_base_name+'.tex','w')
-        main_file.write(standalone_template % D)
-        main_file.close()
-    
+        if e not in ('.tex','.aux') and os.path.exists(fake_abs_name+e):
+            logger.warning('Overwriting: %r',fake_abs_name+e)
+    #
+    cwd_ , fake_name =  os.path.split(fake_abs_name)
+    assert cwd_ == blobs_dir
+    #
     args = ['pdflatex','-file-line-error','-interaction','batchmode',
             fake_name+'.tex']
-    #args = ['/bin/pwd']
+    #
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                          stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
     r=p.wait()
@@ -144,20 +157,20 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
         if r == 0 :
             res = True
     else:
-        logger.warning('UUID %r fails, see %r'%(uuid,blob_base_name+'.log'))
+        logger.warning('UUID %r fails, see %r'%(uuid,save_abs_name+'.log'))
     for e in extensions:
-        if os.path.exists(blob_base_name+e):
-            os.rename(blob_base_name+e,blob_base_name+e+'~')
-        if os.path.exists(main_base_name+e):
+        if os.path.exists(save_abs_name+e):
+            os.rename(save_abs_name+e,save_abs_name+e+'~')
+        if os.path.exists(fake_abs_name+e):
             if e == '.pdf':
-                s=os.path.getsize(main_base_name+e)
-                logger.info("Created pdf %r size %d"%(blob_base_name+e,s))
-            os.rename(main_base_name+e,blob_base_name+e)
+                s=os.path.getsize(fake_abs_name+e)
+                logger.info("Created pdf %r size %d"%(save_abs_name+e,s))
+            os.rename(fake_abs_name+e,save_abs_name+e)
         else:
             if e=='.toc':
-                logger.debug("Missing :%r"%(main_base_name+e,))
+                logger.debug("Missing :%r"%(fake_abs_name+e,))
             else:
-                logger.warning("Missing :%r"%(main_base_name+e,))
+                logger.warning("Missing :%r"%(fake_abs_name+e,))
                 if e=='.pdf': res=False
     return res
 

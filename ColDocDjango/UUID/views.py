@@ -54,7 +54,7 @@ def pdf(request, UUID):
                 l='_'+l
             else:
                 l=''
-            n = os.path.join(blobs_dir, uuid_dir,"fakelatex"+l+".pdf")
+            n = os.path.join(blobs_dir, uuid_dir,"view"+l+".pdf")
             if os.path.isfile(n):
                 break
             else:
