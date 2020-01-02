@@ -50,13 +50,13 @@ import plasTeX.Base as Base
 
 from plasTeX.Packages import amsthm , graphicx
 
-# the package uuid.sty defines a LaTeX command \uuid , that can be overriden in the preamble
+# the package ColDocUUID.sty defines a LaTeX command \uuid , that can be overriden in the preamble
 
 
 standalone_template=r"""\documentclass[varwidth]{standalone}
 \def\uuidbaseurl{%(urlhostport)s%(urlUUIDbasepath)s}
 \input{preamble.tex}
-\usepackage{uuid}
+\usepackage{ColDocUUID}
 \begin{document}
 \input{%(input)s}
 \end{document}
@@ -65,7 +65,7 @@ standalone_template=r"""\documentclass[varwidth]{standalone}
 preview_template=r"""\documentclass{article}
 \def\uuidbaseurl{%(urlhostport)s%(urlUUIDbasepath)s}
 \input{preamble.tex}
-\usepackage{uuid}
+\usepackage{ColDocUUID}
 \usepackage[active,tightpage]{preview}
 \setlength\PreviewBorder{5pt}
 \begin{document}
