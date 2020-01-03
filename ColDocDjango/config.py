@@ -15,6 +15,7 @@ BASE_ROOT = os.path.dirname(os.path.abspath(__file__))
 section = 'DEFAULT'
 config.set(section, 'base_root', BASE_ROOT)
 config.set(section, 'virtualenv', '')
+config.set(section, 'site_name', 'ColDoc Test Site')
 
 section = 'django'
 config.add_section(section)
