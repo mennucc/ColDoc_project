@@ -29,9 +29,12 @@
       <li class="nav-item active">
         <a class="nav-link" href="/UUID/001">Blobs</a>
       </li>
+
+      {% if user.is_authenticated %}
       <li class="nav-item active">
         <a class="nav-link" href="/admin">Admin</a>
       </li>
+      {% endif %}
 
       <!--
       <li class="nav-item dropdown">
@@ -53,7 +56,24 @@
       </li>
       -->
 
-    </ul>
+      </ul>
+      <ul class="navbar-nav">
+   	{% if user.is_authenticated %}
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          😀  {{ user.get_username }} 
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+	  <a class="dropdown-item" href="/change_password">Change Password</a>
+          <a class="dropdown-item" href="/logout">Logout</a>
+        </div>
+      </li>
+      {% else %}
+      <li class="nav-item active">
+      <a class="nav-link" href="/login"> 😑  Login. </a>
+      {% endif %}
+     </ul>
+
     <form class="form-inline my-2 my-lg-0">
       <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>

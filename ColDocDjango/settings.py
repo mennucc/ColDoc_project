@@ -58,6 +58,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+# TODO maybe use
+# https://django-userena.readthedocs.io/en/latest/
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/login/'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

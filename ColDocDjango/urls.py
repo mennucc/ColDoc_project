@@ -21,10 +21,27 @@ from django.conf.urls.static import static
 from django.http import HttpResponse
 
 import ColDocDjango.views
+from ColDocDjango import settings
+config = settings.COLDOC_SITE_CONFIG
+
+import django.contrib.auth
+from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('UUID/', include('ColDocDjango.UUID.urls')),
+    ## TODO maybe use
+    ## https://django-userena.readthedocs.io/en/latest/
+    #path('accounts/', include('django.contrib.auth.urls')),
+    path('login/', 
+         LoginView.as_view(
+             template_name='admin/login.html',
+             extra_context={
+                 'title': 'Login',
+                 'site_title': config['DEFAULT']['site_name'],
+                 'site_header': config['DEFAULT']['site_name']+' : Login'}),
+         name="my_login"),
+    path('logout/',  LogoutView.as_view(), name="my_logout"),
 ]
 
 ##if False and not APACHE:
