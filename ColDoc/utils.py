@@ -263,7 +263,7 @@ def uuid_check_normalize(symbol_string):
     norm_string = symbol_string.translate(normalize_symbols).upper()
     if not valid_symbols.match(norm_string):
         raise ValueError("string '%s' contains invalid characters" % norm_string)
-    return norm_string
+    return norm_string.rjust(3,'0')
 
 def uuid_to_int(symbol_string):
     """  normalize `symbol_string`, check that it is a valid UUID, and convert to integer  """
