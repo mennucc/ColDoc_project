@@ -223,9 +223,10 @@ def choose_blob(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs, ext = '.t
         L = [lang]
     for l in L:
         for e in E:
+            ls = l
             if l:
-                l='_'+l
-            input_file = osjoin(blobs_dir, uuid_dir, 'blob'+l+e)
+                ls='_'+l
+            input_file = osjoin(blobs_dir, uuid_dir, 'blob'+ls+e)
             if os.path.exists(input_file):
                 return input_file,uuid,m,l,e
     logger.error('Blob `%r` not available for lang in %r, ext in %r', uuid, L, E)
