@@ -280,11 +280,13 @@ def uuid_to_int(symbol_string):
 
 def uuid_to_dir(u, blobs_dir = ColDoc_as_blobs, create = False):   #, ColDocContent = ColDocContent):
     " returns directory for UUID (relative to `blobs_dir`); it is a 3-level dir/dir/dir ; if `create` then all levels are created here"
-    assert type(u) == str and len(u) >= 3
+    assert isinstance(u,str) and len(u) >= 1, 'type %r repr %r'%(type(u),repr(u))
     assert os.path.isdir(blobs_dir), blobs_dir
     #d = ColDocContent
     #pieces =  'UUIDs',u[-1],u[:-1]
     d = 'UUID'
+    if len(u) < 3:
+        u = u.rjust(3,'0')
     pieces =  u[0],u[1],u[2:]
     for j in pieces:
         d = osjoin(d, j)
