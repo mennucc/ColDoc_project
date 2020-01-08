@@ -213,7 +213,7 @@ def choose_blob(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs, ext = '.t
             raise ColDocException()
         E = [ext]
     #
-    L = m.get('lang',[])
+    L = copy.copy(m.get('lang',[]))
     # as a last resort, try a "no language" choice
     L.append('')
     if lang is not None:
