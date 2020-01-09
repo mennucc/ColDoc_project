@@ -58,7 +58,9 @@ standalone_template=r"""\documentclass[varwidth]{standalone}
 \input{preamble.tex}
 \usepackage{ColDocUUID}
 \begin{document}
+%(begin)s
 \input{%(input)s}
+%(end)s
 \end{document}
 """
 
@@ -69,7 +71,9 @@ preview_template=r"""\documentclass{article}
 \usepackage[active,tightpage]{preview}
 \setlength\PreviewBorder{5pt}
 \begin{document}
+%(begin)s
 \input{%(input)s}
+%(end)s
 \end{document}
 """
 
@@ -120,9 +124,14 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
     #
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
          '_lang':_lang,
+         'begin':'','end':'',
          'urlhostport':'http://localhost:8000/', 'urlUUIDbasepath':'UUID/',
          'input':os.path.join(uuid_dir,'blob'+_lang+'.tex')}
     #
+    environ = metadata['environ'][0]
+    if environ[:2] == 'E_' and environ not in ( 'E_document', ):
+        D['begin'] = r'\begin{'+environ[2:]+'}'
+        D['end'] = r'\end{'+environ[2:]+'}'
     if metadata['environ'][0] == 'main_file':
         shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'), fake_abs_name+'.tex')
     else:
