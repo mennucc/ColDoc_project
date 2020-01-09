@@ -1,4 +1,8 @@
-import os,sys
+import os, sys, mimetypes
+
+import logging
+logger = logging.getLogger(__name__)
+
 
 import django
 from django.shortcuts import render
@@ -14,20 +18,30 @@ from django.shortcuts import get_object_or_404, render
 
 @xframe_options_sameorigin
 def pdf(request, UUID):
+    return view_(request, UUID, '.pdf', 'application/pdf')
+
+@xframe_options_sameorigin
+def html(request, UUID, subpath=None):
+    return view_(request, UUID, '_html', None, subpath)
+
+def view_(request, UUID, _view_ext, _content_type, subpath = None):
     blobs_dir = settings.COLDOC_SITE_CONFIG['coldoc']['blobs_dir']
     msg = ''
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
+            # TODO ignored?
             msg += "UUID was normalized from %r to %r"%(UUID,a)
         UUID = a
     except ValueError as e:
         return HttpResponse("Invalid UUID %r. \n Reason: %r" % (UUID,e))
     #
     q = request.GET
+    # currently ignored
     ext = '.tex'
     if 'ext' in q:
         ext = q['ext']
+    #
     langs = []
     if 'lang' in q:
         langs = [q['lang']]
@@ -40,32 +54,44 @@ def pdf(request, UUID):
         uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
                                                        blobs_dir = blobs_dir)
         if metadata['environ'][0] == 'preamble':
-            return  HttpResponse('There is no PDF for the preamble',content_type='text/plain')
+            return  HttpResponse('There is no %r for the preamble' % (_view_ext,), content_type='text/plain')
         if metadata['environ'][0] == 'E_document':
-            return  HttpResponse('No need of PDF for this `document` blob, refer the main blob',
+            return  HttpResponse('No need of %r for this `document` blob, refer the main blob' % (_view_ext,),
                                  content_type='text/plain')
         # TODO should serve using external server see
         #   https://stackoverflow.com/questions/2687957/django-serving-media-behind-custom-url
         #   
         n = None
+        isdir = False
         langs += metadata['lang'] + [None]
         for l in langs:
             if l is not None:
                 l='_'+l
             else:
                 l=''
-            n = os.path.join(blobs_dir, uuid_dir,"view"+l+".pdf")
+            n = os.path.join(blobs_dir, uuid_dir,"view"+l+_view_ext)
+            if subpath is not None:
+                n = os.path.join(n,subpath)
+            logger.warning(n)
             if os.path.isfile(n):
+                break
+            elif os.path.isdir(n) and os.path.isfile(n+'/index.html'):
+                n+='/index.html'
+                isdir=True
                 break
             else:
                 n = None
         if n is None:
-            return HttpResponse("Cannot find PDF for UUID %r , looking for languages in %r." % (UUID,langs),
+            return HttpResponse("Cannot find %r, subpath %r, for UUID %r , looking for languages in %r." %\
+                                (_view_ext,subpath,UUID,langs),
                                 content_type='text/plain')
+        if _content_type is None:
+            _content_type , _content_encoding = mimetypes.guess_type(n)
+        logger.warning("Serving: %r %r"%(n,_content_type))
         fsock = open(n,'rb')
-        response = HttpResponse(fsock, content_type='application/pdf')
+        response = HttpResponse(fsock, content_type=_content_type)
         if download:
-            response['Content-Disposition'] = "attachment; filename=ColDoc-%s.pdf" % (UUID,)
+            response['Content-Disposition'] = "attachment; filename=ColDoc-%s%s" % (UUID,_view_ext)
         return response
     
     except FileNotFoundError:
@@ -115,6 +141,7 @@ def index(request, UUID):
         file = ''
     c = {'UUID':UUID, 'metadata':metadata, 'message':msg,
          'pdfurl':('/UUID/%s/pdf'%(UUID,)),
+         'htmlurl':('/UUID/%s/html'%(UUID,)),
          'lang':lang, 'ext':ext, 'file':file, 'blobcontenttype':content }
     return render(request, 'UUID.html', c)
 
