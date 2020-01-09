@@ -218,7 +218,8 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ):
 def pdflatex_engine(blobs_dir, fake_name, save_name, environ):
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
-    # FIXME this is not perfect
+    # FIXME this is not perfect: 'main.aux' is created only when the
+    # 'main_file' or 'document' blob is compiled; moreover it is not working
     a = os.path.join(blobs_dir,'main.aux')
     if os.path.exists(a):
         logger.debug("Re-using %r",a)
@@ -257,6 +258,9 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ):
             if e == '.pdf':
                 s=os.path.getsize(fake_abs_name+e)
                 logger.info("Created pdf %r size %d"%(save_abs_name+e,s))
+            if e == '.aux' and environ in ( 'main_file', 'E_document'):
+                # keep a copy of the aux file
+                shutil.copy(fake_abs_name+e, osjoin(blobs_dir,'main.aux'))
             os.rename(fake_abs_name+e,save_abs_name+e)
         else:
             if e=='.toc':
