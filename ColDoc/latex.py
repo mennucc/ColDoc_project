@@ -14,6 +14,8 @@ Create PDF version of a blob
 
 import os,sys,shutil,subprocess
 
+from os.path import join as osjoin
+
 if __name__ == '__main__':
     for j in ('','.'):
         if j in sys.path:
@@ -77,7 +79,17 @@ preview_template=r"""\documentclass{article}
 \end{document}
 """
 
-
+plastex_template=r"""\documentclass{article}
+\def\uuidbaseurl{%(urlhostport)s%(urlUUIDbasepath)s}
+\input{preamble.tex}
+\usepackage{hyperref}
+\newcommand{\uuid}[1]{\href{\uuidbaseurl#1}{\texttt{[#1]}}}
+\begin{document}
+%(begin)s
+\input{%(input)s}
+%(end)s
+\end{document}
+"""
 
 
 def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True):
@@ -117,8 +129,9 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
     else:
         _lang = '_' + lang
     #
-    save_abs_name = os.path.join(blobs_dir, uuid_dir, 'view' + _lang)
-    #
+    # note that extensions are missing
+    save_name = os.path.join(uuid_dir, 'view' + _lang)
+    save_abs_name = os.path.join(blobs_dir, save_name)
     fake_name = 'fakelatex' + _lang + '_' + uuid
     fake_abs_name = os.path.join(blobs_dir, fake_name)
     #
@@ -132,16 +145,79 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
     if environ[:2] == 'E_' and environ not in ( 'E_document', ):
         D['begin'] = r'\begin{'+environ[2:]+'}'
         D['end'] = r'\end{'+environ[2:]+'}'
+    ##
+    ## create pdf
     if metadata['environ'][0] == 'main_file':
         shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'), fake_abs_name+'.tex')
     else:
         main_file = open(fake_abs_name+'.tex', 'w')
         main_file.write(standalone_template % D)
         main_file.close()
-    #
-    return latex_engine(blobs_dir, fake_abs_name, save_abs_name)
+    rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ)
+    ##
+    ## create html
+    if environ == 'main_file':
+        D['input'] = 'document.tex'
+    main_file = open(fake_abs_name+'.tex', 'w')
+    main_file.write(plastex_template % D)
+    main_file.close()
+    rh = plastex_engine(blobs_dir, fake_name, save_name, environ)
+    return rh and rp
 
-def latex_engine(blobs_dir, fake_abs_name, save_abs_name):
+
+
+def plastex_engine(blobs_dir, fake_name, save_name, environ):
+    " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
+    save_abs_name = os.path.join(blobs_dir, save_name)
+    fake_abs_name = os.path.join(blobs_dir, fake_name)
+    #
+    for e in ('.paux',):
+        if os.path.exists(save_abs_name+'_plastex'+e):
+            shutil.copy(save_abs_name+'_plastex'+e,fake_abs_name+e)
+    #
+    import glob, string
+    import plasTeX
+    from plasTeX.TeX import TeX
+    #from plasTeX.Config import config
+    from plasTeX.Config import config as plastex_config
+    #from plasTeX.ConfigManager import *
+    import plasTeX.ConfigManager
+    #from plasTeX.Logging import getLogger, updateLogLevels
+    #
+    F = fake_name+'.tex'
+    d = os.path.dirname(F)
+    #assert os.path.isfile(F),F
+    if d :
+        logger.warning("The argument of `plastex` is not in the blobs directory: %r", F)
+    #
+    n =  osjoin(blobs_dir,save_name+'_paux')
+    if not os.path.isdir(n):    os.mkdir(n)
+    #
+    argv = ['-d',save_name+'_html',"--renderer=HTML5",]
+    if environ != 'main_file':
+        argv += '--no-display-toc',
+    argv += ['--log','--paux-dirs',save_name+'_paux',F]
+    p = subprocess.Popen(['plastex']+argv, cwd=blobs_dir, stdin=open(os.devnull),
+                         stdout=open(osjoin(blobs_dir,save_name+'_plastex.stdout'),'w'),
+                         stderr=subprocess.STDOUT)
+    p.wait()
+    if p.returncode :
+        logger.warning('Failed: cd %r ; plastex %s',blobs_dir,' '.join(argv))
+        sys.exit(1)
+    else:
+        logger.info('created html version of %r ',save_abs_name)
+    extensions = '.log','.paux','.tex'
+    for e in extensions:
+        if os.path.exists(save_abs_name+'_plastex'+e):
+            os.rename(save_abs_name+'_plastex'+e,save_abs_name+'_plastex'+e+'~')
+        if os.path.exists(fake_abs_name+e):
+            os.rename(fake_abs_name+e,save_abs_name+'_plastex'+e)
+    return p.returncode == 0
+
+
+def pdflatex_engine(blobs_dir, fake_name, save_name, environ):
+    save_abs_name = os.path.join(blobs_dir, save_name)
+    fake_abs_name = os.path.join(blobs_dir, fake_name)
     # FIXME this is not perfect
     a = os.path.join(blobs_dir,'main.aux')
     if os.path.exists(a):
@@ -158,9 +234,6 @@ def latex_engine(blobs_dir, fake_abs_name, save_abs_name):
     for e in extensions:
         if e not in ('.tex','.aux') and os.path.exists(fake_abs_name+e):
             logger.warning('Overwriting: %r',fake_abs_name+e)
-    #
-    cwd_ , fake_name =  os.path.split(fake_abs_name)
-    assert cwd_ == blobs_dir
     #
     args = ['pdflatex','-file-line-error','-interaction','batchmode',
             fake_name+'.tex']
