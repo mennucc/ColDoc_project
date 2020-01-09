@@ -896,8 +896,8 @@ if __name__ == '__main__':
     parser.add_argument('--split-preamble','--SP',action='store_true',help='split the preamble a separate blob')
     parser.add_argument('--split-all-theorems','--SAT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
     parser.add_argument('--metadata-command','--MC',action='append',
-                        help='store the argument of this TeX command as metadata for the blob (\\label, \\uuid are always metadata)',
-                        default = [ 'label', 'uuid', 'index' ] )
+                        help='store the argument of this TeX command as metadata for the blob (some defaults are provided)',
+                        default = [ 'label', 'uuid', 'index', 'author', 'date', 'title' ] )
     parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
     parser.add_argument('--zip-sections','--ZS',action='store_true',
                         help='omit intermediate blob for \\include{} of a single section; implies --SS')
