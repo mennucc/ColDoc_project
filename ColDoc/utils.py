@@ -391,7 +391,7 @@ def os_rel_symlink(src, dst, basedir, target_is_directory, force = False, **kwar
     assert os.path.isdir(basedir)
     src = os.path.abspath(os.path.join(basedir, src))
     dst = os.path.abspath(os.path.join(basedir, dst))
-    dst_dir = os.path.dirname(dst) #if target_is_directory else 
+    dst_dir = os.path.dirname(dst) #if target_is_directory else
     src = os.path.relpath(src, dst_dir)
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)

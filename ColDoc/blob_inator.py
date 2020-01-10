@@ -142,7 +142,7 @@ class named_stream(io.StringIO):
         self._uuid = u
     @property
     def lang(self):
-        return self._lang   
+        return self._lang
     @property
     def environ(self):
         return self._environ
@@ -238,15 +238,15 @@ class named_stream(io.StringIO):
     def writeout(self, write_UUID = None, rstrip = None):
         """Writes the content of the file; returns the `filename` where the content was stored,
         relative to `basedir` (using the `symlink_dir` if provided).
-        
+
         - If `write_UUID` is `True`, the UUID will be written at the beginning of the blob
           (but for `section` blobs: for those it is written by another part of the code)
-        
+
         - If `write_UUID` is 'auto', the UUID will be not be written in 'section'
           and in any other environ listed in `ColDoc_do_not_write_uuid_in`
-        
+
         - If `write_UUID` is `False`, no UUID will be written.
-        
+
         If `rstrip` is `True`, will use `self.rstrip` to strip away final lines of only whitespace
         """
         if rstrip is None : rstrip = self._default_rstrip
@@ -468,7 +468,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
             end = '\\end{' + end[2:] + '}'
         else:
             end = 'blob `' + end + '`'
-        logger.error(' LaTeX Error: %s ended by %s ' % (beg,end))    
+        logger.error(' LaTeX Error: %s ended by %s ' % (beg,end))
     #
     itertokens = thetex.itertokens()
     n=0
@@ -503,8 +503,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                     # the above fails, we are not providing the full context to it
                     # so we imitate it, iterating over obj.arguments:
                     argSource = ''
-                    for spec in '*','[]',None: 
-                        output, source = thetex.readArgumentAndSource(spec=spec) #parentNode=obj,                                                                   name=arg.name,                                                                   **arg.options)
+                    for spec in '*','[]',None:
+                        output, source = thetex.readArgumentAndSource(spec=spec) #parentNode=obj,name=arg.name,**arg.options)
                         #logger.debug(' spec %r output %r source %r ' % (spec,output,source) )
                         argSource += source
                     name = source[1:-1]
@@ -614,7 +614,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         del obj, a
                     else:
                         cmd = src = '\\includegraphics'
-                        for spec in '*','[]',None: 
+                        for spec in '*','[]',None:
                             _, s = thetex.readArgumentAndSource(spec=spec)
                             src += s
                             if spec:
@@ -702,7 +702,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         logger.info('end item, writing %r',r)
                         stack.topstream.write('\\input{%s}%%\n\\item' % (r,))
                         _,source = thetex.readArgumentAndSource('[]')
-                        if source: 
+                        if source:
                             stack.topstream.write(source)
                         stack.push(named_stream(blobs_dir,e,parent=stack.topstream))
                         del r
@@ -788,7 +788,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
                     else:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
-                        stack.push('E_'+name) 
+                        stack.push('E_'+name)
 
                 elif macroname == "end":
                     name = thetex.readArgument(type=str)

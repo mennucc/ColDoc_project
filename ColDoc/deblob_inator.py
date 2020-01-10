@@ -198,7 +198,7 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                     logger.warning("\\includegraphics badly implemented, TODO")
                     cmd = src = '\\includegraphics'
                     #
-                    for spec in '*','[]',None: 
+                    for spec in '*','[]',None:
                         _, s = thetex.readArgumentAndSource(spec=spec)
                         src += s
                         if spec:
