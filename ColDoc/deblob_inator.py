@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 """ the DeBlob Inator
 joins the blobs to rebuild the original stuff
