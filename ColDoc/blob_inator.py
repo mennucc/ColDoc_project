@@ -76,6 +76,7 @@ class named_stream(io.StringIO):
     _default_rstrip = ColDoc_blob_rstrip
     _default_write_UUID = ColDoc_write_UUID
     _do_not_write_uuid_in = ColDoc_do_not_write_uuid_in
+    _metadata_class = Metadata
     #
     def __init__(self, basepath, environ ,
                 lang = ColDoc_lang, extension = '.tex',
@@ -93,7 +94,6 @@ class named_stream(io.StringIO):
         self._was_written = False
         self._uuid = None
         self._filename = None
-        self._metadata_filename = None
         self._dir = None
         self._symlink_dir = None
         self._symlink_files = set()
@@ -105,7 +105,7 @@ class named_stream(io.StringIO):
         if early_UUID:
             self._find_unused_UUID()
         # prepare metadata
-        self._metadata = Metadata()
+        self._metadata = self._metadata_class(basepath=basepath)
         self.add_metadata('environ', environ)
         self.add_metadata('extension', extension)
         self.add_metadata('lang', lang)
@@ -137,7 +137,6 @@ class named_stream(io.StringIO):
         assert not os.path.isabs(filename)
         assert not os.path.exists ( osjoin(self._basepath, filename) )
         self._filename = filename
-        self._metadata_filename = osjoin(d, 'metadata')
         self._dir = d
         self._uuid = u
     @property
@@ -202,11 +201,7 @@ class named_stream(io.StringIO):
         assert not os.path.isabs(filename)
         self._filename = filename
         self._dir = os.path.dirname(filename)
-        self._metadata_filename = filename + '~metadata'
-    @property
-    def metadata_filename(self):
-        "the filename relative to `basepath` where the metadata will be saved"
-        return self._metadata_filename
+    #
     def __len__(self):
         return len(self.getvalue())
     def add_metadata(self,T,E, braces=False):
@@ -266,10 +261,9 @@ class named_stream(io.StringIO):
         if self.closed :
             logger.error('file %r was closed before writeout' % self._filename)
         filename = osjoin(self._basepath, self._filename)
-        metadata_file = osjoin(self._basepath, self._metadata_filename)
         if True: #len(self.getvalue()) > 0:
             self.flush()
-            logger.info("writeout file %r metadata %r " % (self._filename, self._metadata_filename))
+            logger.info("writeout file %r  " % (self._filename,))
             z = self._open(filename ,'w')
             if write_UUID and self.uuid:
                 z.write("\\uuid{%s}%%\n" % (self.uuid,))
@@ -284,7 +278,7 @@ class named_stream(io.StringIO):
                 logger.warning('empty blob %r' % self)
             #
             self._metadata.add('uuid',self._uuid)
-            self._metadata.write(metadata_file)
+            self._metadata.write()
             r =  self._filename
             # no more messing with this class
             self._was_written = True

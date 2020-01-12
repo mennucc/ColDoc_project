@@ -30,13 +30,21 @@ from collections import OrderedDict
 
 class Metadata(OrderedDict):
     #
-    def __init__(self, filename=None, **k):
-        " If `filename` is provided, it will be the default for all writes"
+    def __init__(self, filename=None, basepath=None, **k):
+        """ If `filename` is provided, it will be the default for all writes.
+        If `filename` is `None` and `basepath` is given, then the filename will be of the form
+        `UUID/N/N/N/metadata` inside the `basepath`
+        inside 
+        """
         # the keys as a list (to preserve order)
         self._keys=[]
         assert filename is None or isinstance(filename, (str, pathlib.Path)),\
                "filename %r as type unsupported %r"%(filename,type(filename))
         self._filename = filename
+        #
+        assert basepath is None or isinstance(basepath, (str, pathlib.Path)),\
+               "basepath %r as type unsupported %r"%(basepath,type(basepath))
+        self._basepath = basepath
         #if file is not None:
         #    self.read(file)
         return super().__init__(**k)
@@ -44,6 +52,9 @@ class Metadata(OrderedDict):
     @property
     def filename(self):
         return self._filename
+    @property
+    def basepath(self):
+        return self._basepath
     @classmethod
     def open(cls, f):
         " read key/values from `f` ; if `f` is a string or a path, open that as file"
@@ -69,9 +80,14 @@ class Metadata(OrderedDict):
         """ return key/values as a list of strings;
         if `f` is a string, open it as file and write it
         if `f` is a file, write the metadata in that file
-        if `f` is None, but a filename was provided when creating the class, write there
+        if `f` is None, but a `filename` or `basepath` was provided when creating the class, write there
         """
-        if f is None: f = self._filename
+        if f is None:
+            if self._filename is not None:
+                f = self._filename
+            elif self._basepath is not None:
+                f = osjoin(self._basepath, uuid_to_dir(self.uuid, blobs_dir=self._basepath),'metadata')
+        assert f is not None
         l = []
         for k,v in self.items():
             for j in v:
