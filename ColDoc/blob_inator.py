@@ -876,13 +876,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                 M.writeout()
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Splits a TeX or LaTeX input into blobs',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+def add_arguments_to_parser(parser):
     parser.add_argument('input_file', help='the input TeX or LaTeX file')
-    parser.add_argument('--blobs-dir',type=str,default=ColDoc_as_blobs,\
-                        help='directory where to save the blob_ized output',\
-                        required=(ColDoc_as_blobs is None))
     parser.add_argument('--verbose','-v',action='count',default=0)
     parser.add_argument('--split-sections','--SS',action='store_true',help='split each section in a separate blob')
     parser.add_argument('--split-environment','--SE',action='append',help='split the content of this LaTeX environment in a separate blob', default=[])
@@ -908,8 +903,9 @@ if __name__ == '__main__':
     stripgroup.add_argument('--no-strip',action='store_false',dest='strip',\
                             help='do not --strip')
     parser.set_defaults(strip=ColDoc_blob_rstrip)
-    #
-    args = parser.parse_args()
+
+
+def main(args):
     # normalize
     if args.zip_sections: args.split_sections = True
     args.add_UUID = {"yes":True,"y":True,"no":False,"n":False,"a":"auto","auto":"auto"}[args.add_UUID]
@@ -988,8 +984,18 @@ if __name__ == '__main__':
         blob_inator(mytex, mydocument, mycontext, args)
     except:
         logger.exception('blob_inator killed by exception:')
-        sys.exit(1)
+        return 1
     else:
         logger.info("end of file")
+    return 0
 
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Splits a TeX or LaTeX input into blobs',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--blobs-dir',type=str,default=ColDoc_as_blobs,\
+                        help='directory where to save the blob_ized output',\
+                        required=(ColDoc_as_blobs is None))
+    add_arguments_to_parser(parser)
+    args = parser.parse_args()
+    sys.exit(main(args))
