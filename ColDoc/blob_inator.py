@@ -2,6 +2,8 @@
 
 """ the Blob Inator
 splits the input into blobs
+
+(this version is not integrated with Django)
 """
 
 ############## system modules
@@ -43,7 +45,7 @@ from ColDoc.utils import *
 
 
 #########################################################################
-import TokenizerPassThru
+from ColDoc import TokenizerPassThru
 
 import plasTeX
 import plasTeX.TeX, plasTeX.Base.LaTeX, plasTeX.Context , plasTeX.Tokenizer , plasTeX.Base
