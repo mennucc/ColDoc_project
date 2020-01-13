@@ -258,8 +258,8 @@ base = len(symbols)
 encode_symbols = dict((i, ch) for (i, ch) in enumerate(symbols))
 decode_symbols = dict((ch, i) for (i, ch) in enumerate(symbols))
 
-normalize_symbols = str.maketrans('IiLlOo', '111100')
-valid_symbols = re.compile('^[%s]+$' % (symbols,))
+uuid_normalize_symbols = str.maketrans('IiLlOo', '111100')
+uuid_valid_symbols = re.compile('^[%s]+$' % (symbols,))
 
 def int_to_uuid(number):
     """ convert a positive integer to a UUID :
@@ -276,8 +276,8 @@ def int_to_uuid(number):
 
 def uuid_check_normalize(symbol_string):
     " normalize a string and check that it is a valid UUID "
-    norm_string = symbol_string.translate(normalize_symbols).upper()
-    if not valid_symbols.match(norm_string):
+    norm_string = symbol_string.translate(uuid_normalize_symbols).upper()
+    if not uuid_valid_symbols.match(norm_string):
         raise ValueError("string '%s' contains invalid characters" % symbol_string)
     return norm_string.rjust(3,'0')
 
