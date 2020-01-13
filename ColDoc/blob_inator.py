@@ -704,7 +704,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         stack.topstream.write('\\item')
                     del e
                 elif macroname == "begin":
-                    name = mytex.readArgument(type=str)
+                    name = thetex.readArgument(type=str)
                     if name == 'document':
                         if not in_preamble:
                             logger.error(' \\begin{document} can only be used in preamble')
