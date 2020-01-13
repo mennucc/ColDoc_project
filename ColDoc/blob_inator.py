@@ -978,7 +978,8 @@ if __name__ == '__main__':
     args.cwd = os.getcwd()
     f = osjoin(args.blobs_dir, '.blob_inator-args.json')
     if os.path.exists(f):
-        sys.stderr.write("Cannot reuse this same directory: %r"%(f,))
+        sys.stderr.write("Cannot reuse this same directory: %r\n"%(f,))
+        return 1
     with open(f, 'w') as a:
         json.dump(args.__dict__, a, indent=2)
     #
