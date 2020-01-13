@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     #https://docs.djangoproject.com/en/3.0/howto/static-files/
     'django.contrib.staticfiles',
+    'ColDocDjango.ColDocApp',
     'ColDocDjango.UUID',
 ]
 
