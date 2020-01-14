@@ -34,7 +34,6 @@ class Metadata(OrderedDict):
         """ If `filename` is provided, it will be the default for all writes.
         If `filename` is `None` and `basepath` is given, then the filename will be of the form
         `UUID/N/N/N/metadata` inside the `basepath`
-        inside 
         """
         # the keys as a list (to preserve order)
         self._keys=[]
