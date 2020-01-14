@@ -90,7 +90,8 @@ class ThisColDoc(models.Model):
                                 max_length=10,  db_index = True, primary_key=True)
     #
     directory = models.FilePathField("directory where the data for this coldoc is stored",
-                                     path=COLDOC_SITE_ROOT, allow_folders = True, allow_files = False)
+                                     path=osjoin(COLDOC_SITE_ROOT,'coldocs'),
+                                     allow_folders = True, allow_files = False)
     #
     title = models.CharField(max_length=2000, blank=True)
     authors = models.TextField('newline-separated list of authors',max_length=10000, blank=True)
