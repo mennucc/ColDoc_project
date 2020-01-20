@@ -9,8 +9,9 @@ logger = logging.getLogger(__name__)
 
 from ColDoc.config import *
 
+from .classes import MetadataBase
 
-__all__ = ( "slugify", "absdict", "Metadata", "uuid_to_dir", "dir_to_uuid",
+__all__ = ( "slugify", "absdict", "FMetadata", "uuid_to_dir", "dir_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
             "ColDocException", "ColDocFileNotFoundError",
@@ -28,10 +29,12 @@ class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
 # note that from python 3.6 on, `dict` preserves order
 from collections import OrderedDict
 
-class Metadata(OrderedDict):
+class FMetadata(dict, MetadataBase):
+    "an implementation of `MetadataBase` that stores data in a file"
     #
-    def __init__(self, filename=None, basepath=None, **k):
-        """ If `filename` is provided, it will be the default for all writes.
+    def __init__(self, filename=None, basepath=None, *args, **kwargs):
+        """ If `filename` is provided, it will be the default for all writes
+        (this is deprecated and should be used only for testing).
         If `filename` is `None` and `basepath` is given, then the filename will be of the form
         `UUID/N/N/N/metadata` inside the `basepath`
         """
@@ -44,18 +47,13 @@ class Metadata(OrderedDict):
         assert basepath is None or isinstance(basepath, (str, pathlib.Path)),\
                "basepath %r as type unsupported %r"%(basepath,type(basepath))
         self._basepath = basepath
-        #if file is not None:
-        #    self.read(file)
-        return super().__init__(**k)
+        return super().__init__(*args, **kwargs)
     #
     @property
     def filename(self):
         return self._filename
-    @property
-    def basepath(self):
-        return self._basepath
     @classmethod
-    def open(cls, f):
+    def load_by_file(cls, f):
         " read key/values from `f` ; if `f` is a string or a path, open that as file"
         self = cls()
         if isinstance(f, (str, pathlib.Path)):
@@ -75,7 +73,13 @@ class Metadata(OrderedDict):
             self.add(k,v)
         return self
     #
-    def write(self, f =  None):
+    def load_by_uuid(cls, uuid, coldoc=None, basepath=None):
+        assert isinstance(basepath, (str, pathlib.Path))
+        assert isinstance(uuid,str)
+        "`coldoc` is ignored, `basepath` must be given"
+        return cls.load_by_file( osjoin(basepath,uuid_to_dir(uuid),'metadata') )
+    #
+    def save(self, f =  None):
         """ return key/values as a list of strings;
         if `f` is a string, open it as file and write it
         if `f` is a file, write the metadata in that file
@@ -131,9 +135,14 @@ class Metadata(OrderedDict):
         " unimplemented, may confuse users, semantic unclear"
         raise NotImplementedError("use `add` instead")
     #
+    # property calls for single-valued elements
+    #
     @property
     def uuid(self):
         return self.get('uuid',[None])[0]
+    @property
+    def environ(self):
+        return self.get('environ',[None])[0]
     #
     def htmlitems(self):
         for key,vals in self.items():
