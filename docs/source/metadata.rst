@@ -102,3 +102,20 @@ Note that a key may be repeated multiple times.
   
   then a blob will contain this Theorem, and its metadata would contain
   `M_label=tautol` and `S_E_equation_M_label=eq:forall`
+
+Metadata in source code
+------------------------
+
+Metadata is represented and operated on by a Python Class.
+
+The class interface is described as the abstract base class `AbstractMetadata` in `ColDoc.classes`
+
+The interface has a list of `properties` that can be used to retrieve and (in Django implementation) set
+the value.
+
+Some keys though are known to be single valued, and are returned as single values
+by the associated property: `coldoc`, `uuid`, `environ`.
+
+Instead `extension`, `lang` , `lang_ext`, `child_uuid`,  `parent_uuid`, are multi-valued,
+and are returnes as lists of strings.
+
