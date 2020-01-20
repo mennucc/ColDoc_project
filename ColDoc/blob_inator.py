@@ -42,6 +42,8 @@ from ColDoc.config import *
 
 from ColDoc.utils import *
 
+from ColDoc.classes import MetadataBase
+
 
 
 #########################################################################
@@ -70,15 +72,14 @@ from plasTeX.Packages import amsthm , graphicx
 
 class named_stream(io.StringIO):
     """ stream with a filename attached, and metadata; data will be written by 'writeout' method
-      the file will be written in a new UUID under `basepath` ; but see `self.filename`
-      and `self.metadata_filename`
+      the file will be written in a new UUID under `basepath` 
     """
     #
     _re_spaces_ =  re.compile('^[ \t\n]+$')
     _default_rstrip = ColDoc_blob_rstrip
     _default_write_UUID = ColDoc_write_UUID
     _do_not_write_uuid_in = ColDoc_do_not_write_uuid_in
-    _metadata_class = Metadata
+    _metadata_class = MetadataBase # <- this must be overridden
     #
     def __init__(self, basepath, environ ,
                 lang = ColDoc_lang, extension = '.tex',
@@ -280,7 +281,7 @@ class named_stream(io.StringIO):
                 logger.warning('empty blob %r' % self)
             #
             self._metadata.add('uuid',self._uuid)
-            self._metadata.write()
+            self._metadata.save()
             r =  self._filename
             # no more messing with this class
             self._was_written = True
@@ -412,7 +413,7 @@ class EnvStreamStack(object):
         O = self.pop(index=t)
         return O
 
-def blob_inator(thetex, thedocument, thecontext, cmdargs):
+def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
     shift_eol=True
@@ -420,8 +421,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
     input_file = os.path.abspath(cmdargs.input_file)
     input_basedir = os.path.dirname(input_file)
     #
+    #
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     in_preamble = False
+    #
+    assert issubclass(metadata_class, MetadataBase)
+    named_stream._metadata_class = metadata_class
+    #
     # map to avoid duplicating the same input on two different blobs;
     # each key is converted to an absolute path relative to `blobs_dir`;
     # the value is either the `named_stream` or a path relative to `blobs_dir`
@@ -558,9 +564,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         elif not O.closed:
                             logger.critical("recursive input: %r as %r", inputfile, O)
                             raise RuntimeError("recursive input: %r as %r" % (inputfile, O))
-                        m = Metadata.open(osjoin(blobs_dir,os.path.dirname(O.filename),'metadata'))
+                        m = metadata_class.load_by_uuid(O.uuid)
                         m.add('original_filename', inputfile)
                         m.append('parent_uuid',stack.topstream.uuid)
+                        m.save()
                         del m
                         logger.warning("duplicate input, parsed once: %r", inputfile)
                         stack.topstream.write('\\%s{%s}' % (macroname,O.filename))
@@ -627,12 +634,12 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                                             inputfile,O)
                             raise RuntimeError("the input %r was already parsed as object %r" %
                                                (inputfile,O))
-                        m = Metadata.open(osjoin(blobs_dir,os.path.dirname(O),'metadata'))
+                        m = metadata_class.load_by_uuid(O.uuid)
                         m.add('original_filename', inputfile)
                         m.add('original_command', src)
                         m.append('parent_uuid',stack.topstream.uuid)
                         m.add('extension',os.path.splitext(inputfile)[1])
-                        m.write()
+                        m.save()
                         logger.warning("duplicate graphical input, copied once: %r", inputfile)
                         stack.topstream.write(cmd+'{'+O+'}')
                         del cmd,src,m,inputfile
@@ -662,7 +669,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                         uuid = new_uuid(blobs_dir=blobs_dir)
                         do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
                         fo = osjoin(do,'blob')
-                        fm = Metadata()
+                        fm = metadata_class(basepath=blobs_dir)
                         fm['uuid'] = uuid
                         fm['original_filename'] = inputfile
                         fm['original_command'] = src
@@ -689,7 +696,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs):
                             #
                             file_blob_map[fii] = fo+ext
                             #
-                        fm.write(osjoin(blobs_dir,do,"metadata"))
+                        fm.save()
                         del do,fo,fm,exts,cmd,di,bi,ei,ext,fii,src
                 elif macroname == "item":
                     e = stack.topenv
@@ -983,7 +990,7 @@ def main(args):
     #
     logger.info("processing %r" % args.input_file)
     try:
-        blob_inator(mytex, mydocument, mycontext, args)
+        blob_inator(mytex, mydocument, mycontext, args, FMetadata)
     except:
         logger.exception('blob_inator killed by exception:')
         return 1
