@@ -421,6 +421,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
     input_file = os.path.abspath(cmdargs.input_file)
     input_basedir = os.path.dirname(input_file)
     #
+    disaster_recovery = False # <- makes debugging more difficult
     #
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     in_preamble = False
@@ -878,11 +879,12 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
     except:
         raise
     finally:
-        while stack:
-            M = stack.pop()
-            logger.critical('writing orphan output %r',M)
-            if isinstance(M,named_stream):
-                M.writeout()
+        if disaster_recovery:
+            while stack:
+                M = stack.pop()
+                logger.critical('writing orphan output %r',M)
+                if isinstance(M,named_stream):
+                    M.writeout()
 
 
 def add_arguments_to_parser(parser):
