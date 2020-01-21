@@ -32,7 +32,7 @@ from collections import OrderedDict
 class FMetadata(dict, MetadataBase):
     "an implementation of `MetadataBase` that stores data in a file"
     #
-    def __init__(self, filename=None, basepath=None, *args, **kwargs):
+    def __init__(self, filename=None, basepath=None, coldoc=None, *args, **kwargs):
         """ If `filename` is provided, it will be the default for all writes
         (this is deprecated and should be used only for testing).
         If `filename` is `None` and `basepath` is given, then the filename will be of the form
@@ -47,6 +47,8 @@ class FMetadata(dict, MetadataBase):
         assert basepath is None or isinstance(basepath, (str, pathlib.Path)),\
                "basepath %r as type unsupported %r"%(basepath,type(basepath))
         self._basepath = basepath
+        if coldoc is not None:
+            kwargs['coldoc'] = [coldoc,]
         return super().__init__(*args, **kwargs)
     #
     @property
@@ -74,9 +76,9 @@ class FMetadata(dict, MetadataBase):
         return self
     #
     def load_by_uuid(cls, uuid, coldoc=None, basepath=None):
+        "`coldoc` is ignored, `basepath` must be given"
         assert isinstance(basepath, (str, pathlib.Path))
         assert isinstance(uuid,str)
-        "`coldoc` is ignored, `basepath` must be given"
         return cls.load_by_file( osjoin(basepath,uuid_to_dir(uuid),'metadata') )
     #
     def save(self, f =  None):

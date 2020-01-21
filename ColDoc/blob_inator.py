@@ -79,17 +79,26 @@ class named_stream(io.StringIO):
     _default_rstrip = ColDoc_blob_rstrip
     _default_write_UUID = ColDoc_write_UUID
     _do_not_write_uuid_in = ColDoc_do_not_write_uuid_in
+    #
+    # _coldoc and _basepath are passed to _metadata_class
+    _default_coldoc = None
+    _default_basepath = None
     _metadata_class = MetadataBase # <- this must be overridden
     #
-    def __init__(self, basepath, environ ,
+    def __init__(self, environ ,
                 lang = ColDoc_lang, extension = '.tex',
                 early_UUID = ColDoc_early_UUID,
                 parentUUID = None, parent = None,
+                basepath=None, coldoc = None,
                 *args, **kwargs):
         super().__init__(*args, **kwargs)
         # store parameters
+        if basepath is None : basepath = self._default_basepath
         assert os.path.isdir(basepath)
         self._basepath = basepath
+        if coldoc is None : coldoc = self._default_coldoc
+        self._coldoc = coldoc
+        #
         self._environ = environ
         self._extension = extension
         self._lang = lang
@@ -108,7 +117,7 @@ class named_stream(io.StringIO):
         if early_UUID:
             self._find_unused_UUID()
         # prepare metadata
-        self._metadata = self._metadata_class(basepath=basepath)
+        self._metadata = self._metadata_class(basepath=basepath,coldoc=coldoc)
         self.add_metadata('environ', environ)
         self.add_metadata('extension', extension)
         self.add_metadata('lang', lang)
@@ -124,8 +133,8 @@ class named_stream(io.StringIO):
             logger.critical('blob %r has parent %r ?' % (self,parent))
     #
     def __repr__(self):
-        return ('<named_stream(basepath=%r, environ=%r, lang=%r, extension = %r, uuid=%r)>' % \
-               (self._basepath,self._environ,self._lang,self._extension,self._uuid))
+        return ('<named_stream(basepath=%r, coldoc=%r, uuid=%r, environ=%r, lang=%r, extension=%r)>' % \
+               (self._basepath,self._coldoc,self._uuid,self._environ,self._lang,self._extension))
     #
     def _find_unused_UUID(self):
         "set `filename` and `metadata_filename`, using a new UUID"
@@ -413,7 +422,7 @@ class EnvStreamStack(object):
         O = self.pop(index=t)
         return O
 
-def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
+def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc):
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
     shift_eol=True
@@ -427,7 +436,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
     in_preamble = False
     #
     assert issubclass(metadata_class, MetadataBase)
+    ## to avoid giving these parameters to named_stream() each time
     named_stream._metadata_class = metadata_class
+    named_stream._default_basepath = blobs_dir
+    named_stream._default_coldoc = coldoc
     #
     # map to avoid duplicating the same input on two different blobs;
     # each key is converted to an absolute path relative to `blobs_dir`;
@@ -443,7 +455,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
         del a
     thetex.input(open(cmdargs.input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     stack = EnvStreamStack()
-    output = named_stream(blobs_dir,'main_file')
+    output = named_stream('main_file')
     output.add_metadata('original_filename',input_file)
     file_blob_map[input_file] = output
     output.symlink_file_add('main.tex')
@@ -498,7 +510,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                     stack.topstream.write(obj.source)
                     stack.topstream.add_metadata('documentclass',obj.source)
                     if cmdargs.split_preamble:
-                        stack.push(named_stream(blobs_dir,'preamble', parent=stack.topstream))
+                        stack.push(named_stream('preamble', parent=stack.topstream))
                 elif cmdargs.split_sections and macroname == 'section':
                     pop_section()
                     #obj = Base.section()
@@ -528,7 +540,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                         else:
                             add_child = False
                     if add_child:
-                        stack.push(named_stream(blobs_dir,'section', parent=stack.topstream))
+                        stack.push(named_stream('section', parent=stack.topstream))
                     stack.topstream.symlink_dir = f
                     stack.topstream.add_metadata('section',argSource, braces=False)
                     stack.topstream.write('\\section'+argSource)
@@ -565,7 +577,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                         elif not O.closed:
                             logger.critical("recursive input: %r as %r", inputfile, O)
                             raise RuntimeError("recursive input: %r as %r" % (inputfile, O))
-                        m = metadata_class.load_by_uuid(O.uuid)
+                        m = metadata_class.load_by_uuid(O.uuid, basepath=blobs_dir, coldoc=coldoc)
                         m.add('original_filename', inputfile)
                         m.append('parent_uuid',stack.topstream.uuid)
                         m.save()
@@ -573,7 +585,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                         logger.warning("duplicate input, parsed once: %r", inputfile)
                         stack.topstream.write('\\%s{%s}' % (macroname,O.filename))
                     else:
-                        newoutput = named_stream(blobs_dir, macroname, parent=stack.topstream)
+                        newoutput = named_stream(macroname, parent=stack.topstream)
                         newoutput.add_metadata(r'original_filename',inputfile)
                         stack.push(newoutput)
                         if cmdargs.symlink_input:
@@ -635,7 +647,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                                             inputfile,O)
                             raise RuntimeError("the input %r was already parsed as object %r" %
                                                (inputfile,O))
-                        m = metadata_class.load_by_uuid(O.uuid)
+                        m = metadata_class.load_by_uuid(O.uuid, basepath=blobs_dir, coldoc=coldoc)
                         m.add('original_filename', inputfile)
                         m.add('original_command', src)
                         m.append('parent_uuid',stack.topstream.uuid)
@@ -670,7 +682,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                         uuid = new_uuid(blobs_dir=blobs_dir)
                         do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
                         fo = osjoin(do,'blob')
-                        fm = metadata_class(basepath=blobs_dir)
+                        fm = metadata_class(basepath=blobs_dir,coldoc=coldoc)
                         fm['uuid'] = uuid
                         fm['original_filename'] = inputfile
                         fm['original_command'] = src
@@ -708,7 +720,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                         _,source = thetex.readArgumentAndSource('[]')
                         if source:
                             stack.topstream.write(source)
-                        stack.push(named_stream(blobs_dir,e,parent=stack.topstream))
+                        stack.push(named_stream(e,parent=stack.topstream))
                         del r
                     else:
                         stack.topstream.write('\\item')
@@ -765,7 +777,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                                 stack.topstream.write(str(t))
                                 t=next(itertokens)
                             thetex.pushToken(t)
-                        stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
+                        stack.push(named_stream('E_'+name,parent=stack.topstream))
                         if source:
                             assert source[0] == '[' and source[-1] == ']'
                             stack.topstream.add_metadata('optarg',source[1:-1])
@@ -789,7 +801,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class):
                             else:
                                 logger.debug('passing %r inside %r' % (t.source,name) )
                                 t = next(itertokens)
-                        stack.push(named_stream(blobs_dir,'E_'+name,parent=stack.topstream))
+                        stack.push(named_stream('E_'+name,parent=stack.topstream))
                     else:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
                         stack.push('E_'+name)
@@ -916,7 +928,8 @@ def add_arguments_to_parser(parser):
     parser.set_defaults(strip=ColDoc_blob_rstrip)
 
 
-def main(args):
+def main(args, metadata_class, coldoc = None):
+    " `coldoc` is the nickname of the ColDoc , or the Django class for it"
     # normalize
     if args.zip_sections: args.split_sections = True
     args.add_UUID = {"yes":True,"y":True,"no":False,"n":False,"a":"auto","auto":"auto"}[args.add_UUID]
@@ -992,7 +1005,7 @@ def main(args):
     #
     logger.info("processing %r" % args.input_file)
     try:
-        blob_inator(mytex, mydocument, mycontext, args, FMetadata)
+        blob_inator(mytex, mydocument, mycontext, args, metadata_class, coldoc)
     except:
         logger.exception('blob_inator killed by exception:')
         return 1
@@ -1009,4 +1022,4 @@ if __name__ == '__main__':
                         required=(ColDoc_as_blobs is None))
     add_arguments_to_parser(parser)
     args = parser.parse_args()
-    sys.exit(main(args))
+    sys.exit(main(args, FMetadata, coldoc = args.coldoc_nick))
