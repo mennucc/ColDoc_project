@@ -116,9 +116,9 @@ class FMetadata(dict, MetadataBase):
             self._keys.append(k)
         if k in self:
             if v not in self[k]:
-                super().__getitem__(k).append(v)
+                return super().__getitem__(k).append(v)
         else:
-            super().__setitem__(k, [v])
+            return super().__setitem__(k, [v])
         #super().setdefault(k,[]).append(v)
     def append(self, k, v):
         """append `v` as value for key `k` (even if the value is not present);
@@ -237,14 +237,14 @@ def choose_blob(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs, ext = '.t
             return input_file,uuid,m,lang,ext
         else:
             logger.error('Blob `%r` not available for lang = %r ext = %r', uuid, lang, ext)
-            raise ColDocException()
+            raise ColDocException('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
     E = m.get('extension',[''])
     assert len(E) >= 1
     if ext is not None:
         if ext not in E:
             logger.error('Extension %r is not available for uuid %r',ext, uuid)
-            raise ColDocException()
+            raise ColDocException('Extension %r is not available for uuid %r'%(ext, uuid))
         E = [ext]
     #
     L = copy.copy(m.get('lang',[]))
