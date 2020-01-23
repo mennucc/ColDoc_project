@@ -154,6 +154,12 @@ class FMetadata(dict, MetadataBase):
     def environ(self):
         return self.get('environ',[None])[0]
     #
+    def singled_items(self):
+        " yields all (key,value) pairs, where each `key` may be repeated multiple times"
+        for k in self.keys():
+            for v in self[k]:
+                yield k,v
+    #
     def htmlitems(self):
         for key,vals in self.items():
             vallik = []

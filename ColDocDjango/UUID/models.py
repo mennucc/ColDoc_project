@@ -101,18 +101,26 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         #logger.debug
         F = open(F,'w')
         F.write( 'coldoc=' + self.coldoc.nickname + '\n')
-        for key in  ('uuid', 'environ'):
-            F.write( key + '=' + getattr(self,key) + '\n')
-        for key in ('extension','lang','authors'):
-            for value in getattr(self,key).split('\n'):
-                F.write( key + '=' + value + '\n')
-        for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid):
-            F.write( 'parent_uuid=' + obj.parent + '\n')
-        for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid):
-            F.write( 'child_uuid=' + obj.child + '\n')
-        for obj in ExtraMetadata.objects.filter(blob=self):
-            F.write( obj.key + '=' + obj.value + '\n')
+        for k,vv in self.items():
+            for v in vv:
+                F.write( k + '=' + v + '\n')
         F.close()
+    #
+    def singled_items(self):
+        " yields all (key,value) pairs, where each `key` may be repeated multiple times"
+        for key in  ('uuid', 'environ'):
+            yield key, getattr(self,key)
+        for key in ('extension','lang','authors'):
+            l = getattr(self,key)
+            if l is not None:
+                for value in l.split('\n'):
+                    yield key, value
+        for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid):
+            yield 'parent_uuid', obj.parent
+        for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid):
+            yield 'child_uuid', obj.child
+        for obj in ExtraMetadata.objects.filter(blob=self):
+            yield obj.key, obj.value
     #
     def save(self):
         r = super().save()
@@ -161,7 +169,46 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             raise NotImplementedError()
         else:
             raise NotImplementedError()
-
+    #
+    def get(self, key, default = None):
+        "returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"
+        if key in  ('uuid','environ'):
+            return [getattr(self, key)]
+        elif key in ('extension','lang','authors'):
+            l = getattr(self,key)
+            if l is None:
+                return []
+            else:
+                return l.split('\n')
+        elif key == 'parent_uuid':
+            return UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent', flat=True)
+        elif key == 'child_uuid':
+            return UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid).values_list('child', flat=True)
+        else:
+            return ExtraMetadata.objects.filter(blob=self, key=key).values_list('value', flat=True)
+    #
+    #
+    def items(self, serve_empty=False):
+        "returns (key, valuse)"
+        for key in  ('uuid','environ'):
+            yield key, [getattr(self, key)]
+        for key in ('extension','lang','authors'):
+            l = getattr(self,key)
+            if l is None:
+                if serve_empty:
+                    yield l, []
+            else:
+                yield key, l.split('\n')
+        #key == 'parent_uuid':
+        yield 'parent_uuid', UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent',flat=True)
+        #key == 'child_uuid':
+        yield 'child_uuid', UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid).values_list('child',flat=True)
+        seen = set()
+        for key in ExtraMetadata.objects.filter(blob=self).values_list('key', flat=True):
+            if key not in seen:
+                yield key, ExtraMetadata.objects.filter(blob=self, key=key).values_list('value', flat=True)
+            seen.add(key)
+    #
 
 class ExtraMetadata(models.Model):
     blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)

@@ -45,6 +45,10 @@ class MetadataBase(object):
         " set value `value` for `key` (as one single value, even if multivalued)"
         raise NotImplementedError
     #
+    def singled_items(self):
+        " yields all (key,value) pairs, where each `key` may be repeated multiple times"
+        raise NotImplementedError
+    #
     def add(self,key, value):
         """ if `key` is single-valued, set `key` to `value`; it `key` is multiple-valued,
         adds a `value` for `key` (only if the value is not present); """
