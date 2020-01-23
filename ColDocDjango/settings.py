@@ -20,6 +20,8 @@ from ColDocDjango.config import config
 
 COLDOC_SITE_CONFIG = config
 
+COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
