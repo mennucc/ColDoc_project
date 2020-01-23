@@ -173,7 +173,7 @@ def metadata_html_items(metadata, nick):
                 if  key == 'child_uuid' or key == 'parent_uuid':
                     link="/UUID/{nick}/{val}".format(val=val,nick=nick)
                 elif  key ==  'extension' :
-                    link="/UUID/{nick}/{UUID}/?extension={val}".format(UUID=metadata.uuid,nick=nick,val=val)
+                    link="/UUID/{nick}/{UUID}/?ext={val}".format(UUID=metadata.uuid,nick=nick,val=val)
                 vallik.append((val,link))
             yield (key,vallik)
 
