@@ -76,6 +76,7 @@ class FMetadata(dict, MetadataBase):
             self.add(k,v)
         return self
     #
+    @classmethod
     def load_by_uuid(cls, uuid, coldoc=None, basepath=None):
         "`coldoc` is ignored, `basepath` must be given"
         assert isinstance(basepath, (str, pathlib.Path))
