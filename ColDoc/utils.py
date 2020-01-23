@@ -11,7 +11,7 @@ from ColDoc.config import *
 
 from .classes import MetadataBase
 
-__all__ = ( "slugify", "absdict", "FMetadata", "uuid_to_dir", "dir_to_uuid",
+__all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir", "dir_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
             "ColDocException", "ColDocFileNotFoundError",
@@ -388,6 +388,8 @@ def new_section_nr(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
     logger.debug('new section n = %r ' % (n,))
     return n
 
+# taken from Django, for convenience
+slug_re = re.compile(r'^[-a-zA-Z0-9_]+\Z')
 
 # https://github.com/django/django/blob/master/django/utils/text.py
 def slugify(value, allow_unicode=False):
