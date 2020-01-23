@@ -51,12 +51,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     uuid = UUID_Field(db_index = True, )
     environ = models.CharField(max_length=100, db_index = True)
-    extension = models.TextField(max_length=100,help_text="newline-eparated list of extensions",
+    extension = models.TextField(max_length=100,help_text="newline-separated list of extensions",
                                  default='', blank=True)
     lang = models.TextField(max_length=100,help_text="newline-eparated list of languages",
                             default='', blank=True)
     #
-    authors = models.TextField('newline-separated list of authors',max_length=10000)
+    authors = models.TextField('newline-separated list of authors',max_length=10000,
+                               default='', blank=True)
     creation_date = models.DateTimeField('date of creation', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)
     #
@@ -111,10 +112,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         for key in  ('uuid', 'environ'):
             yield key, getattr(self,key)
         for key in ('extension','lang','authors'):
-            l = getattr(self,key)
-            if l is not None:
-                for value in l.split('\n'):
-                    yield key, value
+            l = getattr(self,key).splitlines()
+            if l[-1] == '':
+                l.pop()
+            else:
+                logger.warning('UUID %r key %r is missing final newline: %r',self.uuid,key,l)
+            for value in l:
+                yield key, value
         for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid):
             yield 'parent_uuid', obj.parent
         for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid):
@@ -123,6 +127,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             yield obj.key, obj.value
     #
     def save(self):
+        for k in ('extension','lang','authors'):
+            v = getattr(self,k)
+            v = v.replace('\r','')
+            if v and v[-1] != '\n':
+                logger.warning('save: UUID %r key %r was missing final newline: %r',self.uuid,k,v)
+                v += '\n'
+            setattr(self,k, v)
         r = super().save()
         for c in self._children:
             if not UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid, child = c).exists():
@@ -149,11 +160,16 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         if key in  ('uuid','environ'):
             setattr(self, key, value)
         elif key in ('extension','lang','authors'):
+            assert '\n' not in value
             v = getattr(self,key)
-            v = v.split('\n')
+            v = v.splitlines()
+            if v[-1] != '':
+                logger.warning('add: UUID %r key %r was missing final newline: %r',self.uuid,key,v)
+            else:
+                v.pop()
             if value not in v:
                 v.append(value)
-            setattr(self, key, '\n'.join(v))
+            setattr(self, key, '\n'.join(v)+'\n')
         elif key == 'child_uuid' and value not in self._children:
             self._children.append(value)
         elif key == 'parent_uuid' and value not in self._parents:
@@ -175,11 +191,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         if key in  ('uuid','environ'):
             return [getattr(self, key)]
         elif key in ('extension','lang','authors'):
-            l = getattr(self,key)
-            if l is None:
-                return []
+            l = getattr(self,key).splitlines()
+            if l[-1] == '' :
+                l.pop()
             else:
-                return l.split('\n')
+                logger.warning('get: UUID %r key %r was missing final newline: %r',self.uuid,key,l)
+                # useless, unless it is saved ... setattr(self, key, '\n'.join(l)+'\n')
+            return l
         elif key == 'parent_uuid':
             return UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent', flat=True)
         elif key == 'child_uuid':
@@ -193,12 +211,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         for key in  ('uuid','environ'):
             yield key, [getattr(self, key)]
         for key in ('extension','lang','authors'):
-            l = getattr(self,key)
-            if l is None:
-                if serve_empty:
-                    yield l, []
+            l = getattr(self,key).splitlines()
+            if l and l[-1] == '':
+                l.pop()
             else:
-                yield key, l.split('\n')
+                logger.warning('items: UUID %r key %r is missing final newline: %r',self.uuid,key,l)
+            if l or serve_empty:
+                yield key, l
         #key == 'parent_uuid':
         yield 'parent_uuid', UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent',flat=True)
         #key == 'child_uuid':
