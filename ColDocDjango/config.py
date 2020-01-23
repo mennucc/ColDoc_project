@@ -41,12 +41,6 @@ config.set(section, 'google_analytics_account', '')
 config.set(section, 'piwik_url', '')
 config.set(section, 'piwik_site_id', '')
 
-section = 'coldoc'
-config.add_section(section)
-config.set(section, 'blobs_dir', '%(base_root)s/blobs')
-config.set(section, 'content_title', 'Test Title')
-config.set(section, 'content_authors', 'Those Authors')
-config.set(section, 'content_description', 'A Test ColDoc document')
 
 def deploy(con, a):
     " write configuration `con` to file `a` to allow for customization"
