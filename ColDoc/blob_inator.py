@@ -443,7 +443,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     #
     # map to avoid duplicating the same input on two different blobs;
     # each key is converted to an absolute path relative to `blobs_dir`;
-    # the value is either the `named_stream` or a path relative to `blobs_dir`
+    # the value is a pair `(O,U)`
+    # with `O` being either the `named_stream` or a path relative to `blobs_dir`
+    # and `U` being the UUID
     file_blob_map = absdict(basedir = input_basedir, loggingname='file_blob_map')
     #
     def write_special_EOF():
@@ -457,7 +459,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     stack = EnvStreamStack()
     output = named_stream('main_file')
     output.add_metadata('original_filename',input_file)
-    file_blob_map[input_file] = output
+    file_blob_map[input_file] = output,output.uuid
     output.symlink_file_add('main.tex')
     if cmdargs.symlink_input:
         output.symlink_file_add(os.path.basename( input_file))
@@ -570,13 +572,15 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         inputfile = thetex.readArgument(type=str)
                     inputfileext = inputfile + ('' if inputfile[-4:] == '.tex' else '.tex' )
                     if inputfileext in file_blob_map:
-                        O = file_blob_map[inputfileext]
+                        O,U = file_blob_map[inputfileext]
                         if not isinstance(O,named_stream):
-                            logger.error("the input %r was already parsed as object %r ?!?",
-                                         inputfile,O)
+                            logger.error("the input %r was already parsed as object %r uuid %r ?!?",
+                                         inputfile,O,U)
                         elif not O.closed:
                             logger.critical("recursive input: %r as %r", inputfile, O)
                             raise RuntimeError("recursive input: %r as %r" % (inputfile, O))
+                        assert O.uuid == U
+                        #
                         m = metadata_class.load_by_uuid(O.uuid, basepath=blobs_dir, coldoc=coldoc)
                         m.add('original_filename', inputfile)
                         m.append('parent_uuid',stack.topstream.uuid)
@@ -595,7 +599,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         if not os.path.isfile(inputfile):
                             inputfile += '.tex'
                         assert os.path.isfile(inputfile), "file does not exist: %r"%(inputfile,)
-                        file_blob_map[inputfile] = newoutput
+                        file_blob_map[inputfile] = newoutput, newoutput.uuid
                         del newoutput
                         logger.info(' processing %r ' % (inputfile))
                         write_special_EOF()
@@ -641,13 +645,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     logger.debug('parsing %r' , cmd+'{'+inputfile+'}')
                     assert not os.path.isabs(inputfile), "absolute path not supported: "+cmd+'{'+inputfile+'}'
                     if inputfile in file_blob_map:
-                        O = file_blob_map[inputfile]
+                        O, U = file_blob_map[inputfile]
                         if not isinstance(O,str):
-                            logger.critical("the input %r was already parsed as object %r",
-                                            inputfile,O)
-                            raise RuntimeError("the input %r was already parsed as object %r" %
-                                               (inputfile,O))
-                        m = metadata_class.load_by_uuid(O.uuid, basepath=blobs_dir, coldoc=coldoc)
+                            logger.critical("the input %r was already parsed as object %r uuid %r",
+                                            inputfile,O,U)
+                            raise RuntimeError("the input %r was already parsed as object %r uuid %r" %
+                                               (inputfile,O,U))
+                        m = metadata_class.load_by_uuid(U, basepath=blobs_dir, coldoc=coldoc)
                         m.add('original_filename', inputfile)
                         m.add('original_command', src)
                         m.append('parent_uuid',stack.topstream.uuid)
@@ -687,12 +691,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         fm['original_filename'] = inputfile
                         fm['original_command'] = src
                         fm['parent_uuid'] = stack.topstream.uuid
-                        del uuid
                         # will load the same extension, if specified
                         stack.topstream.write(cmd+'{'+fo+ei+'}')
                         #
-                        file_blob_map[inputfile] = fo+ei
-                        file_blob_map[osjoin(di,bi)] = fo
+                        file_blob_map[inputfile] = fo+ei, uuid
+                        file_blob_map[osjoin(di,bi)] = fo, uuid
                         # copy all files with same base, different extensions
                         ext = fii = None
                         for ext in exts:
@@ -707,10 +710,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                                 except:
                                     logger.exception("cannot create symlink %r", fii)
                             #
-                            file_blob_map[fii] = fo+ext
+                            file_blob_map[fii] = fo+ext,uuid
                             #
                         fm.save()
-                        del do,fo,fm,exts,cmd,di,bi,ei,ext,fii,src
+                        del do,fo,fm,exts,cmd,di,bi,ei,ext,fii,src,uuid
                 elif macroname == "item":
                     e = stack.topenv
                     if len(e) >= 3 and e[:2] == 'E_' and e[2:] in cmdargs.split_list :
