@@ -7,6 +7,8 @@ import pathlib
 class MetadataBase(object):
     """ a base class for blob's metadata .
     """
+    # these are expected to be single valued
+    _single_valued_keys = ('uuid','environ')
     ########### create / initialize save
     def __init__(self, basepath=None, *args, **kwargs):
         assert basepath is None or isinstance(basepath, (str, pathlib.Path)),\
@@ -44,7 +46,8 @@ class MetadataBase(object):
         raise NotImplementedError
     #
     def add(self,key, value):
-        "adds a value to for `key`"
+        """ if `key` is single-valued, set `key` to `value`; it `key` is multiple-valued,
+        adds a `value` for `key` (only if the value is not present); """
         raise NotImplementedError
     ##
     #def set(self,key, value):

@@ -39,7 +39,8 @@ class FMetadata(dict, MetadataBase):
         `UUID/N/N/N/metadata` inside the `basepath`
         """
         # the keys as a list (to preserve order)
-        self._keys=[]
+        self._keys=list(self._single_valued_keys)
+        #
         assert filename is None or isinstance(filename, (str, pathlib.Path)),\
                "filename %r as type unsupported %r"%(filename,type(filename))
         self._filename = filename
@@ -104,9 +105,12 @@ class FMetadata(dict, MetadataBase):
         return l
     #
     def add(self, k, v):
-        "add `v` as value for key `k` (only if the value is not present)"
+        """ if `key` is single-valued, set `key` to `value`; if `key` is multiple-valued,
+        adds a `value` for `key` (only if the value is not present); """
         #assert isinstance(k,str) and isinstance(v,str)
         assert '=' not in str(k)
+        if k in self._single_valued_keys:
+            return super().__setitem__(k, [v])
         if k not in self._keys:
             self._keys.append(k)
         if k in self:

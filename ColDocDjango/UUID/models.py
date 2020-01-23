@@ -32,6 +32,13 @@ class BlobMetadata(models.Model):
         if 'basepath' in kwargs:
             self.__basepath = kwargs['basepath']
             del kwargs['basepath']
+        # these keys are single valued
+        self._single_valued_keys = ('uuid','environ')
+        assert self._single_valued_keys == classes.MetadataBase._single_valued_keys
+        # these keys are multiple-valued, are internal, are represented
+        # as a newline-separated text field
+        self._internal_multiple_valued_keys = ('extension','lang','authors')
+        #
         super().__init__(*args, **kwargs)
 
         #self.coldoc = coldoc
@@ -73,8 +80,10 @@ class BlobMetadata(models.Model):
         #
         return r
     #
-    def add(self,key,value):
-        "this call is used by the blob_inator"
+    def add(self, key, value):
+        """ for single valued `key`, set `value`; for multiple value,
+        add the `value` as a possible value for `key` (only if the value is not present) ;
+        this call is used by the blob_inator"""
         if key in  ('uuid','environ'):
             setattr(self, key, value)
         elif key in ('extension','lang','authors'):
