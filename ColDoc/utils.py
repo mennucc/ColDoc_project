@@ -214,33 +214,47 @@ class absdict(dict):
 
 #####################
 
-def resolve_uuid(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs):
+def resolve_uuid(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs,
+                 metadata_class=FMetadata, coldoc=None):
     " provide some flexibility in calling argument "
     assert not (uuid is None and uuid_dir is None), 'one of `uuid` or `uuid_dir` must be provided'
-    assert blobs_dir is not None
-    if isinstance(uuid,int):
-        uuid = int_to_uuid(uuid)
+    if uuid is None:
+        uuid_str = dir_to_uuid(uuid_dir)
+        uuid_int = uuid_to_int(uuid_str)
+    elif isinstance(uuid,int):
+        uuid_str = int_to_uuid(uuid)
+        uuid_int = uuid
+    else:
+        uuid_str = str(uuid)
+        uuid_int = uuid_to_int(uuid_str)
     if uuid_dir is None:
-        uuid_dir = uuid_to_dir(uuid, blobs_dir=blobs_dir)
-    a = osjoin(blobs_dir, uuid_dir)
+        uuid_dir = uuid_to_dir(uuid_str, blobs_dir=blobs_dir)
+    #a = osjoin(blobs_dir, uuid_dir)
     #if not os.path.isdir(a):
     #    raise ColDocFileNotFoundError("no dir %r (corresponding to uuid %r)" % (a, uuid))
-    m = Metadata.open(osjoin(a, 'metadata'))
-    U = m['uuid']
-    assert len(U) == 1
-    if uuid==None:
-        uuid = U[0]
-    else:
-        assert uuid_to_int(uuid) == uuid_to_int(U[0])
+    # currently `load_by_uuid` needs one of those
+    assert blobs_dir is not None or coldoc is not None
+    m = metadata_class.load_by_uuid(uuid, coldoc=coldoc, basepath=blobs_dir)
+    if m is None:
+        logger.error('Metadata `%r` not available for basepath %r coldoc %r', uuid, blobs_dir, coldoc)
+        raise ColDocException('Metadata `%r` not available for basepath %r coldoc %r'%(uuid, blobs_dir, coldoc))
+    U = m.get('uuid')
+    assert uuid_int == uuid_to_int(U[0])
     return uuid, uuid_dir, m
 
-def choose_blob(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs, ext = '.tex', lang = ColDoc_lang):
+def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',
+                lang = ColDoc_lang, metadata_class=FMetadata, coldoc=None):
     """ Choose a blob, trying to satisfy request for language and extension
     returns `filename`, `uuid`, `metadata`, `lang`, `ext`
     if `ext` is None, a random extension will be returned
     if `lang` is None, a random language will be returned
     """
-    uuid, uuid_dir, m = resolve_uuid(uuid = uuid, uuid_dir = uuid_dir, blobs_dir = blobs_dir)
+    assert isinstance(uuid,str)
+    uuid_dir = uuid_to_dir(uuid)
+    m = metadata_class.load_by_uuid(uuid=uuid,coldoc=coldoc,basepath=blobs_dir)
+    if m is None:
+        logger.error('Metadata `%r` not available for coldoc %r', uuid, coldoc)
+        raise ColDocException('Metadata `%r` not available for coldoc %r'%(uuid, coldoc))
     # short circuit the case of given lang and ext
     if lang is not None and ext is not None:
         input_file = osjoin(blobs_dir, uuid_dir, 'blob_'+lang+ext)
