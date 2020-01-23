@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 import django
 from django.shortcuts import render
 from django.http import HttpResponse, QueryDict
+from django.contrib import messages
 
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
@@ -30,8 +31,9 @@ def view_(request, UUID, _view_ext, _content_type, subpath = None):
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
-            # TODO ignored?
-            msg += "UUID was normalized from %r to %r"%(UUID,a)
+            # TODO this is not shown
+            messages.add_message(request, messages.WARNING,
+                                 "UUID was normalized from %r to %r"%(UUID,a))
         UUID = a
     except ValueError as e:
         return HttpResponse("Invalid UUID %r. \n Reason: %r" % (UUID,e))
@@ -48,7 +50,7 @@ def view_(request, UUID, _view_ext, _content_type, subpath = None):
     download='download' in q
     #for j in q:
     #    if j not in ('ext','lang'):
-    #        msg += 'Ignored query %r'%(j,)
+    #        messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
     #
     try:
         uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
@@ -106,7 +108,9 @@ def index(request, UUID):
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
-            msg += "UUID was normalized from %r to %r"%(UUID,a)
+            # https://docs.djangoproject.com/en/3.0/ref/contrib/messages/
+            messages.add_message(request, messages.WARNING,
+                                 "UUID was normalized from %r to %r"%(UUID,a))
         UUID = a
     except ValueError as e:
         return HttpResponse("Invalid UUID %r. \n Reason: %r" % (UUID,e))
@@ -120,7 +124,7 @@ def index(request, UUID):
         lang = q['lang']
     for j in q:
         if j not in ('ext','lang'):
-            msg += 'Ignored query %r'%(j,)
+            messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
     #
     try:
         uuid, uuid_dir, m = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
