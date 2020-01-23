@@ -209,6 +209,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 yield key, ExtraMetadata.objects.filter(blob=self, key=key).values_list('value', flat=True)
             seen.add(key)
     #
+    def htmlitems(self):
+        return coldoc_utils.metadata_html_items(self, self.coldoc.nickname)
 
 class ExtraMetadata(models.Model):
     blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)

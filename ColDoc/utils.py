@@ -16,6 +16,7 @@ __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir", "dir_to
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
             "ColDocException", "ColDocFileNotFoundError",
             "choose_blob",
+            "metadata_html_items"
             )
 
 class ColDocException(Exception):
@@ -161,7 +162,11 @@ class FMetadata(dict, MetadataBase):
                 yield k,v
     #
     def htmlitems(self):
-        for key,vals in self.items():
+        return metadata_html_items(self, self.get('coldoc',[''])[0] )
+
+
+def metadata_html_items(metadata, nick):
+        for key,vals in metadata.items():
             vallik = []
             for val in vals:
                 link=''
