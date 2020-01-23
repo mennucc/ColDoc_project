@@ -1,6 +1,9 @@
 import os
 from os.path import join as osjoin
 
+import logging
+logger = logging.getLogger(__name__)
+
 #from datetime import datetime as DT
 from django.utils import timezone as DT
 
@@ -10,6 +13,8 @@ from django.core.validators  import RegexValidator
 from ColDocDjango import settings
 
 from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
+
+from ColDoc import classes, utils as coldoc_utils
 
 # Create your models here.
 
@@ -30,7 +35,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         self._children = []
         self._parents = []
         if 'basepath' in kwargs:
-            self.__basepath = kwargs['basepath']
+            self._basepath = kwargs['basepath']
             del kwargs['basepath']
         # these keys are single valued
         self._single_valued_keys = ('uuid','environ')
@@ -64,20 +69,69 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     ]
     latex_documentclass = models.CharField("documentclass used to compile", max_length=15,
                                            choices=BLOB_DOCUMENTCLASS,        default='auto')
-    # these calls are shared with the non-django blob_inator
+    ####
+    # these calls implement part of the interface `classes.MetadataBase`
     #
-    def write(self):
-        r = self.save()
+    @classmethod
+    def load_by_uuid(cls, uuid, coldoc=None, basepath=None):
+        " returns an instance that matches the `uuid` in the `coldoc` or in the `basepath`"
+        if isinstance(uuid,str):
+            uuid = coldoc_utils.uuid_to_int(uuid)
+        r = DMetadata.objects.filter(uuid=uuid,coldoc=coldoc)
+        l = len(r)
+        if l == 0 :
+            logger.warning('No DMetadata for uuid=%r coldoc=%r'%(coldoc_utils.int_to_uuid(uuid),coldoc))
+            return None
+        elif l > 1:
+            logger.warning('Multiple DMetadata for uuid=%r coldoc=%r'%(coldoc_utils.int_to_uuid(uuid),coldoc))
+        for j in r:
+            return j
+    #
+    def __write(self):
+        "write a file with all metadata (as `FMetadata` does, used by non-django blob_inator) for easy inspection and comparison"
+        if self.coldoc.directory is None:
+            coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',self.coldoc.nickname,'blobs')
+        else:
+            coldoc_dir = self.coldoc.directory
+            if os.path.isabs(coldoc_dir):
+                coldoc_dir = osjoin(COLDOC_SITE_ROOT, coldoc_dir)
+        blobs_dir = osjoin(coldoc_dir, 'blobs')
+        #
+        F = osjoin(blobs_dir, coldoc_utils.uuid_to_dir(self.uuid, blobs_dir=blobs_dir), 'metadata')
+        #logger.debug
+        F = open(F,'w')
+        F.write( 'coldoc=' + self.coldoc.nickname + '\n')
+        for key in  ('uuid', 'environ'):
+            F.write( key + '=' + getattr(self,key) + '\n')
+        for key in ('extension','lang','authors'):
+            for value in getattr(self,key).split('\n'):
+                F.write( key + '=' + value + '\n')
+        for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid):
+            F.write( 'parent_uuid=' + obj.parent + '\n')
+        for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid):
+            F.write( 'child_uuid=' + obj.child + '\n')
+        for obj in ExtraMetadata.objects.filter(blob=self):
+            F.write( obj.key + '=' + obj.value + '\n')
+        F.close()
+    #
+    def save(self):
+        r = super().save()
         for c in self._children:
-            UUID_Tree_Edge(coldoc = self.coldoc, parent = self.uuid, child = c).save()
+            if not UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid, child = c).exists():
+                UUID_Tree_Edge(coldoc = self.coldoc, parent = self.uuid, child = c).save()
         self._children = []
         # no need to save parents...
+        for p in self._parents:
+            if not UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = p, child = self.uuid).exists():
+                UUID_Tree_Edge(coldoc = self.coldoc, parent = p, child = self.uuid).save()
         self._parents = []
         #
         for k,v in self._extra_metadata:
-            ExtraMetadata(uuid = self, key =  k, value = v).save()
+            if not ExtraMetadata.objects.filter(blob = self, key =  k, value = v).exists():
+                ExtraMetadata(blob = self, key =  k, value = v).save()
         self._extra_metadata = []
         #
+        self.__write()
         return r
     #
     def add(self, key, value):
@@ -88,16 +142,26 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             setattr(self, key, value)
         elif key in ('extension','lang','authors'):
             v = getattr(self,key)
-            if v:
-                v += '\n'
-            v += value
-            setattr(self, key, v)
-        elif key == 'child_uuid':
+            v = v.split('\n')
+            if value not in v:
+                v.append(value)
+            setattr(self, key, '\n'.join(v))
+        elif key == 'child_uuid' and value not in self._children:
             self._children.append(value)
-        elif key == 'parent_uuid':
+        elif key == 'parent_uuid' and value not in self._parents:
             self._parents.append(value)
-        else:
+        elif (key,value) not in self._extra_metadata:
             self._extra_metadata.append((key,value))
+    #
+    def __setitem__(self,key,value):
+        " set value `value` for `key` (as one single value, even if multivalued)"
+        if key in  ('uuid','environ','extension','lang','authors'):
+            setattr(self, key, value)
+        elif key in ('child_uuid', 'parent_uuid'):
+            raise NotImplementedError()
+        else:
+            raise NotImplementedError()
+
 
 class ExtraMetadata(models.Model):
     blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)
