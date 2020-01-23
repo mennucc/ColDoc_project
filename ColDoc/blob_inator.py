@@ -687,10 +687,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
                         fo = osjoin(do,'blob')
                         fm = metadata_class(basepath=blobs_dir,coldoc=coldoc)
-                        fm['uuid'] = uuid
-                        fm['original_filename'] = inputfile
-                        fm['original_command'] = src
-                        fm['parent_uuid'] = stack.topstream.uuid
+                        fm['uuid'] =  uuid
+                        fm.add('original_filename', inputfile)
+                        fm.add('original_command', src)
+                        fm.add('parent_uuid', stack.topstream.uuid)
                         # will load the same extension, if specified
                         stack.topstream.write(cmd+'{'+fo+ei+'}')
                         #
