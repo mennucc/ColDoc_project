@@ -116,8 +116,11 @@ class FMetadata(dict, MetadataBase):
             super().__setitem__(k, [v])
         #super().setdefault(k,[]).append(v)
     def append(self, k, v):
-        "append `v` as value for key `k` (even if the value is not present)"
+        """append `v` as value for key `k` (even if the value is not present);
+        deprecated, I now see no need to have repeated values
+        """
         #assert isinstance(k,str) and isinstance(v,str)
+        logger.warning('Deprecated `append`')
         assert '=' not in str(k)
         if k not in self._keys:
             self._keys.append(k)

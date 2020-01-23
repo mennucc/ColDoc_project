@@ -583,7 +583,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         #
                         m = metadata_class.load_by_uuid(O.uuid, basepath=blobs_dir, coldoc=coldoc)
                         m.add('original_filename', inputfile)
-                        m.append('parent_uuid',stack.topstream.uuid)
+                        m.add('parent_uuid',stack.topstream.uuid)
                         m.save()
                         del m
                         logger.warning("duplicate input, parsed once: %r", inputfile)
@@ -654,7 +654,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         m = metadata_class.load_by_uuid(U, basepath=blobs_dir, coldoc=coldoc)
                         m.add('original_filename', inputfile)
                         m.add('original_command', src)
-                        m.append('parent_uuid',stack.topstream.uuid)
+                        m.add('parent_uuid',stack.topstream.uuid)
                         m.add('extension',os.path.splitext(inputfile)[1])
                         m.save()
                         logger.warning("duplicate graphical input, copied once: %r", inputfile)
