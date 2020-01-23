@@ -27,7 +27,6 @@ def html(request, UUID, subpath=None):
 
 def view_(request, UUID, _view_ext, _content_type, subpath = None):
     blobs_dir = settings.COLDOC_SITE_CONFIG['coldoc']['blobs_dir']
-    msg = ''
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -104,7 +103,6 @@ def view_(request, UUID, _view_ext, _content_type, subpath = None):
 
 def index(request, UUID):
     blobs_dir = settings.COLDOC_SITE_CONFIG['coldoc']['blobs_dir']
-    msg = ''
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -143,9 +141,9 @@ def index(request, UUID):
     else:
         content = 'other'
         file = ''
-    c = {'UUID':UUID, 'metadata':metadata, 'message':msg,
          'pdfurl':('/UUID/%s/pdf'%(UUID,)),
          'htmlurl':('/UUID/%s/html'%(UUID,)),
+    c = {'UUID':UUID, 'metadata':metadata,
          'lang':lang, 'ext':ext, 'file':file, 'blobcontenttype':content }
     return render(request, 'UUID.html', c)
 
