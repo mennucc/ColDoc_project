@@ -45,8 +45,6 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         self._internal_multiple_valued_keys = ('extension','lang','authors')
         #
         super().__init__(*args, **kwargs)
-
-        #self.coldoc = coldoc
     #
     coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     uuid = UUID_Field(db_index = True, )
@@ -207,7 +205,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     #
     def items(self, serve_empty=False):
-        "returns (key, valuse)"
+        "returns (key, values)"
         for key in  ('uuid','environ'):
             yield key, [getattr(self, key)]
         for key in ('extension','lang','authors'):

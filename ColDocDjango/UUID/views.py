@@ -40,7 +40,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
                                  "UUID was normalized from %r to %r"%(UUID,a))
         UUID = a
     except ValueError as e:
-        return HttpResponse("Invalid UUID %r. \n Reason: %r" % (UUID,e))
+        return HttpResponse("Internal error for UUID %r : %r" % (UUID,e))
     #
     q = request.GET
     # currently ignored
@@ -88,7 +88,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
             else:
                 n = None
         if n is None:
-            return HttpResponse("Cannot find %r, subpath %r, for UUID %r , looking for languages in %r." %\
+            return HttpResponse("Cannot find blob...%s, subpath %r, for UUID %r , looking for languages in %r." %\
                                 (_view_ext,subpath,UUID,langs),
                                 content_type='text/plain')
         if _content_type is None:

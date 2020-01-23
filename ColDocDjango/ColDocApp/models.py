@@ -23,6 +23,7 @@ from ColDoc.utils import uuid_to_int, int_to_uuid, uuid_check_normalize, uuid_va
 
 
 class UUID_FormField(forms.CharField):
+    ## TODO FIXME THIS DOES NOT WORK AS EXPECTED
     default_error_messages = {
         'invalid': 'Enter a valid UUID (numbers and consonants)',
     }
