@@ -435,7 +435,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     in_preamble = False
     #
-    assert issubclass(metadata_class, MetadataBase)
+    ### unfortunately Django is too complex...
+    #assert issubclass(metadata_class, MetadataBase)
+    #
     ## to avoid giving these parameters to named_stream() each time
     named_stream._metadata_class = metadata_class
     named_stream._default_basepath = blobs_dir
