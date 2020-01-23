@@ -82,7 +82,7 @@ class UUID_Field(models.IntegerField):
 
 COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
 
-class ThisColDoc(models.Model):
+class DColDoc(models.Model):
     "Collaborative Document"
     #  https://docs.djangoproject.com/en/3.0/ref/models/fields
     nickname = models.SlugField("short string to identify",

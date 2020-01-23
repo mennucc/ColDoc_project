@@ -108,7 +108,7 @@ Metadata in source code
 
 Metadata is represented and operated on by a Python Class.
 
-The class interface is described as the abstract base class `AbstractMetadata` in `ColDoc.classes`
+The class interface is described as the base class `MetadataBase` in `ColDoc.classes`
 
 The interface has a list of `properties` that can be used to retrieve and (in Django implementation) set
 the value.
@@ -116,6 +116,9 @@ the value.
 Some keys though are known to be single valued, and are returned as single values
 by the associated property: `coldoc`, `uuid`, `environ`.
 
-Instead `extension`, `lang` , `lang_ext`, `child_uuid`,  `parent_uuid`, are multi-valued,
-and are returnes as lists of strings.
+Instead `extension`, `lang` , `lang_ext`, `authors`, `child_uuid`,  `parent_uuid`, are multi-valued,
+and are returned as lists of strings.
 
+This interface is implemented in the `FMetadata` class, that stores
+metadata in a file (this is independent of Django); and `DMetadata`, that
+stores metadata in the Django databases

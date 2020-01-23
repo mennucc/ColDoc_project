@@ -116,12 +116,11 @@ to specify where the ColDoc site is located.
             os.mkdir(j)
     # https://docs.djangoproject.com/en/3.0/topics/db/transactions/
     with transaction.atomic():
-        coldoc = coldocapp_models.ThisColDoc()
+        coldoc = coldocapp_models.DColDoc()
         coldoc.nickname = args.coldoc_nick
         coldoc.directory = coldoc_dir
-        BI.named_stream._metadata_class = functools.partial( blob_models.BlobMetadata, coldoc = coldoc)
-        r =  BI.main(args)
-        if r == 0:
-            coldoc.save()
+        coldoc.save()
+        r =  BI.main(args, metadata_class=blob_models.DMetadata, coldoc=coldoc)
+        coldoc.save()
     #
     sys.exit(r)

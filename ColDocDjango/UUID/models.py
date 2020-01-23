@@ -9,7 +9,7 @@ from django.core.validators  import RegexValidator
 
 from ColDocDjango import settings
 
-from ColDocDjango.ColDocApp.models import ThisColDoc, UUID_Field
+from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
 
 # Create your models here.
 
@@ -18,12 +18,12 @@ COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
 class UUID_Tree_Edge(models.Model):
     "edges for the graph parent-child of blobs in a coldoc"
     #
-    coldoc = models.ForeignKey(ThisColDoc, on_delete=models.CASCADE, db_index = True)
+    coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     parent = UUID_Field(db_index = True)
     child = UUID_Field(db_index = True)
 
-class BlobMetadata(models.Model):
-    "Metadata of a blob"
+class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interferes with the Django magick
+    "Metadata of a blob, stored in the Django databases, and also in a file (for easy access)"
     #
     def __init__(self, *args, **kwargs):
         self._extra_metadata = []
@@ -43,7 +43,7 @@ class BlobMetadata(models.Model):
 
         #self.coldoc = coldoc
     #
-    coldoc = models.ForeignKey(ThisColDoc, on_delete=models.CASCADE, db_index = True)
+    coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     uuid = UUID_Field(db_index = True, )
     environ = models.CharField(max_length=100, db_index = True)
     extension = models.TextField(max_length=100,help_text="newline-eparated list of extensions",
@@ -100,7 +100,7 @@ class BlobMetadata(models.Model):
             self._extra_metadata.append((key,value))
 
 class ExtraMetadata(models.Model):
-    uuid = models.ForeignKey(BlobMetadata, on_delete=models.CASCADE, db_index = True)
+    blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)
     key = models.SlugField(max_length=80, db_index = True)
     value = models.CharField(max_length=120, db_index = True, blank=True)
 
