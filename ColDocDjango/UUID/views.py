@@ -10,6 +10,8 @@ from django.shortcuts import render
 from django.http import HttpResponse, QueryDict
 from django.contrib import messages
 
+from ColDoc.utils import slug_re
+
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 import ColDoc.utils, ColDocDjango
@@ -29,6 +31,10 @@ def html(request, NICK, UUID, subpath=None):
     return view_(request, NICK, UUID, '_html', None, subpath)
 
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
+    if not slug_re.match(UUID):
+        return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type))
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r (for %r)." % (NICK,_content_type))
     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
     if not os.path.isdir(blobs_dir):
         return HttpResponse("No such ColDoc %r.\n" % (NICK,))
@@ -107,6 +113,10 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
 
 
 def index(request, NICK, UUID):
+    if not slug_re.match(UUID):
+        return HttpResponse("Invalid UUID %r." % (UUID,))
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r." % (NICK,))
     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
     if not os.path.isdir(blobs_dir):
         return HttpResponse("No such ColDoc %r.\n" % (NICK,))
