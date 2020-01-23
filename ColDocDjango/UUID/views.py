@@ -1,4 +1,5 @@
 import os, sys, mimetypes
+from os.path import join as osjoin
 
 import logging
 logger = logging.getLogger(__name__)
@@ -17,16 +18,20 @@ from ColDocDjango import settings
 
 from django.shortcuts import get_object_or_404, render
 
-@xframe_options_sameorigin
-def pdf(request, UUID):
-    return view_(request, UUID, '.pdf', 'application/pdf')
+from .models import DMetadata
 
 @xframe_options_sameorigin
-def html(request, UUID, subpath=None):
-    return view_(request, UUID, '_html', None, subpath)
+def pdf(request, NICK, UUID):
+    return view_(request, NICK, UUID, '.pdf', 'application/pdf')
 
-def view_(request, UUID, _view_ext, _content_type, subpath = None):
-    blobs_dir = settings.COLDOC_SITE_CONFIG['coldoc']['blobs_dir']
+@xframe_options_sameorigin
+def html(request, NICK, UUID, subpath=None):
+    return view_(request, NICK, UUID, '_html', None, subpath)
+
+def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
+    blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
+    if not os.path.isdir(blobs_dir):
+        return HttpResponse("No such ColDoc %r.\n" % (NICK,))
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -53,7 +58,7 @@ def view_(request, UUID, _view_ext, _content_type, subpath = None):
     #
     try:
         uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
-                                                       blobs_dir = blobs_dir)
+                                                       blobs_dir = blobs_dir, coldoc = NICK)
         if metadata['environ'][0] == 'preamble':
             return  HttpResponse('There is no %r for the preamble' % (_view_ext,), content_type='text/plain')
         if metadata['environ'][0] == 'E_document':
@@ -101,8 +106,10 @@ def view_(request, UUID, _view_ext, _content_type, subpath = None):
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e))
 
 
-def index(request, UUID):
-    blobs_dir = settings.COLDOC_SITE_CONFIG['coldoc']['blobs_dir']
+def index(request, NICK, UUID):
+    blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
+    if not os.path.isdir(blobs_dir):
+        return HttpResponse("No such ColDoc %r.\n" % (NICK,))
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -125,11 +132,10 @@ def index(request, UUID):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
     #
     try:
-        uuid, uuid_dir, m = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
-                                                       blobs_dir = blobs_dir)
-        filename, uuid, metadata, lang, ext = ColDoc.utils.choose_blob(uuid=uuid, \
-                                                                    uuid_dir=uuid_dir, blobs_dir = blobs_dir,
-                                                                    ext = ext, lang = lang)
+        filename, uuid, metadata, lang, ext = \
+            ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
+                                     ext = ext, lang = lang, 
+                                     metadata_class=DMetadata, coldoc=NICK)
     except FileNotFoundError:
         return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext))
     except Exception as e:
@@ -141,9 +147,9 @@ def index(request, UUID):
     else:
         content = 'other'
         file = ''
-         'pdfurl':('/UUID/%s/pdf'%(UUID,)),
-         'htmlurl':('/UUID/%s/html'%(UUID,)),
     c = {'UUID':UUID, 'metadata':metadata,
+         'pdfurl':('/UUID/%s/%s/pdf'%(NICK,UUID,)),
+         'htmlurl':('/UUID/%s/%s/html'%(NICK,UUID,)),
          'lang':lang, 'ext':ext, 'file':file, 'blobcontenttype':content }
     return render(request, 'UUID.html', c)
 
