@@ -131,7 +131,7 @@ class FMetadata(dict, MetadataBase):
         #super().setdefault(k,[]).append(v)
     #
     def  __setitem__(self, k, v):
-        " set one occurrence of `v` for `k`"
+        " set value `v` for `k` (as one single value, even if multivalued)"
         if k not in self._keys:
             self._keys.append(k)
         super().__setitem__(k, [v])

@@ -39,6 +39,10 @@ class MetadataBase(object):
         "returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"
         raise NotImplementedError
     #
+    def __setitem__(self,key,value):
+        " set value `value` for `key` (as one single value, even if multivalued)"
+        raise NotImplementedError
+    #
     def add(self,key, value):
         "adds a value to for `key`"
         raise NotImplementedError
