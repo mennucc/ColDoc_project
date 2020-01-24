@@ -15,8 +15,61 @@
 </script>
 {% endif %}
 
-<h1>ColDoc Document: {{ coldoc.content_title }}</h1>
-<h2>By {{ coldoc.content_authors }}</h2/
-<p>{{ coldoc.content_description }}</p>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item">
+    <a class="nav-link active" id="coldocs-tab" data-toggle="tab" href="#coldocs" role="tab" aria-controls="coldocs" aria-selected="true">Coldocs</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="about-tab" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="true">About</a>
+  </li>
+</ul>
+<div class="tab-content" id="myTabContent">
+  <div class="tab-pane fade show active" id="coldocs" role="tabpanel" aria-labelledby="coldocs-tab">
+    <h2>ColDocs</h2>
+
+    <ul>
+      {% for object in DColDocs %}
+      <li> <a href="/CD/{{  object.nickname }}">
+	  <h3>{% if object.title %} {{ object.title }} {% else %} <div>{{  object.nickname }}</div> {% endif %}</h3>
+	</a>
+	<!-- <ul> -->
+	<!--   {% for key, val in object.get_fields %} -->
+	<!--   <li>{{ key }}: {{ val }}</li> -->
+	<!--   {% endfor %} -->
+	  <!-- </ul> -->
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+  <div class="tab-pane fade show" id="about" role="tabpanel" aria-labelledby="about-tab">
+    <h2>About</h2>
+    <h3>What</h3>
+    A <i>ColDoc</i> is a collaborative document.
+
+    <h3>Why</h3>
+    
+    There are two main frameworks currently used to present information (in particular,
+    related to scientific fields).
+    <ul><li>A document redacted with the standard <i>LaTeX</i>/<i>PDF</i>
+	toolbox. <i>Pros:</i> these documents are state-of-the-art quality.
+	<i>Cons:</i>
+	the final user has no way of interacting with a PDF document
+	(other than sending an e-mail to the original authors)</li>
+      <li>The <i>Web 2.0</i> way  (think of:
+	<a href="https://www.wikipedia.org/"><i>Wikipedia</i></a>,
+	<a href="https://en.wikipedia.org/wiki/Stack_Exchange"><i>Stack Exchange</i></a>...).
+	<i>Pros:</i>	in those frameworks, content is continuously developed and augmented by users.
+	<i>Cons:</i> the end result, though, is fragmented, and cannot (in general) be presented as an unified document.
+	</li>
+    </ul>
+
+    A ColDoc tries to get the best of two publishing frameworks.
+
+    <h3>How</h3>
+
+    The <i>ColDoc</i> project is still in its infancy; the source code is available for anyone to help.
+  </div>
+</div>
 
 {% endblock %}

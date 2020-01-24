@@ -30,6 +30,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('UUID/', include('ColDocDjango.UUID.urls')),
+    path('CD/', include('ColDocDjango.ColDocApp.urls')),
     ## TODO maybe use
     ## https://django-userena.readthedocs.io/en/latest/
     #path('accounts/', include('django.contrib.auth.urls')),

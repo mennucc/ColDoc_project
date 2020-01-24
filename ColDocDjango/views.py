@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, render
 from ColDocDjango import settings
 
+from ColDocDjango.ColDocApp.models import DColDoc
 
 def catcher(view_func):
     """
@@ -35,8 +36,7 @@ def catcher(view_func):
 
 #@catcher
 def main_page(request):
-    coldoc = settings.COLDOC_SITE_CONFIG['coldoc']
-    c = {'coldoc':coldoc} #default_context_for(request)
+    c = {'DColDocs':DColDoc.objects.all()} #default_context_for(request)
     now = datetime.date.today()
     user = request.user
     return render(request, 'index.html', c)
