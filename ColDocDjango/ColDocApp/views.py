@@ -1,4 +1,4 @@
-import os, sys, mimetypes
+import os, sys, mimetypes, http
 from os.path import join as osjoin
 
 import logging
@@ -22,10 +22,10 @@ from .models import DColDoc
 
 def index(request, NICK):
     if not slug_re.match(NICK):
-        return HttpResponse("Invalid ColDoc %r." % (NICK,))
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     #coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,NICK)
     c = list(DColDoc.objects.filter(nickname = NICK))
     if not c:
-        return HttpResponse("No such ColDoc %r." % (NICK,))
+        return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     c=c[0]
     return render(request, 'coldoc.html', {'coldoc':c,})

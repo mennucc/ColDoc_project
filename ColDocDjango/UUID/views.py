@@ -1,4 +1,4 @@
-import os, sys, mimetypes
+import os, sys, mimetypes, http
 from os.path import join as osjoin
 
 import logging
@@ -32,12 +32,12 @@ def html(request, NICK, UUID, subpath=None):
 
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
     if not slug_re.match(UUID):
-        return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type))
+        return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type), status=http.HTTPStatus.BAD_REQUEST)
     if not slug_re.match(NICK):
-        return HttpResponse("Invalid ColDoc %r (for %r)." % (NICK,_content_type))
+        return HttpResponse("Invalid ColDoc %r (for %r)." % (NICK,_content_type), status=http.HTTPStatus.BAD_REQUEST)
     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
     if not os.path.isdir(blobs_dir):
-        return HttpResponse("No such ColDoc %r.\n" % (NICK,))
+        return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -46,7 +46,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
                                  "UUID was normalized from %r to %r"%(UUID,a))
         UUID = a
     except ValueError as e:
-        return HttpResponse("Internal error for UUID %r : %r" % (UUID,e))
+        return HttpResponse("Internal error for UUID %r : %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
     q = request.GET
     # currently ignored
@@ -96,7 +96,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
         if n is None:
             return HttpResponse("Cannot find blob...%s, subpath %r, for UUID %r , looking for languages in %r." %\
                                 (_view_ext,subpath,UUID,langs),
-                                content_type='text/plain')
+                                content_type='text/plain', status=http.HTTPStatus.NOT_FOUND)
         if _content_type is None:
             _content_type , _content_encoding = mimetypes.guess_type(n)
         logger.warning("Serving: %r %r"%(n,_content_type))
@@ -107,19 +107,21 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
         return response
     
     except FileNotFoundError:
-        return HttpResponse("Cannot find UUID %r with langs=%r , extension=%r." % (UUID,langs,ext))
+        return HttpResponse("Cannot find UUID %r with langs=%r , extension=%r." % (UUID,langs,ext),
+                            status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
-        return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e))
+        return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e),
+                            status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
 def index(request, NICK, UUID):
     if not slug_re.match(UUID):
-        return HttpResponse("Invalid UUID %r." % (UUID,))
+        return HttpResponse("Invalid UUID %r." % (UUID,), status=http.HTTPStatus.BAD_REQUEST)
     if not slug_re.match(NICK):
-        return HttpResponse("Invalid ColDoc %r." % (NICK,))
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
     if not os.path.isdir(blobs_dir):
-        return HttpResponse("No such ColDoc %r.\n" % (NICK,))
+        return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -128,7 +130,7 @@ def index(request, NICK, UUID):
                                  "UUID was normalized from %r to %r"%(UUID,a))
         UUID = a
     except ValueError as e:
-        return HttpResponse("Invalid UUID %r. \n Reason: %r" % (UUID,e))
+        return HttpResponse("Invalid UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.BAD_REQUEST)
     #
     q = request.GET
     ext = '.tex'
@@ -147,9 +149,10 @@ def index(request, NICK, UUID):
                                      ext = ext, lang = lang, 
                                      metadata_class=DMetadata, coldoc=NICK)
     except FileNotFoundError:
-        return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext))
+        return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext),
+                            status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
-        return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e))
+        return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
     if ext == '.tex':
         content = 'text'
