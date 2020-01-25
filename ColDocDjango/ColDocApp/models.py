@@ -8,6 +8,7 @@ from django.db import models
 from django import forms
 from django.core.validators  import RegexValidator
 import django.core.exceptions
+from django.core import serializers
 from django.urls import reverse
 
 from ColDocDjango import settings
@@ -115,6 +116,13 @@ class DColDoc(models.Model):
     latex_documentclass_options = models.CharField(max_length=100, blank=True)
     #
     root_uuid = UUID_Field(default=1)
+    #
+    def save(self):
+        r = super().save()
+        coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',self.nickname)
+        data = serializers.serialize("json", [self])
+        assert data[0] == '[' and data[-1]==']'
+        open(osjoin(coldoc_dir,'coldoc.json'),'w').write(data[1:-1])
     #
     #
     #def base_path(s):
