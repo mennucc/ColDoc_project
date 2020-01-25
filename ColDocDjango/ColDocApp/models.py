@@ -90,10 +90,6 @@ class DColDoc(models.Model):
                                 help_text="short string to identify this ColDoc in URLs (alphanumeric only, use '_' or '-' for other chars)",
                                 max_length=10,  db_index = True, primary_key=True)
     #
-    directory = models.FilePathField("directory where the data for this coldoc is stored",
-                                     path=osjoin(COLDOC_SITE_ROOT,'coldocs'),
-                                     allow_folders = True, allow_files = False)
-    #
     title = models.CharField(max_length=2000, blank=True)
     authors = models.TextField('newline-separated list of authors',max_length=10000, blank=True)
     abstract = models.TextField(max_length=10000, blank=True)
@@ -113,6 +109,7 @@ class DColDoc(models.Model):
     latex_documentclass_options = models.CharField(max_length=100, blank=True)
     #
     root_uuid = UUID_Field(default=1)
+    #
     #
     #def base_path(s):
     #    return osjoin(COLDOC_SITE_ROOT,s.nickname)

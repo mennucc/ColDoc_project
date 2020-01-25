@@ -88,12 +88,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     def __write(self):
         "write a file with all metadata (as `FMetadata` does, used by non-django blob_inator) for easy inspection and comparison"
-        if self.coldoc.directory is None:
-            coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',self.coldoc.nickname,'blobs')
-        else:
-            coldoc_dir = self.coldoc.directory
-            if os.path.isabs(coldoc_dir):
-                coldoc_dir = osjoin(COLDOC_SITE_ROOT, coldoc_dir)
+        coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',self.coldoc.nickname)
         blobs_dir = osjoin(coldoc_dir, 'blobs')
         #
         F = osjoin(blobs_dir, coldoc_utils.uuid_to_dir(self.uuid, blobs_dir=blobs_dir), 'metadata')
