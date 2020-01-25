@@ -9,6 +9,7 @@ from django.utils import timezone as DT
 
 from django.db import models
 from django.core.validators  import RegexValidator
+from django.urls import reverse
 
 from ColDocDjango import settings
 
@@ -45,6 +46,9 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         self._internal_multiple_valued_keys = ('extension','lang','authors')
         #
         super().__init__(*args, **kwargs)
+    #
+    def get_absolute_url(self):
+        return reverse('UUID:index', args=(self.coldoc.nickname,self.uuid))
     #
     coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     uuid = UUID_Field(db_index = True, )

@@ -29,7 +29,7 @@
 
     <ul>
       {% for object in DColDocs %}
-      <li> <a href="/CD/{{  object.nickname }}">
+      <li> <a href="{% url 'ColDoc:index' object.nickname %}">
 	  <h3>{% if object.title %} {{ object.title }} {% else %} <div>{{  object.nickname }}</div> {% endif %}</h3>
 	</a>
 	<!-- <ul> -->

@@ -8,6 +8,7 @@ from django.db import models
 from django import forms
 from django.core.validators  import RegexValidator
 import django.core.exceptions
+from django.urls import reverse
 
 from ColDocDjango import settings
 
@@ -85,6 +86,11 @@ COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
 
 class DColDoc(models.Model):
     "Collaborative Document"
+    #
+    #https://docs.djangoproject.com/en/3.0/ref/urlresolvers/#django.urls.reverse
+    #https://docs.djangoproject.com/en/3.0/ref/models/instances/#django.db.models.Model.get_absolute_url
+    def get_absolute_url(self):
+        return reverse('ColDoc:index', args=(self.nickname,))
     #  https://docs.djangoproject.com/en/3.0/ref/models/fields
     nickname = models.SlugField("short string to identify",
                                 help_text="short string to identify this ColDoc in URLs (alphanumeric only, use '_' or '-' for other chars)",
