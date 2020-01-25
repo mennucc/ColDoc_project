@@ -105,10 +105,6 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         if not v:
             return []
         l = v.splitlines()
-        #if l[-1] == '':
-        #    l.pop()
-        #else:
-        #    logger.warning('UUID %r key %r is missing final newline: %r',self.uuid,key,v)
         return l
     #
     def singled_items(self):
