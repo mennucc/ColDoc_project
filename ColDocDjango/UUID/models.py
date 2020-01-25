@@ -105,16 +105,23 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 F.write( k + '=' + v + '\n')
         F.close()
     #
+    def __key_to_list(self,key):
+        v = getattr(self,key)
+        if not v:
+            return []
+        l = v.splitlines()
+        #if l[-1] == '':
+        #    l.pop()
+        #else:
+        #    logger.warning('UUID %r key %r is missing final newline: %r',self.uuid,key,v)
+        return l
+    #
     def singled_items(self):
         " yields all (key,value) pairs, where each `key` may be repeated multiple times"
         for key in  ('uuid', 'environ'):
             yield key, getattr(self,key)
         for key in ('extension','lang','authors'):
-            l = getattr(self,key).splitlines()
-            if l[-1] == '':
-                l.pop()
-            else:
-                logger.warning('UUID %r key %r is missing final newline: %r',self.uuid,key,l)
+            l = self.__key_to_list(key)
             for value in l:
                 yield key, value
         for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid):
@@ -159,12 +166,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             setattr(self, key, value)
         elif key in ('extension','lang','authors'):
             assert '\n' not in value
-            v = getattr(self,key)
-            v = v.splitlines()
-            if v[-1] != '':
-                logger.warning('add: UUID %r key %r was missing final newline: %r',self.uuid,key,v)
-            else:
-                v.pop()
+            v = self.__key_to_list(key)
             if value not in v:
                 v.append(value)
             setattr(self, key, '\n'.join(v)+'\n')
@@ -177,8 +179,11 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     def __setitem__(self,key,value):
         " set value `value` for `key` (as one single value, even if multivalued)"
-        if key in  ('uuid','environ','extension','lang','authors'):
+        if key in  ('uuid','environ'):
             setattr(self, key, value)
+        elif key in  ('extension','lang','authors'):
+            assert '\n' not in value
+            setattr(self, key, value+'\n')
         elif key in ('child_uuid', 'parent_uuid'):
             raise NotImplementedError()
         else:
@@ -189,13 +194,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         if key in  ('uuid','environ'):
             return [getattr(self, key)]
         elif key in ('extension','lang','authors'):
-            l = getattr(self,key).splitlines()
-            if l[-1] == '' :
-                l.pop()
-            else:
-                logger.warning('get: UUID %r key %r was missing final newline: %r',self.uuid,key,l)
-                # useless, unless it is saved ... setattr(self, key, '\n'.join(l)+'\n')
-            return l
+            return self.__key_to_list(key)
         elif key == 'parent_uuid':
             return UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent', flat=True)
         elif key == 'child_uuid':
@@ -209,11 +208,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         for key in  ('uuid','environ'):
             yield key, [getattr(self, key)]
         for key in ('extension','lang','authors'):
-            l = getattr(self,key).splitlines()
-            if l and l[-1] == '':
-                l.pop()
-            else:
-                logger.warning('items: UUID %r key %r is missing final newline: %r',self.uuid,key,l)
+            l = self.__key_to_list(key)
             if l or serve_empty:
                 yield key, l
         #key == 'parent_uuid':
