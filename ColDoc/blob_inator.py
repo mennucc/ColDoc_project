@@ -813,11 +813,12 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
 
                 elif macroname == "end":
                     name = thetex.readArgument(type=str)
-                    if not in_preamble and stack.topenv == 'section' and name != 'document':
-                        # \sections should not be used inside environments,
-                        # this produces weird outline; but just in case..
-                        logger.warning(' a \\section was embedded in \\begin{%s}...\\end{%s}' %\
-                                       (name,name))
+                    if stack.topenv == 'section':
+                        if name != 'document':
+                            # \sections should not be used inside environments,
+                            # this produces weird outline; but just in case..
+                            logger.warning(' a \\section was embedded in \\begin{%s}...\\end{%s}' %\
+                                           (name,name))
                         pop_section()
                     if in_preamble:
                         logger.info( ' ignore \\end{%r} in preamble' % (name,) )
