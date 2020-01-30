@@ -28,11 +28,11 @@ logger = logging.getLogger(__name__)
 
 ############## ColDoc stuff
 
-from config import *
+from ColDoc.config import *
 
-from utils import *
+from ColDoc.utils import *
 
-
+Metadata = FMetadata
 
 #########################################################################
 import TokenizerPassThru
@@ -121,7 +121,7 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                                     thetex.pushToken('%'+a)
                         #
                         d = os.path.dirname(inputfile)
-                        submetadata = Metadata.open(osjoin(blobs_dir, d, 'metadata'))
+                        submetadata = Metadata.load_by_file(osjoin(blobs_dir, d, 'metadata'))
                         subuuid = submetadata['uuid'][0]
                         sub_output = output_file
                         if 'original_filename' not in submetadata:
@@ -208,8 +208,9 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                     del s
                     #
                     if inputfile[:5] == 'UUID/':
+                        sub_uuid_ = dir_to_uuid(os.path.dirname(inputfile))
                         sub_input_file, _, sub_metadata, sublang, subext = \
-                            choose_blob(uuid_dir=os.path.dirname(inputfile), blobs_dir=blobs_dir,
+                            choose_blob(uuid = sub_uuid_, blobs_dir=blobs_dir,
                                         lang = None, ext = None)
                         # TODO this is not really identical to the original,
                         a = os.path.splitext(sub_metadata['original_filename'][0])[0]
