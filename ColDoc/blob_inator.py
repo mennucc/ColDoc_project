@@ -353,11 +353,14 @@ class EnvStreamStack(object):
     def __init__(self):
         self._stack=[]
         self._topstream = None
+    def __repr__(self):
+        return ' ==> '.join(repr(r) for r in self._stack)
     def __len__(self):
         return len(self._stack)
     @property
     def top(self):
         " the top element"
+        logger.debug(repr(self))
         return self._stack[-1]
     @property
     def topstream(self):
@@ -383,6 +386,7 @@ class EnvStreamStack(object):
     def push(self,o):
         assert isinstance(o, (str,named_stream))
         self._stack.append(o)
+        logger.debug(repr(self))
         if isinstance(o,named_stream):
             self._topstream = o
     def pop(self, index=-1, add_as_child = True, checknonempty=True):
@@ -390,6 +394,7 @@ class EnvStreamStack(object):
         if `add_as_child` and topmost element was a stream,
         write its UUID and filename in metadata of the parent stream"""
         o = self._stack.pop(index)
+        logger.debug(repr(self))
         if isinstance(o, named_stream):
             self._set_topstream(checknonempty=checknonempty)
             if add_as_child and self._topstream is not None \
@@ -412,6 +417,7 @@ class EnvStreamStack(object):
                 self._stack.pop()
             else:
                 break
+        logger.debug(repr(self))
     def pop_stream(self):
         " pops the topmost stream, w/o touching the non-stream elements of the stack"
         t = None
@@ -420,6 +426,7 @@ class EnvStreamStack(object):
                 t=n
         assert t is not None
         O = self.pop(index=t)
+        logger.debug(repr(self))
         return O
 
 def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc):
