@@ -1,0 +1,77 @@
+\documentclass{article}
+
+%%%%%%%%% early packages that for some reason must be loaded before
+\usepackage{amssymb}
+
+\usepackage{hyperref}
+
+%%%%%%%%%% prepare conditionals
+% http://ctan.mirror.garr.it/mirrors/CTAN/macros/latex/contrib/iftex/iftex.pdf
+% you need a recent version
+\usepackage{iftex}
+% define this conditional; plasTeX will override it and set it to `true`
+\newif\ifplastex\plastexfalse
+%
+%%%%%%%%% use conditionals to load some engine-specific packages
+\iftutex
+  % code for xetex or luatex
+  \ifluatex
+    \usepackage{luatextra}
+  \fi
+  \usepackage{polyglossia}
+  \usepackage{fontspec}
+  \usepackage[math-style=ISO,bold-style=ISO]{unicode-math}
+  %% http://tex.stackexchange.com/questions/55204/remapping-latex-symbol-to-another-unicode-value/55205
+  \AtBeginDocument{\let\setminus\smallsetminus}
+  \newcommand\mathbbm[1]{{\mathbb{#1}}}
+\else
+ % code for latex or plastex
+ \ifplastex
+   % code for plastex
+   \newcommand\mathbbm[1]{{\mathbb{#1}}}
+ \else
+  %code for (pdf)latex 
+   \usepackage{lmodern}
+   \usepackage{amsfonts}
+   \usepackage[utf8]{inputenc}
+   \usepackage{babel}
+   \usepackage{bbm}
+ \fi
+\fi
+%%%%%%%%% following are general definitions
+
+\input{mydefinitions}
+
+\begin{document}
+\author{That Au Thor}
+\title{That papert}
+\maketitle
+\section*{Introduction}
+The introduction
+
+\begin{abstract}
+  This simple \LaTeX\ tests some features
+  of \texttt{plasTeX} and \texttt{ColDoc}.
+
+  \ifetex Using  \TeX \fi ;
+  \ifxetex Using \texttt{XeTeX} \fi ;
+  \ifluatex Using \texttt{LuaTeX} \fi ;
+  \iftutex Using \texttt{XeTeX} or \texttt{LuaTeX} \fi ;
+  \ifplastex Using \texttt{plasTeX} \fi .
+
+\end{abstract}
+
+Stress test  \texttt{plasTeX} embedding \texttt{HTML}
+\begin{verbatim}
+<a href="http://www.debian.org">Debian</a>
+\end{verbatim}
+\[ \hbox{<a href="http://www.debian.org">Debian</a>} \]
+
+\include{sec1}
+
+\include{sec2}
+
+\section*{TOC}
+\tableofcontents
+
+\end{document}
