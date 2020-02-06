@@ -30,32 +30,32 @@ latex_test:
 
 paper_test:
 	test -d tmp || mkdir tmp
+	test -d tmp/pt && rm -r tmp/pt
 	test -d tmp/pt || mkdir tmp/pt
-	test -d tmp/pt/1 && rm -r tmp/pt/1
-	cp -a -T paper tmp/pt/1
-	rm -r  tmp/pt/1/F
-	cp -a -T latex/F tmp/pt/1/F
+	cp -a -T paper tmp/pt
+	rm -r  tmp/pt/F
+	cp -a -T latex/F tmp/pt/F
 	#
-	cd tmp/pt/1 && pdflatex -interaction batchmode -file-line-error paper.tex
-	cd tmp/pt/1 && pdflatex -interaction batchmode -file-line-error paper.tex
-	cd tmp/pt/1 && mv -T paper.aux paper_latex.aux
-	cd tmp/pt/1 && mv -T paper.log paper_latex.log
-	cd tmp/pt/1 && mv -T paper.pdf paper_latex.pdf
+	cd tmp/pt && pdflatex -interaction batchmode -file-line-error paper.tex
+	cd tmp/pt && pdflatex -interaction batchmode -file-line-error paper.tex
+	cd tmp/pt && mv -T paper.aux paper_latex.aux
+	cd tmp/pt && mv -T paper.log paper_latex.log
+	cd tmp/pt && mv -T paper.pdf paper_latex.pdf
 	#
-	cd tmp/pt/1 && xelatex -interaction batchmode -file-line-error paper.tex
-	cd tmp/pt/1 && xelatex -interaction batchmode -file-line-error paper.tex
-	cd tmp/pt/1 && mv -T paper.aux paper_xetex.aux
-	cd tmp/pt/1 && mv -T paper.log paper_xetex.log
-	cd tmp/pt/1 && mv -T paper.pdf paper_xetex.pdf
+	cd tmp/pt && xelatex -interaction batchmode -file-line-error paper.tex
+	cd tmp/pt && xelatex -interaction batchmode -file-line-error paper.tex
+	cd tmp/pt && mv -T paper.aux paper_xetex.aux
+	cd tmp/pt && mv -T paper.log paper_xetex.log
+	cd tmp/pt && mv -T paper.pdf paper_xetex.pdf
 	#
-	cd tmp/pt/1 && lualatex -interaction batchmode -file-line-error paper.tex
-	cd tmp/pt/1 && lualatex -interaction batchmode -file-line-error paper.tex
-	cd tmp/pt/1 && mv -T paper.aux paper_lualatex.aux
-	cd tmp/pt/1 && mv -T paper.log paper_lualatex.log
-	cd tmp/pt/1 && mv -T paper.pdf paper_lualatex.pdf
+	cd tmp/pt && lualatex -interaction batchmode -file-line-error paper.tex
+	cd tmp/pt && lualatex -interaction batchmode -file-line-error paper.tex
+	cd tmp/pt && mv -T paper.aux paper_lualatex.aux
+	cd tmp/pt && mv -T paper.log paper_lualatex.log
+	cd tmp/pt && mv -T paper.pdf paper_lualatex.pdf
 	#
-	cd tmp/pt/1 && plastex --dir=xhtml --log  paper.tex && test -f xhtml/index.html
-	cd tmp/pt/1 && plastex --dir=html5 --renderer=HTML5 --log  paper.tex && test -f html5/index.html
+	cd tmp/pt && plastex --dir=xhtml --log  paper.tex && test -f xhtml/index.html
+	cd tmp/pt && plastex --dir=html5 --renderer=HTML5 --log  paper.tex && test -f html5/index.html
 
 
 clean:
