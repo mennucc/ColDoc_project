@@ -111,7 +111,10 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
     if lang is not None:
         langs=[lang]
     else:
-        langs=metadata['lang']
+        langs=metadata.get('lang',[])
+    if not langs:
+        logger.debug('No languages for blob %r in blobs_dir %r',uuid,blobs_dir)
+        return True
     #
     res = True
     for l in langs:
