@@ -239,7 +239,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
     else:
         logger.debug("No aux file for this job")
     #
-    extensions = '.tex','.log','.pdf','.aux','.toc','.out'
+    extensions = '.tex','.log','.pdf','.aux','.toc','.out','.idx','.fls'
     #
     for e in extensions:
         if e not in ('.tex','.aux') and os.path.exists(fake_abs_name+e):
@@ -248,6 +248,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
     engine = options.get('latex_engine','pdflatex')
     logger.debug('Using engine %r',engine)
     args = [engine,'-file-line-error','-interaction','batchmode',
+            '-recorder','-no-shell-escape','-no-parse-first-line',
             fake_name+'.tex']
     #
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
