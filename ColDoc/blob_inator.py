@@ -628,6 +628,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         logger.error("the blob %r ends with an unmatched %r",z,a)
                         stack.topstream.write('\\input{%s}' % (r,))
                     else:
+                        if a in ('input_preamble','include_preamble'):
+                            a = a[:-len('_preamble')]
                         stack.topstream.write('\\%s{%s}' % (a,r))
                     if a == 'input' and ColDoc_commented_newline_after_blob_input:
                         stack.topstream.write('%\n')
