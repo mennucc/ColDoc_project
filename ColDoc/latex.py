@@ -92,7 +92,7 @@ plastex_template=r"""\documentclass{article}
 """
 
 
-def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True):
+def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {}):
     " `latex` the blob identified `uuid`; if `lang` is None, `latex` all languages; ( `metadata` are courtesy , to avoid recomputing )"
     if metadata is None:
         uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
@@ -115,10 +115,11 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True):
     #
     res = True
     for l in langs:
-        res = res and latex_blob(blobs_dir, metadata=metadata, lang=l, uuid=uuid, uuid_dir=uuid_dir)
+        res = res and latex_blob(blobs_dir, metadata=metadata, lang=l,
+                                 uuid=uuid, uuid_dir=uuid_dir, options = options)
     return res
 
-def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
+def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {}):
     " `latex` the blob identified by the `metadata`, for the given language `lang`. ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )"
     if uuid is None:
         uuid = metadata.uuid
@@ -154,7 +155,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
         main_file = open(fake_abs_name+'.tex', 'w')
         main_file.write(standalone_template % D)
         main_file.close()
-    rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ)
+    rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
     ## create html
     if environ == 'main_file':
@@ -162,12 +163,12 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None):
     main_file = open(fake_abs_name+'.tex', 'w')
     main_file.write(plastex_template % D)
     main_file.close()
-    rh = plastex_engine(blobs_dir, fake_name, save_name, environ)
+    rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
     return rh and rp
 
 
 
-def plastex_engine(blobs_dir, fake_name, save_name, environ):
+def plastex_engine(blobs_dir, fake_name, save_name, environ, options):
     " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
@@ -216,7 +217,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ):
     return p.returncode == 0
 
 
-def pdflatex_engine(blobs_dir, fake_name, save_name, environ):
+def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
     # FIXME this is not perfect: 'main.aux' is created only when the
@@ -272,7 +273,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ):
     return res
 
 
-def latex_tree(blobs_dir, uuid=None, lang=None, warn=False):
+def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     " latex the whole tree, starting from `uuid` "
     if uuid is None:
         uuid = '001'
@@ -284,9 +285,9 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False):
     elif metadata['environ'][0] == 'E_document':
         if warn: logger.warning('Do not need to `pdflatex` the `document` blob , UUID = %r , refer the main blob'%(uuid,))
     else:
-        latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn)
+        latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
     for u in metadata.get('child_uuid',[]):
-        latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn)
+        latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options)
 
 
 
@@ -297,15 +298,16 @@ def main(argv):
     blobs_dir = argv[2]
     assert os.path.isdir(blobs_dir), blobs_dir
     logger.setLevel(logging.INFO)
+    options={}
     if argv[1] == 'blob':
         UUID = argv[3]
         lang = None
         if len(argv)>4:
             lang = argv[4]
-        latex_uuid(blobs_dir,UUID,lang)
+        latex_uuid(blobs_dir,UUID,lang=lang, options=options)
     elif argv[1] == 'all':
         UUID =  None if len(argv) <= 3 else  argv[3]
-        latex_tree(blobs_dir,UUID)
+        latex_tree(blobs_dir,UUID, options=options)
 
 
 if __name__ == '__main__':
