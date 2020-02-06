@@ -201,8 +201,8 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options):
     n =  osjoin(blobs_dir,save_name+'_paux')
     if not os.path.isdir(n):    os.mkdir(n)
     #
-    argv = ['-d',save_name+'_html',"--renderer=HTML5",]
-    if environ != 'main_file':
+    argv = ['-d',save_name+'_html',"--renderer=HTML5",'--split-level','0']
+    if environ[:2] == 'E_':
         argv += '--no-display-toc',
     argv += ['--log','--paux-dirs',save_name+'_paux',F]
     ret = ColDoc.utils.plastex_invoke(cwd_ =  blobs_dir ,
