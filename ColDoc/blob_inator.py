@@ -598,7 +598,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         logger.warning("duplicate input, parsed once: %r", inputfile)
                         stack.topstream.write('\\%s{%s}' % (macroname,O.filename))
                     else:
-                        newoutput = named_stream(macroname, parent=stack.topstream)
+                        newoutput = named_stream(macroname + ('_preamble' if in_preamble else ''),
+                                                 parent=stack.topstream)
                         newoutput.add_metadata(r'original_filename',inputfile)
                         stack.push(newoutput)
                         if cmdargs.symlink_input:
@@ -623,7 +624,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     a=z.environ
                     if a == 'include' and r[-4:] == '.tex':
                         r=r[:-4]
-                    if a not in ('input','include'):
+                    if a not in ('input','include','input_preamble','include_preamble','usepackage'):
                         logger.error("the blob %r ends with an unmatched %r",z,a)
                         stack.topstream.write('\\input{%s}' % (r,))
                     else:

@@ -100,7 +100,8 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True):
     else:
         uuid_dir = None
     #
-    if metadata['environ'][0] == 'preamble':
+    if metadata['environ'][0] in ( 'preamble' , 'input_preamble' , 'include_preamble', 'usepackage'):
+        ## 'include_preamble' is maybe illegal LaTeX; 'usepackage' is not yet implemented
         if warn: logger.warning('Cannot `pdflatex` preamble')
         return True
     if metadata['environ'][0] == 'E_document':

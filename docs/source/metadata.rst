@@ -32,6 +32,12 @@ environments, and avoiding name collisions.
 - `input` or `include` are used for blobs that contain text from a LaTeX file that
   was include using `\\input` or `\\include`
 
+- `input_preamble` is used for blobs that contain code from a LaTeX file that
+  was include using `\\input` while inside the preamble
+
+- `usepackage` is used for blobs that contain packages
+
+
 Metadata key list
 -----------------
 
