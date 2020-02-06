@@ -1,5 +1,5 @@
 
-import itertools, sys, os, io, copy, logging, shelve, unicodedata, re, pathlib
+import itertools, sys, os, io, copy, logging, shelve, unicodedata, re, pathlib, subprocess
 import os.path
 from os.path import join as osjoin
 
@@ -15,7 +15,7 @@ __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir", "dir_to
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
             "ColDocException", "ColDocFileNotFoundError",
-            "choose_blob",
+            "choose_blob", "plastex_invoke",
             "metadata_html_items"
             )
 
@@ -461,6 +461,15 @@ def os_rel_symlink(src, dst, basedir, target_is_directory, force = False, **kwar
         os.unlink(dst)
     logger.debug(" os.symlink (%r, %r )" % (src, dst) )
     os.symlink(src, dst, target_is_directory=target_is_directory, **kwargs)
+
+############################
+
+def plastex_invoke(cwd_, stdout_ , argv_):
+    "invoke plastex with given args. Currently by subprocess. TODO internally, caching some stuff"
+    p = subprocess.Popen(['plastex']+argv_, cwd=cwd_, stdin=open(os.devnull),
+                         stdout=stdout_, stderr=subprocess.STDOUT)
+    p.wait()
+    return p.returncode
 
 ############################
 

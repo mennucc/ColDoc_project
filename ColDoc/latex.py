@@ -202,22 +202,23 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options):
     if environ != 'main_file':
         argv += '--no-display-toc',
     argv += ['--log','--paux-dirs',save_name+'_paux',F]
-    p = subprocess.Popen(['plastex']+argv, cwd=blobs_dir, stdin=open(os.devnull),
-                         stdout=open(osjoin(blobs_dir,save_name+'_plastex.stdout'),'w'),
-                         stderr=subprocess.STDOUT)
-    p.wait()
-    if p.returncode :
-        logger.warning('Failed: cd %r ; plastex %s',blobs_dir,' '.join(argv))
-        sys.exit(1)
-    else:
-        logger.info('created html version of %r ',save_abs_name)
+    ret = ColDoc.utils.plastex_invoke(cwd_ =  blobs_dir ,
+                         stdout_  = open(osjoin(blobs_dir,save_name+'_plastex.stdout'),'w'),
+                         argv_ = argv )
     extensions = '.log','.paux','.tex'
     for e in extensions:
         if os.path.exists(save_abs_name+'_plastex'+e):
             os.rename(save_abs_name+'_plastex'+e,save_abs_name+'_plastex'+e+'~')
         if os.path.exists(fake_abs_name+e):
             os.rename(fake_abs_name+e,save_abs_name+'_plastex'+e)
-    return p.returncode == 0
+    if ret :
+        logger.warning('Failed: cd %r ; plastex %s',blobs_dir,' '.join(argv))
+    if os.path.isfile(osjoin(blobs_dir, save_name+'_html','index.html')):
+        logger.info('created html version of %r ',save_abs_name)
+    else:
+        logger.warning('no "index.html" in %r',save_name+'_html')
+        return False
+    return ret == 0
 
 
 def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
