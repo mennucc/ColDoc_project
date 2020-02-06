@@ -58,5 +58,49 @@ paper_test:
 	cd tmp/pt && plastex --dir=html5 --renderer=HTML5 --log  paper.tex && test -f html5/index.html
 
 
-clean:
+#############################
+
+
+export COLDOC_SITE_ROOT=$(shell pwd)/tmp/test_site
+COLDOC_URL="http://localhost:8000/UUID/paper/"
+
+django_help:
+	@echo "Use 'make target' with target being:"
+	@echo " django_deploy : to create a test portal in $(COLDOC_SITE_ROOT) "
+	@echo " django_paper  : to add paper/paper.tex to that portal"
+	@echo " django_run    : to run a local server to test django portal "
+	@echo " django_clean  : to clean everything "
+
+########## deploy a ColDoc portal
+django_deploy:
+	mkdir $(COLDOC_SITE_ROOT)
+	../ColDocDjango/config.py deploy  $(COLDOC_SITE_ROOT)/config.ini
+	cd ${COLDOC_SITE_ROOT} ; mkdir templates var static_root static_local media coldocs static_root/coldocs
+	# this is not needed since `manage.py runserver` ignores the static_root directory
+	#../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  collectstatic
+	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  migrate
+
+# load a paper in the ColDoc portal
+django_paper:
+	test  -f $(COLDOC_SITE_ROOT)/config.ini
+	if  ./django_tester.py isthere ; then  ./django_tester.py delete ; fi
+	if test -d $(COLDOC_SITE_ROOT)/coldocs/paper/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper ; fi
+	../ColDocDjango/blob_inator.py --coldoc-nick=paper  --ZS --SP --SE=document --SL=itemize --SAT --CG  paper/paper.tex
+	./django_tester.py isthere
+	../ColDoc/latex.py --blobs-dir=$(COLDOC_SITE_ROOT)/coldocs/paper/blobs --url-UUID=$(COLDOC_URL) all
+
+django_run:
+	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  runserver
+
+django_paper_clean:
+	./django_tester.py delete
+	rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper
+
+django_clean: django_paper_clean
+	test -d $(COLDOC_SITE_ROOT)/var -a -f $(COLDOC_SITE_ROOT)/config.ini && trash-put -v $(COLDOC_SITE_ROOT)
+
+
+############################
+
+clean: django_clean
 	test -d tmp/pt/1 && rm -r tmp/pt/1
