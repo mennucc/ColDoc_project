@@ -753,9 +753,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                             input_it(r)
                         in_preamble = False
                         if ColDoc_write_UUID:
-                            stack.topstream.write(r'\usepackage{ColDocUUID}')
-                            os.symlink(osjoin(COLDOC_SRC_ROOT,'ColDoc','ColDocUUID.sty'),
-                                       osjoin(blobs_dir,'ColDocUUID.sty'))
+                            #stack.topstream.write(r'\usepackage{ColDocUUID}')
+                            os.symlink(osjoin(COLDOC_SRC_ROOT,'tex','ColDocUUID.sty'), osjoin(blobs_dir,'ColDocUUID.sty'))
+                            os.symlink(osjoin(COLDOC_SRC_ROOT,'tex','ColDocIfs.sty'), osjoin(blobs_dir,'ColDocIfs.sty'))
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
                         logger.info( ' ignore \\begin{%r} in preamble' % (name,) )

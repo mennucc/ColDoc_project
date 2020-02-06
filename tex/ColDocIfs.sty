@@ -1,0 +1,27 @@
+
+% first, setup the PlasTeX compatible macro,
+% that plastex will set to "true" forcibly
+\newif\ifplastex\relax
+%%% when using plastex, set all other ifs
+\ifplastex
+%% http://ctan.mirror.garr.it/mirrors/CTAN/macros/latex/contrib/iftex/iftex.pdf
+\newif\ifxetexorluatex\relax
+\xetexorluatexfalse\relax
+\newif\iftutex\relax
+\tutexfalse\relax
+\newif\ifxetex\relax
+\xetexfalse\relax
+\newif\ifluatex\relax
+\newif\if
+\newif\ifstandalone\relax
+\else
+% when not using plastex, set them accordingly
+\usepackage{standalone}
+\usepackage{iftex}
+%https://tex.stackexchange.com/questions/47576/combining-ifxetex-and-ifluatex-with-the-logical-or-operation
+\newif\ifxetexorluatex\relax
+\ifxetex\xetexorluatextrue\else
+\ifluatex\xetexorluatextrue\else\xetexorluatexfalse\fi\relax
+\fi
+% bye and thanks
+\fi
