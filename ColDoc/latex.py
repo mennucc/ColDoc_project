@@ -275,7 +275,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
                 shutil.copy(fake_abs_name+e, osjoin(blobs_dir,'main.aux'))
             os.rename(fake_abs_name+e,save_abs_name+e)
         else:
-            if e=='.toc':
+            if e not in ( '.pdf', '.aux' ) :
                 logger.debug("Missing :%r"%(fake_abs_name+e,))
             else:
                 logger.warning("Missing :%r"%(fake_abs_name+e,))
