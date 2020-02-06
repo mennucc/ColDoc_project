@@ -4,9 +4,9 @@
 latex_test:
 	test -d tmp || mkdir tmp
 	test -d tmp/lt || mkdir tmp/lt
-	./latex_test.sh --SP --SI --CG
-	./latex_test.sh --SP --SAT --SS --ZS --AU=no
-	./latex_test.sh  --SAT  --ZS  --AU=no
+	./latex_test.sh latex/latex_test.tex --SP --SI --CG
+	./latex_test.sh latex/latex_test.tex --SP --SAT --SS --ZS --AU=no
+	./latex_test.sh latex/latex_test.tex --SAT  --ZS  --AU=no
 	#
 	@echo ==========================  all cmds
 	rm -rf tmp/lt/b   tmp/lt/c
