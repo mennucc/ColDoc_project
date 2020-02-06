@@ -56,7 +56,7 @@ from plasTeX.Packages import amsthm , graphicx
 
 
 standalone_template=r"""\documentclass[varwidth]{standalone}
-\def\uuidbaseurl{%(urlhostport)s%(urlUUIDbasepath)s}
+\def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
 \usepackage{ColDocUUID}
 \begin{document}
@@ -67,7 +67,7 @@ standalone_template=r"""\documentclass[varwidth]{standalone}
 """
 
 preview_template=r"""\documentclass{article}
-\def\uuidbaseurl{%(urlhostport)s%(urlUUIDbasepath)s}
+\def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
 \usepackage{ColDocUUID}
 \usepackage[active,tightpage]{preview}
@@ -80,10 +80,10 @@ preview_template=r"""\documentclass{article}
 """
 
 plastex_template=r"""\documentclass{article}
-\def\uuidbaseurl{%(urlhostport)s%(urlUUIDbasepath)s}
+\def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
 \usepackage{hyperref}
-\newcommand{\uuid}[1]{\href{\uuidbaseurl#1}{\texttt{[#1]}}}
+\usepackage{ColDocUUID}
 \begin{document}
 %(begin)s
 \input{%(input)s}
@@ -143,7 +143,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
          '_lang':_lang,
          'begin':'','end':'',
-         'urlhostport':'http://localhost:8000/', 'urlUUIDbasepath':'UUID/',
+         'url_UUID' : options['url_UUID'],
          'input':os.path.join(uuid_dir,'blob'+_lang+'.tex')}
     #
     environ = metadata['environ'][0]
@@ -245,7 +245,9 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
         if e not in ('.tex','.aux') and os.path.exists(fake_abs_name+e):
             logger.warning('Overwriting: %r',fake_abs_name+e)
     #
-    args = ['pdflatex','-file-line-error','-interaction','batchmode',
+    engine = options.get('latex_engine','pdflatex')
+    logger.debug('Using engine %r',engine)
+    args = [engine,'-file-line-error','-interaction','batchmode',
             fake_name+'.tex']
     #
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
@@ -259,7 +261,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
         if r == 0 :
             res = True
     else:
-        logger.warning('`pdflatex` fails, see %r'%(save_abs_name+'.log'))
+        logger.warning('%r fails, see %r'%(engine,save_abs_name+'.log'))
     for e in extensions:
         if os.path.exists(save_abs_name+e):
             os.rename(save_abs_name+e,save_abs_name+e+'~')
