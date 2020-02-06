@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 
-"""Usage: %(arg0)s [CMD] [OPTIONS]
+"""Usage: %(arg0)s [-v] --blobs-dir BLOBS_DIR  CMD [OPTIONS]
 
 Create PDF version of a blob
 
-    blob BLOBS_DIR UUID [LANGUAGE]
+    blob  UUID [LANGUAGE]
        convert the blob UUID in BLOBS_DIR,
        if LANGUAGE is not specified , for all languages
     
-    all BLOBS_DIR [UUID]
+    all  [UUID]
        convert all the blobs in BLOBS_DIR, starting from UUID (default: `main`)
 """
 
-import os,sys,shutil,subprocess
+import os, sys, shutil, subprocess, json, argparse
 
 from os.path import join as osjoin
 
@@ -298,22 +298,73 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
 
 
 
+
+def prepare_parser(uses_django=False):
+    # parse arguments
+    COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
+    parser = argparse.ArgumentParser(description='Compile coldoc material, using `latex` and `plastex` ',
+                                     epilog=__doc__,
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--verbose','-v',action='count',default=0)
+    parser.add_argument('--blobs-dir',type=str,\
+                        help='directory where the blob_ized output is saved',
+                        required=(not uses_django))
+    parser.add_argument('--url-UUID',type=str,\
+                        help='URL of the website that will show the UUIDs, used by my \\uuid macro',
+                        required=(not uses_django))
+    parser.add_argument('command', help='specific command',nargs='+')
+    return parser
+
 def main(argv):
-    if len(argv)<3 or argv[1] not in ('blob','all'):
-        sys.stderr.write(__doc__%{'arg0':argv[0]})
+    parser = prepare_parser()
+    args = parser.parse_args()
+    #
+    if args.command[0] not in ('blob','all','main'):
+        sys.stderr.write(__doc__%{'arg0':arg0})
         sys.exit(1)
-    blobs_dir = argv[2]
+    #
+    blobs_dir = args.blobs_dir
     assert os.path.isdir(blobs_dir), blobs_dir
-    logger.setLevel(logging.INFO)
-    options={}
-    if argv[1] == 'blob':
-        UUID = argv[3]
+    #
+    coldoc_dir = os.path.dirname(blobs_dir)
+    a = osjoin(coldoc_dir, 'coldoc.json')
+    options = {}
+    if os.path.isfile( a ):
+        coldoc = json.load(open(a))
+        options = coldoc['fields']
+        logger.debug('From %r options %r',a,options)
+    else:
+        logger.debug('No %r',a)
+    #
+    a = osjoin(blobs_dir, '.blob_inator-args.json')
+    if os.path.isfile( a ):
+        blob_inator_args = json.load(open(a))
+        assert isinstance(blob_inator_args,dict)
+        options.update(blob_inator_args)
+        logger.debug('From %r options %r',a,options)
+    else:
+        logger.debug('No %r',a)
+    return main_by_args(args,options)
+
+
+def main_by_args(args,options):
+    argv = args.command
+    blobs_dir = args.blobs_dir
+    logger.setLevel(logging.WARNING)
+    if args.verbose > 1 :
+        logger.setLevel(logging.DEBUG)
+    elif args.verbose > 0 :
+        logger.setLevel(logging.INFO)
+    #
+    options['url_UUID'] = args.url_UUID
+    if argv[0] == 'blob':
+        UUID = argv[1]
         lang = None
-        if len(argv)>4:
-            lang = argv[4]
+        if len(argv)>2:
+            lang = argv[2]
         latex_uuid(blobs_dir,UUID,lang=lang, options=options)
-    elif argv[1] == 'all':
-        UUID =  None if len(argv) <= 3 else  argv[3]
+    elif argv[0] == 'all':
+        UUID =  None if len(argv) <= 1 else  argv[1]
         latex_tree(blobs_dir,UUID, options=options)
 
 
