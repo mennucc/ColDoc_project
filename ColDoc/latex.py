@@ -148,8 +148,11 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     #
     environ = metadata['environ'][0]
     if environ[:2] == 'E_' and environ not in ( 'E_document', ):
-        D['begin'] = r'\begin{'+environ[2:]+'}'
-        D['end'] = r'\end{'+environ[2:]+'}'
+        env = environ[2:]
+        D['begin'] = r'\begin{'+env+'}'
+        D['end'] = r'\end{'+env+'}'
+        if 'split_list' in options and env in options['split_list']:
+            D['begin'] += r'\item'
     ##
     ## create pdf
     if metadata['environ'][0] == 'main_file':
