@@ -1,4 +1,11 @@
 
+help:
+	@echo "This Makefile contains many tests. Use 'make target' with target being:"
+	@echo " latex_test  : to test blob_inator.py and deblob_inator.py  on latex/latex_test.tex"
+	@echo " paper_test  : to test compilation of paper/paper.tex with many engines, and plasTeX"
+	@echo " django_help : to see the list of tests for the ColDoc portal "
+	@echo " clean       : to clean "
+
 ########## this tests blob_inator and deblob_inator repeatdly
 
 latex_test:
