@@ -333,14 +333,16 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir)
     #
+    ret = True
     if metadata['environ'][0] == 'preamble':
         if warn: logger.warning('Cannot `pdflatex` preamble , UUID = %r'%(uuid,))
     elif metadata['environ'][0] == 'E_document':
         if warn: logger.warning('Do not need to `pdflatex` the `document` blob , UUID = %r , refer the main blob'%(uuid,))
     else:
-        latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
+        ret = ret and latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
     for u in metadata.get('child_uuid',[]):
-        latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options)
+        ret = ret and latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options)
+    return ret
 
 
 
@@ -403,20 +405,23 @@ def main_by_args(args,options):
         logger.setLevel(logging.INFO)
     #
     options['url_UUID'] = args.url_UUID
+    ret = True
     if argv[0] == 'blob':
         UUID = argv[1]
         lang = None
         if len(argv)>2:
             lang = argv[2]
-        latex_uuid(blobs_dir,UUID,lang=lang, options=options)
+        ret = latex_uuid(blobs_dir,UUID,lang=lang, options=options)
     elif argv[0] == 'all':
         UUID =  None if len(argv) <= 1 else  argv[1]
-        latex_tree(blobs_dir,UUID, options=options)
+        ret = latex_tree(blobs_dir,UUID, options=options)
     elif argv[0] == 'main':
         UUID =  '001' if len(argv) <= 1 else  argv[1]
         ret = latex_main(blobs_dir, uuid=UUID, options=options)
+    return ret
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    ret = main(sys.argv)
+    sys.exit(0 if ret else 13)
 
