@@ -172,6 +172,49 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
     return rh and rp
 
+def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
+    "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
+    #
+    uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
+                                               blobs_dir = blobs_dir)    
+    environ = metadata['environ'][0]
+    #
+    if lang is not None:
+        langs=[lang]
+    else:
+        langs=metadata.get('lang',[])
+    #
+    ret = True
+    for lang in  langs:
+        #
+        if lang is None or lang == '':
+            _lang = ''
+        else:
+            _lang = '_' + lang
+        #
+        uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
+        # note that extensions are missing
+        save_name = os.path.join(uuid_dir, 'main' + _lang)
+        save_abs_name = os.path.join(blobs_dir, save_name)
+        fake_name = 'fakemain' + _lang
+        fake_abs_name = os.path.join(blobs_dir, fake_name)
+        #
+        a = os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex')
+        f = open(a).read()
+        if not r'\usepackage{ColDocUUID}' in f:
+            try:
+                j = f.index(r'\begin{document}')
+                f = f[:j] + r'\usepackage{ColDocUUID}' + f[j:]
+                logger.warning(r" adding \usepackage{ColDocUUID}") 
+            except:
+                logger.exception(r" cannot add \usepackage{ColDocUUID}") 
+        #
+        open(fake_abs_name+'.tex','w').write(f)
+        rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+        open(fake_abs_name+'.tex','w').write(f)
+        rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
+        ret = ret and rh and rp
+    return ret
 
 
 def plastex_engine(blobs_dir, fake_name, save_name, environ, options):
@@ -369,6 +412,9 @@ def main_by_args(args,options):
     elif argv[0] == 'all':
         UUID =  None if len(argv) <= 1 else  argv[1]
         latex_tree(blobs_dir,UUID, options=options)
+    elif argv[0] == 'main':
+        UUID =  '001' if len(argv) <= 1 else  argv[1]
+        ret = latex_main(blobs_dir, uuid=UUID, options=options)
 
 
 if __name__ == '__main__':
