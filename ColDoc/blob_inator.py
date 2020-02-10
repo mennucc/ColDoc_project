@@ -131,6 +131,8 @@ class named_stream(io.StringIO):
             self.add_metadata('parent_uuid', parentUUID)
         elif environ != 'main_file':
             logger.critical('blob %r has parent %r ?' % (self,parent))
+        #
+        self.obliterated = False
     #
     def __repr__(self):
         return ('<named_stream(basepath=%r, coldoc=%r, uuid=%r, environ=%r, lang=%r, extension=%r)>' % \
@@ -256,6 +258,9 @@ class named_stream(io.StringIO):
 
         If `rstrip` is `True`, will use `self.rstrip` to strip away final lines of only whitespace
         """
+        if self.obliterated:
+            logger.warning("Will not write obliterated blob",repr(self))
+            return False
         if rstrip is None : rstrip = self._default_rstrip
         if write_UUID is None : write_UUID = self._default_write_UUID
         #
@@ -305,8 +310,18 @@ class named_stream(io.StringIO):
                                    target_is_directory=False)
             return r
     def __del__(self):
-        if not self._was_written :
+        if not self.obliterated and not self._was_written :
             self._logger.critical('this file was not written %r' % self._filename)
+    def obliterate(self):
+        self.close()
+        uuid = self._uuid
+        if uuid is not None:
+            if not backtrack_uuid(uuid, blobs_dir=self._basepath,):
+                logger.warning("The UUID %r was not used, it is lost",self._uuid)
+        self._uuid = None
+        # this avoids the warning in __del__ and avoids
+        #  that this blob be recorded as a child of its parent, when it is popped
+        self.obliterated = True
 
 def new_theorem(a,doc,con):
     " from amsthm.py "
@@ -398,8 +413,9 @@ class EnvStreamStack(object):
         if isinstance(o, named_stream):
             self._set_topstream(checknonempty=checknonempty)
             if add_as_child and self._topstream is not None \
-               and isinstance(self._topstream,named_stream):
-                if o.uuid:
+               and isinstance(self._topstream,named_stream) and not o.obliterated:
+                if o.uuid is None :
+                    logger.warning("Cannot add blob as child, uuid is None: %r",o)
                     self._topstream.add_metadata('child_uuid',o.uuid)
                 #if o.filename:
                 #    self._topstream.add_metadata('child_filename',o.filename)
