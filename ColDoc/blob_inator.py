@@ -400,8 +400,8 @@ class EnvStreamStack(object):
             raise RuntimeError('There is no blob to write to!')
     def push(self,o):
         assert isinstance(o, (str,named_stream))
+        logger.debug('%r onto %r',o,repr(self))
         self._stack.append(o)
-        logger.debug(repr(self))
         if isinstance(o,named_stream):
             self._topstream = o
     def pop(self, index=-1, add_as_child = True, checknonempty=True):
