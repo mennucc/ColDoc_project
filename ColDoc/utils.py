@@ -12,7 +12,8 @@ from ColDoc.config import *
 from .classes import MetadataBase
 
 __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir", "dir_to_uuid",
-            "uuid_check_normalize", "uuid_to_int", "int_to_uuid", "new_uuid",
+            "uuid_check_normalize", "uuid_to_int", "int_to_uuid",
+            "new_uuid", "backtrack_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
             "ColDocException", "ColDocFileNotFoundError",
             "choose_blob", "plastex_invoke",
@@ -400,6 +401,24 @@ def new_uuid(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
         v['last_uuid_n'] = n
     logger.debug('new uuid n = %r uuid = %r',n,uuid)
     return uuid
+
+def backtrack_uuid(uuid, blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
+    " tries to backtrack the UUID, so that it may be reused"
+    if not os.path.isabs(variables):
+        variables = osjoin(blobs_dir, variables)
+    if isinstance(uuid,str):
+        uuid=uuid_to_int(uuid)
+    with shelve.open(variables, flag='c') as v:
+        n = v.get('last_uuid_n', 0)
+        if n == uuid and n >= 1:
+            n = n - 1
+            v['last_uuid_n'] = n
+            logger.debug("Backtrack before uuid %s",int_to_uuid(uuid))
+            return True
+        else:
+            logger.warning("Cannot backtrack %s , we are at %s ",
+                           int_to_uuid(uuid),int_to_uuid(n))
+            return False
 
 
 def new_section_nr(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
