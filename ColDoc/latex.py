@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 ############## ColDoc stuff
 
 #from ColDoc import config, utils
-import ColDoc, ColDoc.utils, ColDoc.config
+import ColDoc, ColDoc.utils, ColDoc.config, ColDoc.transform
 
 
 import plasTeX
@@ -123,8 +123,10 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
                                  uuid=uuid, uuid_dir=uuid_dir, options = options)
     return res
 
-def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {}):
-    " `latex` the blob identified by the `metadata`, for the given language `lang`. ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )"
+def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {}, squash = True):
+    """ `latex` the blob identified by the `metadata`, for the given language `lang`.
+    ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )
+    Optionally squashes all sublevels, replacing with \\uuidplaceholder """
     if uuid is None:
         uuid = metadata.uuid
     if uuid_dir is None:
@@ -135,6 +137,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     else:
         _lang = '_' + lang
     #
+    if squash is None:
+        squash = options.get('squash')
     # note that extensions are missing
     save_name = os.path.join(uuid_dir, 'view' + _lang)
     save_abs_name = os.path.join(blobs_dir, save_name)
@@ -145,7 +149,15 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
          '_lang':_lang,
          'begin':'','end':'',
          'url_UUID' : options['url_UUID'],
-         'input':os.path.join(uuid_dir,'blob'+_lang+'.tex')}
+         }
+    #
+    b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
+    s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
+    if squash:
+        ColDoc.transform.squash_uuid(osjoin(blobs_dir,b) , osjoin(blobs_dir, s) )
+        D['input'] = s
+    else:
+        D['input'] = b
     #
     environ = metadata['environ'][0]
     if environ[:2] == 'E_' and environ not in ( 'E_document', ):
@@ -165,8 +177,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
     ## create html
-    if environ == 'main_file':
-        D['input'] = 'document.tex'
     main_file = open(fake_abs_name+'.tex', 'w')
     main_file.write(plastex_template % D)
     main_file.close()
@@ -213,12 +223,12 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         open(fake_abs_name+'.tex','w').write(f)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
         open(fake_abs_name+'.tex','w').write(f)
-        rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
+        rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options, levels = True, tok = True)
         ret = ret and rh and rp
     return ret
 
 
-def plastex_engine(blobs_dir, fake_name, save_name, environ, options):
+def plastex_engine(blobs_dir, fake_name, save_name, environ, options, levels = False, tok = False):
     " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
@@ -245,9 +255,11 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options):
     n =  osjoin(blobs_dir,save_name+'_paux')
     if not os.path.isdir(n):    os.mkdir(n)
     #
-    argv = ['-d',save_name+'_html',"--renderer=HTML5",'--split-level','0']
-    if environ[:2] == 'E_':
-        argv += '--no-display-toc',
+    argv = ['-d',save_name+'_html',"--renderer=HTML5", ]
+    if not levels :
+        argv += [ '--split-level','0']
+    if tok is False or (environ[:2] == 'E_' and tok == 'auto'):
+        argv.append( '--no-display-toc' )
     argv += ['--log','--paux-dirs',save_name+'_paux',F]
     ret = ColDoc.utils.plastex_invoke(cwd_ =  blobs_dir ,
                          stdout_  = open(osjoin(blobs_dir,save_name+'_plastex.stdout'),'w'),
@@ -337,8 +349,6 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     ret = True
     if metadata['environ'][0] in environments_we_wont_latex :
         if warn: logger.warning('Cannot `pdflatex` preamble , UUID = %r'%(uuid,))
-    elif metadata['environ'][0] == 'E_document':
-        if warn: logger.warning('Do not need to `pdflatex` the `document` blob , UUID = %r , refer the main blob'%(uuid,))
     else:
         ret = ret and latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
     for u in metadata.get('child_uuid',[]):

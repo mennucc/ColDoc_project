@@ -4,3 +4,9 @@
 \else%
 \newcommand{\uuid}[1]{\texttt{[#1]}}%
 \fi\fi%
+\ifdefined\uuidplaceholder\else\ifdefined\href%
+\newcommand{\uuidplaceholder}[1]{\href{\uuidbaseurl#1}{\texttt{[{\ldots}#1{\ldots}]}}}%
+\else%
+\newcommand{\uuidplaceholder}[1]{\texttt{[{\ldots}#1{\ldots}]}}%
+\fi\fi%
+
