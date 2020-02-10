@@ -54,6 +54,7 @@ from plasTeX.Packages import amsthm , graphicx
 
 # the package ColDocUUID.sty defines a LaTeX command \uuid , that can be overriden in the preamble
 
+environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_preamble', 'usepackage' )
 
 standalone_template=r"""\documentclass[varwidth]{standalone}
 \def\uuidbaseurl{%(url_UUID)s}
@@ -100,7 +101,7 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
     else:
         uuid_dir = None
     #
-    if metadata['environ'][0] in ( 'preamble' , 'input_preamble' , 'include_preamble', 'usepackage'):
+    if metadata['environ'][0] in environments_we_wont_latex :
         ## 'include_preamble' is maybe illegal LaTeX; 'usepackage' is not yet implemented
         if warn: logger.warning('Cannot `pdflatex` preamble')
         return True
@@ -334,7 +335,7 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
                                                    blobs_dir = blobs_dir)
     #
     ret = True
-    if metadata['environ'][0] == 'preamble':
+    if metadata['environ'][0] in environments_we_wont_latex :
         if warn: logger.warning('Cannot `pdflatex` preamble , UUID = %r'%(uuid,))
     elif metadata['environ'][0] == 'E_document':
         if warn: logger.warning('Do not need to `pdflatex` the `document` blob , UUID = %r , refer the main blob'%(uuid,))
