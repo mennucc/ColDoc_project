@@ -379,7 +379,7 @@ def main(argv):
     args = parser.parse_args()
     #
     if args.command[0] not in ('blob','all','main'):
-        sys.stderr.write(__doc__%{'arg0':arg0})
+        sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
         sys.exit(1)
     #
     blobs_dir = args.blobs_dir
