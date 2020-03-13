@@ -30,7 +30,7 @@ def pdf(request, NICK, UUID):
 def html(request, NICK, UUID, subpath=None):
     return view_(request, NICK, UUID, '_html', None, subpath)
 
-def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
+def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view'):
     if not slug_re.match(UUID):
         return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type), status=http.HTTPStatus.BAD_REQUEST)
     if not slug_re.match(NICK):
@@ -85,7 +85,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
                 l='_'+l
             else:
                 l=''
-            n = os.path.join(blobs_dir, uuid_dir,"view"+l+_view_ext)
+            n = os.path.join(blobs_dir, uuid_dir, prefix+l+_view_ext)
             if subpath is not None:
                 n = os.path.join(n,subpath)
             logger.warning(n)
@@ -98,8 +98,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
             else:
                 n = None
         if n is None:
-            return HttpResponse("Cannot find blob...%s, subpath %r, for UUID %r , looking for languages in %r." %\
-                                (_view_ext,subpath,UUID,langs),
+            return HttpResponse("Cannot find blob..%s.%s, subpath %r, for UUID %r , looking for languages in %r." %\
+                                (prefix,_view_ext,subpath,UUID,langs),
                                 content_type='text/plain', status=http.HTTPStatus.NOT_FOUND)
         if _content_type is None:
             _content_type , _content_encoding = mimetypes.guess_type(n)
