@@ -109,6 +109,7 @@ class named_stream(io.StringIO):
         self._dir = None
         self._symlink_dir = None
         self._symlink_files = set()
+        self.grouping_depth = 0
         # save from gc, for __del__ method
         self._sys = sys
         self._open = open
@@ -277,6 +278,8 @@ class named_stream(io.StringIO):
             return self._filename
         if self.closed :
             logger.error('file %r was closed before writeout' % self._filename)
+        if self.grouping_depth:
+            logger.warning('some grouping was not closed in %r' % self._filename)
         filename = osjoin(self._basepath, self._filename)
         if True: #len(self.getvalue()) > 0:
             self.flush()
@@ -909,9 +912,27 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     for j in t[1:]:
                         stack.topstream.write(j)
                     del obj,j,t
+                elif macroname in ('begingroup','bgroup'):
+                    stack.topstream.grouping_depth += 1
+                    stack.topstream.write(tok.source)
+                elif macroname in ('endgroup','egroup'):
+                    if stack.topstream.grouping_depth >= 1:
+                        stack.topstream.grouping_depth += -1
+                    else:
+                        logger.warning('unmatched %r',macroname)
+                    stack.topstream.write(tok.source)
                 else:
                     #logger.debug(' unprocessed %r', tok.source)
                     stack.topstream.write(tok.source)
+            elif isinstance(tok, plasTeX.Tokenizer.BeginGroup):
+                stack.topstream.grouping_depth += 1
+                stack.topstream.write(tok.source)
+            elif isinstance(tok, plasTeX.Tokenizer.EndGroup):
+                if stack.topstream.grouping_depth >= 1:
+                    stack.topstream.grouping_depth += -1
+                else:
+                    logger.warning('unmatched EndGroup token')
+                stack.topstream.write(str(tok))
             else:
                 stack.topstream.write(str(tok))
         pop_section()
