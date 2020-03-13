@@ -28,9 +28,15 @@ First published {{ coldoc.pub_date }}
 
 <br>
 
+<a href="{% url 'ColDoc:html' NICK=coldoc.nickname %}">
+<button   type="button" class="btn btn-outline-primary btn-sm">
+ View whole document
+</button>
+</a>
+
 <a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=coldoc.root_uuid %}">
 <button   type="button" class="btn btn-outline-primary btn-sm">
-  VIEW
+ Navigate document tree
 </button>
 </a>
 
