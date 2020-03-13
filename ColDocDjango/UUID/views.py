@@ -53,10 +53,13 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
     ext = '.tex'
     if 'ext' in q:
         ext = q['ext']
+        assert slug_re.match(ext)
     #
     langs = []
     if 'lang' in q:
-        langs = [q['lang']]
+        l = q['lang']
+        assert slug_re.match(l)
+        langs = [l]
     download='download' in q
     #for j in q:
     #    if j not in ('ext','lang'):
@@ -77,6 +80,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None):
         isdir = False
         langs += metadata['lang'] + [None]
         for l in langs:
+            assert slug_re.match(l)
             if l is not None:
                 l='_'+l
             else:
@@ -136,9 +140,11 @@ def index(request, NICK, UUID):
     ext = '.tex'
     if 'ext' in q:
         ext = q['ext']
+        assert slug_re.match(ext)
     lang = None
     if 'lang' in q:
         lang = q['lang']
+        assert slug_re.match(lang)
     for j in q:
         if j not in ('ext','lang'):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
