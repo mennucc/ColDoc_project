@@ -416,6 +416,7 @@ class EnvStreamStack(object):
                and isinstance(self._topstream,named_stream) and not o.obliterated:
                 if o.uuid is None :
                     logger.warning("Cannot add blob as child, uuid is None: %r",o)
+                else:
                     self._topstream.add_metadata('child_uuid',o.uuid)
                 #if o.filename:
                 #    self._topstream.add_metadata('child_filename',o.filename)
