@@ -775,7 +775,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     if len(e) >= 3 and e[:2] == 'E_' and e[2:] in cmdargs.split_list :
                         r = stack.pop().writeout()
                         logger.info('end item, writing %r',r)
-                        stack.topstream.write('\\input{%s}%%\n\\item' % (r,))
+                        stack.topstream.write(' \\input{%s}%%\n\\item ' % (r,))
                         _,source = thetex.readArgumentAndSource('[]')
                         if source:
                             stack.topstream.write(source)
