@@ -499,6 +499,20 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
         t.write('\\input{%s}' % (r,))
         if ColDoc_commented_newline_after_blob_input:
             t.write('%\n')
+    def pop_paragraph():
+        if stack.topstream.environ == 'paragraph':
+            O = stack.topstream
+            l = len(O)
+            assert cmdargs.split_paragraph is not None
+            if l < cmdargs.split_paragraph:
+                # do not record as a child
+                stack.pop_stream(add_as_child = False)
+                logger.info('paragraph too short (len == %d), zip %r into %r',l,O,stack.topstream)
+                stack.topstream.write(O.getvalue())
+                O.obliterate()
+            else:
+                r = stack.pop_stream().writeout()
+                input_it(r)
     def pop_section():
         # do not destroy stack, stack.pop_str()
         if stack.topstream.environ == 'section':
@@ -521,7 +535,12 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     try:
         for tok in itertokens:
             n += len(tok.source)
-            if isinstance(tok, plasTeX.Tokenizer.Comment):
+            if not in_preamble and isinstance(tok, plasTeX.Tokenizer.Letter) \
+               and stack.topstream.grouping_depth == 0 and cmdargs.split_paragraph is not None \
+               and stack.topenv in ('section','main_file','input','include'):
+                stack.push(named_stream('paragraph', parent=stack.topstream))
+                stack.topstream.write(str(tok))
+            elif isinstance(tok, plasTeX.Tokenizer.Comment):
                 a = tok.source
                 if hasattr(plasTeX.Tokenizer.Comment,'source'):
                     # my patch adds 'source' to Comment, so that '%' is already prepended
@@ -531,6 +550,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     stack.topstream.write('%'+a)
             elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 macroname = str(tok.macroName)
+                if cmdargs.split_paragraph is not None and \
+                   macroname == 'par':
+                    pop_paragraph()
                 if macroname == 'documentclass':
                     in_preamble = True
                     obj = Base.documentclass()
@@ -543,6 +565,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     if cmdargs.split_preamble:
                         stack.push(named_stream('preamble', parent=stack.topstream))
                 elif cmdargs.split_sections and macroname == 'section':
+                    pop_paragraph()
                     pop_section()
                     #obj = Base.section()
                     #obj.parse(thetex)
@@ -636,6 +659,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
                     del inputfile
                 elif macroname == specialblobinatorEOFcommand:
+                    pop_paragraph()
                     pop_section()
                     # pops the output when it ends
                     z = stack.pop()
@@ -761,6 +785,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         stack.topstream.write('\\item')
                     del e
                 elif macroname == "begin":
+                    pop_paragraph()
                     name = thetex.readArgument(type=str)
                     if name == 'document':
                         if not in_preamble:
@@ -935,6 +960,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 stack.topstream.write(str(tok))
             else:
                 stack.topstream.write(str(tok))
+        pop_paragraph()
         pop_section()
         # main
         M = stack.pop(checknonempty=False)
@@ -960,6 +986,7 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--split-environment','--SE',action='append',help='split the content of this LaTeX environment in a separate blob', default=[])
     parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
     parser.add_argument('--split-preamble','--SP',action='store_true',help='split the preamble a separate blob')
+    parser.add_argument('--split-paragraph',type=int,help='split paragraphs in separate blob when longer than N')
     parser.add_argument('--split-all-theorems','--SAT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
     parser.add_argument('--metadata-command','--MC',action='append',
                         help='store the argument of this TeX command as metadata for the blob (some defaults are provided)',
