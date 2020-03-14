@@ -1027,6 +1027,8 @@ def main(args, metadata_class, coldoc = None):
     else:
         logging.getLogger().setLevel(logging.WARNING)
     #
+    if not os.path.exists(args.blobs_dir):
+        os.mkdir(args.blobs_dir)
     assert os.path.isdir(args.blobs_dir), ' not a dir %r' % args.blobs_dir
     assert os.path.isfile(args.input_file)
 
