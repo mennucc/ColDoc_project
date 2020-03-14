@@ -176,12 +176,30 @@ def index(request, NICK, UUID):
     if ext == '.tex':
         content = 'text'
         file = open(filename).read()
+        env = metadata.get('environ')[0]
+        if env in ColDoc.latex.environments_we_wont_latex:
+            html = '[NO HTML preview for preamble]'
+        elif env == 'main_file':
+            html = 'main_file'
+        else:
+            try:
+                a = os.path.dirname(filename)+'/view'
+                if lang:
+                    a += '_' + lang
+                    a += '_html/index.html'
+                html = open(a).read()
+                a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'Z'}) #NICK=NICK, UUID='Z')
+                html = html.replace(ColDoc.config.ColDoc_url_placeholder,a[:-1])
+            except:
+                messages.add_message(request, messages.WARNING,"HTML preview not available")
+                html = '[NO HTML AVAILABLE]'
     else:
         content = 'other'
-        file = ''
-    c = {'UUID':UUID, 'metadata':metadata,
+        file = html = ''
+    a = '/UUID/%s/%s/show?lang=%s&ext=%s'%(NICK,UUID,lang,ext[1:])
+    c = {'NICK':NICK, 'UUID':UUID, 'metadata':metadata,
          'pdfurl':('/UUID/%s/%s/pdf'%(NICK,UUID,)),
-         'htmlurl':('/UUID/%s/%s/html'%(NICK,UUID,)),
+         'showurl' : a , 'html' : html, 'showview': True,
          'lang':lang, 'ext':ext, 'file':file, 'blobcontenttype':content }
     return render(request, 'UUID.html', c)
 
