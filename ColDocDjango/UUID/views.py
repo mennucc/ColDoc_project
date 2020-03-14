@@ -111,8 +111,14 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if _content_type is None:
             _content_type , _content_encoding = mimetypes.guess_type(n)
         logger.warning("Serving: %r %r"%(n,_content_type))
-        fsock = open(n,'rb')
-        response = HttpResponse(fsock, content_type=_content_type)
+        if _content_type == 'text/html':
+            f = open(n).read()
+            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'Z'}) #NICK=NICK, UUID='Z')
+            f = f.replace(ColDoc.config.ColDoc_url_placeholder,a[:-1])
+            response = HttpResponse(f, content_type=_content_type)
+        else:
+            fsock = open(n,'rb')
+            response = HttpResponse(fsock, content_type=_content_type)
         if download:
             response['Content-Disposition'] = "attachment; filename=ColDoc-%s%s" % (UUID,_view_ext)
         return response
