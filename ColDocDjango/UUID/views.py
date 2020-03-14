@@ -14,7 +14,7 @@ from ColDoc.utils import slug_re
 
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
-import ColDoc.utils, ColDocDjango
+import ColDoc.utils, ColDoc.latex, ColDocDjango
 
 from ColDocDjango import settings
 
@@ -77,11 +77,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     try:
         uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
                                                        blobs_dir = blobs_dir, coldoc = NICK)
-        if metadata['environ'][0] == 'preamble':
-            return  HttpResponse('There is no %r for the preamble' % (_view_ext,), content_type='text/plain')
-        if metadata['environ'][0] == 'E_document':
-            return  HttpResponse('No need of %r for this `document` blob, refer the main blob' % (_view_ext,),
-                                 content_type='text/plain')
+        env = metadata['environ'][0]
+        if env in ColDoc.latex.environments_we_wont_latex and _view_ext == '_html':
+            return  HttpResponse('There is no %r for %r' % (_view_ext, metadata['environ'][0]), content_type='text/plain')
         # TODO should serve using external server see
         #   https://stackoverflow.com/questions/2687957/django-serving-media-behind-custom-url
         #   
