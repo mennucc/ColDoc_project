@@ -229,12 +229,14 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         open(fake_abs_name+'.tex','w').write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
         open(fake_abs_name+'.tex','w').write(f_html)
-        rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options, levels = True, tok = True)
+        rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
+                            levels = True, tok = True, strip_head = False)
         ret = ret and rh and rp
     return ret
 
 
-def plastex_engine(blobs_dir, fake_name, save_name, environ, options, levels = False, tok = False):
+def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
+                   levels = False, tok = False, strip_head = True):
     " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
@@ -283,6 +285,28 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options, levels = F
     else:
         logger.warning('no "index.html" in %r',save_name+'_html')
         return False
+    #
+    if strip_head:
+        for f in os.listdir(osjoin(blobs_dir, save_name+'_html')):
+            f = osjoin(blobs_dir, save_name+'_html', f)
+            if f[-5:]=='.html':
+                logger.info('stripping <head> of %r ',f)
+                os.rename(f,f+'~~')
+                L=open(f+'~~').readlines()
+                try:
+                    ns, ne = None,None
+                    for n,s in enumerate(L):
+                        s = s.strip()
+                        if s == '<body>': ns =  n
+                        if s == '</body>': ne =  n
+                    assert ns,ne
+                    L = L[ns+1:ne]
+                    F = open(f,'w')
+                    for l in L:
+                        if l[:7] != '<script':
+                            F.write(l)
+                except:
+                    logger.exception('ARGH')
     return ret == 0
 
 
