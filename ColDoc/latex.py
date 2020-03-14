@@ -178,6 +178,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     ##
     ## create html
     main_file = open(fake_abs_name+'.tex', 'w')
+    D['url_UUID'] = ColDoc.config.ColDoc_url_placeholder
     main_file.write(plastex_template % D)
     main_file.close()
     rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
@@ -212,17 +213,21 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         #
         a = os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex')
         f = open(a).read()
-        if not r'\usepackage{ColDocUUID}' in f:
-            try:
-                j = f.index(r'\begin{document}')
+        # FIXME should check in preamble
+        try:
+            j = f.index(r'\begin{document}')
+        except:
+            logger.exception(r" cannot locate '\begin{document}' ") 
+        else:
+            if not r'\usepackage{ColDocUUID}' in f:
                 f = f[:j] + r'\usepackage{ColDocUUID}' + f[j:]
-                logger.warning(r" adding \usepackage{ColDocUUID}") 
-            except:
-                logger.exception(r" cannot add \usepackage{ColDocUUID}") 
+                logger.info(r" adding \usepackage{ColDocUUID}")
+            f_pdf = f[:j] + (r'\def\uuidbaseurl{%s}'%(options['url_UUID'],)) + f[j:]
+            f_html = f[:j] + (r'\def\uuidbaseurl{%s}'%(ColDoc.config.ColDoc_url_placeholder,)) + f[j:]
         #
-        open(fake_abs_name+'.tex','w').write(f)
+        open(fake_abs_name+'.tex','w').write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
-        open(fake_abs_name+'.tex','w').write(f)
+        open(fake_abs_name+'.tex','w').write(f_html)
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options, levels = True, tok = True)
         ret = ret and rh and rp
     return ret
@@ -369,7 +374,7 @@ def prepare_parser(uses_django=False):
                         help='directory where the blob_ized output is saved',
                         required=(not uses_django))
     parser.add_argument('--url-UUID',type=str,\
-                        help='URL of the website that will show the UUIDs, used by my \\uuid macro',
+                        help='URL of the website that will show the UUIDs, used by my \\uuid macro in PDF',
                         required=(not uses_django))
     parser.add_argument('command', help='specific command',nargs='+')
     return parser

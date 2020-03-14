@@ -32,3 +32,6 @@ ColDoc_blob_rstrip = True
 
 # `blob_inator` will add it, `deblob_inator` will remove it
 ColDoc_commented_newline_after_blob_input = True
+
+# 
+ColDoc_url_placeholder = '@URLPLACEHOLDER91HDLP@'
