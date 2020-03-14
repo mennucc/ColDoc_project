@@ -150,7 +150,7 @@ def index(request, NICK, UUID):
         return HttpResponse("Invalid UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.BAD_REQUEST)
     #
     q = request.GET
-    ext = '.tex'
+    ext = None
     if 'ext' in q:
         assert slug_re.match(q['ext'])
         ext = '.'+q['ext']
