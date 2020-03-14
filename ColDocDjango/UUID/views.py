@@ -30,7 +30,14 @@ def pdf(request, NICK, UUID):
 def html(request, NICK, UUID, subpath=None):
     return view_(request, NICK, UUID, '_html', None, subpath)
 
+@xframe_options_sameorigin
+def show(request, NICK, UUID):
+    return view_(request, NICK, UUID, None, None, None, prefix='blob')
+
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view'):
+    # do not allow subpaths for non html
+    assert _view_ext == '_html' or subpath is None
+    #
     if not slug_re.match(UUID):
         return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type), status=http.HTTPStatus.BAD_REQUEST)
     if not slug_re.match(NICK):
@@ -49,11 +56,13 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return HttpResponse("Internal error for UUID %r : %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
     q = request.GET
-    # currently ignored
-    ext = '.tex'
-    if 'ext' in q:
-        ext = q['ext']
-        assert slug_re.match(ext)
+    # used only for `show` view
+    if _view_ext is None:
+        if 'ext' in q:
+            assert slug_re.match(q['ext'])
+            _view_ext = '.' + q['ext']
+        else:
+            return HttpResponse("must specify extension", status=http.HTTPStatus.NOT_FOUND)
     #
     langs = []
     if 'lang' in q:
