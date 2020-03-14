@@ -56,7 +56,7 @@ from plasTeX.Packages import amsthm , graphicx
 
 environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_preamble', 'usepackage' )
 
-standalone_template=r"""\documentclass[varwidth]{standalone}
+standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
 \usepackage{ColDocUUID}
@@ -149,6 +149,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     #
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
          '_lang':_lang,
+         'width':'4in',
          'begin':'','end':'',
          'url_UUID' : options['url_UUID'],
          }
