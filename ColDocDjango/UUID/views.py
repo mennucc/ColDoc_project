@@ -157,7 +157,7 @@ def index(request, NICK, UUID):
     lang = None
     if 'lang' in q:
         lang = q['lang']
-        assert slug_re.match(lang)
+        assert lang=='' or slug_re.match(lang)
     for j in q:
         if j not in ('ext','lang'):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
