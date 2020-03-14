@@ -85,10 +85,10 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         #   
         n = None
         isdir = False
-        langs += metadata['lang'] + [None]
+        langs += metadata.get('lang',[]) + [None]
         for l in langs:
-            assert slug_re.match(l)
-            if l is not None:
+            assert l in (None,'') or slug_re.match(l)
+            if l not in (None,''):
                 l='_'+l
             else:
                 l=''
