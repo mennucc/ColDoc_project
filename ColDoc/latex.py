@@ -381,9 +381,11 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     if metadata['environ'][0] in environments_we_wont_latex :
         logger.log(warn, 'Cannot `pdflatex` environ %r , UUID = %r'%(metadata['environ'][0], uuid,))
     else:
-        ret = ret and latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
+        r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
+        ret = ret and r
     for u in metadata.get('child_uuid',[]):
-        ret = ret and latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options)
+        r = latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options)
+        ret = ret and r
     return ret
 
 
