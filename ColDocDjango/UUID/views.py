@@ -58,7 +58,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     langs = []
     if 'lang' in q:
         l = q['lang']
-        assert slug_re.match(l)
+        assert l=='' or slug_re.match(l)
         langs = [l]
     download='download' in q
     #for j in q:
@@ -139,8 +139,8 @@ def index(request, NICK, UUID):
     q = request.GET
     ext = '.tex'
     if 'ext' in q:
-        ext = q['ext']
-        assert slug_re.match(ext)
+        assert slug_re.match(q['ext'])
+        ext = '.'+q['ext']
     lang = None
     if 'lang' in q:
         lang = q['lang']
