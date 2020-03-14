@@ -106,8 +106,9 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
         ## 'include_preamble' is maybe illegal LaTeX; 'usepackage' is not yet implemented
         logger.log(warn, 'Cannot `pdflatex` environ=%r',metadata['environ'][0])
         return True
-    if metadata['environ'][0] == 'E_document':
-        logger.log(warn,'Do not need to `pdflatex` this `document` blob, refer the main blob')
+    #
+    if metadata['environ'][0] == 'main_file':
+        logger.log(warn, 'Do not need to `pdflatex` the main_file')
         return True
     #
     if lang is not None:
