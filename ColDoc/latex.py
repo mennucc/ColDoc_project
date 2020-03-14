@@ -95,6 +95,7 @@ plastex_template=r"""\documentclass{article}
 
 def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {}):
     " `latex` the blob identified `uuid`; if `lang` is None, `latex` all languages; ( `metadata` are courtesy , to avoid recomputing )"
+    warn = logging.WARNING if warn else logging.DEBUG
     if metadata is None:
         uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir)
@@ -103,10 +104,10 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
     #
     if metadata['environ'][0] in environments_we_wont_latex :
         ## 'include_preamble' is maybe illegal LaTeX; 'usepackage' is not yet implemented
-        if warn: logger.warning('Cannot `pdflatex` preamble')
+        logger.log(warn, 'Cannot `pdflatex` environ=%r',metadata['environ'][0])
         return True
     if metadata['environ'][0] == 'E_document':
-        if warn: logger.warning('Do not need to `pdflatex` this `document` blob, refer the main blob')
+        logger.log(warn,'Do not need to `pdflatex` this `document` blob, refer the main blob')
         return True
     #
     if lang is not None:
@@ -346,6 +347,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
 
 def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     " latex the whole tree, starting from `uuid` "
+    warn = logging.WARNING if warn else logging.DEBUG
     if uuid is None:
         uuid = '001'
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
@@ -353,7 +355,7 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     #
     ret = True
     if metadata['environ'][0] in environments_we_wont_latex :
-        if warn: logger.warning('Cannot `pdflatex` preamble , UUID = %r'%(uuid,))
+        logger.log(warn, 'Cannot `pdflatex` environ %r , UUID = %r'%(metadata['environ'][0], uuid,))
     else:
         ret = ret and latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
     for u in metadata.get('child_uuid',[]):
