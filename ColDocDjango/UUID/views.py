@@ -95,7 +95,6 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             n = os.path.join(blobs_dir, uuid_dir, prefix+l+_view_ext)
             if subpath is not None:
                 n = os.path.join(n,subpath)
-            logger.warning(n)
             if os.path.isfile(n):
                 break
             elif os.path.isdir(n) and os.path.isfile(n+'/index.html'):
