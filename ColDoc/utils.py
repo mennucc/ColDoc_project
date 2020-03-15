@@ -11,7 +11,8 @@ from ColDoc.config import *
 
 from .classes import MetadataBase
 
-__all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir", "dir_to_uuid",
+__all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir",
+            "dir_to_uuid", "file_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid",
             "new_uuid", "backtrack_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
@@ -362,6 +363,23 @@ def dir_to_uuid(directory):
     directory = directory[len(prefix):].split(os.path.sep)
     return directory[0] + directory[1] + directory[2]
 
+def file_to_uuid(filename, blobs_dir):
+    """given a file or directory, tracks down symlinks,
+    returns (UUID, basename)  where `basename` is the filename inside the UUID directory,
+    or `None` if `filename` was a directory"""
+    blobs_dir = os.path.realpath(blobs_dir)
+    if not os.path.isabs(filename):
+        filename = os.path.join(blobs_dir,filename)
+    filename = os.path.realpath(filename)
+    blobs_dir += os.path.sep
+    assert filename[:len(blobs_dir)] == blobs_dir, (filename, blobs_dir)
+    if os.path.isfile(filename):
+        filename, base = os.path.split(filename)
+    else:
+        base = None
+    filename = filename[len(blobs_dir):]
+    uuid = dir_to_uuid(filename)
+    return uuid, base
 def uuid_symlink(src, dst, blobs_dir = ColDoc_as_blobs, create = True ):
     " symlink src UUID to dst UUID "
     assert type(dst) == str and len(dst) >= 3
