@@ -127,6 +127,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return HttpResponse("Cannot find UUID %r with langs=%r , extension=%r." % (UUID,langs,ext),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
+        logger.exception(e)
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e),
                             status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
 

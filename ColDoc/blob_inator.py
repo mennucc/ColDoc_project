@@ -123,6 +123,8 @@ class named_stream(io.StringIO):
         self.add_metadata('extension', extension)
         self.add_metadata('lang', lang)
         #
+        logger.debug("new %r",self)
+        #
         if parent is not None:
             #if parentFile is None : parentFile = parent.filename
             if parentUUID is None : parentUUID = parent.uuid

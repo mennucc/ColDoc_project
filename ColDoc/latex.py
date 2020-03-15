@@ -171,6 +171,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
             D['begin'] += r'\item'
     ##
     ## create pdf
+    logger.debug('create pdf for %r',save_abs_name)
     if metadata['environ'][0] == 'main_file':
         shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'), fake_abs_name+'.tex')
     else:
@@ -180,6 +181,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
     ## create html
+    logger.debug('create html for %r',save_abs_name)
     main_file = open(fake_abs_name+'.tex', 'w')
     D['url_UUID'] = ColDoc.config.ColDoc_url_placeholder
     main_file.write(plastex_template % D)
@@ -386,6 +388,7 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
         r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
         ret = ret and r
     for u in metadata.get('child_uuid',[]):
+        logger.debug('moving down from node %r to node %r',uuid,u)
         r = latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options)
         ret = ret and r
     return ret
