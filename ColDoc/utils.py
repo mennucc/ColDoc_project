@@ -357,10 +357,10 @@ def uuid_to_dir(u, blobs_dir = ColDoc_as_blobs, create = False):   #, ColDocCont
 
 def dir_to_uuid(directory):
     prefix = 'UUID/'
-    assert directory[:len(prefix)] == prefix
-    directory = directory[len(prefix):]
-    assert directory[1] == directory[3] == os.path.sep
-    return directory[0] + directory[2] + directory[4:]
+    directory = os.path.normpath(directory)
+    assert directory[:len(prefix)] == prefix, (directory, prefix)
+    directory = directory[len(prefix):].split(os.path.sep)
+    return directory[0] + directory[1] + directory[2]
 
 def uuid_symlink(src, dst, blobs_dir = ColDoc_as_blobs, create = True ):
     " symlink src UUID to dst UUID "
