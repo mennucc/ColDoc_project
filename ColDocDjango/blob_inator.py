@@ -108,6 +108,11 @@ to specify where the ColDoc site is located.
     else:
         os.mkdir(coldoc_dir)
     #
+    args_json = osjoin(coldoc_dir, 'blob_inator-args.json')
+    if os.path.exists(args_json):
+        sys.stderr.write("Will not overwrite: %r\n"%(args_json,))
+        sys.exit(1)
+    #
     args.blobs_dir = blobs_dir = osjoin(coldoc_dir, 'blobs')
     #
     for j in 'git', 'anon', 'users', 'blobs':
