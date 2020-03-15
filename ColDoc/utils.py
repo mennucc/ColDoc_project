@@ -395,7 +395,12 @@ def new_uuid(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
             uuid = int_to_uuid(n)
             uuid_dir = uuid_to_dir(uuid, blobs_dir = blobs_dir, create=False)
             if  os.path.exists(uuid_dir):
-                logger.warning('directory exists for n = %r uuid = %r',n,uuid)
+                L=os.listdir(uuid_dir)
+                if L:
+                    logger.warning('directory exists for uuid = %r and contains %r',uuid,L)
+                else:
+                    logger.debug('reusing empty directory for uuid = %r',uuid)
+                    break
             else:
                 uuid_to_dir(uuid, blobs_dir = blobs_dir, create = True)
                 break
