@@ -58,11 +58,13 @@ from plasTeX.Packages import amsthm , graphicx
 
 ##############
 
-def squash_uuid(inp,out):
+def squash_uuid(inp, out, blobs_dir):
     " transforms all uuid"
+    if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
     thetex = TeX()
     thetex.input(open(inp), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     if isinstance(out,str):
+        if not os.path.isabs(out): out = osjoin(blobs_dir, out)
         out = open(out,'w')
     itertokens = thetex.itertokens()
     forw_map = {}
@@ -73,9 +75,15 @@ def squash_uuid(inp,out):
             # TODO do not alter preamble in main_file
             if macroname in ('input','include','input_preamble','include_preamble'):
                 inputfile = thetex.readArgument(type=str)
-                dir_ , blob = os.path.split(inputfile)
-                uuid = dir_to_uuid(dir_)
-                out.write(r'\uuidplaceholder{' + uuid + '}')
+                uuid, blob = file_to_uuid(inputfile, blobs_dir)
+                if inputfile[:5] == 'UUID/':
+                    text = uuid
+                elif inputfile[:4] == 'SEC/':
+                    text = os.path.dirname(inputfile)[4:].replace('_','\_')
+                else:
+                    logger.error('unsupported inputfile %r', inputfile)
+                    text = uuid
+                out.write(r'\uuidplaceholder{' + uuid + '}{' + text + '}')
                 back_map[uuid] = macroname, inputfile
                 forw_map[inputfile] = macroname, uuid
             else:
