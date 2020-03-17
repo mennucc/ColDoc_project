@@ -1,15 +1,19 @@
 \documentclass{article}
 
 %%%%%%%%% early packages that for some reason must be loaded before
+
+%% `unicode-math` will change some definitions in `amssymb`
 \usepackage{amssymb}
 
+%% some older versions of `hyperref` clash with `iftex`
 \usepackage{hyperref}
 
 %%%%%%%%%% prepare conditionals
 % http://ctan.mirror.garr.it/mirrors/CTAN/macros/latex/contrib/iftex/iftex.pdf
 % you need a recent version
 \usepackage{iftex}
-% define this conditional; plasTeX will override it and set it to `true`
+
+%define this conditional; plasTeX will override it and set it to `true`
 \newif\ifplastex\plastexfalse
 %
 %%%%%%%%% use conditionals to load some engine-specific packages
@@ -67,11 +71,14 @@ Stress test  \texttt{plasTeX} embedding \texttt{HTML}
 \end{verbatim}
 \[ \hbox{<a href="http://www.debian.org">Debian</a>} \]
 
+BBM test for bold ``1''
+\[f={\mathbbm{1}}_A\]
+
 \include{sec1}
 
 \include{sec2}
 
-\section*{TOC}
+\section*{Table of contents}
 \tableofcontents
 
 \end{document}

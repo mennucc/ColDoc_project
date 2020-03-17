@@ -11,6 +11,8 @@
 \newtheorem{Lem}[myCount]{Lemma}
 
 %% you can customize the \uuid command;
-%%  ColDoc will use this by default
-%\newcommand{\uuid}[1]{\href{\urlbase#1}{\texttt{[#1]}}}
+%%  ColDoc will use this by default, when `hyperref` is loaded
+%% \newcommand{\uuid}[1]{\href{\urlbaseurl#1}{\texttt{[#1]}}}
+%% where \urlbaseurl will be automagically set by the ColDoc portal
+\usepackage{ColDocUUID}
 
