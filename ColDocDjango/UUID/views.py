@@ -180,7 +180,33 @@ def index(request, NICK, UUID):
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for preamble]'
         elif env == 'main_file':
-            html = 'main_file'
+            html = ''
+            try:
+                b = DMetadata.objects.filter(coldoc=NICK, environ='E_document')[0]
+                a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':b.uuid})
+                html += r'<a href="%s">main document</a>' % (a,)
+            except:
+                logger.exception('cannot find E_document')
+            html+='<ul>'
+            for b in DMetadata.objects.filter(coldoc=NICK):
+                try:
+                    env = b.environ
+                    if env in ColDoc.latex.environments_we_wont_latex or \
+                       env in ('section','input','include'):
+                        a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':b.uuid})
+                        s = b.environ or 'blob'
+                        s += ' '
+                        if env == 'section':
+                            j = b.get('section')
+                        else:
+                            j = b.get('section')
+                            if not j:
+                                j = b.get('original_filename')
+                        s += ' , '.join(j)
+                        html += r'<li><a href="%s">%s</a></li>' % (a, s)
+                except:
+                    logger.exception('cannot add blob %r to list',b)
+            html+='</ul>'
         else:
             try:
                 a = os.path.dirname(filename)+'/view'
