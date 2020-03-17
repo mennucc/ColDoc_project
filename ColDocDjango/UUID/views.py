@@ -20,7 +20,7 @@ from ColDocDjango import settings
 
 from django.shortcuts import get_object_or_404, render
 
-from .models import DMetadata
+from .models import DMetadata, DColDoc
 
 @xframe_options_sameorigin
 def pdf(request, NICK, UUID):
@@ -196,9 +196,37 @@ def index(request, NICK, UUID):
     else:
         content = 'other'
         file = html = ''
+    #
+    try:
+        j = metadata.get('child_uuid')[0]
+        downlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j})
+    except:
+        downlink = None
+    try:
+        j = metadata.get('parent_uuid')[0]
+        uplink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j})
+    except:
+        logger.debug('no parent for UUID %r',UUID)
+        uplink = j = None
+    leftlink = rightlink = None 
+    if j is not None:
+        p = DMetadata.load_by_uuid(j,NICK)
+        j = p.get('child_uuid')
+        try:
+            j = sorted(j)
+            i = j.index(uuid)
+            print(i,j)
+            if i>0:
+                leftlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i-1]})
+            if i<len(j)-1:
+                rightlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i+1]})
+        except:
+            logger.exception('problem finding siblings for UUID %r',UUID)
+    #
     a = '/UUID/%s/%s/show?lang=%s&ext=%s'%(NICK,UUID,lang,ext[1:])
     c = {'NICK':NICK, 'UUID':UUID, 'metadata':metadata,
          'pdfurl':('/UUID/%s/%s/pdf'%(NICK,UUID,)),
+         'uplink':uplink, 'rightlink':rightlink, 'leftlink':leftlink, 'downlink':downlink,
          'showurl' : a , 'html' : html, 'showview': True,
          'lang':lang, 'ext':ext, 'file':file, 'blobcontenttype':content }
     return render(request, 'UUID.html', c)
