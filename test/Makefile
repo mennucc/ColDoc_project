@@ -93,14 +93,14 @@ django_run:
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  runserver
 
 django_paper_clean:
-	./django_tester.py delete
-	rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper
+	-./django_tester.py delete
+	rm -rf  $(COLDOC_SITE_ROOT)/coldocs/paper
 
 django_clean: django_paper_clean
-	test -d $(COLDOC_SITE_ROOT)/var -a -f $(COLDOC_SITE_ROOT)/config.ini && trash-put -v $(COLDOC_SITE_ROOT)
+	if test -d $(COLDOC_SITE_ROOT)/var -a -f $(COLDOC_SITE_ROOT)/config.ini ; then trash-put -v $(COLDOC_SITE_ROOT) ; fi
 
 
 ############################
 
 clean: django_clean
-	test -d tmp/pt/1 && rm -r tmp/pt/1
+	rm -rf tmp/pt/1
