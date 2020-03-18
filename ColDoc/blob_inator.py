@@ -1107,6 +1107,8 @@ if __name__ == '__main__':
     parser.add_argument('--blobs-dir',type=str,default=ColDoc_as_blobs,\
                         help='directory where to save the blob_ized output',\
                         required=(ColDoc_as_blobs is None))
+    parser.add_argument('--coldoc-nick',type=str,\
+                        help='nickname for the new coldoc document') # not required
     add_arguments_to_parser(parser)
     args = parser.parse_args()
     sys.exit(main(args, FMetadata, coldoc = args.coldoc_nick))
