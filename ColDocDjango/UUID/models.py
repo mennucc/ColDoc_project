@@ -76,7 +76,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     # these calls implement part of the interface `classes.MetadataBase`
     #
     @classmethod
-    def load_by_uuid(cls, uuid, coldoc=None, basepath=None):
+    def load_by_uuid(cls, uuid, coldoc, basepath=None):
         " returns an instance that matches the `uuid` in the `coldoc` or in the `basepath`"
         if isinstance(uuid,str):
             uuid = coldoc_utils.uuid_to_int(uuid)
