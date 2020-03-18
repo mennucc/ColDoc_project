@@ -16,7 +16,7 @@ Before proceeding, though, we clarify what we mean by `environment`.
     The hypothesis implies the thesis.
   \end{Theorem}
 
-Internally `ColDoc` identifies such environment as `E_Theorem` . The prefix `E_` helps identifying 
+Internally `ColDoc` identifies such environment as `E_Theorem` . The prefix `E_` helps identifying
 environments, and avoiding name collisions.
 
 `ColDoc` uses other `environments` :
@@ -37,12 +37,15 @@ environments, and avoiding name collisions.
 
 - `usepackage` is used for blobs that contain packages
 
+- `paragraph` is used for long paragraphs of text (as specified by the `--split-paragraph` option)
 
 Metadata key list
 -----------------
 
 This is the list of all keys in the metadata storage, and the meaning of their values.
 Note that a key may be repeated multiple times.
+
+- `coldoc` , the nickname of the ColDoc that this blob is part of
 
 - `environ` , the value is the environ that contained this blob . See the previous section
   for details.
@@ -61,6 +64,8 @@ Note that a key may be repeated multiple times.
   
   where the `optarg` would be equal to `Foobar's theorem`.
 
+- `authors` the list of people that contributed to this blob
+
 - `original_filename` , the filename whose content was copied in this blob (and children of this blob)
 
 - `uuid` , the UUID of this blob
@@ -73,7 +78,7 @@ Note that a key may be repeated multiple times.
 - `M_` followed by a `name` that was provided as `--metadata-command name` . E.g. if 
   `blob_inator` was invoked with the command
   
-  .. code:: shell 
+  .. code:: shell
     
     blob_inator --metadata-command label --split-environment Theorem
   
@@ -124,6 +129,9 @@ by the associated property: `coldoc`, `uuid`, `environ`.
 
 Instead `extension`, `lang` , `lang_ext`, `authors`, `child_uuid`,  `parent_uuid`, are multi-valued,
 and are returned as lists of strings.
+
+There is also a `get` function, that always returns a list of values
+(even for properties that are known to be single valued)
 
 This interface is implemented in the `FMetadata` class, that stores
 metadata in a file (this is independent of Django); and `DMetadata`, that
