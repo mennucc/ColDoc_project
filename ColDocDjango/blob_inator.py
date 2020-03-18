@@ -119,6 +119,8 @@ to specify where the ColDoc site is located.
         j = osjoin(coldoc_dir,j)
         if not os.path.exists(j):
             os.mkdir(j)
+        else:
+            assert os.path.isdir(j), 'Not a dir: %r'%(j,)
     # https://docs.djangoproject.com/en/3.0/topics/db/transactions/
     with transaction.atomic():
         c = list(coldocapp_models.DColDoc.objects.filter(nickname = args.coldoc_nick))

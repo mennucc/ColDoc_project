@@ -225,6 +225,7 @@ class named_stream(io.StringIO):
         """ The parameter `braces` dictates if `E` will be enclosed in {};
         `braces` may be `True`,`False` or `None` (which means 'autodetect')
         """
+        assert not self._was_written
         assert isinstance(E,str)
         assert E
         assert braces in (True,False,None)
