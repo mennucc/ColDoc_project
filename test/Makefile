@@ -32,8 +32,8 @@ paper_test:
 	test -d tmp || mkdir tmp
 	test -d tmp/pt && rm -r tmp/pt
 	test -d tmp/pt || mkdir tmp/pt
-	cp -a -T paper tmp/pt
-	rm -r  tmp/pt/F
+	cp -a -t  tmp/pt  paper/*.tex
+	cd tmp/pt ; ln -s ../../../tex/*sty .
 	cp -a -T latex/F tmp/pt/F
 	#
 	cd tmp/pt && pdflatex -interaction batchmode -file-line-error paper.tex
