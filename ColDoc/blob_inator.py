@@ -985,7 +985,9 @@ def add_arguments_to_parser(parser):
     parser.add_argument('input_file', help='the input TeX or LaTeX file')
     parser.add_argument('--verbose','-v',action='count',default=0)
     parser.add_argument('--split-sections','--SS',action='store_true',help='split each section in a separate blob')
-    parser.add_argument('--split-environment','--SE',action='append',help='split the content of this LaTeX environment in a separate blob', default=[])
+    parser.add_argument('--split-environment','--SE',action='append',
+                        help='split the content of this LaTeX environment in a separate blob',
+                        default=['document'])
     parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
     parser.add_argument('--split-preamble','--SP',action='store_true',help='split the preamble a separate blob')
     parser.add_argument('--split-paragraph',type=int,help='split paragraphs in separate blob when longer than N')
