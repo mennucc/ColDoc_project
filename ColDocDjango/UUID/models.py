@@ -185,7 +185,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             raise NotImplementedError()
     #
     def get(self, key, default = None):
-        "returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"
+        """returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"""
         if default is not None:
             logger.error('DMetadat.get default is not implemented, key=%r',key)
         if key in  ('uuid','environ'):

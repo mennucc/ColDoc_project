@@ -72,7 +72,7 @@ from plasTeX.Packages import amsthm , graphicx
 
 class named_stream(io.StringIO):
     """ stream with a filename attached, and metadata; data will be written by 'writeout' method
-      the file will be written in a new UUID under `basepath` 
+      the file will be written in a new UUID under `basepath`
     """
     #
     _re_spaces_ =  re.compile('^[ \t\n]+$')

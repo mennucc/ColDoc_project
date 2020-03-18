@@ -64,7 +64,7 @@ class MetadataBase(object):
     ################ convenience property to obtain values
     @property
     def coldoc(self):
-        "returns the ColDoc (a class implementing `AbstractColDoc`)"
+        "returns the ColDoc (a class implementing `AbstractColDoc` , or the `nickname` as a str )"
         raise NotImplementedError
     @property
     def uuid (self):

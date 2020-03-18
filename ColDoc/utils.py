@@ -420,6 +420,7 @@ def new_uuid(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
                     logger.debug('reusing empty directory for uuid = %r',uuid)
                     break
             else:
+                # create the directory
                 uuid_to_dir(uuid, blobs_dir = blobs_dir, create = True)
                 break
         v['last_uuid_n'] = n

@@ -102,6 +102,7 @@ to specify where the ColDoc site is located.
     if args.coldoc_nick in ('static','static_collect','var'):
         sys.stderr.write('Cannot use coldoc_nick=%r\n'%(args.coldoc_nick,))
         sys.exit(1)
+    #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick)
     if os.path.exists(coldoc_dir):
         sys.stderr.write('Warning, already exists coldoc_dir=%r\n'%(coldoc_dir))

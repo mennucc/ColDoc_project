@@ -250,6 +250,7 @@ def index(request, NICK, UUID):
             logger.exception('problem finding siblings for UUID %r',UUID)
     #
     a = '/UUID/%s/%s/show?lang=%s&ext=%s'%(NICK,UUID,lang,ext[1:])
+    #
     c = {'NICK':NICK, 'UUID':UUID, 'metadata':metadata,
          'pdfurl':('/UUID/%s/%s/pdf'%(NICK,UUID,)),
          'uplink':uplink, 'rightlink':rightlink, 'leftlink':leftlink, 'downlink':downlink,
