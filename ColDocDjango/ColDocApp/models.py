@@ -83,7 +83,7 @@ class UUID_Field(models.IntegerField):
 
 # Create your models here.
 
-COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
+COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 
 class DColDoc(models.Model):
     "Collaborative Document"
@@ -119,6 +119,8 @@ class DColDoc(models.Model):
     #
     def save(self):
         r = super().save()
+        if COLDOC_SITE_ROOT is None:
+            raise RuntimeError("Cannot save, COLDOC_SITE_ROOT==None: %r",self)
         coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',self.nickname)
         data = serializers.serialize("json", [self])
         assert data[0] == '[' and data[-1]==']'

@@ -19,7 +19,7 @@ from ColDoc import classes, utils as coldoc_utils
 
 # Create your models here.
 
-COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
+COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 
 class UUID_Tree_Edge(models.Model):
     "edges for the graph parent-child of blobs in a coldoc"
@@ -92,6 +92,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     def __write(self):
         "write a file with all metadata (as `FMetadata` does, used by non-django blob_inator) for easy inspection and comparison"
+        if COLDOC_SITE_ROOT is None:
+            raise RuntimeError("Cannot save, COLDOC_SITE_ROOT==None: %r",self)
         coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',self.coldoc.nickname)
         blobs_dir = osjoin(coldoc_dir, 'blobs')
         #
