@@ -30,7 +30,7 @@ latex_test:
 
 paper_test:
 	test -d tmp || mkdir tmp
-	test -d tmp/pt && rm -r tmp/pt
+	rm -fr tmp/pt
 	test -d tmp/pt || mkdir tmp/pt
 	cp -a -t  tmp/pt  paper/*.tex
 	cd tmp/pt ; ln -s ../../../tex/*sty .
