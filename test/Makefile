@@ -75,10 +75,11 @@ django_help:
 django_deploy:
 	mkdir $(COLDOC_SITE_ROOT)
 	../ColDocDjango/config.py deploy  $(COLDOC_SITE_ROOT)/config.ini
-	# this is not needed since `manage.py runserver` ignores the static_root directory
-	#../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  collectstatic
 	cd ${COLDOC_SITE_ROOT} ; mkdir templates var media coldocs static_local static_root
+	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  makemigrations
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  migrate
+	# this is not really used since `manage.py runserver` ignores the static_root directory
+	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  collectstatic
 
 # load a paper in the ColDoc portal
 django_paper:
