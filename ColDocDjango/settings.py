@@ -157,7 +157,6 @@ MEDIA_URL = config.get('django','media_url')
 MEDIA_ROOT = config.get('django','media_root')
 
 STATICFILES_DIRS = [
-    config.get('django','static_dir'),
-    os.path.join( BASE_DIR, 'static'),
+    config.get('django','static_local'),
 ]
 #sys.stderr.write(repr(STATICFILES_DIRS))
