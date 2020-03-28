@@ -15,6 +15,7 @@ Welcome to ColDoc's documentation!
 .. toctree::
 
   install
+  test
   deploy
   metadata
 
