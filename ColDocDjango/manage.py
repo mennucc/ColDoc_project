@@ -13,12 +13,15 @@ def main():
         j = argv.index('--coldoc-site-root')
         COLDOC_SITE_ROOT = argv.pop(1+j)
         argv.pop(j)
+        os.environ.setdefault('COLDOC_SITE_ROOT', COLDOC_SITE_ROOT)
     elif  'COLDOC_SITE_ROOT' in os.environ:
         COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
     else:
         COLDOC_SITE_ROOT = None #os.path.dirname(os.path.abspath(__file__))
     #
-    if COLDOC_SITE_ROOT is None or not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini')):
+    if (len(argv)>1 and argv[1] not in ('help','startapp')) and \
+          (COLDOC_SITE_ROOT is None or \
+           not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini'))):
         if COLDOC_SITE_ROOT is not None:
             sys.stderr.write("""\
 The directory
@@ -31,13 +34,11 @@ to specify where the ColDoc site is located.
 """ )
         sys.exit(1)
     #
-    os.environ.setdefault('COLDOC_SITE_ROOT', COLDOC_SITE_ROOT)
-    #
-    j = os.path.join(COLDOC_SITE_ROOT,'settings')
-    if os.path.exists(j):
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', j)
-    else:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+    if COLDOC_SITE_ROOT is not None:
+        j = os.path.join(COLDOC_SITE_ROOT,'settings')
+        if os.path.exists(j):
+            os.environ.setdefault('DJANGO_SETTINGS_MODULE', j)
     #
     try:
         from django.core.management import execute_from_command_line
