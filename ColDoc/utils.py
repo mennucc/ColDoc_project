@@ -263,7 +263,7 @@ def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',
                 lang = ColDoc_lang, metadata_class=FMetadata, coldoc=None):
     """ Choose a blob, trying to satisfy request for language and extension
     returns `filename`, `uuid`, `metadata`, `lang`, `ext`
-    if `ext` is None, a random extension will be returned
+    if `ext` is None, an extension will be returned following `sort_extensions`
     if `lang` is None, a random language will be returned
     """
     assert isinstance(uuid,str)
@@ -281,7 +281,7 @@ def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',
             logger.error('Blob `%r` not available for lang = %r ext = %r', uuid, lang, ext)
             raise ColDocException('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
-    E = m.get('extension',[''])
+    E = sort_extensions(m.get('extension',['']))
     assert len(E) >= 1
     if ext is not None:
         if ext not in E:
