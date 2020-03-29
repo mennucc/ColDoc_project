@@ -17,7 +17,7 @@ __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir",
             "new_uuid", "backtrack_uuid",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
             "ColDocException", "ColDocFileNotFoundError",
-            "choose_blob", "plastex_invoke",
+            "sort_extensions", "choose_blob", "plastex_invoke",
             "metadata_html_items"
             )
 
@@ -249,6 +249,15 @@ def resolve_uuid(uuid=None, uuid_dir=None, blobs_dir = ColDoc_as_blobs,
     U = m.get('uuid')
     assert uuid_int == uuid_to_int(U[0])
     return uuid, uuid_dir, m
+
+def sort_extensions(E):
+    # FIXME should look in request
+    P = {a:4 for a in ('.jpg','.jpeg','.png','.tif','.tiff','.gif')}
+    P.update({'.svg':2,'.pdf':7})
+    print(E)
+    E.sort(key = lambda x: P.get(x,10))
+    print(E)
+    return E
 
 def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',
                 lang = ColDoc_lang, metadata_class=FMetadata, coldoc=None):
