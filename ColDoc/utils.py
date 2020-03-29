@@ -138,6 +138,11 @@ class FMetadata(dict, MetadataBase):
             super().__setitem__(k, [v])
         #super().setdefault(k,[]).append(v)
     #
+    def get(self, k, default=None):
+        if default is not None:
+            logger.error('FMetadata.get default is not implemented, key=%r',k)
+        return super().get(k,[])
+    #
     def  __setitem__(self, k, v):
         " set value `v` for `k` (as one single value, even if multivalued)"
         if k not in self._keys:
