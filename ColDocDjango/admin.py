@@ -83,7 +83,7 @@ def main(argv):
     if argv[0] == 'deploy':
         return deploy(COLDOC_SITE_ROOT)
     else:
-        sys.stderr.write("command not recognized : %r\n",argv)
+        sys.stderr.write("command not recognized : %r\n" % (argv,))
         sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
         return False
     return True
