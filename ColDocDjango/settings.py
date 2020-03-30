@@ -16,9 +16,9 @@ import sys, os
 import logging
 logger = logging.getLogger(__name__)
 
-from ColDocDjango.config import config
+from ColDocDjango.config import get_config
 
-COLDOC_SITE_CONFIG = config
+COLDOC_SITE_CONFIG = config = get_config()
 
 COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 

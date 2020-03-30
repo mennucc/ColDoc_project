@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-__all__ = ('config', 'CONFIG_FILENAMES', 'deploy')
+__all__ = ('get_config', 'get_base_config', 'deploy')
 
-import os, sys
+import os, sys, copy
 
 import logging
 logger = logging.getLogger(__name__)
 
 import configparser
-
 
 config = configparser.ConfigParser()
 
@@ -42,8 +41,9 @@ config.set(section, 'piwik_url', '')
 config.set(section, 'piwik_site_id', '')
 
 
-def deploy(con, a):
-    " write configuration `con` to file `a` to allow for customization"
+def deploy(a):
+    " write configuration to file `a` to allow for customization"
+    con = copy.copy(config)
     from pathlib import Path
     # get_random_secret_key() would often create a string that cannot be interpolated
     from django.core.management.utils import get_random_string
@@ -56,6 +56,7 @@ def deploy(con, a):
     con['DEFAULT'].pop('site_root')
     if isinstance(a,(str, Path)):
         a = open(a,'w')
+    a.write('# this config file is superimposed on %r\n'%(os.path.join(BASE_ROOT, 'config.ini')))
     a.write('# `site_root` will be automatically set to the directory\n# where this file is located, to ease relocation\n')
     con.write(a)
 
@@ -66,15 +67,6 @@ def integrate(inifile,config):
 
 
 if __name__ == '__main__':
-    #a = os.path.realpath(sys.argv[0])
-    #a = os.path.dirname(a)
-    #a = os.path.dirname(a)
-    #assert os.path.isdir(a), a
-    #if a not in sys.path:
-    #    sys.path.insert(0, a)
-    #del a
-    #
-    #from ColDoc import ColDocLogging
     import sys
     if len(sys.argv) in (2,3) and sys.argv[1] == 'inspect':
         if len(sys.argv) == 3:
@@ -86,7 +78,7 @@ if __name__ == '__main__':
         if os.path.exists(a) or os.path.islink(a):
             sys.stderr.write("Won't overwrite: %r\n"%(a,))
             raise SystemExit(2)
-        deploy(config, a)
+        deploy(a)
         raise SystemExit(0)
     elif len(sys.argv) == 1 or (len(sys.argv) == 2 and sys.argv[1] in ('help','-h','--help')):
         sys.stderr.write("""Usage: %r [commands]
@@ -106,20 +98,29 @@ Commands:
         sys.stderr.write('Unimplemented command %r\nTry --help\n'%(sys.argv,))
         raise SystemExit(1)
 
-else:
+def get_config(site_root = None):
     CONFIG_FILENAMES = []
-    if 'COLDOC_SITE_ROOT' in os.environ:
-        CONFIG_FILENAMES.append(os.path.join(os.environ['COLDOC_SITE_ROOT'],'config.ini'))
 
     CONFIG_FILENAMES.append(os.path.join(BASE_ROOT, 'config.ini'))
 
+    if site_root is None and 'COLDOC_SITE_ROOT' in os.environ:
+        site_root = os.environ['COLDOC_SITE_ROOT']
+    if site_root is None:
+        logger.warning('no site_root for config.ini')
+    else:
+        CONFIG_FILENAMES.append(os.path.join(site_root,'config.ini'))
+
+    config_ = copy.copy(config)
     #"search for an ini file and add it"
     for conf in CONFIG_FILENAMES:
         if os.path.exists(conf):
             logger.info("Reading config file: %r", conf)
-            integrate(conf,config)
+            integrate(conf,config_)
             break
     else:
         logger.warning("Cannot find config file. Tried: %r" ,
                        ', '.join(CONFIG_FILENAMES))
+    return config_
 
+def get_base_config():
+    return copy.copy(config)
