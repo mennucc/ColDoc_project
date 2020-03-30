@@ -13,7 +13,7 @@ config = configparser.ConfigParser()
 
 BASE_ROOT = os.path.dirname(os.path.abspath(__file__))
 section = 'DEFAULT'
-config.set(section, 'base_root', BASE_ROOT)
+config.set(section, 'site_root', os.path.join(BASE_ROOT,'fake_site_root'))
 config.set(section, 'virtualenv', '')
 config.set(section, 'site_name', 'ColDoc Test Site')
 
@@ -25,13 +25,13 @@ config.set(section, 'hostname', 'localhost')
 config.set(section, 'server_url', 'http://localhost')
 config.set(section, 'allowed_hosts', '127.0.0.1,localhost')
 config.set(section, 'root_url', '/')
-config.set(section, 'static_root', '%(base_root)s/static_root')
-config.set(section, 'static_local', '%(base_root)s/static_local')
+config.set(section, 'static_root', '%(site_root)s/static_root')
+config.set(section, 'static_local', '%(site_root)s/static_local')
 config.set(section, 'static_url', '/static/')
-config.set(section, 'media_root', '%(base_root)s/media')
+config.set(section, 'media_root', '%(site_root)s/media')
 config.set(section, 'media_url', '/media/')
-config.set(section, 'template_dirs', '%(base_root)s/templates')
-config.set(section, 'sqlite_database', '%(base_root)s/var/db.sqlite3')
+config.set(section, 'template_dirs', '%(site_root)s/templates')
+config.set(section, 'sqlite_database', '%(site_root)s/var/db.sqlite3')
 
 
 section = 'web'
@@ -53,16 +53,16 @@ def deploy(con, a):
     con._interpolation = configparser.Interpolation()
     con.set('DEFAULT', 'user_home', os.path.expanduser('~'))
     con.set('django', 'debug', 'False')
-    con['DEFAULT'].pop('base_root')
+    con['DEFAULT'].pop('site_root')
     if isinstance(a,(str, Path)):
         a = open(a,'w')
-    a.write('# `base_root` will be automatically set to the directory\n# where this file is located, to ease relocation\n')
+    a.write('# `site_root` will be automatically set to the directory\n# where this file is located, to ease relocation\n')
     con.write(a)
 
 def integrate(inifile,config):
-    "read `inifile` into `config`, change base_root"
+    "read `inifile` into `config`, change site_root"
     config.read([inifile])
-    config.set('DEFAULT', 'base_root', os.path.dirname(os.path.abspath(inifile)))
+    config.set('DEFAULT', 'site_root', os.path.dirname(os.path.abspath(inifile)))
 
 
 if __name__ == '__main__':
