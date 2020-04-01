@@ -11,6 +11,7 @@ urlpatterns = [
     #
     path('<str:NICK>/<str:UUID>/show/', views.show, name='show'),
     #
+    path('<str:NICK>/<str:UUID>/postedit/', views.postedit, name='postedit'),
     path('<str:NICK>/<str:UUID>', views.index, name='index'),
     path('<str:NICK>/<str:UUID>/', views.index, ),
     path('<str:NICK>/<str:UUID>/index.html', views.index),

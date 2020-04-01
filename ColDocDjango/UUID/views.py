@@ -9,6 +9,7 @@ import django
 from django.shortcuts import render
 from django.http import HttpResponse, QueryDict
 from django.contrib import messages
+from django import forms
 
 from ColDoc.utils import slug_re
 
@@ -21,6 +22,33 @@ from ColDocDjango import settings
 from django.shortcuts import get_object_or_404, render
 
 from .models import DMetadata, DColDoc
+
+
+###############################################################
+
+# https://docs.djangoproject.com/en/dev/topics/forms/
+
+class BlobEditForm(forms.Form):
+    BlobEditTextarea=forms.CharField(label='Blob content',
+                                     widget=forms.Textarea(attrs={'class': 'form-text'}),
+                                     help_text='Edit the blob content')
+    BlobEditComment=forms.CharField(label='Comment',
+                                    widget=forms.TextInput(attrs={'class': 'form-text'}),
+                                    help_text='Comment for this commit')
+
+
+def postedit(request, NICK, UUID):
+    #return HttpResponse('ciao')
+    if request.method != 'POST' :
+        return HttpResponse("Method %r not allowed"%(request.method,),status=http.HTTPStatus.BAD_REQUEST)
+        #and self.has_permission(request)
+    form=BlobEditForm(request.POST)
+    if not form.is_valid():
+        return HttpResponse("Invalid form",status=http.HTTPStatus.BAD_REQUEST)
+    a = form.cleaned_data['BlobEditTextarea']
+    return HttpResponse(a, content_type='text') #'<br>'.join(repr(j) for j in request.GET))
+
+###############################################################
 
 @xframe_options_sameorigin
 def pdf(request, NICK, UUID):
@@ -255,6 +283,7 @@ def index(request, NICK, UUID):
          'pdfurl':('/UUID/%s/%s/pdf'%(NICK,UUID,)),
          'uplink':uplink, 'rightlink':rightlink, 'leftlink':leftlink, 'downlink':downlink,
          'showurl' : a , 'html' : html, 'showview': True,
+         'BlobEditForm' : BlobEditForm(initial={'BlobEditTextarea':  file}),
          'lang':lang, 'ext':ext, 'file':file, 'blobcontenttype':content }
     return render(request, 'UUID.html', c)
 
