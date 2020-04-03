@@ -70,6 +70,10 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     creation_date = models.DateTimeField('date of creation', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)
     ## TODO unimplemented
+    STATES = [('public','visible to everybody'),
+              ('private','visible only to editors, and authors of this blob')]
+    state = models.CharField("state", max_length=15,
+                             choices=STATES,        default='public')
     BLOB_DOCUMENTCLASS=[
         ('auto','use `main` class for sections and whole document, `standalone` class for others'),
         ('main','use the class of the main document (usually associated to UUID 001)'),
