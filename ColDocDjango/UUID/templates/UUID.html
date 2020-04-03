@@ -3,7 +3,8 @@
 {% block title %} ColDoc — {{ NICK  }} — {{ UUID  }}{% endblock %}
 
 {% block content %}
-<h1>{{ NICK  }} — {{ UUID }}</h1>
+
+<h1><a href="{% url 'ColDoc:index' NICK=NICK %}">{{ NICK  }}</a> — {{ UUID }}</h1>
 
  {% if uplink %}<a class="btn btn-outline-primary" href="{{uplink|safe}}">↑</a>
  {% else %}<div class="btn btn-outline-light disabled">↑</div>{% endif %}
