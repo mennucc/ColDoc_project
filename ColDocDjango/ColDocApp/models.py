@@ -102,7 +102,8 @@ class DColDoc(models.Model):
     title = models.CharField(max_length=2000, blank=True)
     editor = models.ManyToManyField(User)
     abstract = models.TextField(max_length=10000, blank=True)
-    pub_date = models.DateTimeField('date first published', default=DT.now)
+    publication_date = models.DateTimeField('date first published', default=DT.now)
+    modification_date = models.DateTimeField('date of last modification', default=DT.now)
     #
     LATEX_ENGINES=[
         ('pdflatex','LaTeX'),
