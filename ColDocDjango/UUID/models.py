@@ -47,6 +47,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         # these keys are multiple-valued, are internal, are represented
         # as a newline-separated text field
         self._internal_multiple_valued_keys = ('extension','lang','authors')
+        self.__single_valued = ('uuid', 'environ', 'optarg', 'original_filename')
         #
         super().__init__(*args, **kwargs)
     #
@@ -56,10 +57,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     uuid = UUID_Field(db_index = True, )
     environ = models.CharField(max_length=100, db_index = True)
+    optarg = models.CharField(max_length=300, blank=True)
     extension = models.TextField(max_length=100,help_text="newline-separated list of extensions",
                                  default='', blank=True)
     lang = models.TextField(max_length=100,help_text="newline-eparated list of languages",
                             default='', blank=True)
+    original_filename = models.CharField(max_length=1000, blank=True,
+                                         help_text="the filename whose content was copied in this blob (and children of this blob)")
     #
     authors = models.TextField('newline-separated list of authors',max_length=10000,
                                default='', blank=True)
@@ -118,7 +122,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     def singled_items(self):
         " yields all (key,value) pairs, where each `key` may be repeated multiple times"
-        for key in  ('uuid', 'environ'):
+        for key in  self.__single_valued:
             yield key, getattr(self,key)
         for key in ('extension','lang','authors'):
             l = self.__key_to_list(key)
@@ -162,7 +166,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         """ for single valued `key`, set `value`; for multiple value,
         add the `value` as a possible value for `key` (only if the value is not present) ;
         this call is used by the blob_inator"""
-        if key in  ('uuid','environ'):
+        if key in  self.__single_valued:
             setattr(self, key, value)
         elif key in ('extension','lang','authors'):
             assert '\n' not in value
@@ -179,7 +183,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     def __setitem__(self,key,value):
         " set value `value` for `key` (as one single value, even if multivalued)"
-        if key in  ('uuid','environ'):
+        if key in  self.__single_valued:
             setattr(self, key, value)
         elif key in  ('extension','lang','authors'):
             assert '\n' not in value
@@ -193,7 +197,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         """returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"""
         if default is not None:
             logger.error('DMetadat.get default is not implemented, key=%r',key)
-        if key in  ('uuid','environ'):
+        if key in  self.__single_valued:
             return [getattr(self, key)]
         elif key in ('extension','lang','authors'):
             return self.__key_to_list(key)
@@ -207,7 +211,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     def items(self, serve_empty=False):
         "returns (key, values)"
-        for key in  ('uuid','environ'):
+        for key in  self.__single_valued:
             yield key, [getattr(self, key)]
         for key in ('extension','lang','authors'):
             l = self.__key_to_list(key)
