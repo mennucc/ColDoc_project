@@ -10,6 +10,7 @@ from django.core.validators  import RegexValidator
 import django.core.exceptions
 from django.core import serializers
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 
 
@@ -99,7 +100,7 @@ class DColDoc(models.Model):
                                 max_length=10,  db_index = True, primary_key=True)
     #
     title = models.CharField(max_length=2000, blank=True)
-    authors = models.TextField('newline-separated list of authors',max_length=10000, blank=True)
+    editor = models.ManyToManyField(User)
     abstract = models.TextField(max_length=10000, blank=True)
     pub_date = models.DateTimeField('date first published', default=DT.now)
     #
