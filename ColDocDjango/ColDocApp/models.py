@@ -88,6 +88,8 @@ COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 class DColDoc(models.Model):
     "Collaborative Document"
     #
+    class Meta:
+        verbose_name = "ColDoc"
     #https://docs.djangoproject.com/en/3.0/ref/urlresolvers/#django.urls.reverse
     #https://docs.djangoproject.com/en/3.0/ref/models/instances/#django.db.models.Model.get_absolute_url
     def get_absolute_url(self):

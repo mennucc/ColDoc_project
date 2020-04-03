@@ -31,6 +31,9 @@ class UUID_Tree_Edge(models.Model):
 class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interferes with the Django magick
     "Metadata of a blob, stored in the Django databases, and also in a file (for easy access)"
     #
+    class Meta:
+        verbose_name = "Metadata"
+    #
     def __init__(self, *args, **kwargs):
         self._extra_metadata = []
         self._children = []
