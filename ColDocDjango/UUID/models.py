@@ -11,6 +11,7 @@ from django.db import models
 from django.core.validators  import RegexValidator
 from django.urls import reverse
 
+from django.contrib.auth.models import User
 from ColDocDjango import settings
 
 from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
@@ -46,7 +47,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         assert self._single_valued_keys == classes.MetadataBase._single_valued_keys
         # these keys are multiple-valued, are internal, are represented
         # as a newline-separated text field
-        self._internal_multiple_valued_keys = ('extension','lang','authors')
+        self._internal_multiple_valued_keys = ('extension','lang')
         self.__single_valued = ('uuid', 'environ', 'optarg', 'original_filename')
         #
         super().__init__(*args, **kwargs)
@@ -65,8 +66,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     original_filename = models.CharField(max_length=1000, blank=True,
                                          help_text="the filename whose content was copied in this blob (and children of this blob)")
     #
-    authors = models.TextField('newline-separated list of authors',max_length=10000,
-                               default='', blank=True)
+    author = models.ManyToManyField(User)
+    #
     creation_date = models.DateTimeField('date of creation', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)
     ## TODO unimplemented
@@ -125,10 +126,12 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         " yields all (key,value) pairs, where each `key` may be repeated multiple times"
         for key in  self.__single_valued:
             yield key, getattr(self,key)
-        for key in ('extension','lang','authors'):
+        for key in ('extension','lang'):
             l = self.__key_to_list(key)
             for value in l:
                 yield key, value
+        for value in self.author.all():
+            return 'author', value
         for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid):
             yield 'parent_uuid', obj.parent
         for obj in  UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid):
@@ -137,7 +140,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             yield obj.key, obj.value
     #
     def save(self):
-        for k in ('extension','lang','authors'):
+        for k in ('extension','lang'):
             v = getattr(self,k)
             v = v.replace('\r','')
             if v and v[-1] != '\n':
@@ -169,12 +172,14 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         this call is used by the blob_inator"""
         if key in  self.__single_valued:
             setattr(self, key, value)
-        elif key in ('extension','lang','authors'):
+        elif key in ('extension','lang'):
             assert '\n' not in value
             v = self.__key_to_list(key)
             if value not in v:
                 v.append(value)
             setattr(self, key, '\n'.join(v)+'\n')
+        elif key == 'author' :
+            self.author.add(value)
         elif key == 'child_uuid' and value not in self._children:
             self._children.append(value)
         elif key == 'parent_uuid' and value not in self._parents:
@@ -188,10 +193,10 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         " set value `value` for `key` (as one single value, even if multivalued)"
         if key in  self.__single_valued:
             setattr(self, key, value)
-        elif key in  ('extension','lang','authors'):
+        elif key in  ('extension','lang'):
             assert '\n' not in value
             setattr(self, key, value+'\n')
-        elif key in ('child_uuid', 'parent_uuid'):
+        elif key in ('child_uuid', 'parent_uuid', 'author'):
             #it is somewhat pointless
             raise NotImplementedError()
         else:
@@ -203,8 +208,10 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             logger.error('DMetadata.get default is not implemented, key=%r',key)
         if key in  self.__single_valued:
             return [getattr(self, key)]
-        elif key in ('extension','lang','authors'):
+        elif key in ('extension','lang'):
             return self.__key_to_list(key)
+        elif key == 'author':
+            return self.author.all().values_list(flat = True)
         elif key == 'parent_uuid':
             return UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent', flat=True)
         elif key == 'child_uuid':
@@ -217,10 +224,12 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         "returns (key, values)"
         for key in  self.__single_valued:
             yield key, [getattr(self, key)]
-        for key in ('extension','lang','authors'):
+        for key in ('extension','lang'):
             l = self.__key_to_list(key)
             if l or serve_empty:
                 yield key, l
+        #key == 'author':
+        yield 'author', self.author.all().values_list(flat = True)
         #key == 'parent_uuid':
         yield 'parent_uuid', UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent',flat=True)
         #key == 'child_uuid':
