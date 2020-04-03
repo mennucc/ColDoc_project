@@ -88,6 +88,7 @@ django_paper:
 	../ColDocDjango/blob_inator.py --coldoc-nick=paper  --ZS --SP --SE=document --SL=itemize --SAT --CG  paper/paper.tex
 	./django_tester.py isthere
 	../ColDoc/latex.py --blobs-dir=$(COLDOC_SITE_ROOT)/coldocs/paper/blobs --url-UUID=$(COLDOC_URL) all
+	../ColDoc/latex.py --blobs-dir=$(COLDOC_SITE_ROOT)/coldocs/paper/blobs --url-UUID=$(COLDOC_URL) main
 
 django_run:
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  runserver
