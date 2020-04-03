@@ -62,7 +62,6 @@ if __name__ == '__main__':
     #
     if args.coldoc_site_root is not None:
         COLDOC_SITE_ROOT = args.coldoc_site_root
-        argv.pop(j)
     elif  'COLDOC_SITE_ROOT' in os.environ:
         COLDOC_SITE_ROOT = args.coldoc_site_root = os.environ['COLDOC_SITE_ROOT']
     else:
