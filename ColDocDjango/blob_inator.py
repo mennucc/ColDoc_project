@@ -135,4 +135,8 @@ to specify where the ColDoc site is located.
         r =  BI.main(args, metadata_class=blob_models.DMetadata, coldoc=coldoc)
         coldoc.save()
     #
+    import ColDocDjango.utils as CDutils
+    with transaction.atomic():
+        CDutils.add_permissions_for_coldoc(coldoc.nickname)
+    #
     sys.exit(r)
