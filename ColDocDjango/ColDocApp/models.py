@@ -11,7 +11,6 @@ import django.core.exceptions
 from django.core import serializers
 from django.urls import reverse
 
-from ColDocDjango import settings
 
 
 def _(s):
