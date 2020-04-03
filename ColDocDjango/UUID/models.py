@@ -60,7 +60,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     optarg = models.CharField(max_length=300, blank=True)
     extension = models.TextField(max_length=100,help_text="newline-separated list of extensions",
                                  default='', blank=True)
-    lang = models.TextField(max_length=100,help_text="newline-eparated list of languages",
+    lang = models.TextField(max_length=100,help_text="newline-separated list of languages",
                             default='', blank=True)
     original_filename = models.CharField(max_length=1000, blank=True,
                                          help_text="the filename whose content was copied in this blob (and children of this blob)")
@@ -69,7 +69,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                                default='', blank=True)
     creation_date = models.DateTimeField('date of creation', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)
-    #
+    ## TODO unimplemented
     BLOB_DOCUMENTCLASS=[
         ('auto','use `main` class for sections and whole document, `standalone` class for others'),
         ('main','use the class of the main document (usually associated to UUID 001)'),
@@ -77,7 +77,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         ('article','use `article` documentclass'),
         ('book','use `book` documentclass'),
     ]
-    latex_documentclass = models.CharField("documentclass used to compile", max_length=15,
+    latex_documentclass = models.CharField("documentclass used to compile (unimplemented)", max_length=15,
                                            choices=BLOB_DOCUMENTCLASS,        default='auto')
     ####
     # these calls implement part of the interface `classes.MetadataBase`
@@ -114,6 +114,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         F.close()
     #
     def __key_to_list(self,key):
+        assert key in self._internal_multiple_valued_keys
         v = getattr(self,key)
         if not v:
             return []
@@ -180,6 +181,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             self._parents.append(value)
         elif (key,value) not in self._extra_metadata:
             self._extra_metadata.append((key,value))
+        else:
+            raise RuntimeError('cannot add %r = %r'%(key,value))
     #
     def __setitem__(self,key,value):
         " set value `value` for `key` (as one single value, even if multivalued)"
@@ -189,6 +192,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             assert '\n' not in value
             setattr(self, key, value+'\n')
         elif key in ('child_uuid', 'parent_uuid'):
+            #it is somewhat pointless
             raise NotImplementedError()
         else:
             raise NotImplementedError()
@@ -196,7 +200,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     def get(self, key, default = None):
         """returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"""
         if default is not None:
-            logger.error('DMetadat.get default is not implemented, key=%r',key)
+            logger.error('DMetadata.get default is not implemented, key=%r',key)
         if key in  self.__single_valued:
             return [getattr(self, key)]
         elif key in ('extension','lang','authors'):
