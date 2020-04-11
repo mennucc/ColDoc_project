@@ -1,8 +1,7 @@
 from django.contrib import admin
-
-# Register your models here.
-
-
-from .models import DColDoc
+from django.contrib.auth.admin import UserAdmin
+from .models import DColDoc , ColDocUser
 
 admin.site.register(DColDoc)
+
+admin.site.register(ColDocUser, UserAdmin)

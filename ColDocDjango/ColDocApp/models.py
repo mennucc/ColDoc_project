@@ -10,7 +10,8 @@ from django.core.validators  import RegexValidator
 import django.core.exceptions
 from django.core import serializers
 from django.urls import reverse
-from django.contrib.auth.models import User
+
+from django.conf import settings
 
 
 
@@ -23,6 +24,22 @@ def _(s):
 
 from ColDoc.utils import uuid_to_int, int_to_uuid, uuid_check_normalize, uuid_valid_symbols
 
+#####################################
+# https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
+
+## we cannot user this, it is too early
+#from django.contrib.auth import get_user_model
+#AUTH_USER_MODEL = get_user_model()
+## su we use this
+AUTH_USER_MODEL = settings.AUTH_USER_MODEL
+
+from django.contrib.auth.models import AbstractUser
+#from django.contrib.auth.models import PermissionsMixin
+
+class ColDocUser(AbstractUser):    # may also need ,PermissionsMixin):
+    pass
+
+#####################################
 
 class UUID_FormField(forms.CharField):
     ## TODO FIXME THIS DOES NOT WORK AS EXPECTED
@@ -100,7 +117,7 @@ class DColDoc(models.Model):
                                 max_length=10,  db_index = True, primary_key=True)
     #
     title = models.CharField(max_length=2000, blank=True)
-    editor = models.ManyToManyField(User)
+    editor = models.ManyToManyField(AUTH_USER_MODEL)
     abstract = models.TextField(max_length=10000, blank=True)
     publication_date = models.DateTimeField('date first published', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)

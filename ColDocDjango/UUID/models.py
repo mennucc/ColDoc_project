@@ -11,7 +11,8 @@ from django.db import models
 from django.core.validators  import RegexValidator
 from django.urls import reverse
 
-from django.contrib.auth.models import User
+from django.conf import settings
+AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 
 from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
 
@@ -65,7 +66,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     original_filename = models.CharField(max_length=1000, blank=True,
                                          help_text="the filename whose content was copied in this blob (and children of this blob)")
     #
-    author = models.ManyToManyField(User)
+    author = models.ManyToManyField(AUTH_USER_MODEL)
     #
     creation_date = models.DateTimeField('date of creation', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)

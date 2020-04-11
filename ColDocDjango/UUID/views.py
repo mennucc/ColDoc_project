@@ -10,6 +10,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, QueryDict
 from django.contrib import messages
 from django import forms
+from django.conf import settings
 
 from ColDoc.utils import slug_re
 
@@ -17,7 +18,6 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango
 
-from ColDocDjango import settings
 
 from django.shortcuts import get_object_or_404, render
 

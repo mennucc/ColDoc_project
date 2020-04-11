@@ -112,6 +112,10 @@ DATABASES = {
 if not os.path.isfile(DATABASES['default']['NAME']):
     logger.warning('No database %r',DATABASES['default']['NAME'])
 
+# https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
+AUTH_USER_MODEL = 'ColDocApp.ColDocUser'
+
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
