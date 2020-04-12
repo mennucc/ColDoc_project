@@ -79,6 +79,8 @@ django_deploy:
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  migrate
 	# this is not really used since `manage.py runserver` ignores the static_root directory
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  collectstatic
+	cd $(COLDOC_SITE_ROOT)/static_local &&  cp -a ../static_root/* .
+	sed -i~~ 's/debug.*False/debug = True/' $(COLDOC_SITE_ROOT)/config.ini
 
 # load a paper in the ColDoc portal
 django_paper:
