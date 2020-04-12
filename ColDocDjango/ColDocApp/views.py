@@ -14,7 +14,8 @@ import ColDoc.utils, ColDocDjango
 
 from ColDoc.utils import slug_re
 
-from ColDocDjango import settings
+from django.conf import settings
+
 from ColDocDjango.UUID import views as UUIDviews
 
 from django.shortcuts import get_object_or_404, render

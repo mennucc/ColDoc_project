@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from django.http import HttpResponse
 
 import ColDocDjango.views
-from ColDocDjango import settings
+from django.conf import settings
 config = settings.COLDOC_SITE_CONFIG
 
 import django.contrib.auth

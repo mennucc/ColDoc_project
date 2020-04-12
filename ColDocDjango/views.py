@@ -2,7 +2,7 @@ import datetime
 from functools import wraps
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, render
-from ColDocDjango import settings
+from django.conf import settings
 
 from ColDocDjango.ColDocApp.models import DColDoc
 
