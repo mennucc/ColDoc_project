@@ -72,7 +72,7 @@ django_help:
 	@echo " django_clean  : to clean everything "
 
 ########## deploy a ColDoc portal
-django_deploy:
+$(COLDOC_SITE_ROOT)/.__deployed_timestamp:
 	test -d tmp || mkdir tmp
 	../ColDocDjango/admin.py  --coldoc-site-root $(COLDOC_SITE_ROOT)  deploy
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  makemigrations
@@ -82,9 +82,13 @@ django_deploy:
 	cd $(COLDOC_SITE_ROOT)/static_local &&  cp -a ../static_root/* .
 	sed -i~~ 's/debug.*False/debug = True/' $(COLDOC_SITE_ROOT)/config.ini
 	../ColDocDjango/admin.py  --coldoc-site-root $(COLDOC_SITE_ROOT)  create_fake_users
+	touch $(COLDOC_SITE_ROOT)/.__deployed_timestamp
+
+
+django_deploy: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 
 # load a paper in the ColDoc portal
-django_paper:
+django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	test  -f $(COLDOC_SITE_ROOT)/config.ini
 	if  ./django_tester.py isthere ; then  ./django_tester.py delete ; fi
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/paper/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper ; fi
