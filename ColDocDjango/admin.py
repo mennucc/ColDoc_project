@@ -66,6 +66,24 @@ def deploy(target):
             os.makedirs(a)
     return True
 
+def create_fake_users(COLDOC_SITE_ROOT):
+    #
+    j = os.path.join(COLDOC_SITE_ROOT,'settings')
+    if os.path.exists(j+'.py'):
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', j)
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+    #
+    import django
+    django.setup()
+    import django.contrib.auth as A
+    UsMo = A.get_user_model()
+    #UsMa = A.models.UserManager()
+    UsMo.objects.create_user('foobar',email='foo@test.local',password='barfoo').save()
+    print('*** created user "foobar" password "barfoo"')
+    UsMo.objects.create_superuser('napoleon',email='nap@test.local',password='adrian').save()
+    print('*** created superuser "napoleon" password "adrian"')
+    return True
 
 def main(argv):
     parser = argparse.ArgumentParser(description='deploy a ColDoc site',
@@ -80,8 +98,11 @@ def main(argv):
     argv = args.command
     #
     COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT'] = args.coldoc_site_root
+    #
     if argv[0] == 'deploy':
         return deploy(COLDOC_SITE_ROOT)
+    elif argv[0] == 'create_fake_users':
+        return create_fake_users(COLDOC_SITE_ROOT)
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
         sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
