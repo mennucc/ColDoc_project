@@ -14,18 +14,18 @@ from django.urls import reverse
 from django.conf import settings
 
 
+import logging
+logger = logging.getLogger(__name__)
 
 def _(s):
     return s
 
 #############################################################
 
-# custom field
-
 from ColDoc.utils import uuid_to_int, int_to_uuid, uuid_check_normalize, uuid_valid_symbols
 
 
-from ColDocDjango.utils import permissions_for_coldoc
+from ColDocDjango.utils import permissions_for_coldoc, user_has_perm
 
 #####################################
 # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
@@ -37,10 +37,34 @@ from ColDocDjango.utils import permissions_for_coldoc
 AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 
 from django.contrib.auth.models import AbstractUser
-#from django.contrib.auth.models import PermissionsMixin
 
-class ColDocUser(AbstractUser):    # may also need ,PermissionsMixin):
-    pass
+
+class ColDocUser(AbstractUser):
+    def __init__(self, *v, **k):
+        # will be an instance of DColDoc
+        self._coldoc = None
+        # will be an instance of DMetadata
+        self._blob = None
+        super().__init__(*v, **k)
+    def associate_coldoc_blob_for_has_perm(self, coldoc, blob):
+        if coldoc is not None and not isinstance(coldoc, DColDoc):
+            logger.error(" type %r instead of DColDoc",coldoc)
+            coldoc = None
+        self._coldoc = coldoc
+        from ColDocDjango.UUID.models import DMetadata
+        if blob is not None and not isinstance(blob, DMetadata):
+            logger.error(" type %r instead of DMetadata",blob)
+            blob = None
+        self._blob = blob
+    def has_perm(self, perm, obj=None):
+        v = False
+        try:
+            v = user_has_perm(super(), perm, self._coldoc, self._blob, obj)
+            logger.debug('check user %s perm "%s" coldoc "%s" blob "%s" obj %r -> %r',
+                       self, perm, self._coldoc, self._blob, obj, v)
+        except:
+            logger.exception('failed check on permission, set to False')
+        return v
 
 #####################################
 

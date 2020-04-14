@@ -18,7 +18,7 @@ from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
 
 from ColDoc import classes, utils as coldoc_utils
 
-from ColDocDjango.utils import permissions_for_blob
+from ColDocDjango.utils import permissions_for_blob_extra
 
 # Create your models here.
 
@@ -36,7 +36,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     class Meta:
         verbose_name = "Metadata"
-        permissions = [(j,"can %s anywhere"%j) for j in permissions_for_blob]
+        permissions = [(j,"can %s anywhere"%j) for j in permissions_for_blob_extra]
     #
     def __init__(self, *args, **kwargs):
         self._extra_metadata = []
@@ -73,11 +73,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     creation_date = models.DateTimeField('date of creation', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)
-    ## TODO unimplemented
-    STATES = [('public','visible to everybody'),
+    # used for permissions, see utils.user_has_perm()
+    STATES = [('open','view and LaTeX visible to everybody'),
+              ('public','view visible to everybody, LaTeX restricted'),
               ('private','visible only to editors, and authors of this blob')]
     state = models.CharField("state", max_length=15,
                              choices=STATES,        default='public')
+    ## TODO unimplemented
     BLOB_DOCUMENTCLASS=[
         ('auto','use `main` class for sections and whole document, `standalone` class for others'),
         ('main','use the class of the main document (usually associated to UUID 001)'),

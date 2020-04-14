@@ -3,9 +3,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
 
 
-permissions_for_coldoc = ('view_metadata','change_metadata','add_blob','delete_blob')
-permissions_for_blob = ('commit','view_metadata','change_metadata',
-                        'view_blob','change_blob')
+permissions_for_coldoc = ('add_blob','delete_blob','commit')
+# 'view_metadata','change_metadata', are standard, added by Django
+permissions_for_blob_extra = ['view_view','view_blob','change_blob','download','commit']
+permissions_for_blob = permissions_for_blob_extra + ['view_dmetadata','change_dmetadata']
 groups_for_coldoc = ('editors','authors')
 
 def name_of_permission_for_coldoc(coldoc,permission):
@@ -51,3 +52,34 @@ def add_permissions_for_coldoc(nickname):
             if n == 'editors' or l == 'b':
                 gr.permissions.add(p)
         gr.save()
+
+def user_has_perm(user, perm, coldoc, blob, obj):
+    " when calling this, make sure that `user` is not an instance of `ColDocUser` ; in case, user `super`"
+    if not user.is_active:
+        return False
+    if user.has_perm(perm, obj):
+        # takes care of superuser
+        return True
+    if coldoc is None:
+        return False
+    if perm.startswith('UUID.') and perm[5:] in permissions_for_blob:
+        n = name_of_permission_for_blob(coldoc.nickname, perm[5:])
+        if user.has_perm('UUID.'+n, obj):
+            return True
+        if blob is not None: 
+            if blob.author.filter(username=user.username).exists():
+                #allow complete access to authors
+                return True
+            s = blob.state
+            if s == 'open' and perm in ('UUID.view_view', 'UUID.view_blob'):
+                return True
+            elif s == 'public' and perm in ('UUID.view_view',):
+                return True
+        return False
+    if perm.startswith('ColDocApp.') and  \
+       perm[len('ColDocApp.'):] in permissions_for_coldoc:
+        n = name_of_permission_for_coldoc(coldoc.nickname, perm)
+        if user.has_perm(n, obj):
+            return True
+    return False
+    

@@ -18,6 +18,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango
 
+from ColDocDjango.utils import name_of_permission_for_blob
 
 from django.shortcuts import get_object_or_404, render
 
@@ -38,7 +39,9 @@ class BlobEditForm(forms.Form):
 
 
 def postedit(request, NICK, UUID):
-    #return HttpResponse('ciao')
+    if request.user.is_anonymous:
+        return HttpResponse("Permission denied", status=http.HTTPStatus.UNAUTHORIZED)
+    #
     if request.method != 'POST' :
         return HttpResponse("Method %r not allowed"%(request.method,),status=http.HTTPStatus.BAD_REQUEST)
         #and self.has_permission(request)
@@ -63,6 +66,9 @@ def show(request, NICK, UUID):
     return view_(request, NICK, UUID, None, None, None, prefix='blob')
 
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view'):
+    #
+    if request.user.is_anonymous:
+        return HttpResponse("Permission denied", status=http.HTTPStatus.UNAUTHORIZED)
     # do not allow subpaths for non html
     assert _view_ext == '_html' or subpath is None
     #
@@ -104,8 +110,16 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     #
     try:
         uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
-                                                       blobs_dir = blobs_dir, coldoc = NICK)
-        env = metadata['environ'][0]
+                                                       blobs_dir = blobs_dir, coldoc = NICK,
+                                                       metadata_class=DMetadata)
+        #
+        request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
+        if not request.user.has_perm('UUID.view_view') or \
+           (prefix=='blob' and not request.user.has_perm('UUID.view_blob')):
+            return HttpResponse("Permission denied",
+                                status=http.HTTPStatus.UNAUTHORIZED)
+        #
+        env = metadata.get('environ')[0]
         if env in ColDoc.latex.environments_we_wont_latex and _view_ext == '_html':
             return  HttpResponse('There is no %r for %r' % (_view_ext, metadata['environ'][0]), content_type='text/plain')
         # TODO should serve using external server see
@@ -201,8 +215,24 @@ def index(request, NICK, UUID):
     except Exception as e:
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
+    ########################################## permission management
+    #
+    if request.user.is_anonymous:
+        messages.add_message(request, messages.WARNING, 'Access denied, please login')
+    else:
+        request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
+        #user = request.user
+        #all_permissions = user.get_all_permissions()
+        if not request.user.has_perm('UUID.view_view'):
+            messages.add_message(request, messages.WARNING, 'Access denied to this content')
+    #
+    # TODO
+    show_comment = request.user.is_superuser
+    #
+    #####################################################################
+    #
     if ext == '.tex':
-        content = 'text'
+        blobcontenttype = 'text'
         file = open(filename).read()
         env = metadata.get('environ')[0]
         if env in ColDoc.latex.environments_we_wont_latex:
@@ -248,8 +278,16 @@ def index(request, NICK, UUID):
                 messages.add_message(request, messages.WARNING,"HTML preview not available")
                 html = '[NO HTML AVAILABLE]'
     else:
-        content = 'other'
+        blobcontenttype = 'other'
         file = html = ''
+    # just to be safe
+    if not request.user.has_perm('UUID.view_view'):
+        html = '[access denied]'
+    if not request.user.has_perm('UUID.view_blob'):
+        file = '[access denied]'
+    elif  blobcontenttype == 'text' :
+        if request.user.has_perm('UUID.change_blob'):
+            blobeditform = BlobEditForm(initial={'BlobEditTextarea':  file})
     #
     try:
         j = metadata.get('child_uuid')[0]
@@ -277,14 +315,9 @@ def index(request, NICK, UUID):
         except:
             logger.exception('problem finding siblings for UUID %r',UUID)
     #
-    a = '/UUID/%s/%s/show?lang=%s&ext=%s'%(NICK,UUID,lang,ext[1:])
+    showurl = '/UUID/%s/%s/show?lang=%s&ext=%s'%(NICK,UUID,lang,ext[1:])
     #
-    c = {'NICK':NICK, 'UUID':UUID, 'metadata':metadata,
-         'pdfurl':('/UUID/%s/%s/pdf'%(NICK,UUID,)),
-         'uplink':uplink, 'rightlink':rightlink, 'leftlink':leftlink, 'downlink':downlink,
-         'showurl' : a , 'html' : html, 'showview': True,
-         'BlobEditForm' : BlobEditForm(initial={'BlobEditTextarea':  file}),
-         'lang':lang, 'ext':ext, 'file':file, 'blobcontenttype':content }
-    return render(request, 'UUID.html', c)
+    pdfurl = ('/UUID/%s/%s/pdf?lang=%s'%(NICK,UUID,lang))
+    return render(request, 'UUID.html', locals() )
 
 

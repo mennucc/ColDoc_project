@@ -17,26 +17,37 @@
 
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
+ {% if perms.UUID.view_view %}
   <li class="nav-item">
-    <a class="nav-link active" id="view-tab" data-toggle="tab" href="#view" role="tab" aria-controls="view" aria-selected="true">View</a>
+    <a class="nav-link" id="view-tab" data-toggle="tab" href="#view" role="tab" aria-controls="view" aria-selected="true">View</a>
   </li>
+ {% endif %}
+ {% if perms.UUID.view_blob %}
   <li class="nav-item">
     <a class="nav-link" id="blob-tab" data-toggle="tab" href="#blob" role="tab" aria-controls="blob" aria-selected="true">Blob</a>
   </li>
+ {% endif %}
+ {% if perms.UUID.view_dmetadata %}
   <li class="nav-item">
-    <a class="nav-link" id="metadata-tab" data-toggle="tab" href="#metadata" role="tab" aria-controls="metadata" aria-selected="false">Metadata</a>
+      <a class="nav-link" id="metadata-tab" data-toggle="tab" href="#metadata" role="tab" aria-controls="metadata" aria-selected="false">Metadata</a>
   </li>
+ {% endif %}
+ {% if show_comment %}
   <li class="nav-item">
     <a class="nav-link" id="comments-tab" data-toggle="tab" href="#comments" role="tab" aria-controls="comments" aria-selected="false">Comments</a>
   </li>
+ {% endif %}
+ {% if perms.UUID.download %}
   <li class="nav-item">
     <a class="nav-link" id="download-tab" data-toggle="tab" href="#download" role="tab" aria-controls="download" aria-selected="false">Download</a>
   </li>
+ {% endif %}
   <li class="nav-item">
     <a class="nav-link" id="other-tab" data-toggle="tab" href="#other" role="tab" aria-controls="other" aria-selected="false">Other</a>
   </li>
 </ul>
 <div class="tab-content" id="myTabContent">
+ {% if perms.UUID.view_view %}
   <div class="tab-pane fade show active" id="view" role="tabpanel" aria-labelledby="view-tab">
     <h2>View</h2>
      {% if blobcontenttype == 'text' %}
@@ -47,7 +58,10 @@
       <!-- <a href="{{ showurl|safe }}?download"><button type="button" class="btn btn-outline-primary btn-sm">Download</button></a>    <br> -->
       <iframe src="{{ showurl|safe }}"   width="100%"   height="640px">(View should be displayed here)</iframe>
      {% endif %}
+     <a href="{{ pdfurl }}"><button type="button" class="btn btn-outline-primary btn-sm">Download PDF</button></a><br>
   </div>
+ {% endif %}
+ {% if perms.UUID.view_blob %}
   <div class="tab-pane fade show" id="blob" role="tabpanel" aria-labelledby="blob-tab">
     <h2>Blob</h2>
     <ul>
@@ -56,23 +70,29 @@
     </ul>
     <div class='blob'>
     {% if blobcontenttype == 'text' %}
+     {% if perms.UUID.change_blob %}
       <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" method="post">
         {% csrf_token %}
-        {% for field in BlobEditForm %}
+        {% for field in blobeditform %}
          <div class="form-group">
           {{ field.errors }}    {{ field.label_tag }} {{ field }}
           {% if field.help_text %}
-	    <small id="emailHelp" class="form-text text-muted">{{ field.help_text|safe }}</small>
+            <small id="emailHelp" class="form-text text-muted">{{ field.help_text|safe }}</small>
           {% endif %}
          </div>
         {% endfor %}
         <input type="submit" class="btn btn-primary" value="Submit">
       </form>
+     {% else %}
+       {{ file | safe }}
+     {% endif %}
     {% else %}
-      (not text but {{ blobcontenttype }})
+      (this is not text but {{ blobcontenttype }})
     {% endif %}
     </div>
   </div>
+ {% endif %}
+ {% if perms.UUID.view_dmetadata %}
   <div class="tab-pane fade" id="metadata" role="tabpanel" aria-labelledby="metadata-tab">
   <h2>Metadata</h2>
     <div class='metadata'>
@@ -90,14 +110,18 @@
       </ul>
     </div>
   </div>
+ {% endif %}
+ {% if show_comment %}
   <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
    TODO COMMENTS
      Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
   </div>
+ {% endif %}
+ {% if perms.UUID.download %}
   <div class="tab-pane fade" id="download" role="tabpanel" aria-labelledby="download-tab">
-    <a href="{{ pdfurl }}?download"><button type="button" class="btn btn-outline-primary btn-sm">Download PDF</button></a><br>
     <!-- <a href="{{ htmlurl }}?download"><button type="button" class="btn btn-outline-primary btn-sm">Download HTML</button></a> -->
   </div>
+ {% endif %}
   <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">
     TODO OTHER
   Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
