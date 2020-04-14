@@ -170,6 +170,8 @@ class DColDoc(models.Model):
         if COLDOC_SITE_ROOT is None:
             raise RuntimeError("Cannot save, COLDOC_SITE_ROOT==None: %r",self)
         coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',self.nickname)
+        if not os.path.exists(coldoc_dir):
+            os.makedirs(coldoc_dir)
         data = serializers.serialize("json", [self])
         assert data[0] == '[' and data[-1]==']'
         open(osjoin(coldoc_dir,'coldoc.json'),'w').write(data[1:-1])

@@ -114,8 +114,10 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',self.coldoc.nickname)
         blobs_dir = osjoin(coldoc_dir, 'blobs')
         #
-        F = osjoin(blobs_dir, coldoc_utils.uuid_to_dir(self.uuid, blobs_dir=blobs_dir), 'metadata')
-        #logger.debug
+        F = osjoin(blobs_dir, coldoc_utils.uuid_to_dir(self.uuid, blobs_dir=blobs_dir))
+        if not os.path.exists(F):
+            os.makedirs(F)
+        F = osjoin(F, 'metadata')
         F = open(F,'w')
         F.write( 'coldoc=' + self.coldoc.nickname + '\n')
         for k,vv in self.items():
