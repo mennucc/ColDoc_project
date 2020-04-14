@@ -2,8 +2,6 @@ from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
 
-import ColDocDjango.ColDocApp.models as coldocapp_models
-import ColDocDjango.UUID.models as  blob_models
 
 permissions_for_coldoc = ('view_metadata','change_metadata','add_blob','delete_blob')
 permissions_for_blob = ('commit','view_metadata','change_metadata',
@@ -23,6 +21,9 @@ def name_of_group_for_coldoc(coldoc,group):
     return 'coldoc_'+coldoc+'_group_'+group
 
 def add_permissions_for_coldoc(nickname):
+    # import here to avoid circular dependencies
+    import ColDocDjango.ColDocApp.models as coldocapp_models
+    import ColDocDjango.UUID.models as  blob_models
     # https://docs.djangoproject.com/en/3.0/topics/auth/default/
     P = {}
     for p in permissions_for_coldoc:

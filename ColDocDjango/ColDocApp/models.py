@@ -24,6 +24,9 @@ def _(s):
 
 from ColDoc.utils import uuid_to_int, int_to_uuid, uuid_check_normalize, uuid_valid_symbols
 
+
+from ColDocDjango.utils import permissions_for_coldoc
+
 #####################################
 # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
 
@@ -107,6 +110,7 @@ class DColDoc(models.Model):
     #
     class Meta:
         verbose_name = "ColDoc"
+        permissions = [(j,"can %s on any coldoc"%j) for j in permissions_for_coldoc]
     #https://docs.djangoproject.com/en/3.0/ref/urlresolvers/#django.urls.reverse
     #https://docs.djangoproject.com/en/3.0/ref/models/instances/#django.db.models.Model.get_absolute_url
     def get_absolute_url(self):

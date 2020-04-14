@@ -18,6 +18,8 @@ from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
 
 from ColDoc import classes, utils as coldoc_utils
 
+from ColDocDjango.utils import permissions_for_blob
+
 # Create your models here.
 
 COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
@@ -34,6 +36,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     class Meta:
         verbose_name = "Metadata"
+        permissions = [(j,"can %s anywhere"%j) for j in permissions_for_blob]
     #
     def __init__(self, *args, **kwargs):
         self._extra_metadata = []
