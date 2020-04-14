@@ -51,7 +51,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         # these keys are multiple-valued, are internal, are represented
         # as a newline-separated text field
         self._internal_multiple_valued_keys = ('extension','lang')
-        self.__single_valued = ('uuid', 'environ', 'optarg', 'original_filename')
+        self.__single_valued = ('uuid', 'environ', 'optarg', 'original_filename', 'access')
         #
         super().__init__(*args, **kwargs)
     #
