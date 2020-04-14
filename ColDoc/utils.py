@@ -3,13 +3,29 @@ import itertools, sys, os, io, copy, logging, shelve, unicodedata, re, pathlib, 
 import os.path
 from os.path import join as osjoin
 
-import logging
+if __name__ == '__main__':
+    for j in ('','.'):
+        if j in sys.path:
+            sys.stderr.write('Warning: deleting %r from sys.path\n',j)
+            del sys.path[sys.path.index(j)]
+    #
+    a = os.path.realpath(sys.argv[0])
+    a = os.path.dirname(a)
+    a = os.path.dirname(a)
+    assert os.path.isdir(a), a
+    if a not in sys.path:
+        sys.path.insert(0, a)
+    COLDOC_SRC_ROOT=a
+    del a
+    #
+    from ColDoc import loggin
 
+import logging
 logger = logging.getLogger(__name__)
 
 from ColDoc.config import *
+from ColDoc.classes import MetadataBase
 
-from .classes import MetadataBase
 
 __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir",
             "dir_to_uuid", "file_to_uuid",
