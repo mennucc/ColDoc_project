@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.conf import settings
 AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 
-from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
+from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field, ColDocUser
 
 from ColDoc import classes, utils as coldoc_utils
 
@@ -122,7 +122,9 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         F.write( 'coldoc=' + self.coldoc.nickname + '\n')
         for k,vv in self.items():
             for v in vv:
-                F.write( k + '=' + v + '\n')
+                if isinstance(v, ColDocUser):
+                    v = v.username
+                F.write( k + '=' + str(v) + '\n')
         F.close()
     #
     def __key_to_list(self,key):
@@ -190,6 +192,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 v.append(value)
             setattr(self, key, '\n'.join(v)+'\n')
         elif key == 'author' :
+            if isinstance(value,str):
+                value = ColDocUser.objects.get(username=value)
             self.author.add(value)
         elif key == 'child_uuid' and value not in self._children:
             self._children.append(value)
@@ -240,7 +244,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             if l or serve_empty:
                 yield key, l
         #key == 'author':
-        yield 'author', self.author.all().values_list(flat = True)
+        yield 'author', self.author.all().values_list('username', flat = True)
         #key == 'parent_uuid':
         yield 'parent_uuid', UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent',flat=True)
         #key == 'child_uuid':
