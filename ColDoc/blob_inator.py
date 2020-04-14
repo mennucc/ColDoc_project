@@ -84,6 +84,8 @@ class named_stream(io.StringIO):
     _default_coldoc = None
     _default_basepath = None
     _metadata_class = MetadataBase # <- this must be overridden
+    _private = []
+    _authors = []
     #
     def __init__(self, environ ,
                 lang = ColDoc_lang, extension = '.tex',
@@ -301,7 +303,15 @@ class named_stream(io.StringIO):
                 logger.warning('empty blob %r' % self)
             #
             self._metadata.add('uuid',self._uuid)
+            if self.environ[:2] == 'E_' and self.environ[2:] in self._private:
+                self._metadata.add('access', 'private')
+            if self._authors:
+                # Django needs to set the `id` before adding authors
+                self._metadata.save()
+            for j in self._authors:
+                self._metadata.add('author', j)
             self._metadata.save()
+            #
             r =  self._filename
             # no more messing with this class
             self._was_written = True
@@ -472,6 +482,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     named_stream._metadata_class = metadata_class
     named_stream._default_basepath = blobs_dir
     named_stream._default_coldoc = coldoc
+    named_stream._authors = cmdargs.author
+    named_stream._private = cmdargs.private_environment
     #
     # map to avoid duplicating the same input on two different blobs;
     # each key is converted to an absolute path relative to `blobs_dir`;
@@ -989,6 +1001,8 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--split-environment','--SE',action='append',
                         help='split the content of this LaTeX environment in a separate blob',
                         default=['document'])
+    parser.add_argument('--private-environment',action='append',
+                        help='split this environment and mark as access=private')
     parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
     parser.add_argument('--split-preamble','--SP',action='store_true',help='split the preamble a separate blob')
     parser.add_argument('--split-paragraph',type=int,help='split paragraphs in separate blob when longer than N')
@@ -1004,6 +1018,8 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--add-UUID','--AU', type=str,choices={"yes","y", "no","n","auto","a"},
                         default={True:'yes',False:"no","auto":"auto"}[ColDoc_write_UUID],
                         help="add \\uuid{UUID} commands, can be `yes` `no` or `auto`")
+    parser.add_argument('--author',action='append',
+                        help='add as author of this LaTeX')
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
     #https://stackoverflow.com/a/31347222/5058564
     stripgroup = parser.add_mutually_exclusive_group()
@@ -1022,6 +1038,8 @@ def main(args, metadata_class, coldoc = None):
     #
     named_stream._default_rstrip = args.strip
     named_stream._default_write_UUID = args.add_UUID
+    #
+    args.split_environment += args.private_environment
     #
     verbose = args.verbose
     assert type(verbose) == int and verbose >= 0

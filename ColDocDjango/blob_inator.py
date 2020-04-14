@@ -92,6 +92,15 @@ to specify where the ColDoc site is located.
     import ColDocDjango.ColDocApp.models as coldocapp_models
     import ColDocDjango.UUID.models as  blob_models
     #
+    ## check that usernames are ColDocUser
+    from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+    for j in args.author:
+        try:
+            a = coldocapp_models.ColDocUser.objects.get(username=j)
+        except ObjectDoesNotExist:
+            sys.stderr.write('No user %r in Django database\n'%(j,))
+            sys.exit(1)
+    #
     try:
         #validate_slug.message =
         validate_slug(args.coldoc_nick)
