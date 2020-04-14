@@ -81,6 +81,8 @@ def create_fake_users(COLDOC_SITE_ROOT):
     #UsMa = A.models.UserManager()
     UsMo.objects.create_user('foobar',email='foo@test.local',password='barfoo').save()
     print('*** created user "foobar" password "barfoo"')
+    UsMo.objects.create_user('jsmith',email='jsmith@test.local',password='123456').save()
+    print('*** created user "jsmith" password "123456"')
     UsMo.objects.create_superuser('napoleon',email='nap@test.local',password='adrian').save()
     print('*** created superuser "napoleon" password "adrian"')
     return True
