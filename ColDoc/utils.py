@@ -1,5 +1,5 @@
-
 import itertools, sys, os, io, copy, logging, shelve, unicodedata, re, pathlib, subprocess
+import tempfile, shutil
 import os.path
 from os.path import join as osjoin
 
@@ -34,7 +34,8 @@ __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir",
             "new_section_nr" , "uuid_symlink", "os_rel_symlink",
             "ColDocException", "ColDocFileNotFoundError",
             "sort_extensions", "choose_blob", "plastex_invoke",
-            "metadata_html_items"
+            "metadata_html_items",
+            'prepare_anon_tree',
             )
 
 class ColDocException(Exception):
@@ -547,6 +548,85 @@ def plastex_invoke(cwd_, stdout_ , argv_):
 
 ############################
 
+
+
+
+def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class):
+    warn = logging.WARNING if warn else logging.DEBUG
+    uuid_, uuid_dir, metadata = resolve_uuid(uuid=uuid, uuid_dir=None,
+                                                   blobs_dir = blobs_dir,
+                                                   metadata_class=metadata_class)
+    ret = 0
+    bd = osjoin(blobs_dir,uuid_dir)
+    td = osjoin(temp_dir,uuid_dir)
+    os.makedirs(td)
+    publ = metadata.get('access')[0] in ('open','public')
+    for j in os.listdir(bd):
+        f = osjoin(bd,j)
+        t = osjoin(td,j)
+        if j.startswith('blob') and os.path.isfile(f) or os.path.islink(f):
+            ret += 1
+            if publ:
+                logger.debug('did copy %r',f)
+                shutil.copy2(f,t, follow_symlinks=False)
+            elif  j.endswith('.tex'):
+                # mask content, preserve tree
+                F = open(t,'w')
+                F.write('\\uuid{%s}'%uuid)
+                for u in metadata.get('child_uuid'):
+                    l = ('_'+lang) if lang else ''
+                    F.write('\\input{%s/blob%s.tex}'%(uuid_dir,l))
+                F.close()
+                logger.debug('did mask private %r',f)
+            else:
+                logger.warning('no anon copy for %r',f)
+        else:
+            logger.log(logging.DEBUG,'did not copy %r',f)
+    for u in metadata.get('child_uuid'):
+        logger.debug('moving down from node %r to node %r',uuid,u)
+        ret += prepare_anon_tree_recurse(blobs_dir, temp_dir, u, lang, warn, metadata_class)
+    return ret
+    
+
+def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
+                      warn=False, metadata_class=FMetadata):
+    warn = logging.WARNING if warn else logging.DEBUG
+    if uuid is None:
+        uuid = '001'
+    blobs_dir = osjoin(coldoc_dir, 'blobs')
+    assert os.path.isdir(blobs_dir)
+    anon_dir = osjoin(coldoc_dir, 'anon')
+    " copy the whole tree, starting from `uuid` "
+    temp_dir = tempfile.mkdtemp(dir=coldoc_dir)
+    logger.log(warn, 'Preparing anon tree in %s', temp_dir)
+    r = 0
+    try:
+        r = prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class)
+        for dirpath, dirnames, filenames in os.walk(blobs_dir,followlinks=False):
+            tmp_path = osjoin(temp_dir,dirpath[1+len(blobs_dir):])
+            os.makedirs(tmp_path, exist_ok=True)
+            for j in (filenames + dirnames):
+                src = osjoin(dirpath,j)
+                dst = osjoin(tmp_path,j)
+                if os.path.islink(src):
+                    k = os.readlink(src)
+                    r += 1
+                    logger.debug('symlink %s -> %s',src,k)
+                    os.symlink(k,dst)
+                #else:
+                #    logger.debug('not symlink %s',src)
+    except:
+        logger.exception("failed")
+        shutil.rmtree(temp_dir)
+    else:
+        if os.path.isdir(anon_dir):
+            shutil.rmtree(anon_dir)
+        os.rename(temp_dir, anon_dir)
+    return r
+
+
+
+############################
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'test_uuid':
         assert 1 == uuid_to_int('OOO1')
@@ -565,7 +645,16 @@ if __name__ == '__main__':
             d = uuid_to_dir(u, blobs_dir='/tmp',create=False)
             u2 = dir_to_uuid(d)
             assert u == u2
+    elif len(sys.argv) > 2 and sys.argv[1] == 'prepare_anon':
+        logger.setLevel(0)
+        logging.getLogger().setLevel(0)
+        r = prepare_anon_tree(sys.argv[2])
+        print('Copied %d'%(r,))
     else:
         print(""" Commands:
 %s test_uuid
+  
+  prepare_anon coldoc_dir
 """ % (sys.argv[0],))
+
+
