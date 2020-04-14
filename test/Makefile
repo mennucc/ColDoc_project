@@ -92,7 +92,7 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	test  -f $(COLDOC_SITE_ROOT)/config.ini
 	if  ./django_tester.py isthere ; then  ./django_tester.py delete ; fi
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/paper/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper ; fi
-	../ColDocDjango/blob_inator.py --coldoc-nick=paper  --ZS --SP --SE=document --SL=itemize --SAT --CG  paper/paper.tex
+	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper  --ZS --SP --SE=document --SL=itemize --author=jsmith --private-environment=privateremark --SAT --CG  paper/paper.tex
 	./django_tester.py isthere
 	../ColDoc/latex.py --blobs-dir=$(COLDOC_SITE_ROOT)/coldocs/paper/blobs --url-UUID=$(COLDOC_URL) all
 	../ColDoc/latex.py --blobs-dir=$(COLDOC_SITE_ROOT)/coldocs/paper/blobs --url-UUID=$(COLDOC_URL) main
