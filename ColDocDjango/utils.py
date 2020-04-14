@@ -70,7 +70,7 @@ def user_has_perm(user, perm, coldoc, blob, obj):
             if blob.author.filter(username=user.username).exists():
                 #allow complete access to authors
                 return True
-            s = blob.state
+            s = blob.access
             if s == 'open' and perm in ('UUID.view_view', 'UUID.view_blob'):
                 return True
             elif s == 'public' and perm in ('UUID.view_view',):

@@ -74,11 +74,11 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     creation_date = models.DateTimeField('date of creation', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)
     # used for permissions, see utils.user_has_perm()
-    STATES = [('open','view and LaTeX visible to everybody'),
+    ACCESS_CHOICES = [('open','view and LaTeX visible to everybody'),
               ('public','view visible to everybody, LaTeX restricted'),
               ('private','visible only to editors, and authors of this blob')]
-    state = models.CharField("state", max_length=15,
-                             choices=STATES,        default='public')
+    access = models.CharField("access", max_length=15,
+                              choices=ACCESS_CHOICES,    default='public')
     ## TODO unimplemented
     BLOB_DOCUMENTCLASS=[
         ('auto','use `main` class for sections and whole document, `standalone` class for others'),
