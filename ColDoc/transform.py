@@ -58,8 +58,46 @@ from plasTeX.Packages import amsthm , graphicx
 
 ##############
 
-def squash_uuid(inp, out, blobs_dir):
-    " transforms all uuid"
+class squash_helper_base(object):
+    "only deletes comments"
+    def process_macro(self, macroname, thetex):
+        return None
+    def process_begin(self, begin, thetex):
+        return None
+    def process_end(self, end, thetex):
+        return None
+    def process_comment(self, comment, thetex):
+        return '%\n'
+
+class squash_input_uuid(squash_helper_base):
+    " replaces \\input and similar with placeholders"
+    def __init__(self, blobs_dir):
+        self.forw_map = {}
+        self.back_map = {}
+        self.blobs_dir =  blobs_dir
+        self.macros = ['input','include','input_preamble','include_preamble']
+    #
+    def process_macro(self, macroname, thetex):
+        if macroname in ('input','include','input_preamble','include_preamble'):
+            inputfile = thetex.readArgument(type=str)
+            uuid, blob = file_to_uuid(inputfile, self.blobs_dir)
+            if inputfile[:5] == 'UUID/':
+                text = uuid
+            elif inputfile[:4] == 'SEC/':
+                text = os.path.dirname(inputfile)[4:].replace('_','\_')
+            else:
+                logger.error('unsupported inputfile %r', inputfile)
+                text = uuid
+            self.back_map[uuid] = macroname, inputfile
+            self.forw_map[inputfile] = macroname, uuid
+            return(r'\uuidplaceholder{' + uuid + '}{' + text + '}')
+        else:
+            return None
+
+def squash_latex(inp, out, blobs_dir, helper=None):
+    " transforms LaTeX file"
+    if helper is None:
+        helper = squash_helper_base()
     if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
     thetex = TeX()
     thetex.input(open(inp), Tokenizer=TokenizerPassThru.TokenizerPassThru)
@@ -67,27 +105,31 @@ def squash_uuid(inp, out, blobs_dir):
         if not os.path.isabs(out): out = osjoin(blobs_dir, out)
         out = open(out,'w')
     itertokens = thetex.itertokens()
-    forw_map = {}
-    back_map = {}
+    squash_recurse(out, thetex, itertokens, helper)
+    return helper
+
+def squash_recurse(out, thetex, itertokens, helper, beginenvironment=None):
     for tok in itertokens:
         if isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
             macroname = str(tok.macroName)
-            # TODO do not alter preamble in main_file
-            if macroname in ('input','include','input_preamble','include_preamble'):
-                inputfile = thetex.readArgument(type=str)
-                uuid, blob = file_to_uuid(inputfile, blobs_dir)
-                if inputfile[:5] == 'UUID/':
-                    text = uuid
-                elif inputfile[:4] == 'SEC/':
-                    text = os.path.dirname(inputfile)[4:].replace('_','\_')
-                else:
-                    logger.error('unsupported inputfile %r', inputfile)
-                    text = uuid
-                out.write(r'\uuidplaceholder{' + uuid + '}{' + text + '}')
-                back_map[uuid] = macroname, inputfile
-                forw_map[inputfile] = macroname, uuid
+            if macroname == 'begin':
+                begin = thetex.readArgument(type=str)
+                r = helper.process_begin(begin, thetex)
+                out.write(r if r is not None else ('\\begin{'+begin+'}'))
+                squash_recurse(out, thetex, itertokens, helper, begin)
+            elif macroname == 'end':
+                end = thetex.readArgument(type=str)
+                r = helper.process_end(end,thetex)
+                out.write(r if r is not None else ('\\end{'+end+'}'))
+                if end != beginenvironment:
+                    logger.warning(" begin %r ended by end%r ")
+                return
             else:
-                out.write(tok.source)
+                r = helper.process_macro(macroname,thetex)
+                out.write(r if r is not None else tok.source)
+                # TODO do not alter preamble in main_file
+        elif isinstance(tok, plasTeX.Tokenizer.Comment):
+            r = helper.process_comment(str(tok.source),thetex)
+            out.write(r if r is not None else tok.source)
         else:
             out.write(tok.source)
-    return forw_map, back_map
