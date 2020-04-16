@@ -397,25 +397,25 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
 
 
 
-def prepare_parser(uses_django=False):
+def prepare_parser():
     # parse arguments
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
     parser = argparse.ArgumentParser(description='Compile coldoc material, using `latex` and `plastex` ',
                                      epilog=__doc__,
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--verbose','-v',action='count',default=0)
-    parser.add_argument('--blobs-dir',type=str,\
-                        help='directory where the blob_ized output is saved',
-                        required=(not uses_django))
-    parser.add_argument('--url-UUID',type=str,\
-                        help='URL of the website that will show the UUIDs, used by my \\uuid macro in PDF',
-                        required=(not uses_django))
     parser.add_argument('command', help='specific command',nargs='+')
     return parser
 
 def main(argv):
     parser = prepare_parser()
-    args = parser.parse_args()
+    parser.add_argument('--blobs-dir',type=str,\
+                        help='directory where the blob_ized output is saved',
+                        required=True)
+    parser.add_argument('--url-UUID',type=str,\
+                        help='URL of the website that will show the UUIDs, used by my \\uuid macro in PDF',
+                        required=True)
+    args = parser.parse_args(argv[1:])
     #
     blobs_dir = args.blobs_dir
     assert os.path.isdir(blobs_dir), blobs_dir
