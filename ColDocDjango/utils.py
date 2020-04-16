@@ -29,24 +29,34 @@ def add_permissions_for_coldoc(nickname):
     P = {}
     for p in permissions_for_coldoc:
         content_type = ContentType.objects.get_for_model(coldocapp_models.DColDoc)
-        permission = Permission.objects.create(
-            codename = name_of_permission_for_coldoc(nickname,p),
-            name=' can '+p+' on ColDoc '+nickname,
-            content_type=content_type,)
-        permission.save()
+        n = name_of_permission_for_coldoc(nickname,p)
+        try:
+            permission = Permission.objects.get(codename = n)
+        except Permission.DoesNotExist :
+            permission = Permission.objects.create(codename = n,
+                            name=' can '+p+' on ColDoc '+nickname,
+                            content_type=content_type,) 
+            permission.save()
         P[('c',p)] = permission
     for p in permissions_for_blob:
         content_type = ContentType.objects.get_for_model(blob_models.DMetadata)
-        permission = Permission.objects.create(
-            codename = name_of_permission_for_blob(nickname,p),
-            name=' can '+p+' for blobs in ColDoc '+nickname,
-            content_type=content_type,)
-        permission.save()
+        n = name_of_permission_for_blob(nickname,p)
+        try:
+            permission = Permission.objects.get(codename = n)
+        except Permission.DoesNotExist :
+            permission = Permission.objects.create(codename = n,
+                            name=' can '+p+' for blobs in ColDoc '+nickname,
+                            content_type=content_type,)
+            permission.save()
         P[('b',p)] = permission
     for n in groups_for_coldoc:
-        gr = Group()
-        gr.name = name_of_group_for_coldoc(nickname,n)
-        gr.save()
+        n = name_of_group_for_coldoc(nickname,n)
+        try:
+            gr = Group.objects.get(name = n)
+        except Group.DoesNotExist :
+            gr = Group()
+            gr.name = n
+            gr.save()
         for l,p in P:
             p = P[(l,p)]
             if n == 'editors' or l == 'b':
