@@ -114,7 +114,7 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
     if lang is not None:
         langs=[lang]
     else:
-        langs=metadata.get('lang',[])
+        langs=metadata.get('lang')
     if not langs:
         logger.debug('No languages for blob %r in blobs_dir %r',uuid,blobs_dir)
         return True
@@ -200,7 +200,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
     if lang is not None:
         langs=[lang]
     else:
-        langs=metadata.get('lang',[])
+        langs=metadata.get('lang')
     #
     ret = True
     for lang in  langs:
@@ -388,7 +388,7 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     else:
         r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
         ret = ret and r
-    for u in metadata.get('child_uuid',[]):
+    for u in metadata.get('child_uuid'):
         logger.debug('moving down from node %r to node %r',uuid,u)
         r = latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options)
         ret = ret and r
