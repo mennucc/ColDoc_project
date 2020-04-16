@@ -417,10 +417,6 @@ def main(argv):
     parser = prepare_parser()
     args = parser.parse_args()
     #
-    if args.command[0] not in ('blob','all','main'):
-        sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
-        sys.exit(1)
-    #
     blobs_dir = args.blobs_dir
     assert os.path.isdir(blobs_dir), blobs_dir
     #
@@ -468,6 +464,9 @@ def main_by_args(args,options):
     elif argv[0] == 'main':
         UUID =  '001' if len(argv) <= 1 else  argv[1]
         ret = latex_main(blobs_dir, uuid=UUID, options=options)
+    else:
+        sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
+        return False
     return ret
 
 
