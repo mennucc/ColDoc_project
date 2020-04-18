@@ -82,12 +82,17 @@ def main(argv):
     django.setup()
     import ColDocDjango.ColDocApp.models as coldocapp_models
     import ColDocDjango.UUID.models as  blob_models
+    from ColDocDjango.transform import squash_helper_ref
     #
     matches = list(coldocapp_models.DColDoc.objects.filter(nickname = args.coldoc_nick))
     if len(matches) > 1 :
         raise ValueError("Too many ColDoc with nick %r." % (args.coldoc_nick,) )
     #
-    options['coldoc'] = matches[0]
+    options['coldoc'] = coldoc = matches[0]
+    def foobar(*v, **k):
+        " helper factory"
+        return squash_helper_ref(coldoc, *v, **k)
+    options["squash_helper"] = foobar
     return ColDoc.latex.main_by_args(args,options)
 
 

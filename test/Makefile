@@ -94,8 +94,8 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/paper/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper ; fi
 	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper  --ZS --SP --SE=document --SL=itemize --author=jsmith --private-environment=privateremark --SAT --CG  paper/paper.tex
 	./django_tester.py isthere
-	../ColDoc/latex.py --blobs-dir=$(COLDOC_SITE_ROOT)/coldocs/paper/blobs --url-UUID=$(COLDOC_URL) all
-	../ColDoc/latex.py --blobs-dir=$(COLDOC_SITE_ROOT)/coldocs/paper/blobs --url-UUID=$(COLDOC_URL) main
+	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID=$(COLDOC_URL) all
+	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID=$(COLDOC_URL) main
 
 django_run:
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  runserver

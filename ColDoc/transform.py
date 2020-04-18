@@ -71,10 +71,11 @@ class squash_helper_base(object):
 
 class squash_input_uuid(squash_helper_base):
     " replaces \\input and similar with placeholders; delete comments"
-    def __init__(self, blobs_dir):
+    def __init__(self, blobs_dir, blob):
         self.forw_map = {}
         self.back_map = {}
         self.blobs_dir =  blobs_dir
+        self.blob = blob
         self.macros = ['input','include','input_preamble','include_preamble']
     #
     def process_macro(self, macroname, thetex):

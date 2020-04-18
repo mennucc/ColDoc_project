@@ -158,7 +158,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
     if squash:
         ColDoc.transform.squash_latex(b, s, blobs_dir,
-                                      helper =ColDoc.transform.squash_input_uuid(blobs_dir))
+                                      helper = options.get('squash_helper')(blobs_dir, metadata))
         D['input'] = s
     else:
         D['input'] = b
@@ -438,6 +438,10 @@ def main(argv):
         logger.debug('From %r options %r',a,options)
     else:
         logger.debug('No %r',a)
+    def foobar(*v, **k):
+        " helper factory"
+        return ColDoc.transform.squash_input_uuid(*v, **k)
+    options["squash_helper"] = foobar
     return main_by_args(args,options)
 
 
