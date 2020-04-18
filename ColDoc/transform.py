@@ -59,7 +59,7 @@ from plasTeX.Packages import amsthm , graphicx
 ##############
 
 class squash_helper_base(object):
-    "only deletes comments"
+    "base class, does nothing"
     def process_macro(self, macroname, thetex):
         return None
     def process_begin(self, begin, thetex):
@@ -67,10 +67,10 @@ class squash_helper_base(object):
     def process_end(self, end, thetex):
         return None
     def process_comment(self, comment, thetex):
-        return '%\n'
+        return None
 
 class squash_input_uuid(squash_helper_base):
-    " replaces \\input and similar with placeholders"
+    " replaces \\input and similar with placeholders; delete comments"
     def __init__(self, blobs_dir):
         self.forw_map = {}
         self.back_map = {}
@@ -93,6 +93,10 @@ class squash_input_uuid(squash_helper_base):
             return(r'\uuidplaceholder{' + uuid + '}{' + text + '}')
         else:
             return None
+    #
+    def process_comment(self, comment, thetex):
+        "deletes comments"
+        return '%\n'
 
 def squash_latex(inp, out, blobs_dir, helper=None):
     " transforms LaTeX file"
