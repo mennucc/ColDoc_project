@@ -838,7 +838,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         obj.macroMode = Command.MODE_BEGIN
                         obj.ownerDocument = thedocument
                         source = None
-                        if isinstance(obj, amsthm.theoremCommand):
+                        if isinstance(obj, amsthm.theoremCommand) or name == 'figure':
                             _,source = thetex.readArgumentAndSource('[]')
                             if source:
                                 stack.topstream.write(source)
