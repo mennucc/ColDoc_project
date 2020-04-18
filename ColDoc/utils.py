@@ -174,10 +174,10 @@ class FMetadata(dict, MetadataBase):
     #
     @property
     def uuid(self):
-        return self.get('uuid',[None])[0]
+        return super().get('uuid',[None])[0]
     @property
     def environ(self):
-        return self.get('environ',[None])[0]
+        return super().get('environ',[None])[0]
     #
     def singled_items(self):
         " yields all (key,value) pairs, where each `key` may be repeated multiple times"
