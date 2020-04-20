@@ -272,8 +272,8 @@ def index(request, NICK, UUID):
                     a += '_' + lang
                     a += '_html/index.html'
                 html = open(a).read()
-                a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'Z'}) #NICK=NICK, UUID='Z')
-                html = html.replace(ColDoc.config.ColDoc_url_placeholder,a[:-1])
+                a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
+                html = html.replace(ColDoc.config.ColDoc_url_placeholder,a[:-4])
             except:
                 messages.add_message(request, messages.WARNING,"HTML preview not available")
                 html = '[NO HTML AVAILABLE]'
