@@ -120,9 +120,25 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
             macroname = str(tok.macroName)
             if macroname == 'begin':
                 begin = thetex.readArgument(type=str)
-                r = helper.process_begin(begin, thetex)
-                out.write(r if r is not None else ('\\begin{'+begin+'}'))
-                squash_recurse(out, thetex, itertokens, options, helper, begin)
+                if begin in options["verbatim_environment"]:
+                    out.write('\\begin{%s}' % begin)
+                    class MyVerbatim(Base.verbatim):
+                            macroName = begin
+                    obj = MyVerbatim()
+                    obj.ownerDocument = thetex.ownerDocument
+                    t = obj.invoke(thetex)
+                    for j in t[1:]:
+                        out.write(j)
+                    out.write('\\end{%s}' % begin)
+                    # the above pushes the \end{verbatim} back on stack: discard it
+                    try:
+                        next(itertokens)
+                    except:
+                        logger.warning('premature end of \\begin{%s}',begin)
+                else:
+                    r = helper.process_begin(begin, thetex)
+                    out.write(r if r is not None else ('\\begin{'+begin+'}'))
+                    squash_recurse(out, thetex, itertokens, options, helper, begin)
             elif macroname == 'end':
                 end = thetex.readArgument(type=str)
                 r = helper.process_end(end,thetex)
@@ -130,6 +146,14 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
                 if end != beginenvironment:
                     logger.warning(" begin %r ended by end%r ")
                 return
+            elif macroname == 'verb':
+                obj = Base.verb()
+                obj.ownerDocument = thetex.ownerDocument
+                t = obj.invoke(thetex)
+                out.write('\\verb')
+                for j in t[1:]:
+                    out.write(j)
+                del obj,j,t
             else:
                 r = helper.process_macro(macroname,thetex)
                 out.write(r if r is not None else tok.source)
