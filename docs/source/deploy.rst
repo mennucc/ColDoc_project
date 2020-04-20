@@ -19,28 +19,43 @@ In the following you may omit the part `${COLDOC_SRC_ROOT}/`
 if you are sure that the current working directory of the shell is the directory
 where the ColDoc source code is located.
 
-Deploy a copy of the config file for the new document.
+This command will create the structure for the new ColDoc portal
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/config.py deploy ${COLDOC_SITE_ROOT}/config.ini
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy
 
 
+In particular it will deploy a copy of the config file for the new document as  $(COLDOC_SITE_ROOT)/config.ini .
 Edit it at taste.
 
-Create the space where the document tree will be stored.
+
+Then initialize `django`
 
 .. code:: shell
 
-	  # ( cd ${COLDOC_SITE_ROOT} ; mkdir blobs templates var static media )
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py makemigrations
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
 
-(All above directories may be customized by editing ${COLDOC_SITE_ROOT}/config.ini )
+Add test material
+-----------------
 
-To test the portal we may populate it with the test LaTeX document
+To test the portal we may populate it with the test LaTeX document.
+
+Before we create some fake users, to be able to interact with the portal.
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDoc/blob_inator.py --blobs-dir=${COLDOC_SITE_ROOT}/blobs --ZS --SP --SE=document --SL=itemize --SAT --CG   ${COLDOC_SRC_ROOT}/test/latex/latex_test.tex
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  create_fake_users
+
+(The list of users and passwords will be printed on terminal)
+
+We insert the test LaTeX document in the portal. Note that `jsmith` is the author of all blobs, and will have special access rights.
+
+.. code:: shell
+
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/blob_inator.py --coldoc-nick=test --ZS  --author=jsmith  --SP --SAT --CG   ${COLDOC_SRC_ROOT}/test/latex/latex_test.tex
 
 Start the simplest Django server and access the portal
 
@@ -48,4 +63,3 @@ Start the simplest Django server and access the portal
 
 	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py  runserver 8000
 	  # firefox http://localhost:8000/
-

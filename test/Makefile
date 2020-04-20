@@ -74,14 +74,14 @@ django_help:
 ########## deploy a ColDoc portal
 $(COLDOC_SITE_ROOT)/.__deployed_timestamp:
 	test -d tmp || mkdir tmp
-	../ColDocDjango/admin.py  --coldoc-site-root $(COLDOC_SITE_ROOT)  deploy
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT)  deploy
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  makemigrations
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  migrate
 	# this is not really used since `manage.py runserver` ignores the static_root directory
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  collectstatic
 	cd $(COLDOC_SITE_ROOT)/static_local &&  cp -a ../static_root/* .
 	sed -i~~ 's/debug.*False/debug = True/' $(COLDOC_SITE_ROOT)/config.ini
-	../ColDocDjango/admin.py  --coldoc-site-root $(COLDOC_SITE_ROOT)  create_fake_users
+	../ColDocDjango/helper.py  --coldoc-site-root $(COLDOC_SITE_ROOT)  create_fake_users
 	touch $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 
 
