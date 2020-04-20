@@ -1039,7 +1039,8 @@ def main(args, metadata_class, coldoc = None):
     named_stream._default_rstrip = args.strip
     named_stream._default_write_UUID = args.add_UUID
     #
-    args.split_environment += args.private_environment
+    if args.private_environment is not None:
+        args.split_environment += args.private_environment
     #
     verbose = args.verbose
     assert type(verbose) == int and verbose >= 0
