@@ -1001,7 +1001,7 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--split-environment','--SE',action='append',
                         help='split the content of this LaTeX environment in a separate blob',
                         default=['document'])
-    parser.add_argument('--private-environment',action='append',
+    parser.add_argument('--private-environment',action='append',default=[],
                         help='split this environment and mark as access=private')
     parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
     parser.add_argument('--split-preamble','--SP',action='store_true',help='split the preamble a separate blob')
@@ -1018,7 +1018,7 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--add-UUID','--AU', type=str,choices={"yes","y", "no","n","auto","a"},
                         default={True:'yes',False:"no","auto":"auto"}[ColDoc_write_UUID],
                         help="add \\uuid{UUID} commands, can be `yes` `no` or `auto`")
-    parser.add_argument('--author',action='append',
+    parser.add_argument('--author',action='append',default=[],
                         help='add as author of this LaTeX')
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
     #https://stackoverflow.com/a/31347222/5058564
@@ -1039,8 +1039,7 @@ def main(args, metadata_class, coldoc = None):
     named_stream._default_rstrip = args.strip
     named_stream._default_write_UUID = args.add_UUID
     #
-    if args.private_environment is not None:
-        args.split_environment += args.private_environment
+    args.split_environment += args.private_environment
     #
     verbose = args.verbose
     assert type(verbose) == int and verbose >= 0
