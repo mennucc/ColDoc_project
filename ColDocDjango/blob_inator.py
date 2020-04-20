@@ -107,7 +107,9 @@ to specify where the ColDoc site is located.
     except Exception as e:
         sys.stderr.write('Invalid coldoc_nick=%r\n'%(args.coldoc_nick,))
         sys.exit(1)
-    if args.coldoc_nick in ('static','static_collect','var'):
+    if args.coldoc_nick in ('static','static_collect','static_root','static_local','media',
+                            'usr','var','lib','etc','src','pdf','html',
+                            'jpeg','jpg','tiff','tif'):
         sys.stderr.write('Cannot use coldoc_nick=%r\n'%(args.coldoc_nick,))
         sys.exit(1)
     #
