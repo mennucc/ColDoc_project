@@ -157,8 +157,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
     s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
     if squash:
-        ColDoc.transform.squash_latex(b, s, blobs_dir,
-                                      helper = options.get('squash_helper')(blobs_dir, metadata))
+        ColDoc.transform.squash_latex(b, s, blobs_dir, options,
+                                      helper = options.get('squash_helper')(blobs_dir, metadata, options))
         D['input'] = s
     else:
         D['input'] = b

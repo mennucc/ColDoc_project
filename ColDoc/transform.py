@@ -71,11 +71,12 @@ class squash_helper_base(object):
 
 class squash_input_uuid(squash_helper_base):
     " replaces \\input and similar with placeholders; delete comments"
-    def __init__(self, blobs_dir, blob):
+    def __init__(self, blobs_dir, blob, options):
         self.forw_map = {}
         self.back_map = {}
         self.blobs_dir =  blobs_dir
         self.blob = blob
+        self.options = options
         self.macros = ['input','include','input_preamble','include_preamble']
     #
     def process_macro(self, macroname, thetex):
@@ -99,7 +100,7 @@ class squash_input_uuid(squash_helper_base):
         "deletes comments"
         return '%\n'
 
-def squash_latex(inp, out, blobs_dir, helper=None):
+def squash_latex(inp, out, blobs_dir, options, helper=None):
     " transforms LaTeX file"
     if helper is None:
         helper = squash_helper_base()
@@ -110,10 +111,10 @@ def squash_latex(inp, out, blobs_dir, helper=None):
         if not os.path.isabs(out): out = osjoin(blobs_dir, out)
         out = open(out,'w')
     itertokens = thetex.itertokens()
-    squash_recurse(out, thetex, itertokens, helper)
+    squash_recurse(out, thetex, itertokens, options, helper)
     return helper
 
-def squash_recurse(out, thetex, itertokens, helper, beginenvironment=None):
+def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=None):
     for tok in itertokens:
         if isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
             macroname = str(tok.macroName)
@@ -121,7 +122,7 @@ def squash_recurse(out, thetex, itertokens, helper, beginenvironment=None):
                 begin = thetex.readArgument(type=str)
                 r = helper.process_begin(begin, thetex)
                 out.write(r if r is not None else ('\\begin{'+begin+'}'))
-                squash_recurse(out, thetex, itertokens, helper, begin)
+                squash_recurse(out, thetex, itertokens, options, helper, begin)
             elif macroname == 'end':
                 end = thetex.readArgument(type=str)
                 r = helper.process_end(end,thetex)
