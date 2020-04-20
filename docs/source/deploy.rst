@@ -57,6 +57,17 @@ We insert the test LaTeX document in the portal. Note that `jsmith` is the autho
 
 	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/blob_inator.py --coldoc-nick=test --ZS  --author=jsmith  --SP --SAT --CG   ${COLDOC_SRC_ROOT}/test/latex/latex_test.tex
 
+Then you should generate all PDF and HTML associated to the test paper
+
+.. code:: shell
+
+	  # COLDOC_URL="http://localhost:8000/UUID/test/"
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py --coldoc-nick=test --url-UUID=${COLDOC_URL}  all
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py --coldoc-nick=test --url-UUID=${COLDOC_URL}  main
+
+
+(The command line option `--url-UUID` is needed so that the hyperlinks inside the PDF version will point to the correct URL)
+
 Start the simplest Django server and access the portal
 
 .. code:: shell
