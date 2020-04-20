@@ -186,7 +186,7 @@ class FMetadata(dict, MetadataBase):
                 yield k,v
     #
     def htmlitems(self):
-        return metadata_html_items(self, self.get('coldoc',[''])[0] )
+        return metadata_html_items(self, super().get('coldoc',[''])[0] )
 
 
 def metadata_html_items(metadata, nick):
@@ -298,7 +298,7 @@ def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',
             logger.error('Blob `%r` not available for lang = %r ext = %r', uuid, lang, ext)
             raise ColDocException('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
-    E = sort_extensions(m.get('extension',['']))
+    E = sort_extensions(m.get('extension'))
     assert len(E) >= 1
     if ext is not None:
         if ext not in E:
@@ -306,7 +306,7 @@ def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',
             raise ColDocException('Extension %r is not available for uuid %r'%(ext, uuid))
         E = [ext]
     #
-    L = copy.copy(m.get('lang',[]))
+    L = copy.copy(m.get('lang'))
     # as a last resort, try a "no language" choice
     L.append('')
     if lang is not None:
