@@ -68,14 +68,14 @@ def main(argv):
     else:
         logger.debug('No %r',a)
     #
-    #a = osjoin(blobs_dir, '.blob_inator-args.json')
-    #if os.path.isfile( a ):
-    #    blob_inator_args = json.load(open(a))
-    #    assert isinstance(blob_inator_args,dict)
-    #    options.update(blob_inator_args)
-    #    logger.debug('From %r options %r',a,options)
-    #else:
-    #    logger.debug('No %r',a)
+    a = osjoin(coldoc_dir, 'blobs', '.blob_inator-args.json')
+    if os.path.isfile( a ):
+        blob_inator_args = json.load(open(a))
+        assert isinstance(blob_inator_args,dict)
+        options.update(blob_inator_args)
+        logger.debug('From %r options %r',a,options)
+    else:
+        logger.debug('No %r',a)
     #
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     import django
