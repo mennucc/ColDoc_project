@@ -178,6 +178,9 @@ class FMetadata(dict, MetadataBase):
     @property
     def environ(self):
         return super().get('environ',[None])[0]
+    @property
+    def coldoc(self):
+        return super().get('coldoc',[None])[0]
     #
     def singled_items(self):
         " yields all (key,value) pairs, where each `key` may be repeated multiple times"
