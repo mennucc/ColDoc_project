@@ -378,16 +378,64 @@ def new_theorem(a,doc,con):
     th = type(name, (amsthm.theoremCommand,), data)
     return th
 
+
+
+def is_math_mode(o):
+    """ Hints if the object `o` starts a math mode or non-math mode LaTex
+        Warning: it is quite primitive"""
+    assert isinstance(o, (str,named_stream))
+    r = None
+    if isinstance(o, str):
+        e = o
+        l = 'str:'+o
+    elif isinstance(o, named_stream):
+        e =  o.environ
+        l = 'named_stream:'+e
+    if e.startswith('E_'):
+        e = e[2:]
+        if e[-1] == '*':
+            e = e[:-1]
+        if e in ('math','displaymath','equation','subequations',
+                 'eqnarray','split','multiline','array',
+                 'gather','align','flalign'):
+            r = True
+        else:
+            r = False
+    else:
+        # fixme: how to support $$...$$ and $...$ 
+        # must check what the plastex parser does...
+        if o in ('\\[','\\('):
+            r = True
+        else:
+            r = False
+    assert r is not None
+    logger.debug("This is %s math: %s", '' if  r else 'not', l )
+    return r
+
 class EnvStreamStack(object):
     """ a class that manages a stack of named_stream and LaTeX environments,
     interspersed"""
     def __init__(self):
         self._stack=[]
         self._topstream = None
+        self._math_mode = False
     def __repr__(self):
         return ' ==> '.join(repr(r) for r in self._stack)
     def __len__(self):
         return len(self._stack)
+    #
+    def _set_math_mode(self):
+        if self._stack:
+            m = is_math_mode(self._stack[-1])
+            if m != self._math_mode:
+                logger.debug('Exit, now %s math mode', '' if  m else 'not')
+            self._math_mode = m
+        else:
+            self._math_mode = False
+    @property
+    def math_mode(self):
+        "fixme , this is not perfect, it does not deal with \text or \parbox"
+        return self._math_mode
     @property
     def top(self):
         " the top element"
@@ -417,6 +465,10 @@ class EnvStreamStack(object):
     def push(self,o):
         assert isinstance(o, (str,named_stream))
         logger.debug('%r onto %r',o,repr(self))
+        m = is_math_mode(o)
+        if m != self._math_mode:
+            logger.debug('Entering %s math mode', '' if  m else 'not')
+        self._math_mode = m
         self._stack.append(o)
         if isinstance(o,named_stream):
             self._topstream = o
@@ -436,6 +488,7 @@ class EnvStreamStack(object):
                     self._topstream.add_metadata('child_uuid',o.uuid)
                 #if o.filename:
                 #    self._topstream.add_metadata('child_filename',o.filename)
+        self._set_math_mode()
         return o
     def pop_str(self, warn=True, stopafter=None):
         " pop strings, until a stream is reached or after popping `stopafter`"
@@ -450,6 +503,7 @@ class EnvStreamStack(object):
                 self._stack.pop()
             else:
                 break
+        self._set_math_mode()
         logger.debug(repr(self))
     def pop_stream(self, add_as_child = True):
         " pops the topmost stream, w/o touching the non-stream elements of the stack"
@@ -459,6 +513,7 @@ class EnvStreamStack(object):
                 t=n
         assert t is not None
         O = self.pop(index=t, add_as_child = add_as_child)
+        self._set_math_mode()
         logger.debug(repr(self))
         return O
 
