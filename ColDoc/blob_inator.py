@@ -318,11 +318,11 @@ class named_stream(io.StringIO):
             self.close()
             if self._symlink_dir:
                 os_rel_symlink(self._dir,self._symlink_dir,basedir=self._basepath,
-                               target_is_directory=True)
+                               force = True, target_is_directory=True)
                 r = osjoin(self._symlink_dir, os.path.basename(filename))
             if self._symlink_files:
                 for j in self._symlink_files:
-                    os_rel_symlink(r, j ,basedir=self._basepath,
+                    os_rel_symlink(r, j ,basedir=self._basepath, force = True,
                                    target_is_directory=False)
             return r
     def __del__(self):
@@ -871,8 +871,12 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         in_preamble = False
                         if ColDoc_write_UUID:
                             #stack.topstream.write(r'\usepackage{ColDocUUID}')
-                            os.symlink(osjoin(COLDOC_SRC_ROOT,'tex','ColDocUUID.sty'), osjoin(blobs_dir,'ColDocUUID.sty'))
-                            os.symlink(osjoin(COLDOC_SRC_ROOT,'tex','ColDocIfs.sty'), osjoin(blobs_dir,'ColDocIfs.sty'))
+                            a = osjoin(blobs_dir,'ColDocUUID.sty')
+                            if not os.path.exists(a):
+                                os.symlink(osjoin(COLDOC_SRC_ROOT,'tex','ColDocUUID.sty'), a)
+                            a = osjoin(blobs_dir,'ColDocIfs.sty')
+                            if not os.path.exists(a):
+                                os.symlink(osjoin(COLDOC_SRC_ROOT,'tex','ColDocIfs.sty'), a)
                     stack.topstream.write(r'\begin{%s}' % name)
                     if in_preamble:
                         logger.info( ' ignore \\begin{%r} in preamble' % (name,) )
