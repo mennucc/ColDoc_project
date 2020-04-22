@@ -71,7 +71,7 @@ standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 \end{document}
 """
 
-preview_template=r"""\documentclass{article}
+preview_template=r"""\documentclass%(documentclass_options)s{%(documentclass)s}
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
 \usepackage{ColDocUUID}
