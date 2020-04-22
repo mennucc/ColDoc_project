@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 
-"""Usage: %(arg0)s [-v] --blobs-dir BLOBS_DIR  CMD [OPTIONS]
+cmd_help="""
+Command help:
 
-Create PDF version of a blob
-
-    blob  UUID [LANGUAGE]
-       convert the blob UUID in BLOBS_DIR,
-       if LANGUAGE is not specified , for all languages
+    blob
+       convert the blob --uuid=UUID in BLOBS_DIR,
     
-    all  [UUID]
-       convert all the blobs in BLOBS_DIR, starting from UUID (default: `main`)
+    tree
+       convert all the blobs in BLOBS_DIR, starting from --uuid=UUID
+
+    main
+       convert the whole document
+
+    all
+       all of the above
 """
 
 import os, sys, shutil, subprocess, json, argparse
@@ -401,8 +405,8 @@ def prepare_parser():
     # parse arguments
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
     parser = argparse.ArgumentParser(description='Compile coldoc material, using `latex` and `plastex` ',
-                                     epilog=__doc__,
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                     epilog=cmd_help,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--verbose','-v',action='count',default=0)
     parser.add_argument('--uuid',help='UUID to work on/start from')
     parser.add_argument('command', help='specific command',nargs='+')
@@ -497,7 +501,7 @@ def main_by_args(args,options):
         else:
             ret = False
     else:
-        sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
+        sys.stderr.write('Unknown command, see --help')
         return False
     return ret
 
