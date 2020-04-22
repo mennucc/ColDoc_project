@@ -11,7 +11,7 @@ help:
 latex_test:
 	test -d tmp || mkdir tmp
 	test -d tmp/lt || mkdir tmp/lt
-	./latex_test.sh latex/latex_test.tex --SP --SI --CG
+	./latex_test.sh latex/latex_test.tex --SP --SI 
 	./latex_test.sh latex/latex_test.tex --SP --SAT --SS --ZS --AU=no
 	./latex_test.sh latex/latex_test.tex --SAT  --ZS  --AU=no
 	#
@@ -19,7 +19,7 @@ latex_test:
 	rm -rf tmp/lt/b   tmp/lt/c
 	mkdir tmp/lt/b  tmp/lt/c
 	@echo ========== blobify it
-	python3 ../ColDoc/blob_inator.py --blobs-dir=tmp/lt/b --SP --SL=itemize --SAT --SI --CG --EDB latex/latex_test.tex
+	python3 ../ColDoc/blob_inator.py --blobs-dir=tmp/lt/b --SP --SL=itemize --SAT --SI  --EDB latex/latex_test.tex
 	@echo ======== deblobify it
 	python3 ../ColDoc/deblob_inator.py --blobs-dir=tmp/lt/b --latex-dir=tmp/lt/c --AUC
 	@echo "======= diff (it will be different)"
@@ -92,7 +92,7 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	test  -f $(COLDOC_SITE_ROOT)/config.ini
 	if  ./django_tester.py isthere ; then  ./django_tester.py delete ; fi
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/paper/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper ; fi
-	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper  --ZS --SP --SE=figure --SL=itemize --author=jsmith --private-environment=privateremark --SAT --CG  paper/paper.tex
+	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper  --ZS --SP --SE=figure --SL=itemize --author=jsmith --private-environment=privateremark --SAT   paper/paper.tex
 	./django_tester.py isthere
 	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID=$(COLDOC_URL) all
 
@@ -101,7 +101,7 @@ django_latextest: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	test  -f $(COLDOC_SITE_ROOT)/config.ini
 	if  ./django_tester.py --coldoc-nick=latextest isthere ; then  ./django_tester.py --coldoc-nick=latextest delete ; fi
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/latextest/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/latextest ; fi
-	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=latextest  --ZS --SP --SE=figure --SL=itemize --author=jsmith --SAT --CG  latex/latex_test.tex
+	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=latextest  --ZS --SP --SE=figure --SL=itemize --author=jsmith --SAT   latex/latex_test.tex
 	./django_tester.py --coldoc-nick=latextest isthere
 	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=latextest --url-UUID=$(COLDOC_URL) all
 

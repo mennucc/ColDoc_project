@@ -748,9 +748,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     if a == 'input' and ColDoc_commented_newline_after_blob_input:
                         stack.topstream.write('%\n')
                     del r,z,a
-                elif not in_preamble and cmdargs.copy_graphicx \
-                     and macroname == "includegraphics":
-                    if use_plastex_parse:
+                elif not in_preamble and macroname in cmdargs.split_graphic :
+                    if macroname == "includegraphics":
                         obj = graphicx.includegraphics()
                         a = obj.parse(thetex)
                         inputfile = a['file']
@@ -759,7 +758,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         cmd = src[:j]
                         del obj, a
                     else:
-                        cmd = src = '\\includegraphics'
+                        logger.warning('FIXME, should improve parsing of %r',macroname)
+                        cmd = src = '\\' + macroname
                         for spec in '*','[]',None:
                             _, s = thetex.readArgumentAndSource(spec=spec)
                             src += s
@@ -1069,7 +1069,9 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--metadata-command','--MC',action='append',
                         help='store the argument of this TeX command as metadata for the blob (some defaults are provided)',
                         default = [ 'label', 'uuid', 'index', 'author', 'date', 'title', 'ref', 'eqref', 'pageref' ] )
-    parser.add_argument('--copy-graphicx','--CG',action='store_true',help='copy graphicx as blobs')
+    parser.add_argument('--split-graphic','--SG',action='append',
+                        default=['includegraphics'],
+                        help='copy graphics for this command, as blobs')
     parser.add_argument('--zip-sections','--ZS',action='store_true',
                         help='omit intermediate blob for \\include{} of a single section; implies --SS')
     parser.add_argument('--verbatim_environment','--VE',action='append',help='verbatim environment, whose content will not be parsed', default=['verbatim','Filesave'])
@@ -1123,6 +1125,8 @@ def main(args, metadata_class, coldoc = None):
 
     if args.EDB :
         args.metadata_command += [ 'keywords', 'prerequisites',  'difficulty','indexLit', 'indexLen']
+        args.split_graphic += ['margpic']
+        args.private_environment += ['delasol','extrastuff','wipver']
     for name in args.metadata_command :
         d =  '\\' + name + '{#1}'
         #mycontext.newcommand(name, n, d)
