@@ -49,7 +49,7 @@ def main(argv):
     args.blobs_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs')
     assert os.path.isdir(args.blobs_dir) , args.blobs_dir
     #
-    coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick)
+    args.coldoc_dir = coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick)
     # read options
     options = {}
     #
@@ -89,6 +89,7 @@ def main(argv):
         raise ValueError("Too many ColDoc with nick %r." % (args.coldoc_nick,) )
     #
     options['coldoc'] = coldoc = matches[0]
+    args.coldoc_root_uuid = coldoc.root_uuid
     def foobar(*v, **k):
         " helper factory"
         return squash_helper_ref(coldoc, *v, **k)

@@ -420,14 +420,18 @@ def main(argv):
     blobs_dir = args.blobs_dir
     assert os.path.isdir(blobs_dir), blobs_dir
     #
-    coldoc_dir = os.path.dirname(blobs_dir)
+    args.coldoc_dir = coldoc_dir = os.path.dirname(blobs_dir)
     a = osjoin(coldoc_dir, 'coldoc.json')
     options = {}
     if os.path.isfile( a ):
         coldoc = json.load(open(a))
         options = coldoc['fields']
+        args.coldoc_root_uuid = options.get('root_uuid')
+        if isinstance(args.coldoc_root_uuid,int):
+            args.coldoc_root_uuid = ColDoc.utils.int_to_uuid(args.coldoc_root_uuid)
         logger.debug('From %r options %r',a,options)
     else:
+        args.coldoc_root_uuid = None
         logger.debug('No %r',a)
     #
     a = osjoin(blobs_dir, '.blob_inator-args.json')
@@ -448,6 +452,7 @@ def main(argv):
 def main_by_args(args,options):
     argv = args.command
     blobs_dir = args.blobs_dir
+    coldoc_dir = args.coldoc_dir
     logger.setLevel(logging.WARNING)
     if args.verbose > 1 :
         logger.setLevel(logging.DEBUG)
