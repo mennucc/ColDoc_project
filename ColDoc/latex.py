@@ -267,9 +267,19 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         #
         open(fake_abs_name+'.tex','w').write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+        try:
+            ColDoc.utils.os_rel_symlink(save_name+'.pdf','main'+_lang+'.pdf',
+                                        blobs_dir, False, True)
+        except:
+            logger.exception('while symlinking')
         open(fake_abs_name+'.tex','w').write(f_html)
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
+        try:
+            ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
+                                        blobs_dir, True, True)
+        except:
+            logger.exception('while symlinking')
         ret = ret and rh and rp
     return ret
 
