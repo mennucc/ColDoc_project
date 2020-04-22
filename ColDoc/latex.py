@@ -404,6 +404,7 @@ def prepare_parser():
                                      epilog=__doc__,
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--verbose','-v',action='count',default=0)
+    parser.add_argument('--uuid',help='UUID to work on/start from')
     parser.add_argument('command', help='specific command',nargs='+')
     return parser
 
@@ -460,19 +461,41 @@ def main_by_args(args,options):
         logger.setLevel(logging.INFO)
     #
     options['url_UUID'] = args.url_UUID
+    #
+    if args.uuid is not None:
+        UUID = args.uuid
+    elif args.coldoc_root_uuid is not None:
+        UUID = args.coldoc_root_uuid
+    else:
+        UUID = '001'
+    #
     ret = True
     if argv[0] == 'blob':
-        UUID = argv[1]
         lang = None
         if len(argv)>2:
             lang = argv[2]
         ret = latex_uuid(blobs_dir,UUID,lang=lang, options=options)
-    elif argv[0] == 'all':
-        UUID =  None if len(argv) <= 1 else  argv[1]
+    elif argv[0] == 'tree':
         ret = latex_tree(blobs_dir,UUID, options=options)
     elif argv[0] == 'main':
-        UUID =  '001' if len(argv) <= 1 else  argv[1]
         ret = latex_main(blobs_dir, uuid=UUID, options=options)
+    elif argv[0] == 'anon':
+        n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False,
+                                                  metadata_class=ColDoc.utils.FMetadata)
+        if anon_dir is not None:
+            ret = latex_main(anon_dir, uuid=UUID, options=options)
+        else:
+            ret = False
+    elif argv[0] == 'all':
+        ret = latex_tree(blobs_dir,UUID, options=options)
+        ret &= latex_main(blobs_dir, uuid=UUID, options=options)
+        n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
+                                                 metadata_class=ColDoc.utils.FMetadata)
+        if anon_dir is not None:
+            assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
+            ret &= latex_main(anon_dir, uuid=UUID, options=options)
+        else:
+            ret = False
     else:
         sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
         return False
