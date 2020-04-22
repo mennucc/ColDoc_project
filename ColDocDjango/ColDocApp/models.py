@@ -13,6 +13,9 @@ from django.urls import reverse
 
 from django.conf import settings
 
+# TODO : site support
+# from django.contrib.sites.models import Site
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -176,6 +179,9 @@ class DColDoc(models.Model):
         assert data[0] == '[' and data[-1]==']'
         open(osjoin(coldoc_dir,'coldoc.json'),'w').write(data[1:-1])
     #
+    #def get_fields(self):
+    #    return [(field.name, field.value_to_string(self)) for field in DColDoc._meta.fields]
+    #### making these customizable is overkill and useless
     #
     #def base_path(s):
     #    return osjoin(COLDOC_SITE_ROOT,s.nickname)

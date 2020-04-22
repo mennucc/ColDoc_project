@@ -8,6 +8,9 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
+
+If you want to customize this file for your specific 
+instance, copy it inside the COLDOC_SITE_ROOT directory
 """
 
 import sys, os

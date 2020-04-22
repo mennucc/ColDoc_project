@@ -64,6 +64,7 @@ def deploy(target):
         a = os.path.dirname(a)
         if not os.path.isdir(a):
             os.makedirs(a)
+    print("TODO : migrate, collectstatic, copy  wsgi.py, create and customize an apache2.conf")
     return True
 
 def create_fake_users(COLDOC_SITE_ROOT):

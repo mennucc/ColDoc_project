@@ -31,6 +31,13 @@ class UUID_Tree_Edge(models.Model):
     parent = UUID_Field(db_index = True)
     child = UUID_Field(db_index = True)
 
+#class UUID_Tree_Edge_(models.Model):
+#    "edges for the graph parent-child of blobs in a coldoc"
+#    # this would be much cooler..
+#    parent = models.ForeignKey(BlobMetadata, on_delete=models.CASCADE, db_index = True)
+#    child = models.ForeignKey(BlobMetadata, on_delete=models.CASCADE, db_index = True)
+
+
 class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interferes with the Django magick
     "Metadata of a blob, stored in the Django databases, and also in a file (for easy access)"
     #
