@@ -42,7 +42,7 @@ from ColDoc.config import *
 
 from ColDoc.utils import *
 
-from ColDoc.classes import MetadataBase
+from ColDoc.classes import MetadataBase, DuplicateLabel
 
 
 
@@ -987,7 +987,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     a = '' if j == stack.topstream else ('S_'+stack.topenv+'_')
                     for j in args:
                         j =  j.translate({'\n':' '})
-                        stack.topstream.add_metadata(a+'M_'+macroname,j)
+                        try:
+                            stack.topstream.add_metadata(a+'M_'+macroname,j)
+                        except DuplicateLabel:
+                            logger.warning('In blob %r file %s line %s ',  stack.topstream.uuid,
+                                           thetex.filename, thetex.lineNumber)
                     stack.topstream.write('\\'+macroname+''.join(args))
                     del j,a
                 elif macroname == '[':

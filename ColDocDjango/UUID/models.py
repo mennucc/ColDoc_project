@@ -18,6 +18,8 @@ from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field, ColDocUser
 
 from ColDoc import classes, utils as coldoc_utils
 
+from ColDoc.classes import DuplicateLabel
+
 from ColDocDjango.utils import permissions_for_blob_extra
 
 # Create your models here.
@@ -206,10 +208,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             self._children.append(value)
         elif key == 'parent_uuid' and value not in self._parents:
             self._parents.append(value)
-        elif (key,value) not in self._extra_metadata:
-            self._extra_metadata.append((key,value))
         else:
-            raise RuntimeError('cannot add %r = %r'%(key,value))
+            if (key,value) not in self._extra_metadata:
+                self._extra_metadata.append((key,value))
+            elif key.endswith('M_label'):
+                logger.warning('Duplicate key/value %r = %r',key,value)
+                ## this will print more info: filename, line, UUID
+                raise DuplicateLabel('Duplicate key/value %r = %r'% (key,value))
     #
     def __setitem__(self,key,value):
         " set value `value` for `key` (as one single value, even if multivalued)"

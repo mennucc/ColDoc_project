@@ -4,6 +4,12 @@ We do not use `abc` since Django plays too much magick in `Models`
 
 import pathlib
 
+
+class DuplicateLabel(ValueError):
+    """ Duplicate LaTeX label """
+    def __init__(self, *args, **kwargs):
+        pass
+
 class MetadataBase(object):
     """ a base class for blob's metadata .
     """
