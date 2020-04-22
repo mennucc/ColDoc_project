@@ -1085,7 +1085,8 @@ def add_arguments_to_parser(parser):
                         default={True:'yes',False:"no","auto":"auto"}[ColDoc_write_UUID],
                         help="add \\uuid{UUID} commands, can be `yes` `no` or `auto`")
     parser.add_argument('--latex-engine',type=str,choices=[a[0] for a in ColDoc_latex_engines],
-                        help="LaTeX engine used to compile this document")
+                        help="LaTeX engine used to compile this document",
+                        default='pdflatex')
     parser.add_argument('--author',action='append',default=[],
                         help='add as author of this LaTeX')
     parser.add_argument('--EDB',action='store_true',help='add EDB metadata, lists and environments')
