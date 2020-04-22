@@ -274,9 +274,7 @@ def sort_extensions(E):
     # FIXME should look in request
     P = {a:4 for a in ('.jpg','.jpeg','.png','.tif','.tiff','.gif')}
     P.update({'.svg':2,'.pdf':7})
-    print(E)
     E.sort(key = lambda x: P.get(x,10))
-    print(E)
     return E
 
 def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',

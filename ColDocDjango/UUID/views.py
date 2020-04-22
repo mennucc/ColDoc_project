@@ -309,7 +309,6 @@ def index(request, NICK, UUID):
         try:
             j = sorted(j)
             i = j.index(uuid)
-            print(i,j)
             if i>0:
                 leftlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i-1]})
             if i<len(j)-1:
