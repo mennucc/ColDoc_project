@@ -1163,7 +1163,7 @@ def main(args, metadata_class, coldoc = None):
             mycontext.addGlobal(name, th)
             args.split_environment.append(name)
 
-    for j in 'UUID', 'SEC':
+    for j in 'UUID', 'SEC', 'tmp':
         d = osjoin(args.blobs_dir,j)
         if not os.path.isdir(d):
             os.mkdir(d)
