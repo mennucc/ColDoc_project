@@ -368,6 +368,10 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
     logger.debug('Using engine %r',engine)
     args = [engine,'-file-line-error','-interaction','batchmode',
             '-recorder','-no-shell-escape','-no-parse-first-line',
+            ##TODO may use -output-directory directory
+            ## TODO TEST THIS
+            ##( r"\def\uuidbaseurl{%s}" % (options['url_UUID'],)),   r"\input",
+            ## TODO for luatex may add --nosocket --safer
             fake_name+'.tex']
     #
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
