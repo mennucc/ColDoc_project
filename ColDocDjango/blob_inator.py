@@ -59,6 +59,7 @@ if __name__ == '__main__':
                         help='directory where the ColDoc Django site was deployed')
     BI.add_arguments_to_parser(parser)
     args = parser.parse_args()
+    BI.parse_EDB(args)
     #
     if args.coldoc_site_root is not None:
         COLDOC_SITE_ROOT = args.coldoc_site_root

@@ -1131,10 +1131,6 @@ def main(args, metadata_class, coldoc = None):
         mycontext.newcommand('section',1,r'\section{#1}')
         mycontext.newcommand('subsection',1,r'\subsection{#1}')
 
-    if args.EDB :
-        args.metadata_command += [ 'keywords', 'prerequisites',  'difficulty','indexLit', 'indexLen']
-        args.split_graphic += ['margpic']
-        args.private_environment += ['delasol','extrastuff','wipver']
     for name in args.metadata_command :
         d =  '\\' + name + '{#1}'
         #mycontext.newcommand(name, n, d)
@@ -1190,6 +1186,12 @@ def main(args, metadata_class, coldoc = None):
         logger.info("end of file")
     return 0
 
+def parse_EDB(args):
+    if args.EDB :
+        args.metadata_command += [ 'keywords', 'prerequisites',  'difficulty','indexLit', 'indexLen']
+        args.split_graphic += ['margpic']
+        args.private_environment += ['delasol','extrastuff','wipver','wipExercise']
+        args.latex_engine = 'lualatex'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Splits a TeX or LaTeX input into blobs',
@@ -1201,4 +1203,5 @@ if __name__ == '__main__':
                         help='nickname for the new coldoc document') # not required
     add_arguments_to_parser(parser)
     args = parser.parse_args()
+    parse_EDB(args)
     sys.exit(main(args, FMetadata, coldoc = args.coldoc_nick))
