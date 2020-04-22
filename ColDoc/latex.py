@@ -16,7 +16,7 @@ Command help:
        all of the above
 """
 
-import os, sys, shutil, subprocess, json, argparse
+import os, sys, shutil, subprocess, json, argparse, pathlib
 
 from os.path import join as osjoin
 
@@ -197,6 +197,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
 def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
     "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
     #
+    assert isinstance(blobs_dir, (str, pathlib.Path)), blobs_dir
+    assert os.path.isdir(blobs_dir)
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                                blobs_dir = blobs_dir)    
     environ = metadata['environ'][0]
@@ -282,13 +284,15 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                          stdout_  = open(osjoin(blobs_dir,save_name+'_plastex.stdout'),'w'),
                          argv_ = argv )
     extensions = '.log','.paux','.tex'
+    if ret :
+        logger.warning('Failed: cd %r ; plastex %s',blobs_dir,' '.join(argv))
     for e in extensions:
         if os.path.exists(save_abs_name+'_plastex'+e):
             os.rename(save_abs_name+'_plastex'+e,save_abs_name+'_plastex'+e+'~')
         if os.path.exists(fake_abs_name+e):
-            os.rename(fake_abs_name+e,save_abs_name+'_plastex'+e)
-    if ret :
-        logger.warning('Failed: cd %r ; plastex %s',blobs_dir,' '.join(argv))
+            s,d = fake_abs_name+e,save_abs_name+'_plastex'+e
+            os.rename(s,d)
+            if ret: logger.warning(' rename %r to %r',s,d)
     if os.path.isfile(osjoin(blobs_dir, save_name+'_html','index.html')):
         logger.info('created html version of %r ',save_abs_name)
     else:
