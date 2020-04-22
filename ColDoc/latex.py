@@ -177,11 +177,31 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     ##
     ## create pdf
     logger.debug('create pdf for %r',save_abs_name)
-    if metadata['environ'][0] == 'main_file':
+    env = metadata.environ
+    if env == 'main_file':
+        # never used, the main_file is compiled with the latex_main() function
+        logger.error("should never reach this line")
         shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'), fake_abs_name+'.tex')
     else:
         main_file = open(fake_abs_name+'.tex', 'w')
-        main_file.write(standalone_template % D)
+        ## TODO
+        ltcls = metadata.get('latex_documentclass')
+        ltcls = ltcls[0] if ltcls else 'auto'
+        if ltcls == 'auto':
+            if True or env in ('section',):
+                a = standalone_template
+            else:
+                a = preview_template
+                D['documentclass'] = ltcls
+                ltclsopt = metadata.get('latex_documentclassoptions')
+                if ltclsopt:
+                    ltclsopt = ltclsopt[0].strip()
+                if ltclsopt and ltclsopt[0] != '[':
+                    ltclsopt = ( '[' + ltclsopt[0] + ']' )
+                D['documentclass_options'] = ltclsopt
+        else:
+            raise RuntimeError("unimplemented ltcls = %r",ltcls)
+        main_file.write(a % D)
         main_file.close()
     rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
