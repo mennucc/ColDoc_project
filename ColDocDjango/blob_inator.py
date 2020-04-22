@@ -142,6 +142,7 @@ to specify where the ColDoc site is located.
             coldoc = c[0]
             logger.warning('Reusing nick %r',args.coldoc_nick)
         coldoc.directory = coldoc_dir
+        coldoc.latex_engine = args.latex_engine
         coldoc.save()
         r =  BI.main(args, metadata_class=blob_models.DMetadata, coldoc=coldoc)
         coldoc.save()

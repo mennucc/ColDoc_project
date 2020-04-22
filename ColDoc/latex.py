@@ -42,6 +42,14 @@ logger = logging.getLogger(__name__)
 
 ############## ColDoc stuff
 
+#
+ColDoc_latex_engines=[
+        ('pdflatex','LaTeX'),
+        ('xelatex','XeLaTeX'),
+        ('lualatex','LuaLaTeX'),
+    ]
+
+
 #from ColDoc import config, utils
 import ColDoc, ColDoc.utils, ColDoc.config, ColDoc.transform
 

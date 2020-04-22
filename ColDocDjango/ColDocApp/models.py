@@ -26,6 +26,7 @@ def _(s):
 #############################################################
 
 from ColDoc.utils import uuid_to_int, int_to_uuid, uuid_check_normalize, uuid_valid_symbols
+from ColDoc.latex import ColDoc_latex_engines
 
 
 from ColDocDjango.utils import permissions_for_coldoc, user_has_perm
@@ -153,11 +154,7 @@ class DColDoc(models.Model):
     publication_date = models.DateTimeField('date first published', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)
     #
-    LATEX_ENGINES=[
-        ('pdflatex','LaTeX'),
-        ('xelatex','XeLaTeX'),
-        ('lualatex','LuaLaTeX'),
-    ]
+    LATEX_ENGINES=ColDoc_latex_engines
     latex_engine = models.CharField("latex-type command used to compile",
         max_length=15,
         choices=LATEX_ENGINES,
