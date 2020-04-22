@@ -555,6 +555,7 @@ def plastex_invoke(cwd_, stdout_ , argv_):
 
 
 def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class):
+    " subrouting for `prepare_anon_tree` "
     warn = logging.WARNING if warn else logging.DEBUG
     uuid_, uuid_dir, metadata = resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir,
@@ -567,7 +568,11 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_cl
     for j in os.listdir(bd):
         f = osjoin(bd,j)
         t = osjoin(td,j)
-        if j.startswith('blob') and os.path.isfile(f) or os.path.islink(f):
+        if j == 'metadata':
+            ret += 1
+            logger.debug('did copy %r',f)
+            shutil.copy2(f,t, follow_symlinks=False)
+        elif j.startswith('blob') and os.path.isfile(f): # or os.path.islink(f):
             ret += 1
             if publ:
                 logger.debug('did copy %r',f)
@@ -593,13 +598,15 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_cl
 
 def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
                       warn=False, metadata_class=FMetadata):
+    """ copy the whole tree, starting from `uuid`, and masking private content;
+    returns `(n,anon)` , where `n` is the number of copied files, and
+    `anon` is the anonymous directory (or `None` in case of failure) """
     warn = logging.WARNING if warn else logging.DEBUG
     if uuid is None:
         uuid = '001'
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     assert os.path.isdir(blobs_dir)
     anon_dir = osjoin(coldoc_dir, 'anon')
-    " copy the whole tree, starting from `uuid` "
     temp_dir = tempfile.mkdtemp(dir=coldoc_dir)
     logger.log(warn, 'Preparing anon tree in %s', temp_dir)
     r = 0
@@ -621,11 +628,12 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
     except:
         logger.exception("failed")
         shutil.rmtree(temp_dir)
+        return r, None
     else:
         if os.path.isdir(anon_dir):
             shutil.rmtree(anon_dir)
         os.rename(temp_dir, anon_dir)
-    return r
+    return r, anon_dir
 
 
 
