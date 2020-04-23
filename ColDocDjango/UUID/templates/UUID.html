@@ -73,14 +73,14 @@
      {% if perms.UUID.change_blob %}
       <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" method="post">
         {% csrf_token %}
-        {% for field in blobeditform %}
+        {% for field in blobeditform %}{% if field.is_hidden %} {{ field }} {% else %}
          <div class="form-group">
           {{ field.errors }}    {{ field.label_tag }} {{ field }}
           {% if field.help_text %}
             <small  class="form-text text-muted">{{ field.help_text|safe }}</small>
           {% endif %}
          </div>
-        {% endfor %}
+        {% endif %}{% endfor %}
         <input type="submit" class="btn btn-primary" value="Submit">
       </form>
      {% else %}
