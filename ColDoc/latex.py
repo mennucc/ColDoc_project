@@ -114,12 +114,12 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
     else:
         uuid_dir = None
     #
-    if metadata['environ'][0] in environments_we_wont_latex :
+    if metadata.environ in environments_we_wont_latex :
         ## 'include_preamble' is maybe illegal LaTeX; 'usepackage' is not yet implemented
-        logger.log(warn, 'Cannot `pdflatex` environ=%r',metadata['environ'][0])
+        logger.log(warn, 'Cannot `pdflatex` environ=%r',metadata.environ)
         return True
     #
-    if metadata['environ'][0] == 'main_file':
+    if metadata.environ == 'main_file':
         logger.log(warn, 'Do not need to `pdflatex` the main_file')
         return True
     #
@@ -175,7 +175,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     else:
         D['input'] = b
     #
-    environ = metadata['environ'][0]
+    environ = metadata.environ
     if environ[:2] == 'E_' and environ not in ( 'E_document', ):
         env = environ[2:]
         D['begin'] = r'\begin{'+env+'}'
@@ -229,7 +229,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
     assert os.path.isdir(blobs_dir)
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                                blobs_dir = blobs_dir)    
-    environ = metadata['environ'][0]
+    environ = metadata.environ
     #
     if lang is not None:
         langs=[lang]
@@ -433,8 +433,8 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
                                                    blobs_dir = blobs_dir)
     #
     ret = True
-    if metadata['environ'][0] in environments_we_wont_latex :
-        logger.log(warn, 'Cannot `pdflatex` environ %r , UUID = %r'%(metadata['environ'][0], uuid,))
+    if metadata.environ in environments_we_wont_latex :
+        logger.log(warn, 'Cannot `pdflatex` environ %r , UUID = %r'%(metadata.environ, uuid,))
     else:
         r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
         ret = ret and r
