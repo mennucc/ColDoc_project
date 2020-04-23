@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http
+import os, sys, mimetypes, http, copy, json
 from os.path import join as osjoin
 
 import logging
@@ -36,20 +36,67 @@ class BlobEditForm(forms.Form):
     BlobEditComment=forms.CharField(label='Comment',
                                     widget=forms.TextInput(attrs={'class': 'form-text'}),
                                     help_text='Comment for this commit')
+    UUID = forms.CharField(widget=forms.HiddenInput())
+    NICK = forms.CharField(widget=forms.HiddenInput())
+    ext  = forms.CharField(widget=forms.HiddenInput())
+    lang = forms.CharField(widget=forms.HiddenInput())
 
 
 def postedit(request, NICK, UUID):
+    if request.method != 'POST' :
+        return HttpResponse("Method %r not allowed"%(request.method,),status=http.HTTPStatus.BAD_REQUEST)
+    if not slug_re.match(UUID):
+        return HttpResponse("Invalid UUID %r." % (UUID,), status=http.HTTPStatus.BAD_REQUEST)
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     if request.user.is_anonymous:
         return HttpResponse("Permission denied", status=http.HTTPStatus.UNAUTHORIZED)
     #
-    if request.method != 'POST' :
-        return HttpResponse("Method %r not allowed"%(request.method,),status=http.HTTPStatus.BAD_REQUEST)
-        #and self.has_permission(request)
+    try:
+        coldoc = DColDoc.objects.get(nickname = NICK)
+    except DColDoc.DoesNotExist:
+        return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    #
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    blobs_dir = osjoin(coldoc_dir,'blobs')
+    if not os.path.isdir(blobs_dir):
+        return HttpResponse("No blobs for this ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    #
     form=BlobEditForm(request.POST)
     if not form.is_valid():
         return HttpResponse("Invalid form",status=http.HTTPStatus.BAD_REQUEST)
-    a = form.cleaned_data['BlobEditTextarea']
-    return HttpResponse(a, content_type='text') #'<br>'.join(repr(j) for j in request.GET))
+    blobcontent = form.cleaned_data['BlobEditTextarea']
+    uuid_ = form.cleaned_data['UUID']
+    nick_ = form.cleaned_data['NICK']
+    lang_ = form.cleaned_data['lang']
+    ext_ = form.cleaned_data['ext']
+    assert UUID == uuid_ and NICK == nick_
+    #
+    filename, uuid, metadata, lang, ext = \
+        ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
+                                 ext = ext_, lang = lang_, 
+                                 metadata_class=DMetadata, coldoc=NICK)
+    # write new content
+    open(filename,'w').write(blobcontent)
+    # TODO parse it to refresh metadata
+    #
+    a = osjoin(blobs_dir, '.blob_inator-args.json')
+    blob_inator_args = json.load(open(a))
+    assert isinstance(blob_inator_args,dict)
+    options = copy.copy(blob_inator_args)
+    #
+    url = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})[:-4]
+    options['url_UUID'] = url
+    #
+    from ColDocDjango.transform import squash_helper_ref
+    def foobar(*v, **k):
+        " helper factory"
+        return squash_helper_ref(coldoc, *v, **k)
+    options["squash_helper"] = foobar
+    #
+    from ColDoc import latex
+    latex.latex_blob(blobs_dir, metadata, uuid=UUID, lang = lang_, options=options)
+    return HttpResponse(filename, content_type='text') #'<br>'.join(repr(j) for j in request.GET))
 
 ###############################################################
 
@@ -289,7 +336,8 @@ def index(request, NICK, UUID):
         file = '[access denied]'
     elif  blobcontenttype == 'text' :
         if request.user.has_perm('UUID.change_blob'):
-            blobeditform = BlobEditForm(initial={'BlobEditTextarea':  file})
+            blobeditform = BlobEditForm(initial={'BlobEditTextarea':  file,
+                                                 'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang})
     #
     try:
         j = metadata.get('child_uuid')[0]
