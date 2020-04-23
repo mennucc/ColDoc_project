@@ -68,12 +68,12 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 	  <a class="dropdown-item" href="/change_password">Change Password</a>
-          <a class="dropdown-item" href="/logout">Logout</a>
+          <a class="dropdown-item" href="/logout?next={{request.path}}">Logout</a>
         </div>
       </li>
       {% else %}
       <li class="nav-item active">
-      <a class="nav-link" href="/login"> 😑  Login. </a>
+      <a class="nav-link" href="/login?next={{request.path}}"> 😑  Login. </a>
       {% endif %}
      </ul>
 
