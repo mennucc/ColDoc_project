@@ -31,10 +31,10 @@ from .models import DMetadata, DColDoc
 
 class BlobEditForm(forms.Form):
     BlobEditTextarea=forms.CharField(label='Blob content',
-                                     widget=forms.Textarea(attrs={'class': 'form-text'}),
+                                     widget=forms.Textarea(attrs={'class': 'form-text w-100'}),
                                      help_text='Edit the blob content')
     BlobEditComment=forms.CharField(label='Comment',
-                                    widget=forms.TextInput(attrs={'class': 'form-text'}),
+                                    widget=forms.TextInput(attrs={'class': 'form-text w-75'}),
                                     help_text='Comment for this commit')
     UUID = forms.CharField(widget=forms.HiddenInput())
     NICK = forms.CharField(widget=forms.HiddenInput())

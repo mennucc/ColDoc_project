@@ -64,32 +64,32 @@
  {% if perms.UUID.view_blob %}
   <div class="tab-pane fade show" id="blob" role="tabpanel" aria-labelledby="blob-tab">
     <h2>Blob</h2>
+    <div class="border border-info">
     <ul>
     {% if lang %}<li>Selected language {{ lang }}{% endif %}
     {% if ext %}<li>Selected extension {{ ext }} {% endif %}
     </ul>
-    <div class='blob'>
     {% if blobcontenttype == 'text' %}
      {% if perms.UUID.change_blob %}
-      <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" method="post">
+      <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" method="post" class="w-100">
         {% csrf_token %}
         {% for field in blobeditform %}{% if field.is_hidden %} {{ field }} {% else %}
-         <div class="form-group">
+         <div class="form-group w-100">
           {{ field.errors }}    {{ field.label_tag }} {{ field }}
           {% if field.help_text %}
-            <small  class="form-text text-muted">{{ field.help_text|safe }}</small>
+            <small class="font-italic">{{ field.help_text|safe }}</small>
           {% endif %}
          </div>
         {% endif %}{% endfor %}
         <input type="submit" class="btn btn-primary" value="Submit">
       </form>
+    </div>
      {% else %}
        {{ file | safe }}
      {% endif %}
     {% else %}
       (this is not text but {{ blobcontenttype }})
     {% endif %}
-    </div>
   </div>
  {% endif %}
  {% if perms.UUID.view_dmetadata %}
