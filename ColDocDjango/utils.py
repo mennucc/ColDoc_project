@@ -71,6 +71,7 @@ def user_has_perm(user, perm, coldoc, blob, obj):
         # takes care of superuser
         return True
     if coldoc is None:
+        logger.warning("Should not reach this point")
         return False
     if perm.startswith('UUID.') and perm[5:] in permissions_for_blob:
         n = name_of_permission_for_blob(coldoc.nickname, perm[5:])

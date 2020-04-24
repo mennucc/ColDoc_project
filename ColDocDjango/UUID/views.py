@@ -114,8 +114,6 @@ def show(request, NICK, UUID):
 
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view'):
     #
-    if request.user.is_anonymous:
-        return HttpResponse("Permission denied", status=http.HTTPStatus.UNAUTHORIZED)
     # do not allow subpaths for non html
     assert _view_ext == '_html' or subpath is None
     #
@@ -264,14 +262,11 @@ def index(request, NICK, UUID):
     #
     ########################################## permission management
     #
-    if request.user.is_anonymous:
-        messages.add_message(request, messages.WARNING, 'Access denied, please login')
-    else:
-        request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
-        #user = request.user
-        #all_permissions = user.get_all_permissions()
-        if not request.user.has_perm('UUID.view_view'):
-            messages.add_message(request, messages.WARNING, 'Access denied to this content')
+    request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
+    if not request.user.has_perm('UUID.view_view'):
+        a = 'Access denied to this content.'
+        if request.user.is_anonymous: a += ' Please login.'
+        messages.add_message(request, messages.WARNING, a)
     #
     # TODO
     show_comment = request.user.is_superuser

@@ -78,6 +78,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # https://github.com/bugov/django-custom-anonymous
+    'ColDocDjango.custom_anonymous.AuthenticationMiddleware',
 ]
 
 ROOT_URLCONF = 'ColDocDjango.urls'
@@ -118,6 +120,8 @@ if not os.path.isfile(DATABASES['default']['NAME']):
 # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
 AUTH_USER_MODEL = 'ColDocApp.ColDocUser'
 
+# https://github.com/bugov/django-custom-anonymous
+AUTH_ANONYMOUS_MODEL = 'ColDocDjango.ColDocApp.models.ColDocAnonymousUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

@@ -43,13 +43,8 @@ AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 from django.contrib.auth.models import AbstractUser
 
 
-class ColDocUser(AbstractUser):
-    def __init__(self, *v, **k):
-        # will be an instance of DColDoc
-        self._coldoc = None
-        # will be an instance of DMetadata
-        self._blob = None
-        super().__init__(*v, **k)
+
+class BaseColDocUser():
     def associate_coldoc_blob_for_has_perm(self, coldoc, blob):
         if coldoc is not None and not isinstance(coldoc, DColDoc):
             logger.error(" type %r instead of DColDoc",coldoc)
@@ -60,7 +55,17 @@ class ColDocUser(AbstractUser):
             logger.error(" type %r instead of DMetadata",blob)
             blob = None
         self._blob = blob
+
+class ColDocUser(AbstractUser, BaseColDocUser):
+    def __init__(self, *v, **k):
+        # will be an instance of DColDoc
+        self._coldoc = None
+        # will be an instance of DMetadata
+        self._blob = None
+        super(AbstractUser,self).__init__(*v, **k)
     def has_perm(self, perm, obj=None):
+        if self._coldoc is None:
+            return super(AbstractUser,self).has_perm(perm, obj)
         v = False
         try:
             v = user_has_perm(super(), perm, self._coldoc, self._blob, obj)
@@ -69,6 +74,26 @@ class ColDocUser(AbstractUser):
         except:
             logger.exception('failed check on permission, set to False')
         return v
+
+
+# https://github.com/bugov/django-custom-anonymous
+
+from django.contrib.auth.models import AnonymousUser as DjangoAnonymousUser
+
+class ColDocAnonymousUser(DjangoAnonymousUser, BaseColDocUser):
+    def __init__(self, request, *v, **k):
+        self._coldoc = None
+        self._blob = None
+        super(DjangoAnonymousUser, self).__init__(*v, **k)
+    def has_perm(self, perm, obj=None):
+        if self._coldoc is None or self._blob is None:
+            return super(DjangoAnonymousUser,self).has_perm(perm, obj)
+        if perm in  ('UUID.view_view',):
+            if not self._coldoc.anonymous_can_view:
+                return False
+            r = (self._blob.access in ('open','public'))
+            return r
+        return False
 
 #####################################
 
@@ -153,6 +178,7 @@ class DColDoc(models.Model):
     abstract = models.TextField(max_length=10000, blank=True)
     publication_date = models.DateTimeField('date first published', default=DT.now)
     modification_date = models.DateTimeField('date of last modification', default=DT.now)
+    anonymous_can_view = models.BooleanField(default=True)
     #
     LATEX_ENGINES=ColDoc_latex_engines
     latex_engine = models.CharField("latex-type command used to compile",
