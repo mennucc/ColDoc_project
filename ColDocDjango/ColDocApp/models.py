@@ -10,7 +10,7 @@ from django.core.validators  import RegexValidator
 import django.core.exceptions
 from django.core import serializers
 from django.urls import reverse
-
+from django.core.exceptions import ValidationError
 from django.conf import settings
 
 # TODO : site support
@@ -27,7 +27,7 @@ def _(s):
 
 from ColDoc.utils import uuid_to_int, int_to_uuid, uuid_check_normalize, uuid_valid_symbols
 from ColDoc.latex import ColDoc_latex_engines
-
+import ColDoc.config
 
 from ColDocDjango.utils import permissions_for_coldoc, user_has_perm
 
@@ -158,6 +158,13 @@ class UUID_Field(models.IntegerField):
 
 COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 
+def validate_coldoc_nickname(value):
+    if value in ColDoc.config.ColDoc_invalid_nickname :
+        raise ValidationError(
+            _('Please do not use %(value)s as nickname, it may generate confusion'),
+            params={'value': value},
+        )
+
 class DColDoc(models.Model):
     "Collaborative Document"
     #
@@ -171,6 +178,7 @@ class DColDoc(models.Model):
     #  https://docs.djangoproject.com/en/3.0/ref/models/fields
     nickname = models.SlugField("short string to identify",
                                 help_text="short string to identify this ColDoc in URLs (alphanumeric only, use '_' or '-' for other chars)",
+                                validators=[validate_coldoc_nickname],
                                 max_length=10,  db_index = True, primary_key=True)
     #
     title = models.CharField(max_length=2000, blank=True)

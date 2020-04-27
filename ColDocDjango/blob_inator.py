@@ -46,6 +46,7 @@ from django.core.validators  import validate_slug
 
 import ColDoc.blob_inator as BI
 
+from ColDoc import config
 
 if __name__ == '__main__':
     BI.COLDOC_SRC_ROOT = COLDOC_SRC_ROOT
@@ -108,10 +109,9 @@ to specify where the ColDoc site is located.
     except Exception as e:
         sys.stderr.write('Invalid coldoc_nick=%r\n'%(args.coldoc_nick,))
         sys.exit(1)
-    if args.coldoc_nick in ('static','static_collect','static_root','static_local','media',
-                            'usr','var','lib','etc','src','pdf','html',
-                            'jpeg','jpg','tiff','tif'):
-        sys.stderr.write('Cannot use coldoc_nick=%r\n'%(args.coldoc_nick,))
+    if args.coldoc_nick in config.ColDoc_invalid_nickname:
+        # better not use such nicknames, may confuse the user and/or the programmer
+        sys.stderr.write('Please do not use %r as nickname, it may generate confusion.\n'%(args.coldoc_nick,))
         sys.exit(1)
     #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick)

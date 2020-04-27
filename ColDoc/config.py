@@ -35,3 +35,12 @@ ColDoc_commented_newline_after_blob_input = True
 
 # 
 ColDoc_url_placeholder = '@URLPLACEHOLDER91HDLP@'
+
+# better not use such nicknames, may confuse the user and/or the programmer
+
+ColDoc_invalid_nickname = ['static','static_collect','static_root','static_local','media',
+                            'coldoc','ColDoc','all','search',
+                            'http','https','html','www',
+                            'usr','var','lib','etc','src','tmp',
+                            'pdf','doc',
+                            'jpeg','jpg','tiff','tif','gif','svg']
