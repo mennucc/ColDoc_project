@@ -194,8 +194,6 @@ class DColDoc(models.Model):
         choices=LATEX_ENGINES,
         default='pdflatex',
     )
-    latex_documentclass = models.CharField(max_length=50, blank=True)
-    latex_documentclass_options = models.CharField(max_length=100, blank=True)
     #
     root_uuid = UUID_Field(default=1)
     #

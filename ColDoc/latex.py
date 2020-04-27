@@ -79,18 +79,20 @@ standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 \end{document}
 """
 
-preview_template=r"""\documentclass%(documentclass_options)s{%(documentclass)s}
+preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s}
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
+\usepackage{hyperref}
 \usepackage{ColDocUUID}
-\usepackage[active,tightpage]{preview}
-\setlength\PreviewBorder{5pt}
 \begin{document}
 %(begin)s
 \input{%(input)s}
 %(end)s
 \end{document}
 """
+## TODO investigate, this generates an empty PDF
+##\setlength\PreviewBorder{5pt}
+##%\usepackage[active]{preview}
 
 plastex_template=r"""\documentclass{article}
 \def\uuidbaseurl{%(url_UUID)s}
@@ -192,24 +194,39 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
         shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'), fake_abs_name+'.tex')
     else:
         main_file = open(fake_abs_name+'.tex', 'w')
-        ## TODO
-        ltcls = metadata.get('latex_documentclass')
-        ltcls = ltcls[0] if ltcls else 'auto'
-        if ltcls == 'auto':
-            if True or env in ('section',):
-                a = standalone_template
+        #
+        ltclsch = metadata.get('latex_documentclass_choice')
+        ltclsch = ltclsch[0] if ltclsch else 'auto'
+        ltcls = options.get('documentclass')
+        if ltclsch == 'auto':
+            if env in ('section','E_document'):
+                ltclsch = 'main'
             else:
-                a = preview_template
-                D['documentclass'] = ltcls
-                ltclsopt = metadata.get('latex_documentclassoptions')
-                if ltclsopt:
-                    ltclsopt = ltclsopt[0].strip()
+                ltclsch = 'standalone'
+        if ltclsch == 'main' and not ltcls:
+            # TODO this may happen when using ColDoc/latex.py as a command
+            # see TODO[1] below
+            logger.warning('When LaTeXing uuid %r, could not use latex_documentclass_choice = "main"', uuid)
+            ltclsch = 'standalone'
+        if ltclsch == 'main':
+            latextemplate = preview_template
+            D['documentclass'] = ltcls
+            ltclsopt = options.get('documentclassoptions')
+            if ltclsopt:
+                ltclsopt = ltclsopt[0].strip()
                 if ltclsopt and ltclsopt[0] != '[':
                     ltclsopt = ( '[' + ltclsopt[0] + ']' )
-                D['documentclass_options'] = ltclsopt
+            else:
+                ltclsopt = ''
+            D['documentclass_options'] = ltclsopt
+        elif ltclsch == 'standalone':
+            latextemplate = standalone_template
+        elif ltclsch in ('article','book'):
+            latextemplate = preview_template
+            D['documentclass'] = ltclsch
         else:
-            raise RuntimeError("unimplemented ltcls = %r",ltcls)
-        main_file.write(a % D)
+            raise RuntimeError("unimplemented  latex_documentclass_choice = %r",ltclsch)
+        main_file.write(latextemplate % D)
         main_file.close()
     rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
@@ -493,6 +510,8 @@ def main(argv):
         logger.debug('From %r options %r',a,options)
     else:
         logger.debug('No %r',a)
+    # TODO[1] should track down the metadata of the main file and copy
+    # the `documentclass` and `documentclassoptions` into `options`
     def foobar(*v, **k):
         " helper factory"
         return ColDoc.transform.squash_input_uuid(*v, **k)

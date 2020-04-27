@@ -90,6 +90,20 @@ def main(argv):
     #
     options['coldoc'] = coldoc = matches[0]
     args.coldoc_root_uuid = coldoc.root_uuid
+    try:
+        a = blob_models.DMetadata.objects.get(uuid=coldoc.root_uuid,
+                                              coldoc=coldoc)
+        b = a.get('documentclass')
+        if b:
+            options['documentclass'] = b[0]
+        else:
+            logger.warning('No `documentclass` in %s',coldoc.root_uuid)
+        b = a.get('documentclassoptions')
+        if b:
+            options['documentclassoptions'] = b[0]
+    except:
+        logger.exception('cannot extract documentclass and options from main_blob')
+    #
     def foobar(*v, **k):
         " helper factory"
         return squash_helper_ref(coldoc, *v, **k)
