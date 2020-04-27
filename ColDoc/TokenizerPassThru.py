@@ -1,6 +1,16 @@
 from plasTeX.Tokenizer import *
 
 class TokenizerPassThru(Tokenizer):
+    def __init__(self, *args, **kwargs):
+        self._pass_comments_ = True
+        super().__init__(*args, **kwargs)
+    @property
+    def pass_comments(self):
+        return self._pass_comments_
+    @pass_comments.setter
+    def pass_comments(self, value):
+        self._pass_comments_ = value
+    #
     def __iter__(self):
         """
         Iterate over tokens in the input stream
@@ -74,7 +84,10 @@ class TokenizerPassThru(Tokenizer):
                     # but it is much faster.
                     if ord(token) != 10:
                         self.lineNumber += 1
-                        yield(Comment(self.readline()))
+                        if self._pass_comments_:
+                            yield(Comment(self.readline()))
+                        else:
+                            self.readline()
                     ##token = EscapeSequence('par')
                     # Prevent adjacent paragraphs
                     ##if prev == token:
@@ -132,13 +145,19 @@ class TokenizerPassThru(Tokenizer):
                 # TODO: This action should be generalized so that the
                 #       tokens are processed recursively
                 if token is not token and token.catcode == CC_COMMENT:
-                    yield(Comment(self.readline()))
+                    if self._pass_comments_:
+                        yield(Comment(self.readline()))
+                    else:
+                        self.readline()
                     self.lineNumber += 1
                     self.state = STATE_N
                     continue
 
             elif code == CC_COMMENT:
-                yield(Comment(self.readline()))
+                if self._pass_comments_:
+                    yield(Comment(self.readline()))
+                else:
+                    self.readline()
                 self.lineNumber += 1
                 self.state = STATE_N
                 continue
