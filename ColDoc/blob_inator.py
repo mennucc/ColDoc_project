@@ -627,7 +627,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 if macroname == 'documentclass':
                     in_preamble = True
                     obj = Base.documentclass()
+                    thetex.currentInput[0].pass_comments = False
                     a = obj.parse(thetex)
+                    thetex.currentInput[0].pass_comments = True
                     # implement obj.load(thetex, a['name'], a['options'])
                     thecontext.loadPackage(thetex, a['name']+'.cls',
                                            a['options'])
@@ -642,11 +644,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     #obj.parse(thetex)
                     # the above fails, we are not providing the full context to it
                     # so we imitate it, iterating over obj.arguments:
+                    thetex.currentInput[0].pass_comments = False
                     argSource = ''
                     for spec in '*','[]',None:
                         output, source = thetex.readArgumentAndSource(spec=spec) #parentNode=obj,name=arg.name,**arg.options)
                         #logger.debug(' spec %r output %r source %r ' % (spec,output,source) )
                         argSource += source
+                    thetex.currentInput[0].pass_comments = True
                     name = source[1:-1]
                     n = new_section_nr(blobs_dir = blobs_dir)
                     u = int_to_uuid(n)
@@ -673,7 +677,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         stack.topstream.write("\\uuid{%s}" % (stack.topstream.uuid,))
                 elif cmdargs.split_all_theorems and macroname == 'newtheorem':
                     obj = amsthm.newtheorem()
+                    thetex.currentInput[0].pass_comments = False
                     obj.parse(thetex)
+                    thetex.currentInput[0].pass_comments = True
                     stack.topstream.write(obj.source)
                     logger.info('adding to splited environments: %r' % obj.source)
                     th = new_theorem(obj.attributes, thedocument, thecontext)
@@ -685,6 +691,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     if macroname == "include" and stack.topstream.environ == "section":
                         r = stack.pop_stream().writeout()
                         input_it(r)
+                    thetex.currentInput[0].pass_comments = False
                     if use_plastex_parse:
                         obj = Base.input()
                         a = obj.parse(thetex)
@@ -693,6 +700,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         #inputfile = thetex.kpsewhich(inputfile)
                     else:
                         inputfile = thetex.readArgument(type=str)
+                    thetex.currentInput[0].pass_comments = True
                     inputfileext = inputfile + ('' if inputfile[-4:] == '.tex' else '.tex' )
                     if inputfileext in file_blob_map:
                         O,U = file_blob_map[inputfileext]
@@ -752,7 +760,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 elif not in_preamble and macroname in cmdargs.split_graphic :
                     if macroname == "includegraphics":
                         obj = graphicx.includegraphics()
+                        thetex.currentInput[0].pass_comments = False
                         a = obj.parse(thetex)
+                        thetex.currentInput[0].pass_comments = True
                         inputfile = a['file']
                         src = obj.source
                         j = src.index('{')
@@ -761,6 +771,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     else:
                         logger.warning('FIXME, should improve parsing of %r',macroname)
                         cmd = src = '\\' + macroname
+                        thetex.currentInput[0].pass_comments = False
                         for spec in '*','[]',None:
                             _, s = thetex.readArgumentAndSource(spec=spec)
                             src += s
@@ -768,6 +779,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                                 cmd += s
                             else:
                                 inputfile = s[1:-1]
+                        thetex.currentInput[0].pass_comments = True
                     assert isinstance(inputfile,str)
                     logger.debug('parsing %r' , cmd+'{'+inputfile+'}')
                     assert not os.path.isabs(inputfile), "absolute path not supported: "+cmd+'{'+inputfile+'}'
@@ -899,7 +911,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         obj.ownerDocument = thedocument
                         source = None
                         if isinstance(obj, amsthm.theoremCommand) or name == 'figure':
+                            thetex.currentInput[0].pass_comments = False
                             _,source = thetex.readArgumentAndSource('[]')
+                            thetex.currentInput[0].pass_comments = True
                             if source:
                                 stack.topstream.write(source)
                         #out = obj.invoke(tex) mangles everything
@@ -981,8 +995,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     stack.topstream.write(r'\end{%s}' % name)
                 elif not in_preamble and macroname in cmdargs.metadata_command :
                     obj = thetex.ownerDocument.createElement(macroname)
+                    thetex.currentInput[0].pass_comments = False
                     args = [ thetex.readArgumentAndSource(type=str)[1] for j in range(obj.nargs)]
                     #obj.parse(thetex)
+                    thetex.currentInput[0].pass_comments = True
                     logger.info('metadata %r  %r' % (tok,args))
                     j = stack.top
                     a = '' if j == stack.topstream else ('S_'+stack.topenv+'_')
