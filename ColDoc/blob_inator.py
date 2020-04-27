@@ -634,7 +634,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     thecontext.loadPackage(thetex, a['name']+'.cls',
                                            a['options'])
                     stack.topstream.write(obj.source)
-                    stack.topstream.add_metadata('documentclass',obj.source)
+                    stack.topstream.add_metadata('documentclass',a['name'])
+                    if a['options'] :
+                        j = ','.join(a['options'].keys())
+                        stack.topstream.add_metadata('documentclassoptions',j)
                     if cmdargs.split_preamble:
                         stack.push(named_stream('preamble', parent=stack.topstream))
                 elif cmdargs.split_sections and macroname == 'section':
