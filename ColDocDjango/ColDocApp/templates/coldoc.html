@@ -2,7 +2,10 @@
 {% block title %} ColDoc — {{ coldoc.nickname }}{% endblock %}
 {% block content %}
 
-<h1>ColDoc Document: {{ coldoc.title }}</h1>
+
+<h1>{% if coldoc.title %} {{coldoc.title}} {% else %}
+ColDoc  — {{ coldoc.nickname }} {% endif %}</h1>
+
 First published {{ coldoc.pub_date }}
 {% if coldoc.authors %}
 <h2>Authors</h2>
