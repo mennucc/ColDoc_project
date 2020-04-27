@@ -1,19 +1,7 @@
 {% extends "bootstrapbase.html" %}
 {% block title %}home{% endblock %}
 {% block content %}
-{% if site.google_custom_search_id %}
-<script>
-  (function() {
-    var cx = '{{ site.google_custom_search_id }}';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
-  })();
-</script>
-{% endif %}
+
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
   <li class="nav-item">
