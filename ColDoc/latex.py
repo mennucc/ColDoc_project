@@ -112,7 +112,9 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
     warn = logging.WARNING if warn else logging.DEBUG
     if metadata is None:
         uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
-                                                   blobs_dir = blobs_dir)
+                                blobs_dir = blobs_dir,
+                                coldoc = options.get('coldoc'),
+                                metadata_class= options['metadata_class'])
     else:
         uuid_dir = None
     #
@@ -245,7 +247,9 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
     assert isinstance(blobs_dir, (str, pathlib.Path)), blobs_dir
     assert os.path.isdir(blobs_dir)
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
-                                               blobs_dir = blobs_dir)    
+                                              blobs_dir = blobs_dir,
+                                              coldoc = options.get('coldoc'),
+                                              metadata_class= options['metadata_class'])
     environ = metadata.environ
     #
     if lang is not None:
@@ -447,7 +451,9 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     if uuid is None:
         uuid = '001'
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
-                                                   blobs_dir = blobs_dir)
+                                                   blobs_dir = blobs_dir,
+                                                   coldoc = options.get('coldoc'),
+                                                   metadata_class=options['metadata_class'])
     #
     ret = True
     if metadata.environ in environments_we_wont_latex :
@@ -516,6 +522,7 @@ def main(argv):
         " helper factory"
         return ColDoc.transform.squash_input_uuid(*v, **k)
     options["squash_helper"] = foobar
+    options['metadata_class'] = ColDoc.utils.FMetadata
     return main_by_args(args,options)
 
 
