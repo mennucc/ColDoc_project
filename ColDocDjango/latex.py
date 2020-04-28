@@ -75,7 +75,7 @@ def main(argv):
         options.update(blob_inator_args)
         logger.debug('From %r options %r',a,options)
     else:
-        logger.debug('No %r',a)
+        logger.warning('No %r',a)
     #
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     import django

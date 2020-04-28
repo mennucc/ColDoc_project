@@ -455,7 +455,10 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
         if os.path.exists(fake_abs_name+e):
             if e == '.pdf':
                 s=os.path.getsize(fake_abs_name+e)
-                logger.info("Created pdf %r size %d"%(save_abs_name+e,s))
+                if s :
+                    logger.info("Created pdf %r size %d"%(save_abs_name+e,s))
+                else:
+                    logger.warning("Created empty pdf %r "%(save_abs_name+e,))
             if e == '.aux' and environ in ( 'main_file', 'E_document'):
                 # keep a copy of the aux file
                 shutil.copy(fake_abs_name+e, osjoin(blobs_dir,'main.aux'))
@@ -473,6 +476,7 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     " latex the whole tree, starting from `uuid` "
     warn = logging.WARNING if warn else logging.DEBUG
     if uuid is None:
+        logger.warning('Assuming root_uuid = 001')
         uuid = '001'
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir,
