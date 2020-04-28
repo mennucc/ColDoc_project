@@ -291,7 +291,8 @@ def index(request, NICK, UUID):
     #
     #####################################################################
     #
-    pdfurl = ('/UUID/%s/%s/pdf?lang=%s'%(NICK,UUID,lang))
+    pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
+        '?lang=%s&ext=%s'%(lang,ext[1:])
     #
     if ext == '.tex':
         blobcontenttype = 'text'
@@ -381,7 +382,8 @@ def index(request, NICK, UUID):
         except:
             logger.exception('problem finding siblings for UUID %r',UUID)
     #
-    showurl = '/UUID/%s/%s/show?lang=%s&ext=%s'%(NICK,UUID,lang,ext[1:])
+    showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
+        '?lang=%s&ext=%s'%(lang,ext[1:])
     #
     
     return render(request, 'UUID.html', locals() )
