@@ -601,6 +601,57 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
         else:
             end = 'blob `' + end + '`'
         logger.error(' LaTeX Error: %s ended by %s ' % (beg,end))
+    ###################
+    def parse_biblio_usepackage(macroname,topstream):
+        ext = {'bibliography':'.bib','usepackage':'.sty'}[macroname]
+        if macroname == 'usepackage':
+            opt = thetex.readArgument('[]',type=str)
+            if not opt:
+                opt = ''
+            else:
+                opt = '['+opt+']'
+        else:
+            opt = ''
+        arg = thetex.readArgument(type=str)
+        arg = arg.split(',')
+        if opt and len(arg)>1:
+            logger.warning('Cannot cope with %r %r %r',macroname,opt,arg)
+        for j in arg:
+            a = j
+            if not j.endswith(ext):
+                a += ext
+            b = osjoin(input_basedir,a)
+            inputfile = None
+            if os.path.exists(b):
+                inputfile = b
+            ## TODO copying packages is quite difficult
+            #else:
+            #    try:
+            #        inputfile = thetex.kpsewhich(a)
+            #    except:
+            #        logger.exception('kpsewhich failed on %r',a)
+            #    else:
+            #        # copy only stuff inside the home directory
+            #        if not inputfile.startswith(os.path.expanduser('~')):
+            #            inputfile = None
+            if inputfile is None:
+                topstream.write('\\'+macroname+opt+'{'+j+'}')
+            else:
+                uuid = new_uuid(blobs_dir=blobs_dir)
+                do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
+                fo = osjoin(do,'blob')
+                fm = metadata_class(basepath=blobs_dir,coldoc=coldoc)
+                fm.add('uuid', uuid)
+                fm.add('environ',  macroname)
+                fm.add('original_filename', inputfile)
+                fm.add('original_command', '\\'+macroname+'{'+j+'}')
+                fm.add('parent_uuid', stack.topstream.uuid)
+                topstream.write('\\'+macroname+opt+'{'+fo+'}')
+                a,b=inputfile,osjoin(blobs_dir,fo)+ext
+                logger.warning('Copy %r to %r',a,b)
+                shutil.copy(a,b)
+                fm.save()
+    #############################################################
     #
     itertokens = thetex.itertokens()
     n=0
@@ -761,6 +812,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     if a == 'input' and ColDoc_commented_newline_after_blob_input:
                         stack.topstream.write('%\n')
                     del r,z,a
+                elif macroname  in ('bibliography','usepackage'):
+                    parse_biblio_usepackage(macroname,stack.topstream)
                 elif not in_preamble and macroname in cmdargs.split_graphic :
                     if macroname == "includegraphics":
                         obj = graphicx.includegraphics()
