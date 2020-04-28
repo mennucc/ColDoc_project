@@ -291,13 +291,17 @@ def index(request, NICK, UUID):
     #
     #####################################################################
     #
+    pdfurl = ('/UUID/%s/%s/pdf?lang=%s'%(NICK,UUID,lang))
+    #
     if ext == '.tex':
         blobcontenttype = 'text'
         file = open(filename).read()
         env = metadata.get('environ')[0]
         if env in ColDoc.latex.environments_we_wont_latex:
-            html = '[NO HTML preview for preamble]'
+            html = '[NO HTML preview for %r]'%(env,)
+            pdfurl = ''
         elif env == 'main_file':
+            pdfurl = ''
             html = ''
             try:
                 b = DMetadata.objects.filter(coldoc=NICK, environ='E_document')[0]
@@ -379,7 +383,7 @@ def index(request, NICK, UUID):
     #
     showurl = '/UUID/%s/%s/show?lang=%s&ext=%s'%(NICK,UUID,lang,ext[1:])
     #
-    pdfurl = ('/UUID/%s/%s/pdf?lang=%s'%(NICK,UUID,lang))
+    
     return render(request, 'UUID.html', locals() )
 
 

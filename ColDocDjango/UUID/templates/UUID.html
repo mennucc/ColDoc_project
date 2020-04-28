@@ -58,7 +58,9 @@
       <!-- <a href="{{ showurl|safe }}?download"  class="btn btn-outline-primary btn-sm">Download</a>    <br> -->
       <iframe src="{{ showurl|safe }}"   width="100%"   height="640px">(View should be displayed here)</iframe>
      {% endif %}
-     <a href="{{ pdfurl }}" class="btn btn-outline-primary btn-sm">Download PDF</a><br>
+     {% if pdfurl %}
+      <a href="{{ pdfurl }}" class="btn btn-outline-primary btn-sm">Download PDF</a><br>
+      {% endif %}
   </div>
  {% endif %}
  {% if perms.UUID.view_blob %}
