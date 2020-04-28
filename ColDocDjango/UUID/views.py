@@ -88,12 +88,22 @@ def postedit(request, NICK, UUID):
     metadata.save()
     # TODO parse it to refresh metadata
     #
+    rh, rp = _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata)
+    if rh and rp:
+        messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
+    else:
+        messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
+    return index(request, NICK, UUID)
+
+def _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata):
     a = osjoin(blobs_dir, '.blob_inator-args.json')
     blob_inator_args = json.load(open(a))
     assert isinstance(blob_inator_args,dict)
     options = copy.copy(blob_inator_args)
     #
-    url = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})[:-4]
+    url = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
+    url = request.build_absolute_uri(url)
+    # used for PDF
     options['url_UUID'] = url
     #
     from ColDocDjango.transform import squash_helper_ref
@@ -101,10 +111,10 @@ def postedit(request, NICK, UUID):
         " helper factory"
         return squash_helper_ref(coldoc, *v, **k)
     options["squash_helper"] = foobar
+    options['metadata_class'] = ColDoc.utils.FMetadata
     #
     from ColDoc import latex
-    latex.latex_blob(blobs_dir, metadata, uuid=UUID, lang = lang_, options=options)
-    return HttpResponse(filename, content_type='text') #'<br>'.join(repr(j) for j in request.GET))
+    return latex.latex_blob(blobs_dir, metadata, uuid=uuid, lang = lang, options=options)
 
 ###############################################################
 
