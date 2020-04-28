@@ -318,6 +318,15 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
                                         blobs_dir, True, True)
         except:
             logger.exception('while symlinking')
+        #
+        for e in ('.aux','.bbl','_plastex.paux'):
+            # keep a copy of the aux file
+            # TODO should encode by language
+            a,b = osjoin(blobs_dir,save_name+e), osjoin(blobs_dir,'main'+e)
+            if os.path.isfile(a):
+                logger.info('Copy %r to %r',a,b)
+                shutil.copy(a,b)
+        #
         ret = ret and rh and rp
     coldoc = options.get('coldoc')
     if coldoc is not None:
@@ -336,9 +345,14 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
     #
-    for e in ('.paux',):
-        if os.path.exists(save_abs_name+'_plastex'+e):
-            shutil.copy(save_abs_name+'_plastex'+e,fake_abs_name+e)
+    for es,ed in ('_plastex.paux','.paux'), ('.bbl','.bbl'):
+        a = osjoin(blobs_dir,'main'+es)
+        if os.path.exists(a):
+            logger.info("Re-using %r",a)
+            shutil.copy2(a,fake_abs_name+ed)
+        elif os.path.exists(save_abs_name+es):
+            logger.info("Re-using %r",save_abs_name+es)
+            shutil.copy(save_abs_name+es,fake_abs_name+ed)
     #
     import glob, string
     import plasTeX
@@ -407,25 +421,25 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     return ret == 0
 
 
-def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
+def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = False):
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
-    # FIXME this is not perfect: 'main.aux' is created only when the
-    # 'main_file' or 'document' blob is compiled; moreover it is not working
-    a = os.path.join(blobs_dir,'main.aux')
-    if os.path.exists(a):
-        logger.debug("Re-using %r",a)
-        shutil.copy2(a,fake_abs_name+'.aux')
-    elif os.path.exists(save_abs_name+'.aux'):
-        logger.debug("Re-using %r",save_abs_name+'.aux')
-        shutil.copy2(save_abs_name+'.aux', fake_abs_name+'.aux')
-    else:
-        logger.debug("No aux file for this job")
+    # 'main.aux' and 'main.bbl' are saved latex_main()
+    for e in ('.aux','.bbl'):
+        a = os.path.join(blobs_dir,'main'+e)
+        if os.path.exists(a):
+            logger.info("Re-using %r",a)
+            shutil.copy2(a,fake_abs_name+e)
+        elif os.path.exists(save_abs_name+e):
+            logger.info("Re-using %r",save_abs_name+e)
+            shutil.copy2(save_abs_name+e, fake_abs_name+e)
+        else:
+            logger.info("No %r file for this job",e)
     #
-    extensions = '.tex','.log','.pdf','.aux','.toc','.out','.idx','.fls'
+    extensions = '.tex','.log','.pdf','.aux','.toc','.out','.idx','.fls','.bbl','.blg'
     #
     for e in extensions:
-        if e not in ('.tex','.aux') and os.path.exists(fake_abs_name+e):
+        if e not in ('.tex','.aux','.bbl') and os.path.exists(fake_abs_name+e):
             logger.warning('Overwriting: %r',fake_abs_name+e)
     #
     engine = options.get('latex_engine','pdflatex')
@@ -441,29 +455,39 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options):
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                          stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
     r=p.wait()
-    res = False
-    if r == 0:
+    #
+    if environ in ( 'main_file', 'E_document') and \
+         '\\bibdata' in open(fake_abs_name+'.aux').read():
+        p = subprocess.Popen(['bibtex',fake_name],
+                             cwd=blobs_dir,stdin=open(os.devnull),
+                             stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
+        a = p.stdout.read()
+        if p.wait() != 0:
+            logger.warning('bibtex fails, see %r'%(save_abs_name+'.blg',))
+            logger.warning('bibtex output: %r',a)
+    #
+    if r == 0 and repeat:
         p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
-        p.wait()
-        if r == 0 :
-            res = True
-    else:
+        r = p.wait()
+    #
+    res = r == 0
+    if not res:
         logger.warning('%r fails, see %r'%(engine,save_abs_name+'.log'))
+    #
     for e in extensions:
         if os.path.exists(save_abs_name+e):
             os.rename(save_abs_name+e,save_abs_name+e+'~')
         if os.path.exists(fake_abs_name+e):
             if e == '.pdf':
-                s=os.path.getsize(fake_abs_name+e)
-                if s :
-                    logger.info("Created pdf %r size %d"%(save_abs_name+e,s))
+                siz=os.path.getsize(fake_abs_name+e)
+                if siz :
+                    logger.info("Created pdf %r size %d"%(save_abs_name+e,siz))
                 else:
                     logger.warning("Created empty pdf %r "%(save_abs_name+e,))
-            if e == '.aux' and environ in ( 'main_file', 'E_document'):
-                # keep a copy of the aux file
-                shutil.copy(fake_abs_name+e, osjoin(blobs_dir,'main.aux'))
-            os.rename(fake_abs_name+e,save_abs_name+e)
+            a,b=fake_abs_name+e,save_abs_name+e
+            logger.debug('Rename %r to %r',a,b)
+            os.rename(a,b)
         else:
             if e not in ( '.pdf', '.aux' ) :
                 logger.debug("Missing :%r"%(fake_abs_name+e,))
