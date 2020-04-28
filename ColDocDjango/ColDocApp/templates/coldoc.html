@@ -24,6 +24,12 @@ First published {{ coldoc.publication_time }}
 </button>
 </a>
 
+<a href="{% url 'ColDoc:pdf' NICK=coldoc.nickname %}">
+<button   type="button" class="btn btn-outline-primary btn-sm">
+ View whole document, as PDF
+</button>
+</a>
+
 <a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=coldoc.root_uuid %}">
 <button   type="button" class="btn btn-outline-primary btn-sm">
  Navigate document tree

@@ -44,6 +44,15 @@ def html(request, NICK, subpath=None):
     c=c[0]
     return UUIDviews.view_(request, NICK, c.root_uuid, '_html', None, subpath, prefix='main')
 
+def pdf(request, NICK, subpath=None):
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+    c = list(DColDoc.objects.filter(nickname = NICK))
+    if not c:
+        return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    c=c[0]
+    return UUIDviews.view_(request, NICK, c.root_uuid, '.pdf', None, subpath, prefix='main')
+
 def search(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)

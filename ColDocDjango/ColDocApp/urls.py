@@ -9,5 +9,6 @@ urlpatterns = [
     path('<str:NICK>/index.html', views.index),
     path('<str:NICK>/html/<path:subpath>', views.html, name='html'),
     path('<str:NICK>/html/', views.html, name='html'),
+    path('<str:NICK>/pdf', views.pdf, name='pdf'),
     path('<str:NICK>/search', views.search, name='search'),
 ]
