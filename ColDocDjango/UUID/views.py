@@ -84,6 +84,8 @@ def postedit(request, NICK, UUID):
     #
     # write new content
     open(filename,'w').write(blobcontent)
+    metadata.blob_modification_time_update()
+    metadata.save()
     # TODO parse it to refresh metadata
     #
     a = osjoin(blobs_dir, '.blob_inator-args.json')
