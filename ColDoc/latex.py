@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+__all__ = ('main_by_args','latex_main','latex_uuid','latex_tree')
+
 cmd_help="""
 Command help:
 
