@@ -110,8 +110,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         ('article','use `article` documentclass'),
         ('book','use `book` documentclass'),
     ]
-    latex_documentclass = models.CharField("documentclass used to compile (unimplemented)", max_length=15,
-                                           choices=BLOB_DOCUMENTCLASS,        default='auto')
+    latex_documentclass_choice = models.CharField("documentclass used to compile", max_length=15,
+                                           choices=BLOB_DOCUMENTCLASS,   default='auto')
     ####
     # these calls implement part of the interface `classes.MetadataBase`
     #
