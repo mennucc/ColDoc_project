@@ -138,9 +138,20 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
         return True
     #
     res = True
+    retcodes = {}
     for l in langs:
-        res = res and latex_blob(blobs_dir, metadata=metadata, lang=l,
-                                 uuid=uuid, uuid_dir=uuid_dir, options = options)
+        rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
+                            uuid=uuid, uuid_dir=uuid_dir, options = options)
+        res = res and rh and rp
+        j = (':'+l) if (isinstance(l,str) and l) else ''
+        retcodes['latex'+j] = rp
+        retcodes['plastex'+j] = rh
+    metadata.latex_time_update()
+    if res:
+        metadata.latex_return_codes = ''
+    else:
+        metadata.latex_return_codes = json.dumps(retcodes)
+    metadata.save()
     return res
 
 def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {}, squash = True):
@@ -241,7 +252,9 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     main_file.write(plastex_template % D)
     main_file.close()
     rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
-    return rh and rp
+    metadata.latex_time_update()
+    metadata.save()
+    return rh, rp
 
 def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
     "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
@@ -260,12 +273,11 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         langs=metadata.get('lang')
     #
     ret = True
+    retcodes = {}
     for lang in  langs:
         #
-        if lang is None or lang == '':
-            _lang = ''
-        else:
-            _lang = '_' + lang
+        _lang = ('_'+lang) if (isinstance(lang,str) and lang) else ''
+        lang_ = (':'+lang) if (isinstance(lang,str) and lang) else ''
         #
         uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
         # note that extensions are missing
@@ -290,6 +302,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         #
         open(fake_abs_name+'.tex','w').write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+        retcodes['latex'+lang_] = rp
         try:
             ColDoc.utils.os_rel_symlink(save_name+'.pdf','main'+_lang+'.pdf',
                                         blobs_dir, False, True)
@@ -298,12 +311,21 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         open(fake_abs_name+'.tex','w').write(f_html)
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
+        retcodes['plastex'+lang_] = rh
         try:
             ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
                                         blobs_dir, True, True)
         except:
             logger.exception('while symlinking')
         ret = ret and rh and rp
+    coldoc = options.get('coldoc')
+    if coldoc is not None:
+        coldoc.latex_time_update()
+        if ret:
+            coldoc.latex_return_codes = ''
+        else:
+            coldoc.latex_return_codes = json.dumps(retcodes)
+        coldoc.save()
     return ret
 
 

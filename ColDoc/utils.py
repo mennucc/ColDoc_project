@@ -1,4 +1,5 @@
-import itertools, sys, os, io, copy, logging, shelve, unicodedata, re, pathlib, subprocess
+import itertools, sys, os, io, copy, logging, shelve, unicodedata
+import re, pathlib, subprocess, datetime
 import tempfile, shutil
 import os.path
 from os.path import join as osjoin
@@ -183,6 +184,20 @@ class FMetadata(dict, MetadataBase):
     @property
     def coldoc(self):
         return super().get('coldoc',[None])[0]
+    #
+    @property
+    def blob_modification_time(self):
+        return super().get('blob_modification_time',[None])[0]
+    def blob_modification_time_update(self, default=None):
+        if default is None: default=datetime.datetime.now()
+        super().__setitem__('blob_modification_time', [default])
+    #
+    @property
+    def latex_time(self):
+        return super().get('latex_time',[None])[0]
+    def latex_time_update(self, default=None):
+        if default is None: default=datetime.datetime.now()
+        super().__setitem__('latex_time', [default])
     #
     def singled_items(self):
         " yields all (key,value) pairs, where each `key` may be repeated multiple times"

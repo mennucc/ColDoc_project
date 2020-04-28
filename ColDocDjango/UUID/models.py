@@ -80,8 +80,22 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     author = models.ManyToManyField(AUTH_USER_MODEL)
     #
-    creation_date = models.DateTimeField('date of creation', default=DT.now)
-    modification_date = models.DateTimeField('date of last modification', default=DT.now)
+    creation_time = models.DateTimeField('date of creation', default=DT.now)
+    #
+    blob_modification_time = models.DateTimeField('time of last modification of content',
+                                                  default=None, null=True)
+    def blob_modification_time_update(self, default=None):
+        if default is None: default=DT.now()
+        self.blob_modification_time = default
+    #
+    latex_time = models.DateTimeField('time of last run of latex',
+                                      default=None, null=True)
+    def latex_time_update(self, default=None):
+        if default is None: default=DT.now()
+        self.latex_time = default
+    # blank means that no error occoured
+    latex_return_codes = models.CharField(max_length=2000, blank=True)
+    #
     # used for permissions, see utils.user_has_perm()
     ACCESS_CHOICES = [('open','view and LaTeX visible to everybody'),
               ('public','view visible to everybody, LaTeX restricted'),

@@ -311,6 +311,7 @@ class named_stream(io.StringIO):
                 self._metadata.save()
             for j in self._authors:
                 self._metadata.add('author', j)
+            self._metadata.blob_modification_time_update()
             self._metadata.save()
             #
             r =  self._filename

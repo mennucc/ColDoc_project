@@ -184,8 +184,28 @@ class DColDoc(models.Model):
     title = models.CharField(max_length=2000, blank=True)
     editor = models.ManyToManyField(AUTH_USER_MODEL)
     abstract = models.TextField(max_length=10000, blank=True)
-    publication_date = models.DateTimeField('date first published', default=DT.now)
-    modification_date = models.DateTimeField('date of last modification', default=DT.now)
+    #
+    publication_time = models.DateTimeField('time first published', default=DT.now)
+    #
+    ## TODO
+    #modification_time = models.DateTimeField('time of last modification', default=DT.now)
+    #def modification_time_update(self, default=None):
+    #    if default is None: default=DT.now()
+    #    self.modification_time = default
+    #
+    blob_modification_time = models.DateTimeField('time of last modification of any blob in this coldoc', default=DT.now)
+    def blob_modification_time_update(self, default=None):
+        if default is None: default=DT.now()
+        self.blob_modification_time = default
+    #
+    latex_time = models.DateTimeField('time of last run of latex',
+                                      default=None, null=True)
+    def latex_time_update(self, default=None):
+        if default is None: default=DT.now()
+        self.latex_time = default
+    # blank means that no error occoured
+    latex_return_codes = models.CharField(max_length=2000, blank=True)
+    #
     anonymous_can_view = models.BooleanField(default=True)
     #
     LATEX_ENGINES=ColDoc_latex_engines
@@ -198,6 +218,11 @@ class DColDoc(models.Model):
     root_uuid = UUID_Field(default=1)
     #
     def save(self):
+        ## TODO should update only if something was changed.. use signals?
+        #try:
+        #    self.modification_date_update()
+        #except:
+        #    logger.exception()
         r = super().save()
         if COLDOC_SITE_ROOT is None:
             raise RuntimeError("Cannot save, COLDOC_SITE_ROOT==None: %r",self)
