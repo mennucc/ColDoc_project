@@ -9,6 +9,8 @@ twoside]{article}
 \newcommand{\NR}{5}
 %\newcommand{\NR_B}{6}
 
+\usepackage[english]{babel}
+
 \usepackage{amsthm,amsmath}
 
 \usepackage{graphicx}
@@ -54,12 +56,15 @@ A short paragraph of text; this should not be in a separate blob.
   Then a Lemma citing the equation \ref{eq:CC} of the un-numbered Corollary \ref{CC}
 \end{Lem}
 
-\begin{Theorem}[Another Theorem]
+\begin{Theorem}[Another Theorem]\label{AT}
   The formula
   \[ \int_I{e^{f^{g(x)}}} \ \textbf{d}x \]
   and a citation to the first Theorem \ref{CT}
 \end{Theorem}
 
+%\begin{Cor}[A Corollary with a LaTeX mistake]\label{CM}
+%  There is a deliberate LaTeX mistake here: \foobarbaz
+%\end{Cor}
 
 \section*{second $\int$}
 
@@ -130,5 +135,8 @@ et ligula ut magna elementum viverra. Suspendisse sodales.
 \section*{TOC}
 
 \tableofcontents
+
+\bibliographystyle{plain}
+\bibliography{biblio}
 
 \end{document}
