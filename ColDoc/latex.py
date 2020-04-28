@@ -617,8 +617,8 @@ def main_by_args(args,options):
         else:
             ret = False
     elif argv[0] == 'all':
-        ret = latex_tree(blobs_dir,UUID, options=options)
-        ret &= latex_main(blobs_dir, uuid=UUID, options=options)
+        ret = latex_main(blobs_dir, uuid=UUID, options=options)
+        ret &= latex_tree(blobs_dir,UUID, options=options)
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
                                                  metadata_class=ColDoc.utils.FMetadata)
         if anon_dir is not None:
