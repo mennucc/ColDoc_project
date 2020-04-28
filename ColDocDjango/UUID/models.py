@@ -134,6 +134,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 if isinstance(v, ColDocUser):
                     v = v.username
                 F.write( k + '=' + str(v) + '\n')
+        F.write('saved_by_django=True')
         F.close()
     #
     def __key_to_list(self,key):

@@ -109,6 +109,8 @@ class FMetadata(dict, MetadataBase):
         if `f` is a file, write the metadata in that file
         if `f` is None, but a `filename` or `basepath` was provided when creating the class, write there
         """
+        if 'saved_by_django' in super().keys():
+            raise RuntimeError('This metadata was saved by `django`, saving it here would disalign the database')
         if f is None:
             if self._filename is not None:
                 f = self._filename
