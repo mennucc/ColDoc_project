@@ -377,7 +377,8 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
         argv += [ '--split-level','0']
     if tok is False or (environ[:2] == 'E_' and tok == 'auto'):
         argv.append( '--no-display-toc' )
-    argv += ['--log','--paux-dirs',save_name+'_paux',F]
+    # do not use ['--paux-dirs',save_name+'_paux'] until we understand what it does
+    argv += ['--log',F]
     ret = ColDoc.utils.plastex_invoke(cwd_ =  blobs_dir ,
                          stdout_  = open(osjoin(blobs_dir,save_name+'_plastex.stdout'),'w'),
                          argv_ = argv )
