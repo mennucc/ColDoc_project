@@ -68,7 +68,8 @@ from plasTeX.Packages import amsthm , graphicx
 
 # the package ColDocUUID.sty defines a LaTeX command \uuid , that can be overriden in the preamble
 
-environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_preamble', 'usepackage' )
+environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_preamble',
+                               'usepackage', 'bibliography' )
 
 standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 \def\uuidbaseurl{%(url_UUID)s}

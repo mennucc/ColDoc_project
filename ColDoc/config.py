@@ -25,7 +25,8 @@ ColDoc_early_UUID = True
 ColDoc_write_UUID = 'auto'
 
 # see description of `ColDoc_write_UUID`
-ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble','include_preamble','usepackage')
+ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble','include_preamble',
+                               'usepackage','bibliography')
 
 # strips the last lines in blobs if they are all made of whitespace
 ColDoc_blob_rstrip = True
