@@ -76,6 +76,12 @@ def postedit(request, NICK, UUID):
         ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
                                  ext = ext_, lang = lang_, 
                                  metadata_class=DMetadata, coldoc=NICK)
+    #
+    request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
+    if not request.user.has_perm('UUID.change_blob'):
+        logger.error('Hacking attempt',request.META)
+        return HttpResponse("Permission denied", status=http.HTTPStatus.UNAUTHORIZED)
+    #
     # write new content
     open(filename,'w').write(blobcontent)
     # TODO parse it to refresh metadata
