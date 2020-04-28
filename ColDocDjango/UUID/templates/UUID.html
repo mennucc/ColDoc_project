@@ -85,13 +85,13 @@
         {% endif %}{% endfor %}
         <input type="submit" class="btn btn-primary" value="Submit">
       </form>
-    </div>
      {% else %}
        {{ file | safe }}
      {% endif %}
     {% else %}
       (this is not text but {{ blobcontenttype }})
     {% endif %}
+    </div>
   </div>
  {% endif %}
  {% if perms.UUID.view_dmetadata %}
