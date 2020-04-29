@@ -67,7 +67,12 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
         write_special_EOF()
     #
     input_file, _, metadata, lang, ext = choose_blob(uuid=blob_uuid, blobs_dir=blobs_dir)
-    thetex.input(open(input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    F = open(input_file)
+    if cmdargs.rm_uuid:
+        a = F.readline()
+        if not ( a.startswith('\\uuid{') and a.endswith('%\n')):
+            F = open(input_file)
+    thetex.input(F, Tokenizer=TokenizerPassThru.TokenizerPassThru)
     #
     logger.debug("recreating file:%r"%(recreated_files[-1]))
     #
@@ -272,6 +277,8 @@ if __name__ == '__main__':
                         action='store_true', help="add comments to mark beg/end of blobs")
     #parser.add_argument('--add-UUID','--AU',
     #                    action='store_true', help="add \\uuid{UUID} commands")
+    parser.add_argument('--rm-uuid',action='store_true',
+                        help="remove the first line of a blob if it is `\\uuid{...}%` ")
     parser.add_argument('--verbose','-v',action='count',default=0)
     #
     args = parser.parse_args()
