@@ -139,9 +139,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type), status=http.HTTPStatus.BAD_REQUEST)
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r (for %r)." % (NICK,_content_type), status=http.HTTPStatus.BAD_REQUEST)
-    blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
-    if not os.path.isdir(blobs_dir):
-        return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    #
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -160,6 +158,14 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             _view_ext = '.' + q['ext']
         else:
             return HttpResponse("must specify extension", status=http.HTTPStatus.NOT_FOUND)
+    #
+    # TODO if user is editor, provide true access
+    if prefix == 'main' and not request.user.is_superuser :
+        blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
+    else:
+        blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
+    if not os.path.isdir(blobs_dir):
+        return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     #
     langs = []
     if 'lang' in q:
