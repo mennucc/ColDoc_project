@@ -34,7 +34,7 @@
       <li class="nav-item active">
         <a class="nav-link" href="{% url 'admin:index'  %}">Admin</a>
       </li>
-      {% endif %}
+      {% endif %} {# user.is_authenticated #}
 
       <!--
       <li class="nav-item dropdown">
@@ -68,10 +68,10 @@
           <a class="dropdown-item" href="/logout?next={{request.path}}">Logout</a>
         </div>
       </li>
-      {% else %}
+      {% else %} {# user.is_authenticated #}
       <li class="nav-item active">
       <a class="nav-link" href="/login?next={{request.path}}"> 😑  Login. </a>
-      {% endif %}
+    {% endif %} {# user.is_authenticated #}
      </ul>
      
    {% if NICK is not None %}
