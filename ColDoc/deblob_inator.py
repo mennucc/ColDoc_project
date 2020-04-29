@@ -53,6 +53,7 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
     logger.debug("starting uuid %r into %r"%(blob_uuid,output_file))
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
+    metadata_class = Metadata
     #
     specialblobinatorEOFcommand='specialblobinatorEOFcommandEjnjvreAkje'
     def write_special_EOF():
@@ -129,7 +130,10 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                         submetadata = Metadata.load_by_file(osjoin(blobs_dir, d, 'metadata'))
                         subuuid = submetadata['uuid'][0]
                         sub_output = output_file
-                        if 'original_filename' not in submetadata:
+                        s = submetadata.get('original_filename')
+                        assert len(s)<=1, s
+                        original_filename = s.pop() if len(s)==1 else None
+                        if  not original_filename:
                             logger.debug("This \\%s{%s} does not have an `original_filename`" %(macroname,inputfile))
                             if cmdargs.add_UUID_comments:
                                 sub_output.write("%%start_uuid=%s\n"%(subuuid,))
@@ -138,9 +142,7 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                             if cmdargs.add_UUID_comments:
                                 sub_output.write("%%end_uuid=%s\n"%(subuuid,))
                         else:
-                            s = submetadata['original_filename']
-                            assert len(s) == 1
-                            s = s.pop()
+                            s = original_filename
                             logger.debug("This \\%s{%s} does have  `original_filename=%r`" %(macroname,inputfile,s))
                             a = os.path.basename(s)
                             if a != s or '..' in s or os.path.isabs(s):
@@ -198,10 +200,9 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                     for j in t[1:]:
                         output_file.write(j)
                     del obj,j,t
-                elif macroname == "includegraphics":
+                elif macroname in cmdargs.split_graphic+['usepackage','bibliography']:
                     # not in_preamble and cmdargs.copy_graphicx \
-                    logger.warning("\\includegraphics badly implemented, TODO")
-                    cmd = src = '\\includegraphics'
+                    cmd = src = '\\' + macroname
                     #
                     for spec in '*','[]',None:
                         _, s = thetex.readArgumentAndSource(spec=spec)
@@ -212,16 +213,60 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                             inputfile = s[1:-1]
                     del s
                     #
-                    if inputfile[:5] == 'UUID/':
+                    if inputfile.startswith('UUID/'):
+                        logger.debug("Reversing: %r", src)
                         sub_uuid_ = dir_to_uuid(os.path.dirname(inputfile))
-                        sub_input_file, _, sub_metadata, sublang, subext = \
-                            choose_blob(uuid = sub_uuid_, blobs_dir=blobs_dir,
-                                        lang = None, ext = None)
-                        # TODO this is not really identical to the original,
-                        a = os.path.splitext(sub_metadata['original_filename'][0])[0]
-                        a += os.path.splitext(inputfile)[1]
-                        output_file.write(cmd+'{'+a+'}')
+                        sub_metadata = metadata_class.load_by_uuid(uuid=sub_uuid_,
+                                                                   basepath=blobs_dir)
+                        sub_uuid_dir = uuid_to_dir(sub_uuid_, blobs_dir=blobs_dir)
+                        #
+                        orig_cmd = sub_metadata.get('original_command')
+                        if orig_cmd:
+                            orig_cmd = orig_cmd.pop()
+                        logger.debug("original_command: %r", orig_cmd)
+                        #
+                        #sub_input_file, _, sub_metadata, sublang, subext = \
+                        #    choose_blob(uuid = sub_uuid_, blobs_dir=blobs_dir,
+                        #                lang = None, ext = None)
+                        orig_fln = sub_metadata['original_filename'][0]
+                        #
+                        orig_lang = sub_metadata.get('lang')
+                        if orig_lang:
+                            logger.warning('Multiple languages not supported %r',orig_lang)
+                        #
+                        sub_input_file = osjoin(blobs_dir, sub_uuid_dir, 'blob')
+                        orig_ext = sub_metadata.get('extension')
+                        #if macroname in cmdargs.split_graphic:
+                        #    # strip extensions
+                        #    a,b = os.path.splitext(inputfile)
+                        #    c,d = os.path.splitext(sub_input_file)
+                        #    if b and d and c == d:
+                        #        inputfile = a
+                        #        sub_input_file = c
+                        for ext in orig_ext:
+                            if orig_fln.endswith(ext):
+                                # TODO this should not happen
+                                logger.warning('Stripping extension from %r',orig_fln)
+                                orig_fln = orig_fln[:-len(ext)]
+                                break
+                        for ext in orig_ext:
+                            a = sub_input_file + ext
+                            b = osjoin(cmdargs.latex_dir,orig_fln) + ext
+                            if os.path.isfile(a):
+                                logger.info('Copy %r -> %r',a,b)
+                                os.makedirs(os.path.dirname(b),exist_ok=True)
+                                shutil.copy(a,b)
+                            else:
+                                logger.error('Cannot Copy %r -> %r',a,b)
+                        if orig_cmd:
+                            output_file.write(orig_cmd)
+                        else:
+                            # TODO this is not really identical to the original,
+                            a = orig_fln
+                            output_file.write(cmd+'{'+a+'}')
+                            logger.warning('No original command, using %r',cmd+'{'+a+'}')
                     else:
+                        logger.debug("Leaving unaltered %r", src)
                         output_file.write(src)
                     del cmd, src, inputfile
                 else:
@@ -245,9 +290,11 @@ def deblob_inator(blob_uuid, thetex, cmdargs):
         with open(a) as a:
             oldargs = json.load(a)
         cmdargs.verbatim_environment = oldargs['verbatim_environment']
+        cmdargs.split_graphic = oldargs['split_graphic']
         filename = os.path.basename(oldargs['input_file'])
     else:
         cmdargs.verbatim_environment = ['verbatim']
+        cmdargs.split_graphic = ["includegraphics"]
         logger.error("File with `blob_inator` parameters is missing?? %r",a)
     #
     a= osjoin(args.latex_dir,filename)
