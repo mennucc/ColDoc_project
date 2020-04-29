@@ -40,8 +40,11 @@ already present as default into `blob_inator`.
 - `input_preamble` is used for blobs that contain code from a LaTeX file that
   was include using `\\input` while inside the preamble
 
-- `usepackage` is used for blobs that contain packages
-  (this is currently unimplemented)
+- `usepackage` is used for blobs that contain packages; these are copied
+  if found in the same directory of the main file
+
+- `bilbliography` is used for blobs that contain bibliography,
+  as specified by the `\\bibliography` command
 
 - `paragraph` is used for long paragraphs of text (as specified by the `--split-paragraph` option)
 
