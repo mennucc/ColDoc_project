@@ -62,7 +62,7 @@ paper_test:
 
 
 export COLDOC_SITE_ROOT=$(shell pwd)/tmp/test_site
-COLDOC_URL="http://localhost:8000/UUID/paper/"
+
 
 django_help:
 	@echo "Use 'make target' with target being:"
@@ -94,7 +94,7 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/paper/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper ; fi
 	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper  --ZS --SP --SE=figure --SL=itemize --author=jsmith --private-environment=privateremark --SAT   paper/paper.tex
 	./django_tester.py isthere
-	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID=$(COLDOC_URL) all
+	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID="http://localhost:8000/UUID/paper/" all
 
 # load a latex test in the ColDoc portal
 django_latextest: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
@@ -103,7 +103,7 @@ django_latextest: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/latextest/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/latextest ; fi
 	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=latextest  --ZS --SP --SE=figure --SL=itemize --author=jsmith --SAT   latex/latex_test.tex
 	./django_tester.py --coldoc-nick=latextest isthere
-	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=latextest --url-UUID=$(COLDOC_URL) all
+	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=latextest --url-UUID="http://localhost:8000/UUID/latextest/" all
 
 
 django_run:
