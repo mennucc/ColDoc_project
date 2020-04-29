@@ -607,6 +607,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     ###################
     def parse_biblio_usepackage(macroname,topstream):
         ext = {'bibliography':'.bib','usepackage':'.sty'}[macroname]
+        thetex.currentInput[0].pass_comments = False
         if macroname == 'usepackage':
             opt = thetex.readArgument('[]',type=str)
             if not opt:
@@ -616,6 +617,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
         else:
             opt = ''
         arg = thetex.readArgument(type=str)
+        thetex.currentInput[0].pass_comments = True
         arg = arg.split(',')
         if opt and len(arg)>1:
             logger.warning('Cannot cope with %r %r %r',macroname,opt,arg)
