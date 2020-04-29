@@ -134,6 +134,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     #
     # do not allow subpaths for non html
     assert _view_ext == '_html' or subpath is None
+    assert _view_ext in ('_html','.pdf',None)
+    assert prefix in ('main','view')
     #
     if not slug_re.match(UUID):
         return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type), status=http.HTTPStatus.BAD_REQUEST)
@@ -183,9 +185,11 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
                                                        metadata_class=DMetadata)
         #
         request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
-        if not request.user.has_perm('UUID.view_view') or \
-           (prefix=='blob' and not request.user.has_perm('UUID.view_blob')):
-            return HttpResponse("Permission denied",
+        if not request.user.has_perm('UUID.view_view'):
+            return HttpResponse("Permission denied (view)",
+                                status=http.HTTPStatus.UNAUTHORIZED)
+        if prefix=='blob' and not request.user.has_perm('UUID.view_blob'):
+            return HttpResponse("Permission denied (blob)",
                                 status=http.HTTPStatus.UNAUTHORIZED)
         #
         env = metadata.get('environ')[0]
@@ -220,7 +224,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
                                 content_type='text/plain', status=http.HTTPStatus.NOT_FOUND)
         if _content_type is None:
             _content_type , _content_encoding = mimetypes.guess_type(n)
-        logger.warning("Serving: %r %r"%(n,_content_type))
+        logger.debug("Serving: %r %r"%(n,_content_type))
         if _content_type == 'text/html':
             f = open(n).read()
             a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'001'})
@@ -234,7 +238,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return response
     
     except FileNotFoundError:
-        return HttpResponse("Cannot find UUID %r with langs=%r , extension=%r." % (UUID,langs,ext),
+        return HttpResponse("Cannot find UUID %r with langs=%r , extension=%r." % (UUID,langs,_view_ext),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
         logger.exception(e)
