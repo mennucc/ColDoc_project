@@ -3,6 +3,8 @@ twoside]{article}
 
 \newcommand{\uuid}[1]{}%{{\texttt[#1]}}
 
+\usepackage{mypackage}
+
 \def\nr{4}
 \def\nr_b{3}
 
@@ -10,6 +12,9 @@ twoside]{article}
 %\newcommand{\NR_B}{6}
 
 \usepackage[english]{babel}
+
+\usepackage[margin=18ex %,headheight=16pt
+]{geometry}
 
 \usepackage{amsthm,amsmath}
 
@@ -37,18 +42,22 @@ Double input my \input{latex_test3}!
 \section{first}%comment
 the number \nr_b
 
-\begin{Theorem}[A  Theorem for {$I=]0,1[$}]\label{CT}
+\begin{Theorem}[A  Theorem for {$I=]0,1[$}]
+  % A comment after the option
+  \label{CT}
   The formula
 \[ \int_I {\sin(c)} \hbox{is an \textbf{integral}}\]
 \end{Theorem}
 
 A short paragraph of text; this should not be in a separate blob.
 
-\begin{Cor}[A Corollary]\label{CC}
+\begin{Cor}
+  % a comment , no option
+  \label{CC}
   The other formula
   \begin{equation}%
     \label{eq:CC}
-    \int_{\cos(c)}
+    \int_{\cos(c)} < \e
   \end{equation}
 \end{Cor}
 \begin{Lem}\label{lem:2}
@@ -56,7 +65,10 @@ A short paragraph of text; this should not be in a separate blob.
   Then a Lemma citing the equation \ref{eq:CC} of the un-numbered Corollary \ref{CC}
 \end{Lem}
 
-\begin{Theorem}[Another Theorem]\label{AT}
+\begin{Theorem}% a comment before the option
+  [Another Theorem]
+  % a comment after the option but before the label
+  \label{AT}
   The formula
   \[ \int_I{e^{f^{g(x)}}} \ \textbf{d}x \]
   and a citation to the first Theorem \ref{CT}
