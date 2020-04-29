@@ -561,7 +561,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     thetex.input(open(cmdargs.input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     stack = EnvStreamStack()
     output = named_stream('main_file')
-    output.add_metadata('original_filename',input_file)
+    output.add_metadata('original_filename',os.path.basename(input_file))
+    output.add_metadata('original_absolute_filename',input_file)
     file_blob_map[input_file] = output,output.uuid
     output.symlink_file_add('main.tex')
     if cmdargs.symlink_input:
@@ -618,14 +619,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
         arg = arg.split(',')
         if opt and len(arg)>1:
             logger.warning('Cannot cope with %r %r %r',macroname,opt,arg)
-        for j in arg:
-            a = j
-            if not j.endswith(ext):
-                a += ext
-            b = osjoin(input_basedir,a)
-            inputfile = None
-            if os.path.exists(b):
-                inputfile = b
+        for fil in arg:
+            if  fil.endswith(ext):
+                logger.warning('\\%s{%s} with extension',macroname,fil)
+                fil = fil[:-len(ext)]
+            absinputfile = osjoin(input_basedir,fil+ext)
+            if not os.path.exists(absinputfile):
+                absinputfile = None
             ## TODO copying packages is quite difficult
             #else:
             #    try:
@@ -636,8 +636,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
             #        # copy only stuff inside the home directory
             #        if not inputfile.startswith(os.path.expanduser('~')):
             #            inputfile = None
-            if inputfile is None:
-                topstream.write('\\'+macroname+opt+'{'+j+'}')
+            if absinputfile is None:
+                topstream.write('\\'+macroname+opt+'{'+fil+'}')
             else:
                 uuid = new_uuid(blobs_dir=blobs_dir)
                 do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
@@ -645,12 +645,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 fm = metadata_class(basepath=blobs_dir,coldoc=coldoc)
                 fm.add('uuid', uuid)
                 fm.add('environ',  macroname)
-                fm.add('original_filename', inputfile)
-                fm.add('original_command', '\\'+macroname+'{'+j+'}')
+                fm.add('extension',ext)
+                fm.add('original_filename', fil)
+                fm.add('original_command', '\\'+macroname+'{'+fil+'}')
                 fm.add('parent_uuid', stack.topstream.uuid)
                 topstream.write('\\'+macroname+opt+'{'+fo+'}')
-                a,b=inputfile,osjoin(blobs_dir,fo)+ext
-                logger.warning('Copy %r to %r',a,b)
+                a,b=absinputfile,osjoin(blobs_dir,fo)+ext
+                logger.debug('Copy %r to %r',a,b)
                 shutil.copy(a,b)
                 fm.save()
     #############################################################
