@@ -223,8 +223,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         logger.warning("Serving: %r %r"%(n,_content_type))
         if _content_type == 'text/html':
             f = open(n).read()
-            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'Z'}) #NICK=NICK, UUID='Z')
-            f = f.replace(ColDoc.config.ColDoc_url_placeholder,a[:-1])
+            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'001'})
+            f = f.replace(ColDoc.config.ColDoc_url_placeholder,a[:-4])
             response = HttpResponse(f, content_type=_content_type)
         else:
             fsock = open(n,'rb')
