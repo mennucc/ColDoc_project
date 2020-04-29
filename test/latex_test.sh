@@ -26,11 +26,10 @@ echo ========= deblob
 echo '$' python3 ../ColDoc/deblob_inator.py --blobs-dir=tmp/lt/b --latex-dir=tmp/lt/c
 python3 ../ColDoc/deblob_inator.py --blobs-dir=tmp/lt/b --latex-dir=tmp/lt/c
 echo ========= diff
-diff -urwbB "$file" tmp/lt/c
-diff -ur "$file" tmp/lt/c || true
+diff -ur `dirname ${file}` tmp/lt/c || true
 echo ========= check that it compiles
 cd tmp/lt/c
-if ! ${LATEX} latex_test.tex ; then
+if ! ${LATEX} `basename ${file}` ; then
     echo '$ cd tmp/lt/c ; ' ${LATEX}  `basename ${file}`
     echo FAILED, look in  tmp/lt/c/main.log
     exit 1
