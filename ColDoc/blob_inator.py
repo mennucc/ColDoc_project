@@ -6,6 +6,8 @@ splits the input into blobs
 (this version is not integrated with Django)
 """
 
+default_metadata = [ 'label', 'uuid', 'index', 'author', 'date',
+                                    'title', 'ref', 'eqref', 'pageref', 'cite' ]
 ############## system modules
 
 import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json, pathlib
@@ -1146,7 +1148,7 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--split-all-theorems','--SAT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
     parser.add_argument('--metadata-command','--MC',action='append',
                         help='store the argument of this TeX command as metadata for the blob (some defaults are provided)',
-                        default = [ 'label', 'uuid', 'index', 'author', 'date', 'title', 'ref', 'eqref', 'pageref' ] )
+                        default = default_metadata )
     parser.add_argument('--split-graphic','--SG',action='append',
                         default=['includegraphics'],
                         help='copy graphics for this command, as blobs')
