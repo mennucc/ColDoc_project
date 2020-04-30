@@ -133,7 +133,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     # do not allow subpaths for non html
     assert _view_ext == '_html' or subpath is None
     assert _view_ext in ('_html','.pdf',None)
-    assert prefix in ('main','view')
+    assert prefix in ('main','view','blob')
     #
     if not slug_re.match(UUID):
         return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type), status=http.HTTPStatus.BAD_REQUEST)
