@@ -64,7 +64,10 @@ def add_permissions_for_coldoc(nickname):
         gr.save()
 
 def user_has_perm(user, perm, coldoc, blob, obj):
-    " when calling this, make sure that `user` is not an instance of `ColDocUser` ; in case, user `super`"
+    """ when calling this, make sure that `user` is not an instance of `ColDocUser` ; in case, user `super`.
+    This is used only for authenticated users. For anonymous users, see
+    ColDocDjango.users.ColDocAnonymousUser
+    """
     if not user.is_active:
         return False
     if user.has_perm(perm, obj):
