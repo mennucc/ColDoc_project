@@ -3,6 +3,9 @@ Metadata
 
 Here we explain all metadata that may be associated to blobs, and their meaning.
 
+As explained in the previous section, the metadata is associated to the UUID
+(and not to the specific blob, as specified by language and file type)
+
 Environment
 -----------
 
@@ -73,13 +76,19 @@ but are not changed when the blob content is subsequently edited.
 
   where the `optarg` would be equal to `Foobar's theorem`.
 
-- `lang` , the language of this blob; more than one language may be available
+- `lang` , the languages available for this blob; more than one language may be available.
 
-- `extension` , the extentions  of this blob; more than one extension may be available
+- `extension` , the extentions available  for this blob; more than one extension may be available,
+  for example a graphical file may be available a `.jpeg` and `.svg`. For blobs containined
+  LaTeX, only `.tex` is allowed.
 
-- `author` the list of people that contributed to this blob
+- `author` the list of people that contributed to this blob (this does not distinguish
+  if somebody contributed only to a certain language version).
 
-- `original_filename` , the filename whose content was copied in this blob (and children of this blob)
+- `original_filename` , the filename whose content was copied in this
+   blob (and children of this blob) by `blob_inator`; the extension of
+   the filename (if any) is stripped; the path is not absolute, but is
+   relative to the directory where the main LaTeX file was located.
 
 - `uuid` , the UUID of this blob
 
@@ -88,9 +97,16 @@ but are not changed when the blob content is subsequently edited.
 
 - `child_uuid` , the UUID of the children of this blob; there may be none, one, or more than one
 
+- `access` can be `open` , `public` or `private` . See the section on permissions.
+
 - `creation_date`
 
 - `modification_date` ; this is updated when the blob content is edited
+  (this does not distinguish which language version was edited).
+
+- `latex_date` ; this is updated when the view (html and pdf) of this blob was last compiled
+    (this does not distinguish which language version was edited - the system
+    automatically recompiles the language last edited).
 
 These keys are derived from the content of the blob.  Any direct
 change to this database would be lost as soon as the blob is changed.

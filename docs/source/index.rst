@@ -17,7 +17,9 @@ Welcome to ColDoc's documentation!
   install
   test
   deploy
+  blob
   metadata
+  permission
 
 
 
