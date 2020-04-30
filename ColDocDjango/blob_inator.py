@@ -93,12 +93,13 @@ to specify where the ColDoc site is located.
     django.setup()
     import ColDocDjango.ColDocApp.models as coldocapp_models
     import ColDocDjango.UUID.models as  blob_models
+    from ColDocDjango import users
     #
     ## check that usernames are ColDocUser
     from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
     for j in args.author:
         try:
-            a = coldocapp_models.ColDocUser.objects.get(username=j)
+            a = users.ColDocUser.objects.get(username=j)
         except ObjectDoesNotExist:
             sys.stderr.write('No user %r in Django database\n'%(j,))
             sys.exit(1)
@@ -148,8 +149,7 @@ to specify where the ColDoc site is located.
         r =  BI.main(args, metadata_class=blob_models.DMetadata, coldoc=coldoc)
         coldoc.save()
     #
-    import ColDocDjango.utils as CDutils
     with transaction.atomic():
-        CDutils.add_permissions_for_coldoc(coldoc.nickname)
+        users.add_permissions_for_coldoc(coldoc.nickname)
     #
     sys.exit(r)

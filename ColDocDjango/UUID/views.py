@@ -18,8 +18,6 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango
 
-from ColDocDjango.utils import name_of_permission_for_blob
-
 from django.shortcuts import get_object_or_404, render
 
 from .models import DMetadata, DColDoc

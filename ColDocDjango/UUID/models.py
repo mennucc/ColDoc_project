@@ -14,13 +14,14 @@ from django.urls import reverse
 from django.conf import settings
 AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 
-from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field, ColDocUser
+from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
+
 
 from ColDoc import classes, utils as coldoc_utils
 
 from ColDoc.classes import DuplicateLabel
 
-from ColDocDjango.utils import permissions_for_blob_extra
+from ColDocDjango.users import ColDocUser, permissions_for_blob_extra
 
 # Create your models here.
 

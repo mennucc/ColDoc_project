@@ -121,7 +121,7 @@ if not os.path.isfile(DATABASES['default']['NAME']):
 AUTH_USER_MODEL = 'ColDocApp.ColDocUser'
 
 # https://github.com/bugov/django-custom-anonymous
-AUTH_ANONYMOUS_MODEL = 'ColDocDjango.ColDocApp.models.ColDocAnonymousUser'
+AUTH_ANONYMOUS_MODEL = 'ColDocDjango.users.ColDocAnonymousUser'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

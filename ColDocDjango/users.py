@@ -1,3 +1,6 @@
+import logging
+logger = logging.getLogger(__name__)
+
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
@@ -97,3 +100,67 @@ def user_has_perm(user, perm, coldoc, blob, obj):
             return True
     return False
     
+
+#####################################
+# https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
+
+from django.conf import settings
+
+from django.contrib.auth.models import AbstractUser
+
+
+class BaseColDocUser():
+    def associate_coldoc_blob_for_has_perm(self, coldoc, blob):
+        from ColDocDjango.ColDocApp.models import DColDoc
+        from ColDocDjango.UUID.models import DMetadata
+        if coldoc is not None and not isinstance(coldoc, DColDoc):
+            logger.error(" type %r instead of DColDoc",coldoc)
+            coldoc = None
+        self._coldoc = coldoc
+        from ColDocDjango.UUID.models import DMetadata
+        if blob is not None and not isinstance(blob, DMetadata):
+            logger.error(" type %r instead of DMetadata",blob)
+            blob = None
+        self._blob = blob
+
+class ColDocUser(AbstractUser, BaseColDocUser):
+    class Meta:
+        app_label = 'ColDocApp'
+    def __init__(self, *v, **k):
+        # will be an instance of DColDoc
+        self._coldoc = None
+        # will be an instance of DMetadata
+        self._blob = None
+        super(AbstractUser,self).__init__(*v, **k)
+    def has_perm(self, perm, obj=None):
+        if self._coldoc is None:
+            return super(AbstractUser,self).has_perm(perm, obj)
+        v = False
+        try:
+            v = user_has_perm(super(), perm, self._coldoc, self._blob, obj)
+            logger.debug('check user %s perm "%s" coldoc "%s" blob "%s" obj %r -> %r',
+                       self, perm, self._coldoc, self._blob, obj, v)
+        except:
+            logger.exception('failed check on permission, set to False')
+        return v
+
+
+# https://github.com/bugov/django-custom-anonymous
+
+from django.contrib.auth.models import AnonymousUser as DjangoAnonymousUser
+
+class ColDocAnonymousUser(DjangoAnonymousUser, BaseColDocUser):
+    def __init__(self, request, *v, **k):
+        self._coldoc = None
+        self._blob = None
+        super().__init__(*v, **k)
+    def has_perm(self, perm, obj=None):
+        if self._coldoc is None or self._blob is None:
+            return super().has_perm(perm, obj)
+        if perm in  ('UUID.view_view',):
+            if not self._coldoc.anonymous_can_view:
+                return False
+            r = (self._blob.access in ('open','public'))
+            return r
+        return super().has_perm(perm, obj)
+
