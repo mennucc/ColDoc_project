@@ -228,12 +228,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
             latextemplate = preview_template
             D['documentclass'] = ltcls
             ltclsopt = options.get('documentclassoptions')
-            if ltclsopt:
-                ltclsopt = ltclsopt[0].strip()
-                if ltclsopt and ltclsopt[0] != '[':
-                    ltclsopt = ( '[' + ltclsopt[0] + ']' )
-            else:
-                ltclsopt = ''
             D['documentclass_options'] = ltclsopt
         elif ltclsch == 'standalone':
             latextemplate = standalone_template
@@ -572,6 +566,7 @@ def main(argv):
         logger.debug('No %r',a)
     # TODO[1] should track down the metadata of the main file and copy
     # the `documentclass` and `documentclassoptions` into `options`
+    # See ColDocDjango.latex.py around line 97
     def foobar(*v, **k):
         " helper factory"
         return ColDoc.transform.squash_input_uuid(*v, **k)

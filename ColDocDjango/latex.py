@@ -100,7 +100,13 @@ def main(argv):
             logger.warning('No `documentclass` in %s',coldoc.root_uuid)
         b = a.get('documentclassoptions')
         if b:
-            options['documentclassoptions'] = b[0]
+            b = b[0].strip()
+            if b and b[0] != '[':
+                b = ( '[' + b + ']' )
+        else:
+            logger.warning('No `documentclassoptions` in %s',coldoc.root_uuid)
+            b = ''
+        options['documentclassoptions'] = b
     except:
         logger.exception('cannot extract documentclass and options from main_blob')
     #
