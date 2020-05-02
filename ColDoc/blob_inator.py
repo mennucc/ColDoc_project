@@ -1146,7 +1146,6 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--private-environment',action='append',default=[],
                         help='split this environment and mark as access=private')
     parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
-    parser.add_argument('--split-preamble','--SP',action='store_true',help='split the preamble a separate blob')
     parser.add_argument('--split-paragraph',type=int,help='split paragraphs in separate blob when longer than N')
     parser.add_argument('--split-all-theorems','--SAT',action='store_true',help='split any theorem defined by \\newtheorem in a separate blob, as if each theorem was specified by --split-environment ')
     parser.add_argument('--metadata-command','--MC',action='append',
@@ -1174,6 +1173,13 @@ def add_arguments_to_parser(parser):
                             help='strips the last lines in blobs if they are all made of whitespace')
     stripgroup.add_argument('--no-strip',action='store_false',dest='strip',\
                             help='do not --strip')
+    #
+    SPgroup = parser.add_mutually_exclusive_group()
+    SPgroup.add_argument('--split-preamble','--SP',action='store_true',
+                         default=True, help='split the preamble in a separate blob')
+    SPgroup.add_argument('--dont-split-preamble','--noSP',action='store_false',
+                         dest='split_preamble',help='do not --split-preamble. (Warning this is not well supported)')
+    #
     parser.set_defaults(strip=ColDoc_blob_rstrip)
 
 
