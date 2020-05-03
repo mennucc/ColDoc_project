@@ -1225,11 +1225,6 @@ def main(args, metadata_class, coldoc = None):
         mycontext.addGlobal(name, newclass)
 
     if args.EDB:
-        for name in 'Exercises',:
-            # fixme should create list type environment in mycontext
-            args.split_list.append(name)
-        #
-        args.split_environment.append('document')
         #
         thecounter = 'thmCount'
         mycontext.newcounter(thecounter, initial=0) #, resetby=parent)
@@ -1276,10 +1271,13 @@ def main(args, metadata_class, coldoc = None):
 
 def parse_EDB(args):
     if args.EDB :
-        args.metadata_command += [ 'keywords', 'prerequisites',  'difficulty','indexLit', 'indexLen']
-        args.split_graphic += ['margpic']
+        args.split_list += ['Exercises',]
+        #
+        args.metadata_command += [ 'keywords', 'prerequisites',  'difficulty', 'notes', 'olduuid',
+                                   'indexLit', 'indexLen', 'proposto', 'previsto', 'svolto']
+        args.split_graphic += ['margpic','adjincludegraphics']
         args.private_environment += ['delasol','extrastuff','wipver','wipExercise']
-        args.latex_engine = 'lualatex'
+        args.latex_engine = 'xelatex'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Splits a TeX or LaTeX input into blobs',
