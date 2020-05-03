@@ -37,8 +37,10 @@ paper_test:
 	cp -a -t  tmp/pt  paper/*.tex
 	cd tmp/pt ; ln -s ../../../tex/*sty .
 	cp -a -T latex/F tmp/pt/F
+	cp -a -T paper/subdir tmp/pt/subdir
 	#
 	cd tmp/pt && pdflatex -interaction batchmode -file-line-error paper.tex
+	cd tmp/pt && bibtex paper
 	cd tmp/pt && pdflatex -interaction batchmode -file-line-error paper.tex
 	cd tmp/pt && mv -T paper.aux paper_latex.aux
 	cd tmp/pt && mv -T paper.log paper_latex.log
