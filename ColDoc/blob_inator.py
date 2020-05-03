@@ -1268,6 +1268,10 @@ def main(args, metadata_class, coldoc = None):
         return 1
     else:
         logger.info("end of file")
+    # save again, with all theorems found with the option --SAT
+    f = osjoin(args.blobs_dir, '.blob_inator-args.json')
+    with open(f, 'w') as a:
+        json.dump(args.__dict__, a, indent=2)
     return 0
 
 def parse_EDB(args):
