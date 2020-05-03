@@ -281,6 +281,8 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
 
 def deblob_inator(blob_uuid, thetex, cmdargs):
     assert os.path.isdir(cmdargs.blobs_dir), '`blobs-dir` is not a dir: %r' % cmdargs.blobs_dir
+    if not os.path.exists(cmdargs.latex_dir):
+        os.makedirs(cmdargs.latex_dir)
     assert os.path.isdir(cmdargs.latex_dir), '`latex-dir` is not a dir: %r' % cmdargs.latex_dir
     #
     filename = 'main.tex'
