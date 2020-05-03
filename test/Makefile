@@ -11,7 +11,9 @@ help:
 latex_test:
 	test -d tmp || mkdir tmp
 	test -d tmp/lt || mkdir tmp/lt
-	./latex_test.sh latex/latex_test.tex --SP --SI 
+	./latex_test.sh latex/latex_test.tex --SAT  --ZS  --AU=no --split-paragraph 120 --SL=itemize
+	./latex_test.sh latex/latex_test.tex --SAT  --ZS  --split-paragraph 120 --SL=itemize
+	./latex_test.sh latex/latex_test.tex --SP --SI
 	./latex_test.sh latex/latex_test.tex --SP --SAT --SS --ZS --AU=no
 	./latex_test.sh latex/latex_test.tex --SAT  --ZS  --AU=no
 	#
