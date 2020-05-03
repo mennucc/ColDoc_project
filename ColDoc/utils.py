@@ -588,21 +588,42 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_cl
             logger.debug('did copy %r',f)
             shutil.copy2(f,t, follow_symlinks=False)
         elif j.startswith('blob') and os.path.isfile(f): # or os.path.islink(f):
+            # extract extension
+            B,E = os.path.splitext(j)
+            # extract language, with underscore
+            L = B[4:]
+            if lang is not None and L and lang != L[1:]:
+                # If `lang` is not None, skip any blob that has a language that is not None
+                logger.debug('did not copy %r wrong language',f)
+                continue
             ret += 1
             if publ:
-                logger.debug('did copy %r',f)
-                shutil.copy2(f,t, follow_symlinks=False)
-            elif  j.endswith('.tex'):
+                try:
+                    os.link(f,t)
+                    logger.debug('did link %r',f)
+                except:
+                    logger.debug('could not link , rather copy %r',f)
+                    shutil.copy2(f,t, follow_symlinks=False)
+            elif  E == '.tex':
                 # mask content, preserve tree
                 F = open(t,'w')
                 F.write('\\uuid{%s}'%uuid)
                 for u in metadata.get('child_uuid'):
-                    l = ('_'+lang) if lang else ''
-                    F.write('\\input{%s/blob%s.tex}'%(uuid_dir,l))
+                    # We include all LaTeX children, to keep tree connectivity
+                    sub_uuid_, sub_uuid_dir, sub_metadata = resolve_uuid(uuid=u, uuid_dir=None,
+                                                                         blobs_dir = blobs_dir,
+                                                                         metadata_class=metadata_class)
+                    if '.tex' in sub_metadata.get('extension'):
+                        F.write('\\input{%s/blob%s.tex}'%(sub_uuid_dir,L))
                 F.close()
                 logger.debug('did mask private %r',f)
             else:
-                logger.warning('no anon copy for %r',f)
+                try:
+                    os.link(f,t)
+                    logger.debug('did link %r',f)
+                except:
+                    logger.debug('could not link , rather copy %r',f)
+                    shutil.copy2(f,t, follow_symlinks=False)
         else:
             logger.log(logging.DEBUG,'did not copy %r',f)
     for u in metadata.get('child_uuid'):
@@ -615,7 +636,9 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
                       warn=False, metadata_class=FMetadata):
     """ copy the whole tree, starting from `uuid`, and masking private content;
     returns `(n,anon)` , where `n` is the number of copied files, and
-    `anon` is the anonymous directory (or `None` in case of failure) """
+    `anon` is the anonymous directory (or `None` in case of failure).
+    If `lang` is not None, skip any blob that has a language that is not None.
+    """
     warn = logging.WARNING if warn else logging.DEBUG
     if uuid is None:
         uuid = '001'
