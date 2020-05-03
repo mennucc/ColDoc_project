@@ -1,10 +1,17 @@
 #!/bin/sh
 set -e
+ENGINE=pdflatex
 file="$1"
 shift
+if test "$file" = '--engine' ; then
+    ENGINE="$1"
+    shift
+    file="$1"
+    shift
+fi
 c=`pwd`
-LATEX="pdflatex -interaction batchmode -file-line-error"
-echo ========================== ${@}
+LATEX="$ENGINE  -interaction batchmode -file-line-error"
+echo ========================== results when blobinator has options : ${@}
 test -d tmp
 test -d tmp/lt
 test -f latex_test.sh
