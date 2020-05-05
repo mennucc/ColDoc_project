@@ -1,0 +1,75 @@
+{% extends "bootstrapbase.html" %}
+{% block title %} ColDoc — {{ coldoc.nickname }} — search {% endblock %}
+{% block content %}
+
+<h1>{% if coldoc.title %} {{coldoc.title}} {% else %}
+ColDoc  — {{ coldoc.nickname }} {% endif %} — search results</h1>
+
+
+<h2>Blob UUID</h2>
+{% if uuid_list %}
+    <ul>
+    {% for blob in uuid_list %}
+        <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=blob.uuid %}">
+        {{ blob.uuid }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+ {% if maybe_uuid %}
+    <p><i>The query does not match any known UUID.</i></p>
+    {% else %}
+    <p><i>The query is not a valid UUID.</i></p>
+ {% endif %}
+{% endif %}
+
+<h2>Blob index</h2>
+{% if user.is_authenticated %}
+{% if index_list %}
+    <ul>
+    {% for extra in index_list %}
+        <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=extra.blob.uuid %}">
+        {{ extra.blob.uuid }}</a>: {{extra.key}} = {{extra.value}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p><i>The query does not match any indexed entry.</i></p>
+{% endif %}
+{% else %}
+    <p><i>You do not have permissions to search this catalog. Please login.</i></p>
+{% endif %}
+
+
+<h2>Blob label</h2>
+{% if perms.UUID.view_blob %}
+{% if label_list %}
+    <ul>
+    {% for extra in label_list %}
+        <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=extra.blob.uuid %}">
+        {{ extra.blob.uuid }}</a>: {{extra.key}} = {{extra.value}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p><i>The query does not match any label.</i></p>
+{% endif %}
+{% else %}
+    <p><i>You do not have permissions to search this catalog.</i></p>
+{% endif %}
+
+<h2>Blob reference</h2>
+{% if perms.UUID.view_blob %}
+{% if ref_list %}
+    <ul>
+    {% for extra in ref_list %}
+        <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=extra.blob.uuid %}">
+        {{ extra.blob.uuid }}</a>: {{extra.key}} = {{extra.value}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p><i>The query does not match any label.</i></p>
+{% endif %}
+{% else %}
+    <p><i>You do not have permissions to search this catalog.</i></p>
+{% endif %}
+
+
+{% endblock %}
