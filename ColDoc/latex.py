@@ -381,7 +381,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     ret = ColDoc.utils.plastex_invoke(cwd_ =  blobs_dir ,
                          stdout_  = open(osjoin(blobs_dir,save_name+'_plastex.stdout'),'w'),
                          argv_ = argv )
-    extensions = '.log','.paux','.tex'
+    extensions = '.log','.paux','.tex','.bbl'
     if ret :
         logger.warning('Failed: cd %r ; plastex %s',blobs_dir,' '.join(argv))
     for e in extensions:
