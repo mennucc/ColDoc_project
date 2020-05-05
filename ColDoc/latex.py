@@ -18,7 +18,7 @@ Command help:
        all of the above
 """
 
-import os, sys, shutil, subprocess, json, argparse, pathlib
+import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile
 
 from os.path import join as osjoin
 
@@ -174,8 +174,10 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     # note that extensions are missing
     save_name = os.path.join(uuid_dir, 'view' + _lang)
     save_abs_name = os.path.join(blobs_dir, save_name)
-    fake_name = 'fakelatex' + _lang + '_' + uuid
-    fake_abs_name = os.path.join(blobs_dir, fake_name)
+    fake_texfile = tempfile.NamedTemporaryFile(prefix='fakelatex' + _lang + '_' + uuid + '_',
+                                                 suffix='.tex', dir = blobs_dir , mode='w+', delete=False)
+    fake_abs_name = fake_texfile.name[:-4]
+    fake_name = os.path.basename(fake_abs_name)
     #
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
          '_lang':_lang,
@@ -207,9 +209,9 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     if env == 'main_file':
         # never used, the main_file is compiled with the latex_main() function
         logger.error("should never reach this line")
-        shutil.copy(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex'), fake_abs_name+'.tex')
+        fake_texfile.write(open(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex')).read())
+        fake_texfile.close()
     else:
-        main_file = open(fake_abs_name+'.tex', 'w')
         #
         ltclsch = metadata.get('latex_documentclass_choice')
         ltclsch = ltclsch[0] if ltclsch else 'auto'
@@ -236,8 +238,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
             D['documentclass'] = ltclsch
         else:
             raise RuntimeError("unimplemented  latex_documentclass_choice = %r",ltclsch)
-        main_file.write(latextemplate % D)
-        main_file.close()
+        fake_texfile.write(latextemplate % D)
+        fake_texfile.close()
     rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
     ## create html
