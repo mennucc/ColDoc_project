@@ -341,14 +341,17 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
     #
+    fake_support=[]
     for es,ed in ('_plastex.paux','.paux'), ('.bbl','.bbl'):
         a = osjoin(blobs_dir,'main'+es)
         if os.path.exists(a):
             logger.info("Re-using %r",a)
             shutil.copy2(a,fake_abs_name+ed)
+            fake_support.append((a,fake_abs_name+ed))
         elif os.path.exists(save_abs_name+es):
             logger.info("Re-using %r",save_abs_name+es)
             shutil.copy(save_abs_name+es,fake_abs_name+ed)
+            fake_support.append((save_abs_name+es,fake_abs_name+ed))
     #
     import glob, string
     import plasTeX
