@@ -621,6 +621,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
         arg = arg.split(',')
         if opt and len(arg)>1:
             logger.warning('Cannot cope with %r %r %r',macroname,opt,arg)
+        outlist = []
         for fil in arg:
             if  fil.endswith(ext):
                 logger.warning('\\%s{%s} with extension',macroname,fil)
@@ -638,6 +639,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
             #        # copy only stuff inside the home directory
             #        if not inputfile.startswith(os.path.expanduser('~')):
             #            inputfile = None
+            
             if absinputfile is None:
                 topstream.write('\\'+macroname+opt+'{'+fil+'}')
             else:
@@ -651,11 +653,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 fm.add('original_filename', fil)
                 fm.add('original_command', '\\'+macroname+'{'+fil+'}')
                 fm.add('parent_uuid', stack.topstream.uuid)
-                topstream.write('\\'+macroname+opt+'{'+fo+'}')
+                # alas we cannot split 'bibliography'
+                outlist.append(fo)
                 a,b=absinputfile,osjoin(blobs_dir,fo)+ext
                 logger.debug('Copy %r to %r',a,b)
                 shutil.copy(a,b)
                 fm.save()
+        topstream.write('\\'+macroname+opt+'{'+(','.join(outlist))+'}')
     #############################################################
     #
     itertokens = thetex.itertokens()
