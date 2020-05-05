@@ -103,7 +103,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
               ('private','visible only to editors, and authors of this blob')]
     access = models.CharField("access", max_length=15,
                               choices=ACCESS_CHOICES,    default='public')
-    ## TODO unimplemented
+    #
     BLOB_DOCUMENTCLASS=[
         ('auto','use `main` class for sections and whole document, `standalone` class for others'),
         ('main','use the class of the main document (usually associated to UUID 001)'),

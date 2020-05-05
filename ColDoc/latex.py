@@ -249,6 +249,10 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     main_file.write(plastex_template % D)
     main_file.close()
     rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
+    # TODO there is a fundamental mistake here. This function may be called to
+    # update the PDF/HTML view of only one language. This timestamp
+    # does not record which language was updated. We should have different timestamps
+    # for different languages.
     metadata.latex_time_update()
     metadata.save()
     return rh, rp
