@@ -41,7 +41,7 @@ if __name__ == '__main__':
         COLDOC_SRC_ROOT = None
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT',COLDOC_SRC_ROOT)
     parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('command', help='specific command')
     parser.add_argument('--verbose','-v',action='count',default=0)
     parser.add_argument('--blobs-dir',type=str,\
