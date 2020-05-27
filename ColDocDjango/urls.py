@@ -31,9 +31,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('UUID/', include('ColDocDjango.UUID.urls')),
     path('CD/', include('ColDocDjango.ColDocApp.urls')),
-    ## TODO maybe use
-    ## https://django-userena.readthedocs.io/en/latest/
-    #path('accounts/', include('django.contrib.auth.urls')),
     path('login/', 
          LoginView.as_view(
              template_name='admin/login.html',
@@ -45,27 +42,7 @@ urlpatterns = [
     path('logout/',  LogoutView.as_view(), name="my_logout"),
 ]
 
-##if False and not APACHE:
-    # only for development! Apache would serve these:
-  #  urlpatterns += [
-   ##     {'document_root': MEDIA_ROOT}),
-     #   url(r'^static/(?P<path>.*)$', django.views.static.serve,
-      #   {'document_root': STATIC_ROOT}),
-       # ]
 
 urlpatterns += [
-#    'cvgmt.main.views',
-    #path('robots.txt', HttpResponse("", content_type="text/plain")),
-    #re_path('^%s$'%GOOGLE_SITE_VERIFICATION, lambda r: HttpResponse('google-site-verification: %s' % GOOGLE_SITE_VERIFICATION,content_type='text/plain')),
     re_path(r'^$', ColDocDjango.views.main_page),
     ]
-
-
-
-#urlpatterns  += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-
-# must be last!
-#urlpatterns += [
-#    url(r'^(.*)', views.slug_page),
-#    ]
