@@ -57,6 +57,9 @@ ALLOWED_HOSTS = []
 if config.get('django','allowed_hosts'):
     ALLOWED_HOSTS += config.get('django','allowed_hosts').split(',')
 
+# django-allauth
+# https://django-allauth.readthedocs.io/en/latest/installation.html#django
+USE_ALLAUTH = config['django'].getboolean('use_allauth')
 
 # Application definition
 
@@ -73,10 +76,32 @@ INSTALLED_APPS = [
     'ColDocDjango.UUID',
 ]
 
-# TODO maybe use
-# https://django-userena.readthedocs.io/en/latest/
+if USE_ALLAUTH:
+    INSTALLED_APPS += [
+     'allauth',
+     'allauth.account',
+     'allauth.socialaccount', ]
+## to add providers for your deployed site, add a snippet like this to the 
+## settings.py file in COLDOC_SITE_ROOT
+# INSTALLED_APPS += [
+#     'allauth.socialaccount.providers.google']
+
+AUTHENTICATION_BACKENDS = [
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    ]
+
+
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/login/'
+
+if USE_ALLAUTH:
+    LOGIN_URL = '/accounts/login/'
+    AUTHENTICATION_BACKENDS += [
+        # `allauth` specific authentication methods, such as login by e-mail
+        'allauth.account.auth_backends.AuthenticationBackend',
+        ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

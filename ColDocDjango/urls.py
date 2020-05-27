@@ -31,6 +31,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('UUID/', include('ColDocDjango.UUID.urls')),
     path('CD/', include('ColDocDjango.ColDocApp.urls')),
+    ]
+
+if settings.USE_ALLAUTH:
+    urlpatterns += [
+        path('accounts/', include('allauth.urls')),
+        ]
+else:
+    urlpatterns += [
     path('login/', 
          LoginView.as_view(
              template_name='admin/login.html',

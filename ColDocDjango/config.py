@@ -20,6 +20,7 @@ section = 'django'
 config.add_section(section)
 config.set(section, 'debug', 'True')
 config.set(section, 'secret_key', '')
+config.set(section, 'use_allauth', 'False')
 config.set(section, 'hostname', 'localhost')
 config.set(section, 'server_url', 'http://localhost')
 config.set(section, 'allowed_hosts', '127.0.0.1,localhost')
