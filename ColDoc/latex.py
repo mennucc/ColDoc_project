@@ -461,6 +461,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
     r=p.wait()
     #
     if environ in ( 'main_file', 'E_document') and \
+         os.path.isfile(fake_abs_name+'.aux') and \
          '\\bibdata' in open(fake_abs_name+'.aux').read():
         p = subprocess.Popen(['bibtex',fake_name],
                              cwd=blobs_dir,stdin=open(os.devnull),
