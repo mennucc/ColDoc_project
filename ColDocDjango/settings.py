@@ -25,6 +25,9 @@ logger = logging.getLogger(__name__)
 
 from ColDocDjango.config import get_config
 
+# do not customize this here, but in the `settings.py` file inside COLDOC_SITE_ROOT
+SITE_ID = 1
+
 COLDOC_SITE_CONFIG = config = get_config()
 
 COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
@@ -63,6 +66,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     #https://docs.djangoproject.com/en/3.0/howto/static-files/
     'django.contrib.staticfiles',
     'ColDocDjango.ColDocApp',
