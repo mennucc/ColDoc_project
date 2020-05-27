@@ -26,11 +26,57 @@ This command will create the structure for the new ColDoc portal
 	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy
 
 
-In particular it will deploy a copy of the config file for the new document as  $(COLDOC_SITE_ROOT)/config.ini .
+In particular it will deploy a copy of the config file for the new document as  
+${COLDOC_SITE_ROOT}/config.ini.
 Edit it at taste.
 
 
-Then initialize `django`
+It will also create an empty settings.py file
+${COLDOC_SITE_ROOT}/settings.py where you may override the values in 
+${COLDOC_SRC_ROOT}/settings.py 
+
+Social auth
+-----------
+
+If you wish to use social authentication, you may set `use_allauth` to True
+in ${COLDOC_SITE_ROOT}/config.ini and install `django-allauth`
+
+**Note that once you set `use_allauth` to True, you cannot change it back to `False`.**
+
+
+In particular, you may add stanzas for `django-allauth` in ${COLDOC_SITE_ROOT}/settings.py
+such as providers and configs, something like
+
+.. code:: python
+
+	INSTALLED_APPS += [
+		'allauth.socialaccount.providers.google']
+	SOCIALACCOUNT_PROVIDERS = {
+	    'google': {
+	        'SCOPE': [
+	            'profile',
+	            'email',
+	        ],
+	        'AUTH_PARAMS': {
+	            'access_type': 'online',
+	        }
+	    }
+	}
+
+and don't forget to connect to the `admin` interface and to create
+a `social application` in the database, that contains all credentials
+(in the above case, for Google OAuth2).
+
+
+`See docs for more details <https://django-allauth.readthedocs.io/en/latest/index.html>`_
+
+Moreover you may need to setup the Django smtp machinery, to send emails to verify emails
+addresses or reset passwords.
+
+Initalize
+---------
+
+Then initialize `django` for your deployed site
 
 .. code:: shell
 
