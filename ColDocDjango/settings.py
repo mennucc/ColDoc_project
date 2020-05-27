@@ -9,8 +9,12 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 
-If you want to customize this file for your specific 
-instance, copy it inside the COLDOC_SITE_ROOT directory
+** It is advisable not to edit this file to customize a deployed site **
+
+If you want to customize this file for your specific coldoc site
+instance, add your desired settings changes to 
+'settings.py' file inside the COLDOC_SITE_ROOT directory.
+That file will be executed after this file.
 """
 
 import sys, os
@@ -170,4 +174,19 @@ MEDIA_ROOT = config.get('django','media_root')
 STATICFILES_DIRS = [
     config.get('django','static_local'),
 ]
-#sys.stderr.write(repr(STATICFILES_DIRS))
+
+
+if COLDOC_SITE_ROOT is None:
+    logger.debug('Environ COLDOC_SITE_ROOT not set')
+else:
+    COLDOC_SITE_SETTINGS = os.path.join(COLDOC_SITE_ROOT,'settings.py')
+    if os.path.isfile(COLDOC_SITE_SETTINGS):
+        try:
+            exec(compile(open(COLDOC_SITE_SETTINGS).read(),COLDOC_SITE_SETTINGS,'exec'))
+        except:
+            logger.exception('While executing %r',COLDOC_SITE_SETTINGS)
+    else:
+        logger.warning('No such file: %r',COLDOC_SITE_SETTINGS)
+        COLDOC_SITE_SETTINGS = False
+
+

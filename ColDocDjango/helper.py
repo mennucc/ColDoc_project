@@ -52,6 +52,12 @@ def deploy(target):
         return False
     config.deploy(a)
     #
+    COLDOC_SITE_SETTINGS = os.path.join(target,'settings.py')
+    open(COLDOC_SITE_SETTINGS,'w').write("""# settings specific for this instance
+# This file will be executed after the `settings.py` file in the ColDocDjango directory
+# in the source code.
+""")
+    #
     newconfig = config.get_config(target)
     for j in ( 'coldocs' , ):
         os.mkdir(osjoin(target,j))
@@ -69,11 +75,7 @@ def deploy(target):
 
 def create_fake_users(COLDOC_SITE_ROOT):
     #
-    j = os.path.join(COLDOC_SITE_ROOT,'settings')
-    if os.path.exists(j+'.py'):
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', j)
-    else:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     #
     import django
     django.setup()

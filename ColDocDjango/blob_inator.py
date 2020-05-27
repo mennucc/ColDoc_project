@@ -84,11 +84,7 @@ to specify where the ColDoc site is located.
     #
     os.environ.setdefault('COLDOC_SITE_ROOT', COLDOC_SITE_ROOT)
     #
-    j = os.path.join(COLDOC_SITE_ROOT,'settings')
-    if os.path.exists(j+'.py'):
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', j)
-    else:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     #
     django.setup()
     import ColDocDjango.ColDocApp.models as coldocapp_models

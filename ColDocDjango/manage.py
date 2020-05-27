@@ -35,10 +35,6 @@ to specify where the ColDoc site is located.
         sys.exit(1)
     #
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
-    if COLDOC_SITE_ROOT is not None:
-        j = os.path.join(COLDOC_SITE_ROOT,'settings')
-        if os.path.exists(j):
-            os.environ.setdefault('DJANGO_SETTINGS_MODULE', j)
     #
     try:
         from django.core.management import execute_from_command_line
