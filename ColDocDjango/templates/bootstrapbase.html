@@ -64,13 +64,25 @@
           😀  {{ user.get_username }} 
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+	  {% if USE_ALLAUTH %}
+ 	  <a class="dropdown-item" href="{% url 'account_email' %}">Email</a>
+	  <a class="dropdown-item" href="{% url 'account_change_password' %}">Change password</a>
+	  <a class="dropdown-item" href="{% url 'account_reset_password' %}">Reset password</a>
+	  <a class="dropdown-item" href="{% url 'socialaccount_connections' %}">Social connections</a>
+	  <a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a>
+	  {% else %} {# USE_ALLAUTH #}
 	  <a class="dropdown-item" href="/change_password">Change Password</a>
           <a class="dropdown-item" href="/logout?next={{request.path}}">Logout</a>
+	  {% endif %} {# USE_ALLAUTH #}
         </div>
       </li>
       {% else %} {# user.is_authenticated #}
       <li class="nav-item active">
+      {% if USE_ALLAUTH %}
+      <a class="dropdown-item" href="{% url 'account_login' %}"> 😑  Login</a>
+      {% else %} {# USE_ALLAUTH #}
       <a class="nav-link" href="/login?next={{request.path}}"> 😑  Login. </a>
+      {% endif %} {# USE_ALLAUTH #}
       </li>
     {% endif %} {# user.is_authenticated #}
      </ul>
