@@ -1,0 +1,32 @@
+From e3680c036635e3f35de4bd95a52840e5ab95c746 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Sun, 2 Feb 2020 20:39:59 +0100
+Subject: [PATCH 6/9] fix bug in `processIfContent`
+
+---
+ plasTeX/TeX.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
+index a90c033..8794ebe 100644
+--- a/plasTeX/TeX.py
++++ b/plasTeX/TeX.py
+@@ -559,12 +559,12 @@ class TeX(object):
+                 cases[-1].append(t)
+                 nesting += 1
+             elif name == 'fi':
+-                if nesting > 1:
++                if nesting > 0:
+                     cases[-1].append(t)
+-                elif not nesting:
++                    nesting -= 1
++                else:
+                     correctly_terminated = True
+                     break
+-                nesting -= 1
+             elif not(nesting) and name == 'else':
+                 cases.append([])
+                 continue
+-- 
+2.17.1
+

@@ -1,0 +1,71 @@
+From 0b1afe73a70a804ff1b89d963a18cf574d85080d Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Sat, 1 Feb 2020 14:44:35 +0100
+Subject: [PATCH 7/9] fix mathjax: change < and > in \lt and \gt ; add macros
+ for it
+
+---
+ plasTeX/Base/LaTeX/Math.py  | 12 ++++++++++--
+ plasTeX/Imagers/__init__.py |  2 ++
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/plasTeX/Base/LaTeX/Math.py b/plasTeX/Base/LaTeX/Math.py
+index 787a39e..34bb549 100644
+--- a/plasTeX/Base/LaTeX/Math.py
++++ b/plasTeX/Base/LaTeX/Math.py
+@@ -55,7 +55,10 @@ class math(MathEnvironment):
+     @property
+     def source(self):
+         if self.hasChildNodes():
+-            return u'$%s$' % sourceChildren(self)
++            s = sourceChildren(self)
++            s = s.replace('<','{\lt}')
++            s = s.replace('>','{\gt}')
++            return '\(' + s + '\)'
+         return '$'
+ 
+ class displaymath(MathEnvironment):
+@@ -63,7 +66,10 @@ class displaymath(MathEnvironment):
+     @property
+     def source(self):
+         if self.hasChildNodes():
+-            return r'\[ %s \]' % sourceChildren(self)
++            s = sourceChildren(self)
++            s = s.replace('<','{\lt}')
++            s = s.replace('>','{\gt}')
++            return '\[' + s + '\]'
+         if self.macroMode == Command.MODE_END:
+             return r'\]'
+         return r'\['
+@@ -313,6 +319,7 @@ class Not(MathSymbol):
+     args = 'symbol'
+ class leq(MathSymbol): str = chr(8804)
+ class le(MathSymbol): str = chr(8804)
++class lt(MathSymbol): str = chr(60)
+ class prec(MathSymbol): str = chr(8826)
+ class preceq(MathSymbol): str = chr(8828)
+ class ll(MathSymbol): str = chr(8810)
+@@ -324,6 +331,7 @@ class In(MathSymbol):
+ class vdash(MathSymbol): str = chr(8866)
+ class geq(MathSymbol): str = chr(8805)
+ class ge(MathSymbol): str = chr(8805)
++class gt(MathSymbol): str = chr(62)
+ class succ(MathSymbol): str = chr(8827)
+ class succeq(MathSymbol): str = chr(8829)
+ class gg(MathSymbol): str = chr(8811)
+diff --git a/plasTeX/Imagers/__init__.py b/plasTeX/Imagers/__init__.py
+index 9d39507..703eeee 100644
+--- a/plasTeX/Imagers/__init__.py
++++ b/plasTeX/Imagers/__init__.py
+@@ -490,6 +490,8 @@ class Imager(object):
+         self.source = StringIO()
+         self.source.write('\\nonstopmode\n')
+         self.writePreamble(document)
++        #https://tex.stackexchange.com/questions/298172/command-for-and-in-mathmode
++        self.source.write(r"""\newcommand{\lt}{\symbol{"3C}}\newcommand{\gt}{\symbol{"3E}}""")
+         self.source.write('\\begin{document}\n')
+ 
+         # Set up additional options
+-- 
+2.17.1
+

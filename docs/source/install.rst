@@ -18,7 +18,17 @@ code was downloaded.
 
 Note that ColDoc needs Python3 ; you may wish to set up a virtualenv, so that Python3 is the default Python.
 
-Download plastex; version 2.1 is OK; you may want to download from 	git@github.com:plastex/plastex.git
+ColDoc has some prerequisites: Djago (version 2 or 3), plastex (a patched version, see below) 
 
-Patch it, using the patch  `patches/0001-add-Tokenizer-to-input.patch`
+
+Installing plasTex
+------------------
+
+Installing `plastex` is somewhat complex, since ColDoc needs a patched version.
+
+The script `plastex/prepare.sh` can download and patch plastex for you
+
+Install it, using `pip3 intstall .` inside the directory `plastex/plastex`.
+
+
 

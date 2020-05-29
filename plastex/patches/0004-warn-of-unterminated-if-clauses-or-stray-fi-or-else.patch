@@ -1,0 +1,63 @@
+From 04aeb5777ea7ea63a27da1954380bb1f81479ae5 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Sat, 1 Feb 2020 15:02:08 +0100
+Subject: [PATCH 4/9] warn of unterminated \if clauses, or stray \fi or \else
+
+---
+ plasTeX/Base/TeX/Primitives.py | 7 ++++++-
+ plasTeX/TeX.py                 | 5 +++++
+ 2 files changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/plasTeX/Base/TeX/Primitives.py b/plasTeX/Base/TeX/Primitives.py
+index cc4e754..2ec2441 100644
+--- a/plasTeX/Base/TeX/Primitives.py
++++ b/plasTeX/Base/TeX/Primitives.py
+@@ -193,9 +193,14 @@ class if_(IfCommand):
+ 
+ class else_(Command):
+     macroName = 'else'
++    def invoke(self, tex):
++        " \\else should be discarded while tokenized"
++        log.warning(r'Unmatched \else')
+ 
+ class fi(Command):
+-    pass
++    def invoke(self, tex):
++        " \\fi should be discarded while tokenized"
++        log.warning(r'Unmatched \fi')
+ 
+ class ifnum(IfCommand):
+     """ Compare two integers """
+diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
+index d10dc1d..d3434a2 100644
+--- a/plasTeX/TeX.py
++++ b/plasTeX/TeX.py
+@@ -546,6 +546,7 @@ class TeX(object):
+ 
+         cases = [[]]
+         nesting = 0
++        correctly_terminated = False
+ 
+         for t in self.itertokens():
+             name = getattr(t, 'macroName', '') or ''
+@@ -556,6 +557,7 @@ class TeX(object):
+                 if nesting > 1:
+                     cases[-1].append(t)
+                 elif not nesting:
++                    correctly_terminated = True
+                     break
+                 nesting -= 1
+             elif not(nesting) and name == 'else':
+@@ -567,6 +569,9 @@ class TeX(object):
+             else:
+                 cases[-1].append(t)
+ 
++        if not correctly_terminated:
++            log.warning(r'\end occurred when \if was incomplete')
++
+         # else case for ifs without elses
+         cases.append([])
+ 
+-- 
+2.17.1
+
