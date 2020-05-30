@@ -14,6 +14,7 @@ Welcome to ColDoc's documentation!
 
 .. toctree::
 
+  README.rst
   install
   test
   deploy
