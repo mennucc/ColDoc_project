@@ -82,14 +82,9 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
     try:
         for tok in itertokens:
             n += len(tok.source)
-            if isinstance(tok, plasTeX.Tokenizer.Comment):
+            if isinstance(tok, TokenizerPassThru.Comment):
                 a = tok.source
-                if hasattr(plasTeX.Tokenizer.Comment,'source'):
-                    # my patch adds 'source' to Comment, so that '%' is already prepended
-                    assert a[0] == '%'
-                    output_file.write(a)
-                else:
-                    output_file.write('%'+a)
+                output_file.write('%'+a)
             elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 macroname = str(tok.macroName)
                 #print('>>',macroname)
@@ -117,7 +112,7 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                         # blob_inator adds an empty comment after it, here we delete it
                         if macroname == 'input' and ColDoc_commented_newline_after_blob_input:
                             cmt = next(itertokens)
-                            if not isinstance(cmt, plasTeX.Tokenizer.Comment):
+                            if not isinstance(cmt, TokenizerPassThru.Comment):
                                 logger.info('Missing comment after %r','\\'+macroname+'{'+inputfile+'}')
                                 thetex.pushToken(cmt)
                             else:

@@ -672,14 +672,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                and stack.topenv in ('section','main_file','input','include'):
                 stack.push(named_stream('paragraph', parent=stack.topstream))
                 stack.topstream.write(str(tok))
-            elif isinstance(tok, plasTeX.Tokenizer.Comment):
+            elif isinstance(tok, TokenizerPassThru.Comment):
                 a = tok.source
-                if hasattr(plasTeX.Tokenizer.Comment,'source'):
-                    # my patch adds 'source' to Comment, so that '%' is already prepended
-                    assert a[0] == '%'
-                    stack.topstream.write(a)
-                else:
-                    stack.topstream.write('%'+a)
+                stack.topstream.write('%'+a)
             elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 macroname = str(tok.macroName)
                 if cmdargs.split_paragraph is not None and \
@@ -1000,7 +995,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
                         while t is not None:
-                            if isinstance(t, plasTeX.Tokenizer.Comment):
+                            if isinstance(t, TokenizerPassThru.Comment):
                                 stack.topstream.write('%'+t.source)
                             else:
                                 stack.topstream.write(t.source)

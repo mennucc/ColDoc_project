@@ -158,7 +158,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
                 r = helper.process_macro(macroname,thetex)
                 out.write(r if r is not None else tok.source)
                 # TODO do not alter preamble in main_file
-        elif isinstance(tok, plasTeX.Tokenizer.Comment):
+        elif isinstance(tok, TokenizerPassThru.Comment):
             r = helper.process_comment(str(tok.source),thetex)
             out.write(r if r is not None else tok.source)
         else:

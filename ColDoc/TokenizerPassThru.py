@@ -1,5 +1,13 @@
 from plasTeX.Tokenizer import *
 
+class Comment(Token):
+    catcode = Token.CC_COMMENT
+    nodeType = Node.COMMENT_NODE
+    nodeName = '#comment'
+    isElementContentWhitespace = True
+    __slots__ = Token.TOKEN_SLOTS
+
+
 class TokenizerPassThru(Tokenizer):
     def __init__(self, *args, **kwargs):
         self._pass_comments_ = True
@@ -23,6 +31,7 @@ class TokenizerPassThru(Tokenizer):
         global Space, EscapeSequence
         Space = Space
         EscapeSequence = EscapeSequence
+        tokenClasses = self.tokenClasses
         mybuffer = self._tokBuffer
         charIter = self.iterchars()
         context = self.context
@@ -49,28 +58,25 @@ class TokenizerPassThru(Tokenizer):
 
             # Get the next character
             try:
-                token = next(charIter)
+                (code, char) = next(charIter)
             except StopIteration:
                 return
-
-            if token.nodeType == ELEMENT_NODE:
-                raise ValueError('Expanded tokens should never make it here')
-
-            code = token.catcode
 
             # Short circuit letters and other since they are so common
             if code in (CC_LETTER, CC_OTHER):
                 self.state = STATE_M
+                token = tokenClasses[code](char)
 
             # Whitespace
             elif code == CC_SPACE:
                 ##if self.state  == STATE_S or self.state == STATE_N:
                 ##    continue
                 self.state = STATE_S
-                ##token = Space(' ')
+                token = Space(char)
 
             # End of line
             elif code == CC_EOL:
+                token = Space(char)
                 state = self.state
                 if state == STATE_S:
                     self.state = STATE_N
@@ -82,7 +88,7 @@ class TokenizerPassThru(Tokenizer):
                 elif state == STATE_N:
                     # ord(token) != 10 is the same as saying token != '\n'
                     # but it is much faster.
-                    if ord(token) != 10:
+                    if ord(char) != 10:
                         self.lineNumber += 1
                         if self._pass_comments_:
                             yield(Comment(self.readline()))
@@ -100,26 +106,26 @@ class TokenizerPassThru(Tokenizer):
                 # Get name of command sequence
                 self.state = STATE_M
 
-                for token in charIter:
+                for (next_code, next_char) in charIter:
 
-                    if token.catcode == CC_LETTER:
-                        word = [token]
-                        for t in charIter:
-                            if t.catcode == CC_LETTER:
-                                word.append(t)
+                    if next_code == CC_LETTER:
+                        word = [next_char]
+                        for (next_code_, next_char_) in charIter:
+                            if next_code_ == CC_LETTER:
+                                word.append(next_char_)
                             else:
-                                pushChar(t)
+                                pushChar(next_char_)
                                 break
                         token = EscapeSequence(''.join(word))
 
-                    elif token.catcode == CC_EOL:
+                    elif next_code == CC_EOL:
                         #pushChar(token)
                         #token = EscapeSequence()
                         token = Space(' ')
                         self.state = STATE_S
 
                     else:
-                        token = EscapeSequence(token)
+                        token = EscapeSequence(next_char)
 #
 # Because we can implement macros both in LaTeX and Python, we don't
 # always want the whitespace to be eaten.  For example, implementing
@@ -127,7 +133,7 @@ class TokenizerPassThru(Tokenizer):
 # another macro class that would eat whitspace incorrectly.  So we
 # have to do this kind of thing in the parse() method of Macro.
 #
-                    if token.catcode != CC_EOL:
+                    if next_code != CC_EOL:
 # HACK: I couldn't get the parse() thing to work so I'm just not
 #       going to parse whitespace after EscapeSequences that end in
 #       non-letter characters as a half-assed solution.
@@ -144,7 +150,7 @@ class TokenizerPassThru(Tokenizer):
 
                 # TODO: This action should be generalized so that the
                 #       tokens are processed recursively
-                if token is not token and token.catcode == CC_COMMENT:
+                if token is not token and next_code == CC_COMMENT:
                     if self._pass_comments_:
                         yield(Comment(self.readline()))
                     else:
@@ -163,11 +169,12 @@ class TokenizerPassThru(Tokenizer):
                 continue
 
             elif code == CC_ACTIVE:
-                token = EscapeSequence('active::%s' % token)
+                token = EscapeSequence('active::%s' % char)
                 token = context.get_let(token)
                 self.state = STATE_M
 
             else:
+                token = tokenClasses[code](char)
                 self.state = STATE_M
 
             prev = token
