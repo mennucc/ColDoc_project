@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 
-"""Usage: %(arg0)s [-v] --coldoc_site_root COLDOC_SITE_ROOT  CMD [OPTIONS]
-
-Administration of a ColDoc site
-
-This program does some actions that `manage` does not.
+"""
+This program does some actions that `manage` does not. Possible commands:
 
     deploy
         create a new ColDoc site
+
+    create_fake_users
+        creates some fake users, to interact with the Django site
 """
 
 import os, sys, argparse
@@ -91,8 +91,8 @@ def create_fake_users(COLDOC_SITE_ROOT):
     return True
 
 def main(argv):
-    parser = argparse.ArgumentParser(description='deploy a ColDoc site',
-                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
     parser.add_argument('--coldoc-site-root',type=str,\
                         help='root of the coldoc portal (default from env `COLDOC_SITE_ROOT`)', default=COLDOC_SITE_ROOT,
