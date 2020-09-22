@@ -346,7 +346,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     fake_abs_name = os.path.join(blobs_dir, fake_name)
     #
     fake_support=[]
-    for es,ed in ('_plastex.paux','.paux'), ('.bbl','.bbl'):
+    for es,ed in ColDoc.config.ColDoc_plastex_fakemain_reuse_extensions:
         a = osjoin(blobs_dir,'main'+es)
         if os.path.exists(a):
             logger.info("Re-using %r",a)
@@ -429,7 +429,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
     # 'main.aux' and 'main.bbl' are saved latex_main()
-    for e in ('.aux','.bbl'):
+    for e in ColDoc.config.ColDoc_pdflatex_fakemain_reuse_extensions:
         a = os.path.join(blobs_dir,'main'+e)
         if os.path.exists(save_abs_name+e):
             logger.info("Re-using %r for %r",save_abs_name+e,fake_abs_name+e)
@@ -440,7 +440,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
         else:
             logger.info("No %r file for this job",e)
     #
-    extensions = '.tex','.log','.pdf','.aux','.toc','.out','.idx','.fls','.bbl','.blg'
+    extensions = ColDoc.config.ColDoc_pdflatex_fakemain_preserve_extensions
     #
     for e in extensions:
         if e not in ('.tex','.aux','.bbl') and os.path.exists(fake_abs_name+e):
