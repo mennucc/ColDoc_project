@@ -349,11 +349,11 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     for es,ed in ColDoc.config.ColDoc_plastex_fakemain_reuse_extensions:
         a = osjoin(blobs_dir,'main'+es)
         if os.path.exists(a):
-            logger.info("Re-using %r",a)
+            logger.info("Re-using %r as %r",a,fake_abs_name+ed)
             shutil.copy2(a,fake_abs_name+ed)
             fake_support.append((a,fake_abs_name+ed))
         elif os.path.exists(save_abs_name+es):
-            logger.info("Re-using %r",save_abs_name+es)
+            logger.info("Re-using %r as %r",save_abs_name+es,fake_abs_name+ed)
             shutil.copy(save_abs_name+es,fake_abs_name+ed)
             fake_support.append((save_abs_name+es,fake_abs_name+ed))
     #
@@ -459,10 +459,12 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                          stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
     r=p.wait()
+    logger.debug('Engine result %r',r)
     #
     if environ in ( 'main_file', 'E_document') and \
          os.path.isfile(fake_abs_name+'.aux') and \
          '\\bibdata' in open(fake_abs_name+'.aux').read():
+        logger.debug('Running BiBTeX')
         p = subprocess.Popen(['bibtex',fake_name],
                              cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
@@ -472,9 +474,11 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
             logger.warning('bibtex output: %r',a)
     #
     if r == 0 and repeat:
+        logger.debug('Rerunning engine %r',engine)
         p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
         r = p.wait()
+        logger.debug('Engine result %r',r)
     #
     res = r == 0
     if not res:
