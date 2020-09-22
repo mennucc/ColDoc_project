@@ -663,6 +663,21 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
                     os.symlink(k,dst)
                 #else:
                 #    logger.debug('not symlink %s',src)
+        # preserve certain files when rebuilding anon tree
+        extensions = ColDoc_anon_keep_extensions
+        for dirpath, dirnames, filenames in os.walk(anon_dir,followlinks=False):
+            tmp_path = osjoin(temp_dir,dirpath[1+len(anon_dir):])
+            os.makedirs(tmp_path, exist_ok=True)
+            for j in filenames:
+                if  os.path.splitext(j)[1] in extensions:
+                    src = osjoin(dirpath,j)
+                    dst = osjoin(tmp_path,j)
+                    if os.path.isfile(src):
+                        if os.path.isfile(dst):
+                            os.unlink(dst)
+                        logger.debug("preserve across anon runs %s %s" % (src,dst))
+                        shutil.copy2(src,dst, follow_symlinks=False)
+            
     except:
         logger.exception("failed")
         shutil.rmtree(temp_dir)

@@ -59,3 +59,7 @@ ColDoc_pdflatex_fakemain_preserve_extensions = ColDoc_pdflatex_fakemain_reuse_ex
 # Before compiling with plastex a file, these files are copied back from 
 # blobs/UUID/N/N/N/YYYY_ll_LL.XXX or
 ColDoc_plastex_fakemain_reuse_extensions = [('_plastex.paux','.paux'), ('.bbl','.bbl')]
+
+# Moreover these are preserved when recreating the anon tree
+ColDoc_anon_keep_extensions = ColDoc_pdflatex_fakemain_reuse_extensions + ['.paux']
+
