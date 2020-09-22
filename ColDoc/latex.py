@@ -431,12 +431,12 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
     # 'main.aux' and 'main.bbl' are saved latex_main()
     for e in ('.aux','.bbl'):
         a = os.path.join(blobs_dir,'main'+e)
-        if os.path.exists(a):
-            logger.info("Re-using %r",a)
-            shutil.copy2(a,fake_abs_name+e)
-        elif os.path.exists(save_abs_name+e):
-            logger.info("Re-using %r",save_abs_name+e)
+        if os.path.exists(save_abs_name+e):
+            logger.info("Re-using %r for %r",save_abs_name+e,fake_abs_name+e)
             shutil.copy2(save_abs_name+e, fake_abs_name+e)
+        elif os.path.exists(a):
+            logger.info("Re-using %r for %r (hoping for the best)",a,fake_abs_name+e)
+            shutil.copy2(a,fake_abs_name+e)
         else:
             logger.info("No %r file for this job",e)
     #
