@@ -46,8 +46,10 @@ already present as default into `blob_inator`.
 - `usepackage` is used for blobs that contain packages; these are copied
   if found in the same directory of the main file
 
-- `bilbliography` is used for blobs that contain bibliography,
+- `bibliography` is used for blobs that contain bibliography,
   as specified by the `\\bibliography` command
+
+- `section` is used for sections
 
 - `paragraph` is used for long paragraphs of text (as specified by the `--split-paragraph` option)
 

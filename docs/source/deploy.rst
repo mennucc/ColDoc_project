@@ -3,7 +3,8 @@ Deploying
 
 Here we explain how to start a new ColDoc collaborative document.
 
-We assume that the ColDoc source code was download in the directory COLDOC_SRC_ROOT
+We assume that the ColDoc source code was downloaded in the directory
+whose name is saved in the environment variable COLDOC_SRC_ROOT.
 
 You need to use a terminal where you can insert shell commands.
 
@@ -70,8 +71,22 @@ a `social application` in the database, that contains all credentials
 
 `See docs for more details <https://django-allauth.readthedocs.io/en/latest/index.html>`_
 
-Moreover you may need to setup the Django smtp machinery, to send emails to verify emails
-addresses or reset passwords.
+Moreover you may need to setup the Django smtp machinery, to send emails
+(emails are sent automatically to verify emails addresses or reset passwords).
+
+Late adding of social auth
+--------------------------
+
+If you did not turn `social authentication` on at first, you may turn it on later,
+by following the above instructions; and then you have to run
+
+.. code:: shell
+
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
+
+to update the databases.
+
 
 Initalize
 ---------
@@ -80,7 +95,6 @@ Then initialize `django` for your deployed site
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py makemigrations
 	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
 	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
 
