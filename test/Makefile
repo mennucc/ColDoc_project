@@ -98,6 +98,7 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/paper/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper ; fi
 	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper  --ZS --SP --SE=figure --SL=itemize --author=jsmith --private-environment=privateremark --SAT   paper/paper.tex
 	./django_tester.py isthere
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 005  --user jsmith --lang it_IT --environ E_itemize add_blob
 	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID="http://localhost:8000/UUID/paper/" all
 
 # load a latex test in the ColDoc portal

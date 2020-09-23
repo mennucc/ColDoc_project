@@ -32,6 +32,16 @@ ColDoc_environments = ('main_file','preamble','input','include','input_preamble'
 ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble','include_preamble',
                                'usepackage','bibliography')
 
+# cannot add children to these environments in an existing coldoc
+ColDoc_cant_add_children_to_environments =  'main_file','usepackage','bibliography','paragraph'
+# note that 'main_file' can have and should have two children : 'preamble' and 'document' ; but we cant add others
+
+# cannot add begin/end children to these environments in an existing coldoc
+ColDoc_cant_add_begin_end_children_to_environments =  'main_file','preamble','input_preamble','include_preamble','usepackage','bibliography','paragraph'
+
+# cannot be added as children in an existing coldoc
+ColDoc_environments_cant_be_added_as_children =  ('main_file','E_document','preamble')
+
 # strips the last lines in blobs if they are all made of whitespace
 ColDoc_blob_rstrip = True
 
