@@ -24,6 +24,10 @@ ColDoc_early_UUID = True
 #- If `write_UUID` is `False`, no UUID will be written.
 ColDoc_write_UUID = 'auto'
 
+# list of environments that are not coming from  \begin....\end statements
+ColDoc_environments = ('main_file','preamble','input','include','input_preamble','include_preamble',
+                       'usepackage','bibliography','section','paragraph')
+
 # see description of `ColDoc_write_UUID`
 ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble','include_preamble',
                                'usepackage','bibliography')

@@ -104,6 +104,7 @@ class named_stream(io.StringIO):
         if coldoc is None : coldoc = self._default_coldoc
         self._coldoc = coldoc
         #
+        assert (environ[:2] == 'E_' or environ in ColDoc_environments), 'Unknown environ %r'%environ
         self._environ = environ
         self._extension = extension
         self._lang = lang
