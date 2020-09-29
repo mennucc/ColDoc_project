@@ -73,7 +73,8 @@
     </ul>
     {% if blobcontenttype == 'text' %}
      {% if perms.UUID.change_blob %}
-      <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" method="post" class="w-100">
+     {{ blobeditform.media }}
+      <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
         {% csrf_token %}
         {% for field in blobeditform %}{% if field.is_hidden %} {{ field }} {% else %}
          <div class="form-group w-100">

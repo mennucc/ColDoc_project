@@ -28,6 +28,9 @@ from .models import DMetadata, DColDoc
 # https://docs.djangoproject.com/en/dev/topics/forms/
 
 class BlobEditForm(forms.Form):
+    class Media:
+        js = ('ColDoc/js/blobeditform.js',)
+    htmlid = "id_form_blobeditform"
     BlobEditTextarea=forms.CharField(label='Blob content',
                                      widget=forms.Textarea(attrs={'class': 'form-text w-100'}),
                                      help_text='Edit the blob content')
