@@ -77,7 +77,7 @@
       <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
         {% csrf_token %}
         {% for field in blobeditform %}{% if field.is_hidden %} {{ field }} {% else %}
-         <div class="form-group w-100">
+         <div class="form-group w-100" id="id_div_blobeditform_{{field.name}}"  >
           {{ field.errors }}    {{ field.label_tag }} {{ field }}
           {% if field.help_text %}
             <small class="font-italic">{{ field.help_text|safe }}</small>

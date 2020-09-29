@@ -58,6 +58,7 @@ class BlobEditForm(forms.Form):
     selection_start = forms.CharField(widget=forms.HiddenInput())
     selection_end = forms.CharField(widget=forms.HiddenInput())
     split_selection = forms.BooleanField(label='Split',required = False,
+                                         widget = forms.CheckboxInput(attrs = {'onclick' : "hide_and_show();", }),
                                          help_text="Split selected text so that it becomes a new blob")
     split_environment = forms.ChoiceField(label="environment", #choices=[('section','section'),('itemize','itemize')],
                                           help_text="environment for newly created blob")
