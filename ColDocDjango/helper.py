@@ -98,13 +98,15 @@ def create_fake_users(COLDOC_SITE_ROOT):
     print('*** created superuser "napoleon" password "adrian"')
     return True
 
-def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, lang, selection_start = None, selection_end = None):
+def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, lang, selection_start = None, selection_end = None, add_beginend = True):
     " returns (success, message, new_uuid)"
     #
     assert isinstance(coldoc_nick,str), coldoc_nick
     assert isinstance(parent_uuid,str), parent_uuid
     assert isinstance(environ,str),environ
     assert (isinstance(lang,str) or lang is None), lang
+    if isinstance(selection_end,int) and selection_end<0: selection_end = None
+    if isinstance(selection_start,int) and selection_start<0: selection_start = None
     #
     import ColDoc.config as CC
     #
@@ -266,11 +268,11 @@ does not contain the file `config.ini`
         f.write("%\n")
         #utils.environ_stub(environ)
         if environ[:2] == 'E_':
-            f.write("\\begin{"+environ[2:]+"}")
+            if add_beginend: f.write("\\begin{"+environ[2:]+"}")
             if environ[2:] in blobinator_args['split_list']:
                 f.write("\\item")
         f.write("\\input{"+filename+"}")
-        if environ[:2] == 'E_':
+        if environ[:2] == 'E_' and add_beginend:
             f.write("\\end{"+environ[2:]+"}")
         f.write("\n")
         if selection_start is not None :

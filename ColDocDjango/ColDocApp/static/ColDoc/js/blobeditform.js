@@ -22,10 +22,13 @@ function hide_and_show(){
     } else {
 	let value = blobeditform.split_selection.checked;
 	let o1 = document.getElementById("id_div_blobeditform_split_environment");
+	let o2 = document.getElementById("id_div_blobeditform_split_add_beginend");
 	if (value == true) {
 	    o1.style.display = "block";
+	    o2.style.display = "block";
 	} else {
 	    o1.style.display = "none";
+	    o2.style.display = "none";
 	}
     }
 };

@@ -62,6 +62,7 @@ class BlobEditForm(forms.Form):
                                          help_text="Split selected text so that it becomes a new blob")
     split_environment = forms.ChoiceField(label="environment",
                                           help_text="environment for newly created blob")
+    split_add_beginend = forms.BooleanField(label='Add begin/end',required = False,help_text="add a begin{}..end{} around the splitted ")
 
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
@@ -99,6 +100,7 @@ def postedit(request, NICK, UUID):
     split_environment_ = form.cleaned_data['split_environment']
     selection_start_ = int(form.cleaned_data['selection_start'])
     selection_end_ = int(form.cleaned_data['selection_end'])
+    split_add_beginend_ = form.cleaned_data['split_add_beginend']
     assert UUID == uuid_ and NICK == nick_
     #
     filename, uuid, metadata, lang, ext = \
@@ -121,7 +123,7 @@ def postedit(request, NICK, UUID):
         from ColDocDjango.helper import add_blob
         addsuccess, addmessage, addnew_uuid = \
             add_blob(logger, request.user, settings.COLDOC_SITE_ROOT, nick_, uuid_, 
-                 split_environment_, lang_, selection_start_ , selection_end_)
+                 split_environment_, lang_, selection_start_ , selection_end_, split_add_beginend_)
         if addsuccess:
             addfilename, adduuid, addmetadata, addlang, addext = \
                     ColDoc.utils.choose_blob(uuid=addnew_uuid, blobs_dir = blobs_dir,
