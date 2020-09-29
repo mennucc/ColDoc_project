@@ -27,6 +27,20 @@ from .models import DMetadata, DColDoc
 
 # https://docs.djangoproject.com/en/dev/topics/forms/
 
+def _environ_choices_(blobs_dir):
+    choices=[('section','section')]
+    f = osjoin(blobs_dir, '.blob_inator-args.json')
+    if not os.path.exists(f):
+        logger.error("File of blob_inator args does not exit: %r\n"%(f,))
+    else:
+        with open(f) as a:
+            blobinator_args = json.load(a)
+        for a in (blobinator_args['split_environment'] + blobinator_args['split_list']):
+            if a not in ('document','main_file'):
+                choices.append(( 'E_'+a , a))
+    return choices
+
+
 class BlobEditForm(forms.Form):
     class Media:
         js = ('ColDoc/js/blobeditform.js',)
@@ -41,7 +55,12 @@ class BlobEditForm(forms.Form):
     NICK = forms.CharField(widget=forms.HiddenInput())
     ext  = forms.CharField(widget=forms.HiddenInput())
     lang = forms.CharField(widget=forms.HiddenInput())
-
+    selection_start = forms.CharField(widget=forms.HiddenInput())
+    selection_end = forms.CharField(widget=forms.HiddenInput())
+    split_selection = forms.BooleanField(label='Split',required = False,
+                                         help_text="Split selected text so that it becomes a new blob")
+    split_environment = forms.ChoiceField(label="environment", #choices=[('section','section'),('itemize','itemize')],
+                                          help_text="environment for newly created blob")
 
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
@@ -64,6 +83,10 @@ def postedit(request, NICK, UUID):
         return HttpResponse("No blobs for this ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     #
     form=BlobEditForm(request.POST)
+    #
+    choices = _environ_choices_(blobs_dir)
+    form.fields['split_environment'].choices = choices
+    #
     if not form.is_valid():
         return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
     blobcontent = form.cleaned_data['BlobEditTextarea']
@@ -71,6 +94,10 @@ def postedit(request, NICK, UUID):
     nick_ = form.cleaned_data['NICK']
     lang_ = form.cleaned_data['lang']
     ext_ = form.cleaned_data['ext']
+    split_selection_ = form.cleaned_data['split_selection']
+    split_environment_ = form.cleaned_data['split_environment']
+    selection_start_ = int(form.cleaned_data['selection_start'])
+    selection_end_ = int(form.cleaned_data['selection_end'])
     assert UUID == uuid_ and NICK == nick_
     #
     filename, uuid, metadata, lang, ext = \
@@ -88,6 +115,26 @@ def postedit(request, NICK, UUID):
     metadata.blob_modification_time_update()
     metadata.save()
     # TODO parse it to refresh metadata
+    #
+    if split_selection_:
+        from ColDocDjango.helper import add_blob
+        addsuccess, addmessage, addnew_uuid = \
+            add_blob(logger, request.user, settings.COLDOC_SITE_ROOT, nick_, uuid_, 
+                 split_environment_, lang_, selection_start_ , selection_end_)
+        if addsuccess:
+            addfilename, adduuid, addmetadata, addlang, addext = \
+                    ColDoc.utils.choose_blob(uuid=addnew_uuid, blobs_dir = blobs_dir,
+                                             ext = ext_, lang = lang_, 
+                                             metadata_class=DMetadata, coldoc=NICK)
+            messages.add_message(request,messages.INFO,addmessage)
+            rh, rp = _latex_blob(request, blobs_dir, coldoc, adduuid, lang, addmetadata)
+            if rh and rp:
+                messages.add_message(request,messages.INFO,'Compilation of new blob succeded')
+            else:
+                messages.add_message(request,messages.WARNING,'Compilation of new blob failed')
+        else:
+            messages.add_message(request,messages.WARNING,addmessage)
+    #
     #
     rh, rp = _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata)
     if rh and rp:
@@ -365,8 +412,13 @@ def index(request, NICK, UUID):
         file = '[access denied]'
     elif  blobcontenttype == 'text' :
         if request.user.has_perm('UUID.change_blob'):
+            choices = _environ_choices_(blobs_dir)
             blobeditform = BlobEditForm(initial={'BlobEditTextarea':  file,
-                                                 'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang})
+                                                 'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang,
+                                                 'split':False,'selection_start':-1,'selection_end':-1,
+                                                 'split_environment' : choices[0][0],
+                                                 })
+            blobeditform.fields['split_environment'].choices = choices
     #
     try:
         j = metadata.get('child_uuid')[0]

@@ -84,7 +84,7 @@
           {% endif %}
          </div>
         {% endif %}{% endfor %}
-        <input type="submit" class="btn btn-primary" value="Submit">
+        <input type="submit" class="btn btn-primary" onclick="update_and_send()" value="Submit">
       </form>
      {% else %}
        {{ file | safe }}
