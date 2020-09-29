@@ -98,10 +98,13 @@ def create_fake_users(COLDOC_SITE_ROOT):
     print('*** created superuser "napoleon" password "adrian"')
     return True
 
-def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, lang):
+def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, lang, selection_start = None, selection_end = None):
     " returns (success, message, new_uuid)"
     #
-    assert isinstance(coldoc_nick,str) and isinstance(parent_uuid,str)  and isinstance(environ,str) and (isinstance(lang,str) or lang is None)
+    assert isinstance(coldoc_nick,str), coldoc_nick
+    assert isinstance(parent_uuid,str), parent_uuid
+    assert isinstance(environ,str),environ
+    assert (isinstance(lang,str) or lang is None), lang
     #
     import ColDoc.config as CC
     #
@@ -251,12 +254,16 @@ does not contain the file `config.ini`
     blob_models.UUID_Tree_Edge(coldoc = parent_metadata.coldoc, parent = parent_uuid, child = new_uuid).save()
     child_metadata.save()
     #
-    with open(osjoin(blobs_dir,filename),'w') as f:
-        f.write("\\uuid{%s}%%\n" % (new_uuid,))
-        f.write('placeholder\n')
-    #
-    with open(parent_abs_filename,'a') as f:
-        f.write("\n")
+    placeholder='placeholder'
+    parent_file = open(parent_abs_filename).read()
+    if selection_start is not None and selection_end != selection_start:
+        placeholder = parent_file[selection_start:selection_end]
+    with open(parent_abs_filename,'w') as f:
+        if selection_start is None :
+            f.write(parent_file)
+        else:
+            f.write(parent_file[:selection_start])
+        f.write("%\n")
         #utils.environ_stub(environ)
         if environ[:2] == 'E_':
             f.write("\\begin{"+environ[2:]+"}")
@@ -266,6 +273,12 @@ does not contain the file `config.ini`
         if environ[:2] == 'E_':
             f.write("\\end{"+environ[2:]+"}")
         f.write("\n")
+        if selection_start is not None :
+            f.write(parent_file[selection_end:])
+    #
+    with open(osjoin(blobs_dir,filename),'w') as f:
+        f.write("\\uuid{%s}%%\n" % (new_uuid,))
+        f.write(placeholder+'\n')
     #
     # write  the metadata (including, a a text copy in filesytem)
     parent_metadata.save()
