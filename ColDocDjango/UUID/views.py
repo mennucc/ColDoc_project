@@ -62,7 +62,7 @@ def postedit(request, NICK, UUID):
     #
     form=BlobEditForm(request.POST)
     if not form.is_valid():
-        return HttpResponse("Invalid form",status=http.HTTPStatus.BAD_REQUEST)
+        return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
     blobcontent = form.cleaned_data['BlobEditTextarea']
     uuid_ = form.cleaned_data['UUID']
     nick_ = form.cleaned_data['NICK']
