@@ -95,6 +95,22 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                         inputfile = a['name']
                     else:
                         inputfile = thetex.readArgument(type=str)
+                    # follow one symlink
+                    a = osjoin(blobs_dir,inputfile)
+                    if  not os.path.exists(a):
+                        a += '.tex'
+                    if  os.path.islink(a) and not inputfile.startswith('UUID/'):
+                        # TODO may not work for subdirectories, checkme
+                        l =  os.readlink(a)
+                        l = osjoin(os.path.dirname(inputfile),l)
+                        if os.path.isfile(osjoin(blobs_dir,l)):
+                            logger.warning('\\input follows this link: %r -> %r',inputfile,l)
+                            inputfile = l
+                            if inputfile.endswith('.tex'):
+                                inputfile = inputfile[:-4]
+                        else:
+                            logger.warning('FIXME cannot follow this link: %r -> %r',inputfile,l)
+                    #
                     if inputfile[:4] == 'SEC/':
                         # resolve symlink
                         a,b = os.path.split(inputfile)
