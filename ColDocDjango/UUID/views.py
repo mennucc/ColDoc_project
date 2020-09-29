@@ -55,12 +55,12 @@ class BlobEditForm(forms.Form):
     NICK = forms.CharField(widget=forms.HiddenInput())
     ext  = forms.CharField(widget=forms.HiddenInput())
     lang = forms.CharField(widget=forms.HiddenInput())
-    selection_start = forms.CharField(widget=forms.HiddenInput())
-    selection_end = forms.CharField(widget=forms.HiddenInput())
+    selection_start = forms.CharField(widget=forms.HiddenInput(),initial=-1)
+    selection_end = forms.CharField(widget=forms.HiddenInput(),initial=-1)
     split_selection = forms.BooleanField(label='Split',required = False,
                                          widget = forms.CheckboxInput(attrs = {'onclick' : "hide_and_show();", }),
                                          help_text="Split selected text so that it becomes a new blob")
-    split_environment = forms.ChoiceField(label="environment", #choices=[('section','section'),('itemize','itemize')],
+    split_environment = forms.ChoiceField(label="environment",
                                           help_text="environment for newly created blob")
 
 def postedit(request, NICK, UUID):
@@ -416,8 +416,6 @@ def index(request, NICK, UUID):
             choices = _environ_choices_(blobs_dir)
             blobeditform = BlobEditForm(initial={'BlobEditTextarea':  file,
                                                  'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang,
-                                                 'split':False,'selection_start':-1,'selection_end':-1,
-                                                 'split_environment' : choices[0][0],
                                                  })
             blobeditform.fields['split_environment'].choices = choices
     #
