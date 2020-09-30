@@ -98,7 +98,18 @@
  {% if perms.UUID.view_dmetadata %}
   <div class="tab-pane fade" id="metadata" role="tabpanel" aria-labelledby="metadata-tab">
   <h2>Metadata</h2>
-    <div class='metadata'>
+    {% if perms.UUID.change_dmetadata %}
+     <div class="border border-info">
+      <h3>Editable metadata</h3>
+      <form action="{% url 'UUID:postmetadataedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
+      {% csrf_token %}{{ metadataform.non_field_errors }}
+       <table class="w-100">{{ metadataform }}</table>
+         <input type="submit" class="btn btn-primary" value="Submit">
+      </form>
+     </div>
+    {% endif %}
+    <div class="border border-info">
+      <h3>All metadata</h3>
       <ul>
         {% for key,vals in metadata.htmlitems %}
         <li>  {{ key  }}

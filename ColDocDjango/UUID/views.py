@@ -11,6 +11,7 @@ from django.http import HttpResponse, QueryDict
 from django.contrib import messages
 from django import forms
 from django.conf import settings
+from django.forms import ModelForm
 
 from ColDoc.utils import slug_re
 
@@ -22,6 +23,12 @@ from django.shortcuts import get_object_or_404, render
 
 from .models import DMetadata, DColDoc
 
+##############################################################
+
+class MetadataForm(ModelForm):
+    class Meta:
+        model = DMetadata
+        fields = ['author', 'access', 'environ','optarg','latex_documentclass_choice']
 
 ###############################################################
 
@@ -64,7 +71,7 @@ class BlobEditForm(forms.Form):
                                           help_text="environment for newly created blob")
     split_add_beginend = forms.BooleanField(label='Add begin/end',required = False,help_text="add a begin{}..end{} around the splitted ")
 
-def postedit(request, NICK, UUID):
+def pre_post(request, NICK, UUID):
     if request.method != 'POST' :
         return HttpResponse("Method %r not allowed"%(request.method,),status=http.HTTPStatus.BAD_REQUEST)
     if not slug_re.match(UUID):
@@ -79,6 +86,12 @@ def postedit(request, NICK, UUID):
     except DColDoc.DoesNotExist:
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     #
+    return True
+
+def postedit(request, NICK, UUID):
+    ret = pre_post(request, NICK, UUID)
+    if ret is not True:
+        return ret
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
     blobs_dir = osjoin(coldoc_dir,'blobs')
     if not os.path.isdir(blobs_dir):
@@ -144,6 +157,25 @@ def postedit(request, NICK, UUID):
         messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
     else:
         messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
+    return index(request, NICK, UUID)
+
+def postmetadataedit(request, NICK, UUID):
+    ret = pre_post(request, NICK, UUID)
+    if ret is not True:
+        return ret
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    blobs_dir = osjoin(coldoc_dir,'blobs')
+    if not os.path.isdir(blobs_dir):
+        return HttpResponse("No blobs for this ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
+                                                   blobs_dir = blobs_dir, coldoc = NICK,
+                                                   metadata_class=DMetadata)
+    form=MetadataForm(request.POST, instance=metadata)
+    #
+    if not form.is_valid():
+        return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
+    form.save()
+    messages.add_message(request,messages.INFO,'Changes saved')
     return index(request, NICK, UUID)
 
 def _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata):
@@ -449,7 +481,10 @@ def index(request, NICK, UUID):
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext[1:])
     #
-    
+    metadataform = MetadataForm(instance=metadata)
+    if 'tex' not in metadata.get('extension'):
+        metadataform.fields['environ'].widget.attrs['readonly'] = True
+        metadataform.fields['optarg'].widget.attrs['readonly'] = True
     return render(request, 'UUID.html', locals() )
 
 
