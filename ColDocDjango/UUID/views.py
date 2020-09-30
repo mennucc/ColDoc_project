@@ -12,6 +12,7 @@ from django.contrib import messages
 from django import forms
 from django.conf import settings
 from django.forms import ModelForm
+from django.core.exceptions import SuspiciousOperation
 
 from ColDoc.utils import slug_re
 
@@ -19,7 +20,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango
 
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 
 from .models import DMetadata, DColDoc
 
@@ -71,31 +72,30 @@ class BlobEditForm(forms.Form):
                                           help_text="environment for newly created blob")
     split_add_beginend = forms.BooleanField(label='Add begin/end',required = False,help_text="add a begin{}..end{} around the splitted ")
 
-def pre_post(request, NICK, UUID):
-    if request.method != 'POST' :
-        return HttpResponse("Method %r not allowed"%(request.method,),status=http.HTTPStatus.BAD_REQUEST)
+def common_checks(request, NICK, UUID):
     if not slug_re.match(UUID):
-        return HttpResponse("Invalid UUID %r." % (UUID,), status=http.HTTPStatus.BAD_REQUEST)
+        raise SuspiciousOperation("Invalid UUID %r." % (UUID,))
     if not slug_re.match(NICK):
-        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+        raise SuspiciousOperation("Invalid ColDoc %r." % (NICK,))
     if request.user.is_anonymous:
-        return HttpResponse("Permission denied", status=http.HTTPStatus.UNAUTHORIZED)
+        raise SuspiciousOperation("Permission denied")
     #
     try:
         coldoc = DColDoc.objects.get(nickname = NICK)
     except DColDoc.DoesNotExist:
-        return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+        raise SuspiciousOperation("No such ColDoc %r.\n" % (NICK,))
     #
-    return True
-
-def postedit(request, NICK, UUID):
-    ret = pre_post(request, NICK, UUID)
-    if ret is not True:
-        return ret
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
     blobs_dir = osjoin(coldoc_dir,'blobs')
     if not os.path.isdir(blobs_dir):
-        return HttpResponse("No blobs for this ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+        raise SuspiciousOperation("No blobs for this ColDoc %r.\n" % (NICK,))
+    return coldoc, coldoc_dir, blobs_dir
+
+def postedit(request, NICK, UUID):
+    if request.method != 'POST' :
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
     form=BlobEditForm(request.POST)
     #
@@ -124,7 +124,7 @@ def postedit(request, NICK, UUID):
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     if not request.user.has_perm('UUID.change_blob'):
         logger.error('Hacking attempt',request.META)
-        return HttpResponse("Permission denied", status=http.HTTPStatus.UNAUTHORIZED)
+        raise SuspiciousOperation("Permission denied")
     #
     # write new content
     open(filename,'w').write(blobcontent)
@@ -160,13 +160,11 @@ def postedit(request, NICK, UUID):
     return index(request, NICK, UUID)
 
 def postmetadataedit(request, NICK, UUID):
-    ret = pre_post(request, NICK, UUID)
-    if ret is not True:
-        return ret
-    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
-    blobs_dir = osjoin(coldoc_dir,'blobs')
-    if not os.path.isdir(blobs_dir):
-        return HttpResponse("No blobs for this ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    if request.method != 'POST' :
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    #
     uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
                                                    blobs_dir = blobs_dir, coldoc = NICK,
                                                    metadata_class=DMetadata)
