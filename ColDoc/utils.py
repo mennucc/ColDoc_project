@@ -691,6 +691,32 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
 
 
 ############################
+
+
+def recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=None, depth=0):
+    """ recurse tree starting from `uuid` , for each node call 
+    `action(uuid=uuid, uuid_dir=uuid_dir, metadata=metadata, depth=depth)` which should return a boolean"""
+    #
+    if uuid is None:
+        logger.debug('Assuming root_uuid = 001')
+        uuid = '001'
+    import ColDoc
+    uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
+                                                   blobs_dir = blobs_dir,
+                                                   coldoc = coldoc_nick,
+                                                   metadata_class=metadata_class)
+    #
+    ret = action(uuid=uuid, uuid_dir=uuid_dir, metadata=metadata, depth=depth)
+    #
+    for u in metadata.get('child_uuid'):
+        logger.debug('moving down from node %r to node %r',uuid,u)
+        r = recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=u, depth=(depth+1))
+        ret = ret and r
+    return ret
+
+
+
+############################
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == 'test_uuid':
         assert 1 == uuid_to_int('OOO1')
