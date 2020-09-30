@@ -168,6 +168,12 @@ def postmetadataedit(request, NICK, UUID):
     uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
                                                    blobs_dir = blobs_dir, coldoc = NICK,
                                                    metadata_class=DMetadata)
+    #
+    request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
+    if not request.user.has_perm('UUID.change_dmetadata'):
+        logger.error('Hacking attempt',request.META)
+        raise SuspiciousOperation("Permission denied")
+    #
     form=MetadataForm(request.POST, instance=metadata)
     #
     if not form.is_valid():
