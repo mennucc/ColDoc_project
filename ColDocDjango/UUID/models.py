@@ -70,7 +70,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     uuid = UUID_Field(db_index = True, )
-    environ = models.CharField(max_length=100, db_index = True)
+    environ = models.CharField(max_length=100, db_index = True, blank=True)
     optarg = models.CharField(max_length=300, blank=True)
     extension = models.TextField(max_length=100,help_text="newline-separated list of extensions",
                                  default='', blank=True)
