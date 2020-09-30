@@ -251,6 +251,8 @@ does not contain the file `config.ini`
     child_metadata.add('environ',environ)
     if lang is not None:
         child_metadata.add('lang',lang)
+    if environ[:2] == 'E_' and environ[2:] in blobinator_args['private_environment']:
+        child_metadata.add('access', 'private')
     child_metadata.save()
     child_metadata.add('author',user)
     blob_models.UUID_Tree_Edge(coldoc = parent_metadata.coldoc, parent = parent_uuid, child = new_uuid).save()
