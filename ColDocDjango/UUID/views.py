@@ -480,7 +480,7 @@ def index(request, NICK, UUID):
         '?lang=%s&ext=%s'%(lang,ext[1:])
     #
     metadataform = MetadataForm(instance=metadata)
-    if 'tex' not in metadata.get('extension'):
+    if '.tex' not in metadata.get('extension'):
         metadataform.fields['environ'].widget.attrs['readonly'] = True
         metadataform.fields['optarg'].widget.attrs['readonly'] = True
     return render(request, 'UUID.html', locals() )
