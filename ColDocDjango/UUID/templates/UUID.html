@@ -75,7 +75,7 @@
      {% if perms.UUID.change_blob %}
      {{ blobeditform.media }}
       <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
-        {% csrf_token %}{{ form.non_field_errors }}
+        {% csrf_token %}{{ blobeditform.non_field_errors }}
         {% for field in blobeditform %}{% if field.is_hidden %} {{ field }} {% else %}
          <div class="form-group w-100" id="id_div_blobeditform_{{field.name}}"  >
           {{ field.errors }}    {{ field.label_tag }} {{ field }}
