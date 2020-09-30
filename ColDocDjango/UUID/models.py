@@ -254,7 +254,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         elif key in ('extension','lang'):
             return self.__key_to_list(key)
         elif key == 'author':
-            return self.author.all().values_list(flat = True)
+            return self.author.all().values_list('username', flat = True)
         elif key == 'parent_uuid':
             return UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).values_list('parent', flat=True)
         elif key == 'child_uuid':
