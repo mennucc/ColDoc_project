@@ -46,6 +46,11 @@
 
 \input{mydefinitions}
 
+\ifplastex
+%% plastex currently does not know eqref
+\def\eqref{\ref}
+\fi
+
 \begin{document}
 \author{J. Smith}
 \title{That papert}
