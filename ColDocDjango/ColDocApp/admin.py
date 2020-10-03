@@ -1,7 +1,12 @@
 from django.contrib import admin
 from .models import DColDoc
 
-admin.site.register(DColDoc)
+
+class DColDocAdmin(admin.ModelAdmin):
+    model = DColDoc
+    readonly_fields = ('root_uuid',)
+
+admin.site.register(DColDoc,DColDocAdmin)
 
 # TODO maybe this is not the best place for this action
 from django.contrib.auth.admin import UserAdmin
