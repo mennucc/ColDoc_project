@@ -6,14 +6,16 @@ from django.contrib import admin
 
 from .models import DMetadata, ExtraMetadata
 
-class DMetadataAdmin(admin.ModelAdmin):
-    readonly_fields = ('uuid',)
 
+class ExtraMetadataAdmin(admin.TabularInline):
+    model = ExtraMetadata
+
+class DMetadataAdmin(admin.ModelAdmin):
+    model = DMetadata
+    inlines = [
+        ExtraMetadataAdmin,
+    ]    
+    readonly_fields = ('uuid',)
 
 admin.site.register(DMetadata,DMetadataAdmin)
 
-
-class ExtraMetadataAdmin(admin.ModelAdmin):
-    pass
-
-admin.site.register(ExtraMetadata, ExtraMetadataAdmin)
