@@ -108,6 +108,13 @@
       </form>
      </div>
     {% endif %}
+    {% if user.is_authenticated and user.is_staff %}
+         <div class="border border-info">
+        <a href="/admin/UUID/dmetadata/{{ metadata.id }}/change/"  class="btn btn-outline-primary btn-sm">
+         Edit using administrative interface
+         </a>
+         </div>
+    {% endif %}
     <div class="border border-info">
       <h3>All metadata</h3>
       <ul>

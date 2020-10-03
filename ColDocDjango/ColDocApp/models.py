@@ -96,10 +96,8 @@ class UUID_Field(models.IntegerField):
                 params={'value': value},
             )
     #
-    def formfield(self, **kwargs):
-        kwargs['form_class'] = UUID_FormField
-        return models.fields.Field.formfield(self, **kwargs)
-        #return super().formfield(**kwargs)
+    def formfield(self, *args, **kwargs):
+        return django.forms.CharField(*args, **kwargs)
 
 # Create your models here.
 
