@@ -226,7 +226,9 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     #
     from .transform import squash_helper_reparse_metadata
     helper = squash_helper_reparse_metadata(blobs_dir, metadata, options)
-    helper.input_macros_with_parameters += options['split_graphic']
+    from ColDoc.latex import environments_we_wont_latex
+    if metadata.environ not in environments_we_wont_latex:
+        helper.input_macros_with_parameters += options['split_graphic']
     #
     if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
     thetex = TeX()
