@@ -15,7 +15,7 @@ class DMetadataAdmin(admin.ModelAdmin):
     inlines = [
         ExtraMetadataAdmin,
     ]    
-    readonly_fields = ('uuid',)
+    readonly_fields = ('uuid','coldoc',)
 
 admin.site.register(DMetadata,DMetadataAdmin)
 
