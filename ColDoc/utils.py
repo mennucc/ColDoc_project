@@ -316,16 +316,24 @@ def sort_extensions(E):
     E.sort(key = lambda x: P.get(x,10))
     return E
 
-def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',
-                lang = ColDoc_lang, metadata_class=FMetadata, coldoc=None):
+def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
+                lang = ColDoc_lang, metadata_class=FMetadata, coldoc=None, metadata=None):
     """ Choose a blob, trying to satisfy request for language and extension
     returns `filename`, `uuid`, `metadata`, `lang`, `ext`
     if `ext` is None, an extension will be returned following `sort_extensions`
     if `lang` is None, a random language will be returned
     """
-    assert isinstance(uuid,str)
+    assert metadata is not None or (uuid is not None and coldoc is not None)
+    assert isinstance(uuid,str) or uuid is None
+    #
+    if metadata is None:
+        m = metadata_class.load_by_uuid(uuid=uuid,coldoc=coldoc,basepath=blobs_dir)
+    else:
+        m = metadata
+        uuid = metadata.uuid
+    #
     uuid_dir = uuid_to_dir(uuid)
-    m = metadata_class.load_by_uuid(uuid=uuid,coldoc=coldoc,basepath=blobs_dir)
+    #
     if m is None:
         logger.error('Metadata `%r` not available for coldoc %r', uuid, coldoc)
         raise ColDocException('Metadata `%r` not available for coldoc %r'%(uuid, coldoc))
