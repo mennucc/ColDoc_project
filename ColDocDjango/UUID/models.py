@@ -303,6 +303,20 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         else:
             return ExtraMetadata.objects.filter(blob=self, key=key).values_list('value', flat=True)
     #
+    def keys(self):
+        "returns keys without repetitions"
+        for key in  self.__single_valued:
+            yield key
+        for key in self.__internal_multiple_valued_keys:
+            yield key
+        yield 'author'
+        yield 'parent_uuid'
+        yield 'child_uuid'
+        seen = set()
+        for key in ExtraMetadata.objects.filter(blob=self).values_list('key', flat=True):
+            if key not in seen:
+                yield key
+            seen.add(key)
     #
     def items(self, serve_empty=False):
         "returns (key, values)"
