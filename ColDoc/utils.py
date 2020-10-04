@@ -748,7 +748,7 @@ def recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=None, dept
 ############################
 
 
-def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True):
+def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid=True):
     " reparse a blob to extract and update all metadata "
     if warn is None:
         warn = logger.warning
@@ -787,7 +787,10 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True):
         if key.startswith('M_') or key.startswith('S_'):
             for v in value:
                 old_metadata_set.add( (key,v) )
-    new_metadata_set = set(parsed_metadata)
+    if ignore_uuid:
+        new_metadata_set = set((k,v) for k,v in parsed_metadata if k!='M_uuid')
+    else:
+        new_metadata_set = set(parsed_metadata)
     if old_metadata_set != new_metadata_set:
         if old_metadata_set.difference(new_metadata_set):
             warn('Deleted metadata: %r'%(old_metadata_set.difference(new_metadata_set),))
@@ -799,7 +802,13 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True):
             if key.startswith('M_') or key.startswith('S_'):
                 del metadata[key]
         for key, value in parsed_metadata:
-            metadata.add(key,value)
+            if key == 'M_uuid':
+                if value != ('{'+metadata.uuid+'}'):
+                    warn('Warning: there is a `uuid` command with value %s instead of {%s}'%(value,metadata.uuid))
+                if not ignore_uuid:
+                    metadata.add(key,value)
+            else:
+                metadata.add(key,value)
     metadata.save()
 
 
