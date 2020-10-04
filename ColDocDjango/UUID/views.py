@@ -126,6 +126,9 @@ def postedit(request, NICK, UUID):
         logger.error('Hacking attempt',request.META)
         raise SuspiciousOperation("Permission denied")
     #
+    # convert to UNIX line ending 
+    import re
+    blobcontent = re.sub("\r\n", '\n', blobcontent)
     # write new content
     open(filename,'w').write(blobcontent)
     metadata.blob_modification_time_update()
