@@ -13,6 +13,9 @@ ColDoc_lang = 'it_IT'
 # caveat: if the blob is renamed before saving, that UUID will be unused
 ColDoc_early_UUID = True
 
+# filename extensions that are presented as text
+ColDoc_show_as_text = ('.tex', '.sty', '.bbl', '.bib')
+
 ## this regulates the way that `blob_inator` adds \uuid tags in blobs
 ##
 #- If `write_UUID` is `True`, the UUID will be written at the beginning of the blob,

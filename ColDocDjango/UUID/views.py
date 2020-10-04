@@ -143,20 +143,22 @@ def postedit(request, NICK, UUID):
                                              ext = ext_, lang = lang_, 
                                              metadata_class=DMetadata, coldoc=NICK)
             messages.add_message(request,messages.INFO,addmessage)
-            rh, rp = _latex_blob(request, blobs_dir, coldoc, adduuid, lang, addmetadata)
-            if rh and rp:
-                messages.add_message(request,messages.INFO,'Compilation of new blob succeded')
-            else:
-                messages.add_message(request,messages.WARNING,'Compilation of new blob failed')
+            if ext_ == '.tex':
+                rh, rp = _latex_blob(request, blobs_dir, coldoc, adduuid, lang, addmetadata)
+                if rh and rp:
+                    messages.add_message(request,messages.INFO,'Compilation of new blob succeded')
+                else:
+                    messages.add_message(request,messages.WARNING,'Compilation of new blob failed')
         else:
             messages.add_message(request,messages.WARNING,addmessage)
     #
     #
-    rh, rp = _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata)
-    if rh and rp:
-        messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
-    else:
-        messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
+    if ext_ == '.tex':
+        rh, rp = _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata)
+        if rh and rp:
+            messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
+        else:
+            messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
     return index(request, NICK, UUID)
 
 def postmetadataedit(request, NICK, UUID):
@@ -391,7 +393,7 @@ def index(request, NICK, UUID):
     pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext[1:])
     #
-    if ext == '.tex':
+    if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
         file = open(filename).read()
         env = metadata.get('environ')[0]
