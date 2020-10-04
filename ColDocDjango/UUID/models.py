@@ -264,6 +264,17 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         else:
             raise NotImplementedError()
     #
+    def __delitem__(self,key):
+        "delete all values for `key`"
+        if key in  self.__single_valued or key in self.__internal_multiple_valued_keys:
+            raise NotImplementedError()
+        if key == 'child_uuid':
+            UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid).delete()
+        elif key == 'child_uuid': 
+            UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).delete()
+        else:
+            ExtraMetadata.objects.filter(blob=self, key=key).delete()
+    #
     def delete(self,k,v):
         "delete a key/value"
         if key in  self.__single_valued or key in self.__internal_multiple_valued_keys:
