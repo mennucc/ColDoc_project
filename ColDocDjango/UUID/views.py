@@ -62,7 +62,7 @@ class BlobEditForm(forms.Form):
     UUID = forms.CharField(widget=forms.HiddenInput())
     NICK = forms.CharField(widget=forms.HiddenInput())
     ext  = forms.CharField(widget=forms.HiddenInput())
-    lang = forms.CharField(widget=forms.HiddenInput())
+    lang = forms.CharField(widget=forms.HiddenInput(),required = False)
     selection_start = forms.CharField(widget=forms.HiddenInput(),initial=-1)
     selection_end = forms.CharField(widget=forms.HiddenInput(),initial=-1)
     split_selection = forms.BooleanField(label='Split',required = False,
