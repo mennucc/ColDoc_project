@@ -1071,7 +1071,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     j = stack.top
                     a = '' if j == stack.topstream else ('S_'+stack.topenv+'_')
                     for j in args:
-                        j =  j.translate({'\n':' '})
+                        j =  j.translate({10:32})
                         try:
                             stack.topstream.add_metadata(a+'M_'+macroname,j)
                         except DuplicateLabel:

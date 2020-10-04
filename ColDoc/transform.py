@@ -148,7 +148,7 @@ class squash_helper_reparse_metadata(squash_input_uuid):
         #
         a = '' if not self.stack else ('S_'+self.stack[-1]+'_')
         for j in args:
-            j =  j.translate({'\n':' '})
+            j =  j.translate({10:32})
             self.metadata.append((a+'M_'+macroname,j))
 
 def squash_latex(inp, out, blobs_dir, options, helper=None):
