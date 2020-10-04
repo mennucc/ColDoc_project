@@ -77,11 +77,21 @@ class squash_input_uuid(squash_helper_base):
         self.blobs_dir =  blobs_dir
         self.blob = blob
         self.options = options
-        self.macros = ['input','include','input_preamble','include_preamble']
+        self.input_macros = ['input','include','input_preamble','include_preamble','bibliography']
+        self.input_macros_with_parameters = ['usepackage',]
+        # it is up to the caller to add other macros such as 'includegraphics'
     #
     def process_macro(self, macroname, thetex):
-        if macroname in ('input','include','input_preamble','include_preamble'):
-            inputfile = thetex.readArgument(type=str)
+        if macroname in (self.input_macros + self.input_macros_with_parameters):
+            if macroname in self.input_macros_with_parameters:
+                for spec in '*','[]',None:
+                    _, s = thetex.readArgumentAndSource(spec=spec)
+                    if spec is None:
+                        inputfile = s[1:-1]
+            else:   
+                inputfile = thetex.readArgument(type=str)
+            if macroname == 'usepackage' and inputfile[:5] != 'UUID/':
+                return None
             uuid, blob = file_to_uuid(inputfile, self.blobs_dir)
             if inputfile[:5] == 'UUID/':
                 text = uuid
@@ -216,6 +226,8 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     #
     from .transform import squash_helper_reparse_metadata
     helper = squash_helper_reparse_metadata(blobs_dir, metadata, options)
+    helper.input_macros_with_parameters += options['split_graphic']
+    #
     if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
     thetex = TeX()
     #
