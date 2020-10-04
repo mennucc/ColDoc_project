@@ -162,6 +162,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         F = open(F,'w')
         F.write( 'coldoc=' + self.coldoc.nickname + '\n')
         for k,vv in self.items():
+            if k == 'coldoc':
+                continue
             for v in vv:
                 if isinstance(v, ColDocUser):
                     v = v.username
