@@ -309,7 +309,8 @@ def choose_blob(uuid, blobs_dir = ColDoc_as_blobs, ext = '.tex',
         raise ColDocException('Metadata `%r` not available for coldoc %r'%(uuid, coldoc))
     # short circuit the case of given lang and ext
     if lang is not None and ext is not None:
-        input_file = osjoin(blobs_dir, uuid_dir, 'blob_'+lang+ext)
+        if lang : lang = '_' + lang
+        input_file = osjoin(blobs_dir, uuid_dir, 'blob'+lang+ext)
         if os.path.exists(input_file):
             return input_file,uuid,m,lang,ext
         else:
