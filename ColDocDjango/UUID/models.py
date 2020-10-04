@@ -48,12 +48,12 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     # -) these keys are multiple-valued, each value is a text line, are represented 
     # as a newline-separated text field
     __internal_multiple_valued_keys = ('extension','lang')
-    # -) these are singled-value and are internal, and may be changed
-    __single_valued = ('environ', 'optarg', 'original_filename',
+    # -) these are singled-value and are internal
+    __single_valued = ('id', 'coldoc', 'uuid', 'environ', 'optarg', 'original_filename',
                        'latex_documentclass_choice', 'access',
                        'creation_time','blob_modification_time','latex_time','latex_return_codes')
     # -) then there is 'author' that is a ManyToMany,
-    # -) some fields cannot be changed
+    # -) some fields cannot be changed or deleted
     __protected_fields = 'id', 'coldoc', 'uuid'
     # all other key/value pairs are stored in 'extrametadata', that is a ManyToMany to    ExtraMetadata
     #
@@ -76,7 +76,6 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         if settings.DEBUG:
             a = set(self.__internal_multiple_valued_keys)
             a.update(set(self.__single_valued))
-            a.update(set(self.__protected_fields))
             a.add('author')
             a.add('extrametadata')
             b = set(a.name for a in self._meta.get_fields())
