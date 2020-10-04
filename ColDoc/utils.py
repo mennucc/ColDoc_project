@@ -748,7 +748,7 @@ def recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=None, dept
 ############################
 
 
-def reparse_blob(filename, metadata, blobs_dir, warn=None):
+def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True):
     " reparse a blob to extract and update all metadata "
     if warn is None:
         warn = logger.warning
@@ -762,13 +762,18 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None):
     # insert changes regarding children
     old_children = metadata.get('child_uuid')
     old_children_set = set(old_children)
-    del metadata['child_uuid']
-    new_children_set = set()
-    for childuuid in parsed_back_map:
-        if childuuid in new_children_set:
-            warn('In %r the child %r is referenced twice'%(uuid,childuuid))
-        new_children_set.add(childuuid)
-        metadata.add('child_uuid',childuuid)
+    if act:
+        del metadata['child_uuid']
+        new_children_set = set()
+        for childuuid in parsed_back_map:
+            if childuuid in new_children_set:
+                warn('In %r the child %r is referenced twice'%(uuid,childuuid))
+            else:
+                metadata.add('child_uuid',childuuid)
+            new_children_set.add(childuuid)
+    else:
+        new_children_set = set(parsed_back_map)
+    #
     if old_children_set != new_children_set:
         if old_children_set.difference(new_children_set):
             warn('Warning connection to these children was disconnected: %r'%(old_children_set.difference(new_children_set),))
@@ -777,13 +782,24 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None):
     #
     # insert changes regarding extrametadata
     #
-    for key in metadata.keys():
+    old_metadata_set = set()
+    for key, value in metadata.items():
         if key.startswith('M_') or key.startswith('S_'):
-            #print("delete %r"%key)
-            del metadata[key]
-    for key, value in parsed_metadata:
-        #print("add %r %r"%(key,value))
-        metadata.add(key,value)
+            for v in value:
+                old_metadata_set.add( (key,v) )
+    new_metadata_set = set(parsed_metadata)
+    if old_metadata_set != new_metadata_set:
+        if old_metadata_set.difference(new_metadata_set):
+            warn('Deleted metadata: %r'%(old_metadata_set.difference(new_metadata_set),))
+        if new_metadata_set.difference(old_metadata_set):
+            warn('New metadata: %r'%(new_metadata_set.difference(old_metadata_set),))
+    #
+    if act:
+        for key in metadata.keys():
+            if key.startswith('M_') or key.startswith('S_'):
+                del metadata[key]
+        for key, value in parsed_metadata:
+            metadata.add(key,value)
     metadata.save()
 
 
