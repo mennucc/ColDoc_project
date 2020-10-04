@@ -782,6 +782,10 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
     #
     # insert changes regarding extrametadata
     #
+    from ColDoc.latex import environments_we_wont_latex
+    if metadata.environ in environments_we_wont_latex:
+        metadata.save()
+        return
     old_metadata_set = set()
     for key, value in metadata.items():
         if key.startswith('M_') or key.startswith('S_'):
