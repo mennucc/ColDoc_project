@@ -100,6 +100,46 @@ class squash_input_uuid(squash_helper_base):
         "deletes comments"
         return '%\n'
 
+class squash_helper_reparse_metadata(squash_input_uuid):
+    "reparse metadata"
+    def __init__(self, blobs_dir, metadata, options, *v, **k):
+        self.metadata_command = options['metadata_command']
+        self.metadata = []
+        self.stack = []
+        super().__init__(blobs_dir, metadata, options, *v, **k)
+    #
+    def process_begin(self, begin, thetex):
+        self.stack.append(begin)
+    #
+    def process_end(self, end, thetex):
+        if not self.stack or end != self.stack.pop():
+            logger.warning('disaligned stack')
+    #
+    def process_macro(self, macroname, thetex, environ=None):
+        r = super().process_macro(macroname, thetex)
+        if r is not None:
+            return r
+        if macroname not in self.metadata_command:
+            return None
+        # keep this in sync with ColDoc.blob_inator, around line 1060
+        obj = thetex.ownerDocument.createElement(macroname)
+        thetex.currentInput[0].pass_comments = False
+        ## FIXME why is this attribute not there...
+        if hasattr(obj,'nargs'):
+            N=obj.nargs
+        else:
+            logger.debug('nargs wrong for '+repr(obj))
+            N = 1
+        args = [ thetex.readArgumentAndSource(type=str)[1] for j in range(N)]
+        #obj.parse(thetex)
+        thetex.currentInput[0].pass_comments = True
+        logger.info('metadata %r  %r' % (macroname,args))
+        #
+        a = '' if not self.stack else ('S_'+self.stack[-1]+'_')
+        for j in args:
+            j =  j.translate({'\n':' '})
+            self.metadata.append((a+'M_'+macroname,j))
+
 def squash_latex(inp, out, blobs_dir, options, helper=None):
     " transforms LaTeX file"
     if helper is None:
@@ -163,3 +203,47 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
             out.write(r if r is not None else tok.source)
         else:
             out.write(tok.source)
+
+
+
+#############################
+
+import io
+
+def reparse_metadata(inp, metadata, blobs_dir):
+    " reparse metadata of LaTeX file"
+    #
+    a = osjoin(blobs_dir, '.blob_inator-args.json')
+    options = json.load(open(a))
+    #
+    from .transform import squash_helper_reparse_metadata
+    helper = squash_helper_reparse_metadata(blobs_dir, metadata, options)
+    if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
+    thetex = TeX()
+    #
+    mytex = TeX()
+    mydocument = mytex.ownerDocument
+    mycontext = mydocument.context
+    #
+    # give it some context
+    mycontext.loadPackage(thetex, 'article.cls', {})
+    #if args.split_sections:
+    #    mycontext.newcommand('section',1,r'\section{#1}')
+    #    mycontext.newcommand('subsection',1,r'\subsection{#1}')
+    ## FIXME this does not work..
+    for name in options['metadata_command'] :
+        d =  '\\' + name + '{#1}'
+        #mycontext.newcommand(name, n, d)
+        n = 1
+        newclass = type(name, (plasTeX.NewCommand,),
+                       {'nargs':n, 'opt':None, 'definition':d})
+        assert newclass.nargs == n
+        mycontext.addGlobal(name, newclass)
+    #
+    thetex.input(open(inp), Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    out = io.StringIO()
+    itertokens = thetex.itertokens()
+    squash_recurse(out, thetex, itertokens, options, helper)
+    return helper.back_map, helper.metadata
+
+
