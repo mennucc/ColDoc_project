@@ -306,7 +306,7 @@ class named_stream(io.StringIO):
             if len(cnt) == 0:
                 logger.warning('empty blob %r' % self)
             #
-            self._metadata.add('uuid',self._uuid)
+            self._metadata.uuid = self._uuid
             if self.environ[:2] == 'E_' and self.environ[2:] in self._private:
                 self._metadata.add('access', 'private')
             if self._authors:
@@ -648,7 +648,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
                 fo = osjoin(do,'blob')
                 fm = metadata_class(basepath=blobs_dir,coldoc=coldoc)
-                fm.add('uuid', uuid)
+                fm.uuid = uuid
                 fm.add('environ',  macroname)
                 fm.add('extension',ext)
                 fm.add('original_filename', fil)
@@ -888,7 +888,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
                         fo = osjoin(do,'blob')
                         fm = metadata_class(basepath=blobs_dir,coldoc=coldoc)
-                        fm.add('uuid', uuid)
+                        fm.uuid = uuid
                         fm.add('original_filename', inputfile)
                         fm.add('original_command', src)
                         fm.add('parent_uuid', stack.topstream.uuid)

@@ -226,6 +226,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         """ for single valued `key`, set `value`; for multiple value,
         add the `value` as a possible value for `key` (only if the value is not present) ;
         this call is used by the blob_inator"""
+        if key in self.__protected_fields:
+            raise RuntimeError('Cannot set protected field %r to %r'%(key, value))
         if key in  self.__single_valued:
             setattr(self, key, value)
         elif key in self.__internal_multiple_valued_keys:

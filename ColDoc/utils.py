@@ -53,6 +53,8 @@ from collections import OrderedDict
 class FMetadata(dict, MetadataBase):
     "an implementation of `MetadataBase` that stores data in a file"
     #
+    __protected_fields = ('uuid',)
+    #
     def __init__(self, filename=None, basepath=None, coldoc=None, *args, **kwargs):
         """ If `filename` is provided, it will be the default for all writes
         (this is deprecated and should be used only for testing).
@@ -94,7 +96,10 @@ class FMetadata(dict, MetadataBase):
             i = j.index('=')
             assert i > 0, "cannot parse '%r' as key=value " % j
             k,v = j[:i], j[i+1:]
-            self.add(k,v)
+            if k == 'uuid':
+                self.uuid = v
+            else:
+                self.add(k,v)
         return self
     #
     @classmethod
@@ -132,6 +137,8 @@ class FMetadata(dict, MetadataBase):
         """ if `key` is single-valued, set `key` to `value`; if `key` is multiple-valued,
         adds a `value` for `key` (only if the value is not present); """
         #assert isinstance(k,str) and isinstance(v,str)
+        if k in self.__protected_fields:
+            raise RuntimeError('Cannot set protected field %r to %r'%(k, v))
         assert '=' not in str(k)
         if k in self._single_valued_keys:
             return super().__setitem__(k, [v])
@@ -178,6 +185,13 @@ class FMetadata(dict, MetadataBase):
     @property
     def uuid(self):
         return super().get('uuid',[None])[0]
+    @uuid.setter
+    def uuid(self, uuid):
+        if super().get('uuid') is not None:
+            a = super().get('uuid')[0]
+            if  a != uuid:
+                raise RuntimeError(' UUID is alreaady set to %r, cannot set it twice (to %r)'%(uuid, a))
+        super().__setitem__('uuid',[uuid])
     @property
     def environ(self):
         return super().get('environ',[None])[0]
