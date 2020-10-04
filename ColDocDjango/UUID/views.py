@@ -130,7 +130,11 @@ def postedit(request, NICK, UUID):
     open(filename,'w').write(blobcontent)
     metadata.blob_modification_time_update()
     metadata.save()
-    # TODO parse it to refresh metadata
+    # parse it to refresh metadata
+    from ColDoc.utils import reparse_blob
+    def warn(msg):
+        messages.add_message(request,messages.INFO,msg)
+    reparse_blob(filename, metadata, blobs_dir, warn)
     #
     if split_selection_:
         from ColDocDjango.helper import add_blob
