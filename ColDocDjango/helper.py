@@ -13,7 +13,10 @@ This program does some actions that `manage` does not. Possible commands:
     add_blob
         add a an empty blob to a document
         (to import new LaTeX material in a document, use `blob_inator`)
-        
+    
+    reparse_all
+         reparse all blobs
+    
 Use `command` --help for command specific options.
 """
 
@@ -291,6 +294,70 @@ does not contain the file `config.ini`
     #    logger.error("Exception %r",e)
     #    return False, "Exception %r"%e
 
+
+def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=False):
+    " returns (success, message, new_uuid)"
+    #
+    assert isinstance(coldoc_nick,str), coldoc_nick
+    assert (isinstance(lang,str) or lang is None), lang
+    import ColDoc.config as CC
+    #
+    from ColDoc.utils import slug_re
+    if not slug_re.match(coldoc_nick):
+        a = ("Invalid NICK %r." % (coldoc_nick,))
+        logger.error(a)
+        return False, a, None
+    if lang is not None and not slug_re.match(lang):
+        a = ("Invalid language %r." % (lang,))
+        logger.error(a)
+        return False, a, None
+    #
+    if lang is None:
+        lang_ = ''
+    else:
+        lang_ = '_'+lang
+    #
+    if COLDOC_SITE_ROOT is None or not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini')):
+        logger.error("""\
+The directory
+COLDOC_SITE_ROOT={COLDOC_SITE_ROOT}
+does not contain the file `config.ini`
+""".format_map(locals()) )
+        return False,'Invalid COLDOC_SITE_ROOT', None
+    #
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
+    #
+    import django
+    django.setup()
+    #
+    coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
+    if not os.path.exists(coldoc_dir):
+        logger.error('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
+        return False,('Does not exist coldoc_dir=%r\n'%(coldoc_dir)), None
+    #
+    blobs_dir = osjoin(coldoc_dir, 'blobs')
+    #
+    f = osjoin(blobs_dir, '.blob_inator-args.json')
+    if not os.path.exists(f):
+        logger.error("File of blob_inator args does not exit: %r\n"%(f,))
+        return False, ("File of blob_inator args does not exit: %r\n"%(f,)), None
+    with open(f) as a:
+        blobinator_args = json.load(a)
+    #
+    from ColDocDjango.ColDocApp.models import DColDoc
+    coldoc = list(DColDoc.objects.filter(nickname = coldoc_nick))
+    coldoc = coldoc[0]
+    #if not coldoc:
+    #    return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    from ColDoc.utils import reparse_blob, choose_blob
+    from ColDocDjango.UUID.models import DMetadata
+    for metadata in DMetadata.objects.filter(coldoc = coldoc):
+        for avail_lang in metadata.get('lang'):
+            filename, uuid, metadata, lang, ext = choose_blob(blobs_dir=blobs_dir, ext='.tex', lang=avail_lang, metadata=metadata)
+            def warn(msg):
+                logger.warning('Parsing uuid %r lang %r : %s'%(uuid,lang,msg))
+            reparse_blob(filename, metadata, blobs_dir, warn, act=act)
+
 def main(argv):
     import logging
     logger = logging.getLogger('helper')
@@ -302,17 +369,21 @@ def main(argv):
                         help='root of the coldoc portal (default from env `COLDOC_SITE_ROOT`)', default=COLDOC_SITE_ROOT,
                         required=(COLDOC_SITE_ROOT is None))
     parser.add_argument('--verbose','-v',action='count',default=0)
-    if 'add_blob' in sys.argv:
+    if 'add_blob' in sys.argv or  'reparse_all' in sys.argv:
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
+        parser.add_argument('--lang',type=str,\
+                            help='language of  newly created blob')
+    if 'reparse_all' in sys.argv:
+        parser.add_argument('--act',action='store_true',\
+                            help='apply changes')
+    if 'add_blob' in sys.argv:
         parser.add_argument('--parent-uuid',type=str,required=True,\
                             help='parent of the newly created blob')
         parser.add_argument('--user',type=str,required=True,\
                             help='user creating the blob')
         parser.add_argument('--environ',type=str,required=True,\
                             help='environment of  newly created blob')
-        parser.add_argument('--lang',type=str,\
-                            help='language of  newly created blob')
     parser.add_argument('command', help='specific command',nargs='+')
     args = parser.parse_args()
     #
@@ -338,6 +409,8 @@ def main(argv):
                         args.parent_uuid, args.environ, args.lang )
         print(ret[1])
         return ret[0] #discard message
+    elif argv[0] == 'reparse_all':
+        ret = reparse_all(logger, COLDOC_SITE_ROOT, args.coldoc_nick, args.lang, args.act)
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
         sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
