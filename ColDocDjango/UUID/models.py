@@ -44,6 +44,19 @@ class UUID_Tree_Edge(models.Model):
 class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interferes with the Django magick
     "Metadata of a blob, stored in the Django databases, and also in a file (for easy access)"
     #
+    ## Data stored in this Model are so classified:
+    # -) these keys are multiple-valued, each value is a text line, are represented 
+    # as a newline-separated text field
+    __internal_multiple_valued_keys = ('extension','lang')
+    # -) these are singled-value and are internal, and may be changed
+    __single_valued = ('environ', 'optarg', 'original_filename',
+                       'latex_documentclass_choice', 'access',
+                       'creation_time','blob_modification_time','latex_time','latex_return_codes')
+    # -) then there is 'author' that is a ManyToMany,
+    # -) some fields cannot be changed
+    __protected_fields = 'id', 'coldoc', 'uuid'
+    # all other key/value pairs are stored in 'extrametadata', that is a ManyToMany to    ExtraMetadata
+    #
     class Meta:
         verbose_name = "Metadata"
         permissions = [(j,"can %s anywhere"%j) for j in permissions_for_blob_extra]
@@ -58,12 +71,17 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         # these keys are single valued
         self._single_valued_keys = ('uuid','environ')
         assert self._single_valued_keys == classes.MetadataBase._single_valued_keys
-        # these keys are multiple-valued, are internal, are represented
-        # as a newline-separated text field
-        self._internal_multiple_valued_keys = ('extension','lang')
-        self.__single_valued = ('uuid', 'environ', 'optarg', 'original_filename', 'access')
         #
         super().__init__(*args, **kwargs)
+        if settings.DEBUG:
+            a = set(self.__internal_multiple_valued_keys)
+            a.update(set(self.__single_valued))
+            a.update(set(self.__protected_fields))
+            a.add('author')
+            a.add('extrametadata')
+            b = set(a.name for a in self._meta.get_fields())
+            if a != b:
+                logger.warning('DMetadata fields unaliagned, a="documented" b="effective": a-b %r b-a %r'%( a.difference(b), b.difference(a) ))
     #
     def get_absolute_url(self):
         return reverse('UUID:index', args=(self.coldoc.nickname,self.uuid))
@@ -153,7 +171,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         F.close()
     #
     def __key_to_list(self,key):
-        assert key in self._internal_multiple_valued_keys
+        assert key in self.__internal_multiple_valued_keys
         v = getattr(self,key)
         if not v:
             return []
@@ -164,7 +182,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         " yields all (key,value) pairs, where each `key` may be repeated multiple times"
         for key in  self.__single_valued:
             yield key, getattr(self,key)
-        for key in ('extension','lang'):
+        for key in self.__internal_multiple_valued_keys:
             l = self.__key_to_list(key)
             for value in l:
                 yield key, value
@@ -178,7 +196,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             yield obj.key, obj.value
     #
     def save(self):
-        for k in ('extension','lang'):
+        for k in self.__internal_multiple_valued_keys:
             v = getattr(self,k)
             v = v.replace('\r','')
             if v and v[-1] != '\n':
@@ -210,7 +228,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         this call is used by the blob_inator"""
         if key in  self.__single_valued:
             setattr(self, key, value)
-        elif key in ('extension','lang'):
+        elif key in self.__internal_multiple_valued_keys:
             assert '\n' not in value
             v = self.__key_to_list(key)
             if value not in v:
@@ -236,7 +254,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         " set value `value` for `key` (as one single value, even if multivalued)"
         if key in  self.__single_valued:
             setattr(self, key, value)
-        elif key in  ('extension','lang'):
+        elif key in  self.__internal_multiple_valued_keys:
             assert '\n' not in value
             setattr(self, key, value+'\n')
         elif key in ('child_uuid', 'parent_uuid', 'author'):
@@ -251,7 +269,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             logger.error('DMetadata.get default is not implemented, key=%r',key)
         if key in  self.__single_valued:
             return [getattr(self, key)]
-        elif key in ('extension','lang'):
+        elif key in self.__internal_multiple_valued_keys:
             return self.__key_to_list(key)
         elif key == 'author':
             return self.author.all().values_list('username', flat = True)
@@ -267,7 +285,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         "returns (key, values)"
         for key in  self.__single_valued:
             yield key, [getattr(self, key)]
-        for key in ('extension','lang'):
+        for key in self.__internal_multiple_valued_keys:
             l = self.__key_to_list(key)
             if l or serve_empty:
                 yield key, l
