@@ -660,6 +660,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 logger.debug('Copy %r to %r',a,b)
                 shutil.copy(a,b)
                 fm.save()
+                for a in cmdargs.author:
+                    fm.add('author', a)
+                fm.save()
         topstream.write('\\'+macroname+opt+'{'+(','.join(outlist))+'}')
     #############################################################
     #
@@ -913,6 +916,9 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                             #
                             file_blob_map[fii] = fo+ext,uuid
                             #
+                        fm.save()
+                        for a in cmdargs.author:
+                            fm.add('author', a)
                         fm.save()
                         del do,fo,fm,exts,cmd,di,bi,ei,ext,fii,src,uuid
                 elif macroname == "item":
