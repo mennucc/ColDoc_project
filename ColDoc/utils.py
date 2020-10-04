@@ -219,6 +219,14 @@ class FMetadata(dict, MetadataBase):
             for v in self[k]:
                 yield k,v
     #
+    def delete(self,k,v):
+        "delete a key/value"
+        if k in self:
+            z = self[k]
+            while v in z:
+                z.pop(z.index(v))
+            self[k] = z
+    #
     def htmlitems(self):
         return metadata_html_items(self, super().get('coldoc',[''])[0] )
 

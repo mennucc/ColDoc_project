@@ -67,6 +67,10 @@ class MetadataBase(object):
     def __delitem__(self,key):
         "delete all values for `key`"
         raise NotImplementedError
+    #
+    def delete(self,k,v):
+        "delete a key/value"
+        raise NotImplementedError
     ################ convenience property to obtain values
     @property
     def coldoc(self):
