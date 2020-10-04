@@ -109,9 +109,10 @@ class squash_helper_reparse_metadata(squash_input_uuid):
         super().__init__(blobs_dir, metadata, options, *v, **k)
     #
     def process_begin(self, begin, thetex):
-        self.stack.append(begin)
+        self.stack.append('E_'+begin)
     #
     def process_end(self, end, thetex):
+        end = 'E_' + end
         if not self.stack or end != self.stack.pop():
             logger.warning('disaligned stack')
     #
