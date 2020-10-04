@@ -136,6 +136,8 @@ def postedit(request, NICK, UUID):
         messages.add_message(request,messages.INFO,msg)
     reparse_blob(filename, metadata, blobs_dir, warn)
     #
+    from ColDoc.latex import environments_we_wont_latex
+    #
     if split_selection_:
         from ColDocDjango.helper import add_blob
         addsuccess, addmessage, addnew_uuid = \
@@ -147,7 +149,7 @@ def postedit(request, NICK, UUID):
                                              ext = ext_, lang = lang_, 
                                              metadata_class=DMetadata, coldoc=NICK)
             messages.add_message(request,messages.INFO,addmessage)
-            if ext_ == '.tex':
+            if ext_ == '.tex' and split_environment_ not in environments_we_wont_latex:
                 rh, rp = _latex_blob(request, blobs_dir, coldoc, adduuid, lang, addmetadata)
                 if rh and rp:
                     messages.add_message(request,messages.INFO,'Compilation of new blob succeded')
@@ -157,7 +159,7 @@ def postedit(request, NICK, UUID):
             messages.add_message(request,messages.WARNING,addmessage)
     #
     #
-    if ext_ == '.tex':
+    if ext_ == '.tex'  and metadata.environ not in environments_we_wont_latex:
         rh, rp = _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata)
         if rh and rp:
             messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
