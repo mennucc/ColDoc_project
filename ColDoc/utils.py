@@ -1,6 +1,6 @@
 import itertools, sys, os, io, copy, logging, shelve, unicodedata
 import re, pathlib, subprocess, datetime
-import tempfile, shutil
+import tempfile, shutil, json
 import os.path
 from os.path import join as osjoin
 
@@ -737,6 +737,46 @@ def recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=None, dept
         ret = ret and r
     return ret
 
+############################
+
+
+def reparse_blob(filename, metadata, blobs_dir, warn=None):
+    " reparse a blob to extract and update all metadata "
+    if warn is None:
+        warn = logger.warning
+    #
+    a = osjoin(blobs_dir, '.blob_inator-args.json')
+    options = json.load(open(a))
+    #
+    from ColDoc.transform import reparse_metadata
+    parsed_back_map, parsed_metadata = reparse_metadata(filename, metadata, blobs_dir, options)
+    #
+    # insert changes regarding children
+    old_children = metadata.get('child_uuid')
+    old_children_set = set(old_children)
+    del metadata['child_uuid']
+    new_children_set = set()
+    for childuuid in parsed_back_map:
+        if childuuid in new_children_set:
+            warn('In %r the child %r is referenced twice'%(uuid,childuuid))
+        new_children_set.add(childuuid)
+        metadata.add('child_uuid',childuuid)
+    if old_children_set != new_children_set:
+        if old_children_set.difference(new_children_set):
+            warn('Warning connection to these children was disconnected: %r'%(old_children_set.difference(new_children_set),))
+        if new_children_set.difference(old_children_set):
+            warn('New connection to these children: %r'%(new_children_set.difference(old_children_set),))
+    #
+    # insert changes regarding extrametadata
+    #
+    for key in metadata.keys():
+        if key.startswith('M_') or key.startswith('S_'):
+            #print("delete %r"%key)
+            del metadata[key]
+    for key, value in parsed_metadata:
+        #print("add %r %r"%(key,value))
+        metadata.add(key,value)
+    metadata.save()
 
 
 ############################

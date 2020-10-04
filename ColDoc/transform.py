@@ -210,11 +210,8 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
 
 import io
 
-def reparse_metadata(inp, metadata, blobs_dir):
+def reparse_metadata(inp, metadata, blobs_dir, options):
     " reparse metadata of LaTeX file"
-    #
-    a = osjoin(blobs_dir, '.blob_inator-args.json')
-    options = json.load(open(a))
     #
     from .transform import squash_helper_reparse_metadata
     helper = squash_helper_reparse_metadata(blobs_dir, metadata, options)
