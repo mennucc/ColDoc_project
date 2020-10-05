@@ -133,13 +133,9 @@ def postedit(request, NICK, UUID):
     open(filename,'w').write(blobcontent)
     metadata.blob_modification_time_update()
     metadata.save()
-    # parse it to refresh metadata
-    from ColDoc.utils import reparse_blob
-    def warn(msg):
-        messages.add_message(request,messages.INFO,msg)
-    reparse_blob(filename, metadata, blobs_dir, warn)
     #
     from ColDoc.latex import environments_we_wont_latex
+    from ColDoc.utils import reparse_blob
     #
     if split_selection_:
         from ColDocDjango.helper import add_blob
@@ -152,6 +148,11 @@ def postedit(request, NICK, UUID):
                                              ext = ext_, lang = lang_, 
                                              metadata_class=DMetadata, coldoc=NICK)
             messages.add_message(request,messages.INFO,addmessage)
+            # parse it for metadata
+            def warn(msg):
+                messages.add_message(request,messages.INFO,'In new blob: '+msg)
+            reparse_blob(addfilename, addmetadata, blobs_dir, warn)
+            # compile it
             if ext_ == '.tex' and split_environment_ not in environments_we_wont_latex:
                 rh, rp = _latex_blob(request, blobs_dir, coldoc, adduuid, lang, addmetadata)
                 if rh and rp:
@@ -161,6 +162,10 @@ def postedit(request, NICK, UUID):
         else:
             messages.add_message(request,messages.WARNING,addmessage)
     #
+    # parse it to refresh metadata (after splitting)
+    def warn(msg):
+        messages.add_message(request,messages.INFO,msg)
+    reparse_blob(filename, metadata, blobs_dir, warn)
     #
     if ext_ == '.tex'  and metadata.environ not in environments_we_wont_latex:
         rh, rp = _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata)
