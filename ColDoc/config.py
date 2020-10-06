@@ -1,7 +1,9 @@
 import os.path
 
 
-# default for --blobs-dir argument
+# default for --blobs-dir argument in most commands
+# and for `blobs_dir` in many calls in ColDoc.utils.py
+# set this only if you have only one coldoc
 ColDoc_as_blobs  = None
 
 # relative to ColDoc_as_blobs
