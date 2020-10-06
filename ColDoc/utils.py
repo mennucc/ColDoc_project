@@ -323,7 +323,8 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
     if `ext` is None, an extension will be returned following `sort_extensions`
     if `lang` is None, a random language will be returned
     """
-    assert metadata is not None or (uuid is not None and coldoc is not None)
+    assert blobs_dir is not None
+    assert metadata is not None or (uuid is not None and (metadata_class == FMetadata or coldoc is not None))
     assert isinstance(uuid,str) or uuid is None
     #
     if metadata is None:
