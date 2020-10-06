@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json
+import os, sys, mimetypes, http, copy, json, hashlib
 from os.path import join as osjoin
 
 import logging
@@ -63,6 +63,7 @@ class BlobEditForm(forms.Form):
     NICK = forms.CharField(widget=forms.HiddenInput())
     ext  = forms.CharField(widget=forms.HiddenInput())
     lang = forms.CharField(widget=forms.HiddenInput(),required = False)
+    file_md5 = forms.CharField(widget=forms.HiddenInput())
     selection_start = forms.CharField(widget=forms.HiddenInput(),initial=-1)
     selection_end = forms.CharField(widget=forms.HiddenInput(),initial=-1)
     split_selection = forms.BooleanField(label='Split',required = False,
@@ -109,6 +110,7 @@ def postedit(request, NICK, UUID):
     nick_ = form.cleaned_data['NICK']
     lang_ = form.cleaned_data['lang']
     ext_ = form.cleaned_data['ext']
+    file_md5 = form.cleaned_data['file_md5']
     split_selection_ = form.cleaned_data['split_selection']
     split_environment_ = form.cleaned_data['split_environment']
     selection_start_ = int(form.cleaned_data['selection_start'])
@@ -125,6 +127,12 @@ def postedit(request, NICK, UUID):
     if not request.user.has_perm('UUID.change_blob'):
         logger.error('Hacking attempt',request.META)
         raise SuspiciousOperation("Permission denied")
+    #
+    #
+    new_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
+    if file_md5 != new_file_md5:
+        messages.add_message(request,messages.ERROR, "The file was changed on disk before this commit: commit aborted")
+        return index(request, NICK, UUID)
     #
     # convert to UNIX line ending 
     import re
@@ -408,6 +416,7 @@ def index(request, NICK, UUID):
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
         file = open(filename).read()
+        file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
         env = metadata.get('environ')[0]
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
@@ -468,6 +477,7 @@ def index(request, NICK, UUID):
             choices = _environ_choices_(blobs_dir)
             blobeditform = BlobEditForm(initial={'BlobEditTextarea':  file,
                                                  'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang,
+                                                 'file_md5' : file_md5,
                                                  })
             blobeditform.fields['split_environment'].choices = choices
     #
