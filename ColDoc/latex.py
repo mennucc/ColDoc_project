@@ -227,8 +227,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
         if ltclsch == 'main':
             latextemplate = preview_template
             D['documentclass'] = ltcls
-            ltclsopt = options.get('documentclassoptions')
-            D['documentclass_options'] = ltclsopt
         elif ltclsch == 'standalone':
             latextemplate = standalone_template
         elif ltclsch in ('article','book'):
@@ -236,6 +234,21 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
             D['documentclass'] = ltclsch
         else:
             raise RuntimeError("unimplemented  latex_documentclass_choice = %r",ltclsch)
+        # from metadata or from coldoc
+        ltclsopt = metadata.get('documentclassoptions')
+        if ltclsopt:
+            ltclsopt = ltclsopt[0]
+        else:
+            ltclsopt = options.get('documentclassoptions')
+        if ltclsopt is str:
+            ltclsopt = ltclsopt.strip()
+        if not ltclsopt:
+            ltclsopt = ''
+        else:
+            if ltclsopt[0] != '[':
+                ltclsopt = '[' + ltclsopt + ']'
+        D['documentclass_options'] = ltclsopt
+        #
         fake_texfile.write(latextemplate % D)
         fake_texfile.close()
     rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
