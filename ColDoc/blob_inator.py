@@ -663,7 +663,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 for a in cmdargs.author:
                     fm.add('author', a)
                 fm.save()
-        topstream.write('\\'+macroname+opt+'{'+(','.join(outlist))+'}')
+        if outlist:
+            topstream.write('\\'+macroname+opt+'{'+(','.join(outlist))+'}')
     #############################################################
     #
     itertokens = thetex.itertokens()
