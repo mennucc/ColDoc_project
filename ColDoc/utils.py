@@ -451,6 +451,12 @@ def file_to_uuid(filename, blobs_dir):
     blobs_dir = os.path.realpath(blobs_dir)
     if not os.path.isabs(filename):
         filename = os.path.join(blobs_dir,filename)
+    # try adding some extensions, to resolve links such as \input{main} -> main.tex
+    if not os.path.exists(filename):
+        for j in '.tex','.sty':
+            if os.path.exists(filename+j):
+                filename += j
+                break
     filename = os.path.realpath(filename)
     blobs_dir += os.path.sep
     assert filename[:len(blobs_dir)] == blobs_dir, (filename, blobs_dir)
