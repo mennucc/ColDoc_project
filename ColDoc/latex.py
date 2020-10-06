@@ -538,6 +538,43 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
 
 
 
+def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None): 
+    a = osjoin(coldoc_dir, 'coldoc.json')
+    options = {}
+    if os.path.isfile( a ):
+        coldoc_args = json.load(open(a))
+        options = coldoc_args['fields']
+        #
+        coldoc_root_uuid = options.get('root_uuid')
+        if isinstance(coldoc_root_uuid,int):
+            coldoc_root_uuid = ColDoc.utils.int_to_uuid(coldoc_root_uuid)
+        options['root_uuid'] = coldoc_root_uuid
+        #
+        root_filename, root_uuid, root_metadata, root_lang, root_ext =\
+            ColDoc.utils.choose_blob(uuid=coldoc_root_uuid, blobs_dir=blobs_dir, metadata_class=metadata_class, coldoc=coldoc)
+        for a in ('documentclass', 'documentclassoptions'):
+            b = root_metadata.get(a)
+            if b:
+                options[a] = b[0]
+                logger.debug('In root uuid  %r = %r',a,b)
+            else:
+                logger.warning('In root uuid no value for %r',a)
+        #
+        logger.debug('From %r options %r',a,options)
+    else:
+        logger.error('No %r',a)
+    #
+    a = osjoin(blobs_dir, '.blob_inator-args.json')
+    if os.path.isfile( a ):
+        blob_inator_args = json.load(open(a))
+        assert isinstance(blob_inator_args,dict)
+        options.update(blob_inator_args)
+        logger.debug('From %r options %r',a,options)
+    else:
+        logger.debug('No %r',a)
+    return options
+
+
 
 def prepare_parser():
     # parse arguments
