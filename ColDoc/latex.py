@@ -222,8 +222,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
             else:
                 ltclsch = 'standalone'
         if ltclsch == 'main' and not ltcls:
-            # TODO this may happen when using ColDoc/latex.py as a command
-            # see TODO[1] below
             logger.warning('When LaTeXing uuid %r, could not use latex_documentclass_choice = "main"', uuid)
             ltclsch = 'standalone'
         if ltclsch == 'main':
@@ -600,31 +598,11 @@ def main(argv):
     blobs_dir = args.blobs_dir
     assert os.path.isdir(blobs_dir), blobs_dir
     #
-    args.coldoc_dir = coldoc_dir = os.path.dirname(blobs_dir)
-    a = osjoin(coldoc_dir, 'coldoc.json')
-    options = {}
-    if os.path.isfile( a ):
-        coldoc = json.load(open(a))
-        options = coldoc['fields']
-        args.coldoc_root_uuid = options.get('root_uuid')
-        if isinstance(args.coldoc_root_uuid,int):
-            args.coldoc_root_uuid = ColDoc.utils.int_to_uuid(args.coldoc_root_uuid)
-        logger.debug('From %r options %r',a,options)
-    else:
-        args.coldoc_root_uuid = None
-        logger.debug('No %r',a)
+    args.coldoc_dir = coldoc_dir = os.path.dirname(os.path.dirname(blobs_dir))
+    from ColDoc.utils import FMetadata
+    options = prepare_options_for_latex(coldoc_dir, blobs_dir, FMetadata)
+    options['url_UUID'] = args.url_UUID
     #
-    a = osjoin(blobs_dir, '.blob_inator-args.json')
-    if os.path.isfile( a ):
-        blob_inator_args = json.load(open(a))
-        assert isinstance(blob_inator_args,dict)
-        options.update(blob_inator_args)
-        logger.debug('From %r options %r',a,options)
-    else:
-        logger.debug('No %r',a)
-    # TODO[1] should track down the metadata of the main file and copy
-    # the `documentclass` and `documentclassoptions` into `options`
-    # See ColDocDjango.latex.py around line 97
     def foobar(*v, **k):
         " helper factory"
         return ColDoc.transform.squash_input_uuid(*v, **k)
@@ -643,12 +621,10 @@ def main_by_args(args,options):
     elif args.verbose > 0 :
         logger.setLevel(logging.INFO)
     #
-    options['url_UUID'] = args.url_UUID
-    #
     if args.uuid is not None:
         UUID = args.uuid
-    elif args.coldoc_root_uuid is not None:
-        UUID = args.coldoc_root_uuid
+    elif 'root_uuid' in options:
+        UUID = options['root_uuid']
     else:
         UUID = '001'
     #

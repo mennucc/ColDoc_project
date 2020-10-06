@@ -154,7 +154,7 @@ def postedit(request, NICK, UUID):
             reparse_blob(addfilename, addmetadata, blobs_dir, warn)
             # compile it
             if ext_ == '.tex' and split_environment_ not in environments_we_wont_latex:
-                rh, rp = _latex_blob(request, blobs_dir, coldoc, adduuid, lang, addmetadata)
+                rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, adduuid, lang, addmetadata)
                 if rh and rp:
                     messages.add_message(request,messages.INFO,'Compilation of new blob succeded')
                 else:
@@ -168,7 +168,7 @@ def postedit(request, NICK, UUID):
     reparse_blob(filename, metadata, blobs_dir, warn)
     #
     if ext_ == '.tex'  and metadata.environ not in environments_we_wont_latex:
-        rh, rp = _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata)
+        rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, uuid, lang, metadata)
         if rh and rp:
             messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
         else:
@@ -198,11 +198,9 @@ def postmetadataedit(request, NICK, UUID):
     messages.add_message(request,messages.INFO,'Changes saved')
     return index(request, NICK, UUID)
 
-def _latex_blob(request,blobs_dir,coldoc,uuid,lang,metadata):
-    a = osjoin(blobs_dir, '.blob_inator-args.json')
-    blob_inator_args = json.load(open(a))
-    assert isinstance(blob_inator_args,dict)
-    options = copy.copy(blob_inator_args)
+def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, uuid, lang, metadata):
+    from ColDoc.latex import prepare_options_for_latex
+    options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc)
     #
     url = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
     url = request.build_absolute_uri(url)

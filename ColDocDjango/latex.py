@@ -46,12 +46,29 @@ def main(argv):
     COLDOC_SITE_ROOT = args.coldoc_site_root
     assert os.path.isdir(COLDOC_SITE_ROOT), COLDOC_SITE_ROOT
     #
-    args.blobs_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs')
+    args.blobs_dir = blobs_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs')
     assert os.path.isdir(args.blobs_dir) , args.blobs_dir
     #
     args.coldoc_dir = coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick)
+    #
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
+    import django
+    django.setup()
+    #
+    import ColDocDjango.ColDocApp.models as coldocapp_models
+    import ColDocDjango.UUID.models as  blob_models
+    from ColDocDjango.transform import squash_helper_ref
+    from ColDoc.latex import prepare_options_for_latex
+    #
+    matches = list(coldocapp_models.DColDoc.objects.filter(nickname = args.coldoc_nick))
+    if len(matches) > 1 :
+        raise ValueError("Too many ColDoc with nick %r." % (args.coldoc_nick,) )
+    coldoc = matches[0]
+    #
     # read options
-    options = {}
+    options = prepare_options_for_latex(coldoc_dir, blobs_dir, blob_models.DMetadata, coldoc)
+    options['coldoc'] = coldoc
+    options['url_UUID'] = args.url_UUID
     #
     a = osjoin(COLDOC_SITE_ROOT,'config.ini')
     import configparser
@@ -59,56 +76,6 @@ def main(argv):
     config.read([a])
     for k in 'server_url', 'hostname':
         options[k] = config['django'][k]
-    #
-    a = osjoin(coldoc_dir, 'coldoc.json')
-    if os.path.isfile( a ):
-        coldoc = json.load(open(a))
-        options.update(coldoc['fields'])
-        logger.debug('From %r options %r',a,options)
-    else:
-        logger.debug('No %r',a)
-    #
-    a = osjoin(coldoc_dir, 'blobs', '.blob_inator-args.json')
-    if os.path.isfile( a ):
-        blob_inator_args = json.load(open(a))
-        assert isinstance(blob_inator_args,dict)
-        options.update(blob_inator_args)
-        logger.debug('From %r options %r',a,options)
-    else:
-        logger.warning('No %r',a)
-    #
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
-    import django
-    django.setup()
-    import ColDocDjango.ColDocApp.models as coldocapp_models
-    import ColDocDjango.UUID.models as  blob_models
-    from ColDocDjango.transform import squash_helper_ref
-    #
-    matches = list(coldocapp_models.DColDoc.objects.filter(nickname = args.coldoc_nick))
-    if len(matches) > 1 :
-        raise ValueError("Too many ColDoc with nick %r." % (args.coldoc_nick,) )
-    #
-    options['coldoc'] = coldoc = matches[0]
-    args.coldoc_root_uuid = coldoc.root_uuid
-    try:
-        a = blob_models.DMetadata.objects.get(uuid=coldoc.root_uuid,
-                                              coldoc=coldoc)
-        b = a.get('documentclass')
-        if b:
-            options['documentclass'] = b[0]
-        else:
-            logger.warning('No `documentclass` in %s',coldoc.root_uuid)
-        b = a.get('documentclassoptions')
-        if b:
-            b = b[0].strip()
-            if b and b[0] != '[':
-                b = ( '[' + b + ']' )
-        else:
-            logger.warning('No `documentclassoptions` in %s',coldoc.root_uuid)
-            b = ''
-        options['documentclassoptions'] = b
-    except:
-        logger.exception('cannot extract documentclass and options from main_blob')
     #
     def foobar(*v, **k):
         " helper factory"
