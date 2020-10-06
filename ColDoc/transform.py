@@ -79,30 +79,49 @@ class squash_input_uuid(squash_helper_base):
         self.options = options
         self.input_macros = ['input','include','input_preamble','include_preamble','bibliography']
         self.input_macros_with_parameters = ['usepackage',]
+        # macros where there may be multiple input files, separated by comma
+        self.input_macros_comma_separated = ['usepackage','bibliography']
         # it is up to the caller to add other macros such as 'includegraphics'
     #
     def process_macro(self, macroname, thetex):
         if macroname in (self.input_macros + self.input_macros_with_parameters):
+            argSource = ''
             if macroname in self.input_macros_with_parameters:
                 for spec in '*','[]',None:
                     _, s = thetex.readArgumentAndSource(spec=spec)
                     if spec is None:
                         inputfile = s[1:-1]
+                    else:
+                        argSource += s
             else:   
                 inputfile = thetex.readArgument(type=str)
-            if macroname == 'usepackage' and inputfile[:5] != 'UUID/':
-                return None
-            uuid, blob = file_to_uuid(inputfile, self.blobs_dir)
-            if inputfile[:5] == 'UUID/':
-                text = uuid
-            elif inputfile[:4] == 'SEC/':
-                text = os.path.dirname(inputfile)[4:].replace('_','\_')
+            if macroname in self.input_macros_comma_separated:
+                inputfiles = inputfile.split(',')
             else:
-                logger.error('unsupported inputfile %r', inputfile)
-                text = uuid
-            self.back_map[uuid] = macroname, inputfile
-            self.forw_map[inputfile] = macroname, uuid
-            return(r'\uuidplaceholder{' + uuid + '}{' + text + '}')
+                inputfiles = [inputfile]
+            placeholder = ''
+            for inputfile in inputfiles:
+                inputfile = inputfile.strip()
+                if  macroname == 'usepackage' and inputfile[:5] != 'UUID/':
+                    placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
+                    continue
+                try:
+                    uuid, blob = file_to_uuid(inputfile, self.blobs_dir)
+                except Exception as e:
+                    logger.error('Macro %r %r { %r } could not be parsed: %r', macroname, argSource, inputfile, e)
+                    placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
+                    continue
+                if inputfile[:5] == 'UUID/':
+                    text = uuid
+                elif inputfile[:4] == 'SEC/':
+                    text = os.path.dirname(inputfile)[4:].replace('_','\_')
+                else:
+                    logger.debug('while squashing, no good text substitution for inputfile %r uuid %r blob %r', inputfile, uuid, blob)
+                    text = uuid
+                self.back_map[uuid] = macroname, inputfile
+                self.forw_map[inputfile] = macroname, uuid
+                placeholder += (r'\uuidplaceholder{' + uuid + '}{' + text + '}')
+            return placeholder
         else:
             return None
     #
