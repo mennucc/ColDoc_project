@@ -103,28 +103,15 @@ def create_fake_users(COLDOC_SITE_ROOT):
 def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, lang, selection_start = None, selection_end = None, add_beginend = True):
     " returns (success, message, new_uuid)"
     #
-    assert isinstance(coldoc_nick,str), coldoc_nick
-    assert isinstance(parent_uuid,str), parent_uuid
-    assert isinstance(environ,str),environ
-    assert (isinstance(lang,str) or lang is None), lang
+    from ColDoc.utils import slug_re
+    assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
+    assert ((isinstance(lang,str) and slug_re.match(lang)) or lang is None), lang
+    assert isinstance(parent_uuid,str) and slug_re.match(parent_uuid), parent_uuid
+    assert isinstance(environ,str), environ
     if isinstance(selection_end,int) and selection_end<0: selection_end = None
     if isinstance(selection_start,int) and selection_start<0: selection_start = None
     #
     import ColDoc.config as CC
-    #
-    from ColDoc.utils import slug_re
-    if not slug_re.match(parent_uuid):
-        a = ("Invalid UUID %r." % (parent_uuid,))
-        logger.error(a)
-        return False, a, None
-    if not slug_re.match(coldoc_nick):
-        a = ("Invalid NICK %r." % (coldoc_nick,))
-        logger.error(a)
-        return False, a, None
-    if lang is not None and not slug_re.match(lang):
-        a = ("Invalid language %r." % (lang,))
-        logger.error(a)
-        return False, a, None
     #
     if lang is None:
         lang_ = ''
@@ -132,16 +119,12 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         lang_ = '_'+lang
     #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
-    if not os.path.exists(coldoc_dir):
-        logger.error('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
-        return False,('Does not exist coldoc_dir=%r\n'%(coldoc_dir)), None
+    assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
     #
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     #
     f = osjoin(blobs_dir, '.blob_inator-args.json')
-    if not os.path.exists(f):
-        logger.error("File of blob_inator args does not exit: %r\n"%(f,))
-        return False, ("File of blob_inator args does not exit: %r\n"%(f,)), None
+    assert os.path.exists(f), ("File of blob_inator args does not exit: %r\n"%(f,))
     with open(f) as a:
         blobinator_args = json.load(a)
     #
@@ -284,19 +267,9 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
 def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=False):
     " returns (success, message, new_uuid)"
     #
-    assert isinstance(coldoc_nick,str), coldoc_nick
-    assert (isinstance(lang,str) or lang is None), lang
-    import ColDoc.config as CC
-    #
     from ColDoc.utils import slug_re
-    if not slug_re.match(coldoc_nick):
-        a = ("Invalid NICK %r." % (coldoc_nick,))
-        logger.error(a)
-        return False, a, None
-    if lang is not None and not slug_re.match(lang):
-        a = ("Invalid language %r." % (lang,))
-        logger.error(a)
-        return False, a, None
+    assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
+    assert ((isinstance(lang,str) and slug_re.match(lang)) or lang is None), lang
     #
     if lang is None:
         lang_ = ''
@@ -304,16 +277,12 @@ def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=False):
         lang_ = '_'+lang
     #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
-    if not os.path.exists(coldoc_dir):
-        logger.error('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
-        return False,('Does not exist coldoc_dir=%r\n'%(coldoc_dir)), None
+    assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
     #
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     #
     f = osjoin(blobs_dir, '.blob_inator-args.json')
-    if not os.path.exists(f):
-        logger.error("File of blob_inator args does not exit: %r\n"%(f,))
-        return False, ("File of blob_inator args does not exit: %r\n"%(f,)), None
+    assert os.path.exists(f), ("File of blob_inator args does not exit: %r\n"%(f,))
     with open(f) as a:
         blobinator_args = json.load(a)
     #
