@@ -43,6 +43,9 @@ if __name__ == '__main__':
     #
     from ColDoc import loggin
 
+if __name__ == '__main__':
+    import logging
+    logger = logging.getLogger('helper')
 
 
 def deploy(target):
@@ -359,8 +362,6 @@ does not contain the file `config.ini`
             reparse_blob(filename, metadata, blobs_dir, warn, act=act)
 
 def main(argv):
-    import logging
-    logger = logging.getLogger('helper')
     #
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
