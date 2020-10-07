@@ -588,7 +588,9 @@ def os_rel_symlink(src, dst, basedir, target_is_directory, force = False, **kwar
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)
     if force and os.path.islink(dst):
-        logger.warning(' substituting symlink %r' % dst)
+        dstL = os.readlink(dst)
+        if dstL != src:
+            logger.warning(' substituting symlink %r, was pointing to %r and will point to %r' , dst, dstL, src)
         os.unlink(dst)
     logger.debug(" os.symlink (%r, %r )" % (src, dst) )
     os.symlink(src, dst, target_is_directory=target_is_directory, **kwargs)
