@@ -18,7 +18,7 @@ Command help:
        all of the above
 """
 
-import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile
+import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib
 
 from os.path import join as osjoin
 
@@ -443,7 +443,8 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     return ret == 0
 
 
-def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = False):
+def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = None):
+    " If repeat is None, it will be run twice if bib data or aux data changed"
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
     # 'main.aux' and 'main.bbl' are saved latex_main()
@@ -479,10 +480,16 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
     r=p.wait()
     logger.debug('Engine result %r',r)
     #
-    if environ in ( 'main_file', 'E_document') and \
+    if r != 0:
+        logger.debug('LaTeX failed %r will not run BiBTeX',r)
+    elif environ in ( 'main_file', 'E_document') and \
          os.path.isfile(fake_abs_name+'.aux') and \
          '\\bibdata' in open(fake_abs_name+'.aux').read():
         logger.debug('Running BiBTeX')
+        if os.path.isfile(fake_abs_name+'.bbl'):
+            file_md5 = hashlib.md5(open(fake_abs_name+'.bbl','rb').read()).hexdigest()
+        else:
+            file_md5 = None
         p = subprocess.Popen(['bibtex',fake_name],
                              cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
@@ -490,6 +497,27 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
         if p.wait() != 0:
             logger.warning('bibtex fails, see %r'%(save_abs_name+'.blg',))
             logger.warning('bibtex output: %r',a)
+        else:
+            if os.path.isfile(fake_abs_name+'.bbl'):
+                if file_md5 is None or file_md5 != hashlib.md5(open(fake_abs_name+'.bbl','rb').read()).hexdigest():
+                    if repeat is None:
+                        logger.debug('BibTeX changed the .bbl file, will rerun')
+                        repeat = True
+                    else:
+                        logger.debug('BibTeX changed the .bbl file')
+                else:
+                    logger.debug('BibTeX did not change the .bbl file')
+            else:
+                logger.warning('BiBTeX did not generate %r',fake_abs_name+'.bbl') 
+                
+    #
+    a = 'Rerun to get cross-references right'
+    if r == 0:
+        if repeat is None and a in  open(fake_abs_name+'.log').read():
+            logger.debug('%r reports %r in log, will rerun',engine,a)
+            repeat = True
+        elif repeat is None:
+            logger.debug('%r does not report %r in log, will not rerun',engine,a)
     #
     if r == 0 and repeat:
         logger.debug('Rerunning engine %r',engine)
