@@ -733,25 +733,39 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
 ############################
 
 
-def recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=None, depth=0):
+def recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=None, seen=None, branch=[]):
     """ recurse tree starting from `uuid` , for each node call 
-    `action(uuid=uuid, uuid_dir=uuid_dir, metadata=metadata, depth=depth)` which should return a boolean"""
+    `action(uuid=uuid, uuid_dir=uuid_dir, metadata=metadata, branch=branch)` which should return a boolean.
+    `recurse_tree` will return `and` of all return values of `action`"""
     #
     if uuid is None:
         logger.debug('Assuming root_uuid = 001')
         uuid = '001'
+    #
+    if seen is None:
+        seen = set()
+    #
     import ColDoc
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir,
                                                    coldoc = coldoc_nick,
                                                    metadata_class=metadata_class)
+    if uuid in branch:
+        logger.warning("loop detected along branch %r",branch)
     #
-    ret = action(uuid=uuid, uuid_dir=uuid_dir, metadata=metadata, depth=depth)
+    b = copy.copy(branch)
+    b.append(uuid)
     #
-    for u in metadata.get('child_uuid'):
-        logger.debug('moving down from node %r to node %r',uuid,u)
-        r = recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=u, depth=(depth+1))
-        ret = ret and r
+    ret = action(uuid=uuid, uuid_dir=uuid_dir, metadata=metadata, branch=branch)
+    #
+    if uuid not in seen:
+        seen.add(uuid)
+        for u in metadata.get('child_uuid'):
+            logger.debug('moving down '+('→'*len(branch))+'from node %r to node %r',uuid,u)
+            r = recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=u, seen=seen, branch=b)
+            ret = ret and r
+    else:
+        logger.warning("skipping duplicate node %r", uuid)
     return ret
 
 ############################
