@@ -17,6 +17,9 @@ This program does some actions that `manage` does not. Possible commands:
     reparse_all
          reparse all blobs
     
+    check_tree
+        check that tree is connected and has no loops
+    
 Use `command` --help for command specific options.
 """
 
@@ -300,6 +303,62 @@ def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=False):
                 logger.warning('Parsing uuid %r lang %r : %s'%(uuid,lang,msg))
             reparse_blob(filename, metadata, blobs_dir, warn, act=act)
 
+
+def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
+    " returns `problems`, a list of problems found in tree"
+    # TODO implement some tree check regarding `lang`
+    #
+    from ColDoc.utils import slug_re
+    assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
+    assert ((isinstance(lang,str) and slug_re.match(lang)) or lang is None), lang
+    #
+    coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
+    assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
+    #
+    blobs_dir = osjoin(coldoc_dir, 'blobs')
+    #
+    from ColDocDjango.ColDocApp.models import DColDoc
+    coldoc = list(DColDoc.objects.filter(nickname = coldoc_nick))
+    coldoc = coldoc[0]
+    #
+    from ColDocDjango.UUID.models import DMetadata
+    #
+    seen = set()
+    available = {}
+    problems = []
+    #
+    for metadata in DMetadata.objects.filter(coldoc = coldoc):
+        available[ metadata.uuid ] = metadata
+    def actor(seen, available, warn, problems, uuid, branch, *v , **k):
+        if uuid in branch:
+            warn("loop detected along branch %r",branch)
+            problems.append(("LOOP", branch + [uuid]))
+        ret = True
+        if uuid in seen:
+            ret = False
+            warn("duplicate %r" % uuid)
+            problems.append(("DUPLICATE", uuid))
+        if uuid in available:
+            ret = False
+            del available[uuid]
+        else:
+            ret = False
+            warn("already deleted from queue %r" % uuid)
+        seen.add(uuid)
+        return ret
+    from ColDoc.utils import recurse_tree
+    from ColDocDjango.UUID.models import DMetadata
+    from functools import partial
+    action = partial(actor, seen=seen, available=available, warn=warn, problems=problems)
+    ret = recurse_tree(coldoc, blobs_dir, DMetadata, action=action)
+    if available:
+        a = ("Disconnected nodes %r"%available)
+        warn(a)
+        problems.append(('DISCONNECTED',available))
+    assert bool(problems) ^ (bool(ret)), (ret,problems, bool(ret), bool(problems))
+    return problems
+
+
 def main(argv):
     #
     parser = argparse.ArgumentParser(description=__doc__,
@@ -309,7 +368,7 @@ def main(argv):
                         help='root of the coldoc portal (default from env `COLDOC_SITE_ROOT`)', default=COLDOC_SITE_ROOT,
                         required=(COLDOC_SITE_ROOT is None))
     parser.add_argument('--verbose','-v',action='count',default=0)
-    if 'add_blob' in sys.argv or  'reparse_all' in sys.argv:
+    if 'add_blob' in sys.argv or  'reparse_all' in sys.argv or 'check_tree' in sys.argv:
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
         parser.add_argument('--lang',type=str,\
@@ -364,11 +423,22 @@ does not contain the file `config.ini`
         return ret[0] #discard message
     elif argv[0] == 'reparse_all':
         ret = reparse_all(logger, COLDOC_SITE_ROOT, args.coldoc_nick, args.lang, args.act)
+    elif argv[0] == 'check_tree':
+        problems = check_tree(logger.warning, COLDOC_SITE_ROOT, args.coldoc_nick)
+        if problems:
+            print('Problems:')
+            for a in problems:
+                print(' '+repr(a))
+        else:
+            print("Tree for coldoc %r is fine" % (args.coldoc_nick,)), problems
+        return not bool(problems)
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
         sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
         return False
-    return True
+    return ret
+
+
 
 if __name__ == '__main__':
     ret = main(sys.argv)
