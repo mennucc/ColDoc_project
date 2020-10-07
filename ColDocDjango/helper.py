@@ -89,10 +89,6 @@ def deploy(target):
 
 def create_fake_users(COLDOC_SITE_ROOT):
     #
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
-    #
-    import django
-    django.setup()
     import django.contrib.auth as A
     UsMo = A.get_user_model()
     #UsMa = A.models.UserManager()
@@ -134,19 +130,6 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         lang_ = ''
     else:
         lang_ = '_'+lang
-    #
-    if COLDOC_SITE_ROOT is None or not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini')):
-        logger.error("""\
-The directory
-COLDOC_SITE_ROOT={COLDOC_SITE_ROOT}
-does not contain the file `config.ini`
-""".format_map(locals()) )
-        return False,'Invalid COLDOC_SITE_ROOT', None
-    #
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
-    #
-    import django
-    django.setup()
     #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
     if not os.path.exists(coldoc_dir):
@@ -320,19 +303,6 @@ def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=False):
     else:
         lang_ = '_'+lang
     #
-    if COLDOC_SITE_ROOT is None or not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini')):
-        logger.error("""\
-The directory
-COLDOC_SITE_ROOT={COLDOC_SITE_ROOT}
-does not contain the file `config.ini`
-""".format_map(locals()) )
-        return False,'Invalid COLDOC_SITE_ROOT', None
-    #
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
-    #
-    import django
-    django.setup()
-    #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
     if not os.path.exists(coldoc_dir):
         logger.error('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
@@ -400,6 +370,19 @@ def main(argv):
     argv = args.command
     #
     COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT'] = args.coldoc_site_root
+    #
+    if argv[0] != 'deploy':
+        if COLDOC_SITE_ROOT is None or not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini')):
+            logger.error("""\
+The directory
+    COLDOC_SITE_ROOT={COLDOC_SITE_ROOT}
+does not contain the file `config.ini`
+""".format_map(locals()) )
+            return False
+    #
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
+    import django
+    django.setup()
     #
     if argv[0] == 'deploy':
         return deploy(COLDOC_SITE_ROOT)
