@@ -324,11 +324,13 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     from ColDocDjango.UUID.models import DMetadata
     #
     seen = set()
-    available = {}
+    available = set()
+    all_metadata = {}
     problems = []
     #
     for metadata in DMetadata.objects.filter(coldoc = coldoc):
-        available[ metadata.uuid ] = metadata
+        available.add( metadata.uuid)
+        all_metadata[metadata.uuid] = metadata
     def actor(seen, available, warn, problems, uuid, branch, *v , **k):
         if uuid in branch:
             warn("loop detected along branch %r",branch)
@@ -339,7 +341,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             warn("duplicate %r" % uuid)
             problems.append(("DUPLICATE", uuid))
         if uuid in available:
-            del available[uuid]
+            available.discard(uuid)
         else:
             ret = False
             warn("already deleted from queue %r" % uuid)
@@ -349,7 +351,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     from ColDocDjango.UUID.models import DMetadata
     from functools import partial
     action = partial(actor, seen=seen, available=available, warn=warn, problems=problems)
-    ret = recurse_tree(coldoc, blobs_dir, DMetadata, action=action)
+    ret = recurse_tree(coldoc, blobs_dir, all_metadata, action=action)
     if available:
         a = ("Disconnected nodes %r"%available)
         warn(a)
