@@ -431,7 +431,7 @@ does not contain the file `config.ini`
             for a in problems:
                 print(' '+repr(a))
         else:
-            print("Tree for coldoc %r is fine" % (args.coldoc_nick,)), problems
+            print("Tree for coldoc %r is fine" % (args.coldoc_nick,))
         return not bool(problems)
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))

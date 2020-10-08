@@ -345,7 +345,7 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
         if os.path.exists(input_file):
             return input_file,uuid,m,lang,ext
         else:
-            logger.error('Blob `%r` not available for lang = %r ext = %r', uuid, lang, ext)
+            logger.error('Blob `%r` not available for lang = %r ext = %r : %r', uuid, lang, ext, input_file)
             raise ColDocException('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
     E = sort_extensions(m.get('extension'))

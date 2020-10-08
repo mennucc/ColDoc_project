@@ -1063,6 +1063,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     #
                     stack.topstream.write(r'\end{%s}' % name)
                 elif not in_preamble and macroname in cmdargs.metadata_command :
+                    # keep this in sync with ColDocDjango.transform.py, around line 115
                     obj = thetex.ownerDocument.createElement(macroname)
                     thetex.currentInput[0].pass_comments = False
                     args = [ thetex.readArgumentAndSource(type=str)[1] for j in range(obj.nargs)]
