@@ -1,5 +1,6 @@
 {% extends "bootstrapbase.html" %}
 {% block title %} ColDoc — {{ coldoc.nickname }}{% endblock %}
+{% block extrahead %}<script src="/static/ColDoc/js/dyna.js"></script>{% endblock %}
 {% block content %}
 
 
@@ -55,6 +56,14 @@ First published {{ coldoc.publication_time }}
 </button>
 </a>
 {% endif %}
+<h2>Checks and statistics </h2>
+<div class="border border-info mt-2"
+<div id='id_check_tree'>......</div>
+<button   type="button" class="btn btn-outline-primary btn-sm" id="id_button_check_tree" onClick="AJAXcheck_tree();">
+  check tree
+</button>
+</div>
+<script>window.addEventListener('ready', AJAXcheck_tree() );</script>
 {% endif %}
 
 {% endblock %}

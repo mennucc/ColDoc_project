@@ -126,3 +126,24 @@ def search(request, NICK):
                    'uuid_list':uuid_list,'label_list':label_list,'ref_list':ref_list,
                    'index_list':index_list,
                    })
+
+
+
+def check_tree(request, NICK):
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+    c = list(DColDoc.objects.filter(nickname = NICK))
+    if not c:
+        return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    c=c[0]
+    try:
+        from ColDocDjango.helper import check_tree
+        problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
+        s = '<h3>Problems in tree of blobs</h3><ul>'
+        for z in problems:
+            s += '<li>'+ '→'.join( map(str,z)) + '</li>'
+        s += '</ul>'
+        return HttpResponse(s)
+    except Exception as e:
+        logger.exception(repr(e))
+        return HttpResponse("Internal error", status=http.HTTPStatus.SERVICE_UNAVAILABLE)
