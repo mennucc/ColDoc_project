@@ -339,7 +339,6 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             warn("duplicate %r" % uuid)
             problems.append(("DUPLICATE", uuid))
         if uuid in available:
-            ret = False
             del available[uuid]
         else:
             ret = False
