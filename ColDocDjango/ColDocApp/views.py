@@ -139,10 +139,13 @@ def check_tree(request, NICK):
     try:
         from ColDocDjango.helper import check_tree
         problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
-        s = '<h3>Problems in tree of blobs</h3><ul>'
-        for z in problems:
-            s += '<li>'+ '→'.join( map(str,z)) + '</li>'
-        s += '</ul>'
+        if problems:
+            s = '<h3>Problems in tree of blobs</h3><ul>'
+            for z in problems:
+                s += '<li>'+ '→'.join( map(str,z)) + '</li>'
+            s += '</ul>'
+        else: 
+            s = 'Tree is fine.'
         return HttpResponse(s)
     except Exception as e:
         logger.exception(repr(e))
