@@ -618,6 +618,9 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_cl
     ret = 0
     bd = osjoin(blobs_dir,uuid_dir)
     td = osjoin(temp_dir,uuid_dir)
+    if os.path.exists(td):
+        logger.warning('Already created %r, skipping',td)
+        return 0
     os.makedirs(td)
     publ = metadata.get('access')[0] in ('open','public')
     for j in os.listdir(bd):
