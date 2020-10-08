@@ -254,12 +254,13 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
     # rewrite log to replace temporary file name with final file name
-    try:
-        a = open(save_abs_name+'.log').read()
-        b = a.replace(fake_name,save_name)
-        open(save_abs_name+'.log','w').write(b)
-    except Exception as e:
-        logger.warning(e)
+    for ext in '.log','.fls':
+        try:
+            a = open(save_abs_name+ext).read()
+            b = a.replace(fake_name,save_name)
+            open(save_abs_name+ext,'w').write(b)
+        except Exception as e:
+            logger.warning(e)
     ## create html
     logger.debug('create html for %r',save_abs_name)
     main_file = open(fake_abs_name+'.tex', 'w')
