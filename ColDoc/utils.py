@@ -733,35 +733,33 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
 ############################
 
 
-def recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=None, seen=None, branch=[]):
+def recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid='001', seen=set(), branch=[]):
     """ recurse tree starting from `uuid` , for each node call 
-    `action(uuid=uuid, uuid_dir=uuid_dir, metadata=metadata, branch=branch)` which should return a boolean.
+    `action(uuid=uuid, metadata=metadata, branch=branch)` which should return a boolean.
     `recurse_tree` will return `and` of all return values of `action`"""
-    #
-    if uuid is None:
-        logger.debug('Assuming root_uuid = 001')
-        uuid = '001'
-    #
-    if seen is None:
-        seen = set()
-    #
     import ColDoc
-    uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
-                                                   blobs_dir = blobs_dir,
-                                                   coldoc = coldoc_nick,
-                                                   metadata_class=metadata_class)
+    if isinstance(metadata_class,dict):
+        metadata = metadata_class[uuid]
+    else:
+        metadata = metadata_class.load_by_uuid(uuid=uuid, coldoc=coldoc_nick, basepath=blobs_dir)
+    #else:
+    #    uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
+    #                                               blobs_dir = blobs_dir,
+    #                                               coldoc = coldoc_nick,
+    #                                               metadata_class=metadata_class)
     if uuid in branch:
         logger.warning("loop detected along branch %r",branch)
     #
     b = copy.copy(branch)
     b.append(uuid)
     #
-    ret = action(uuid=uuid, uuid_dir=uuid_dir, metadata=metadata, branch=branch)
+    ret = action(uuid=uuid, metadata=metadata, branch=branch)
     #
     if uuid not in seen:
         seen.add(uuid)
         for u in metadata.get('child_uuid'):
-            logger.debug('moving down '+('→'*len(branch))+'from node %r to node %r',uuid,u)
+            ## disabled, to speed up
+            #logger.debug('moving down '+('→'*len(branch))+'from node %r to node %r',uuid,u)
             r = recurse_tree(coldoc_nick, blobs_dir, metadata_class, action, uuid=u, seen=seen, branch=b)
             ret = ret and r
     else:
