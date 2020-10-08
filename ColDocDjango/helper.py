@@ -19,6 +19,9 @@ This program does some actions that `manage` does not. Possible commands:
     
     check_tree
         check that tree is connected and has no loops
+
+    list_authors
+        ditto
     
 Use `command` --help for command specific options.
 """
@@ -360,6 +363,47 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     return problems
 
 
+def list_authors(warn, COLDOC_SITE_ROOT, coldoc_nick, as_django_user = True):
+    " if as_django_user is true, authors will be returned as django user whenever possible"
+    #
+    from ColDoc.utils import slug_re
+    assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
+    #
+    coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
+    assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
+    #
+    blobs_dir = osjoin(coldoc_dir, 'blobs')
+    #
+    from ColDocDjango.ColDocApp.models import DColDoc
+    coldoc = list(DColDoc.objects.filter(nickname = coldoc_nick))
+    coldoc = coldoc[0]
+    #
+    from ColDocDjango.UUID.models import DMetadata
+    #
+    authors = {}
+    #
+    def smartappend(user_ , uuid_):
+        if user_ not in authors:
+            authors[user_] = [uuid_]
+        else:
+            authors[user_].append(uuid_)
+    #
+    from itertools import chain
+    for metadata in DMetadata.objects.filter(coldoc = coldoc):
+        uuid = metadata.uuid
+        m1 = metadata.get('M_author')
+        if as_django_user:
+            m2 = metadata.author.all()
+        else:
+            m2 = metadata.get('author') #[a.username for a in metadata.get('author')]
+        for u in chain(m1, m2 ):
+            smartappend(u, uuid)
+        if not m1 and not m2:
+            smartappend(None, uuid)
+    return authors
+
+
+
 def main(argv):
     #
     parser = argparse.ArgumentParser(description=__doc__,
@@ -369,7 +413,7 @@ def main(argv):
                         help='root of the coldoc portal (default from env `COLDOC_SITE_ROOT`)', default=COLDOC_SITE_ROOT,
                         required=(COLDOC_SITE_ROOT is None))
     parser.add_argument('--verbose','-v',action='count',default=0)
-    if 'add_blob' in sys.argv or  'reparse_all' in sys.argv or 'check_tree' in sys.argv:
+    if 'add_blob' in sys.argv or  'reparse_all' in sys.argv or 'check_tree' in sys.argv or 'list_authors' in sys.argv:
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
         parser.add_argument('--lang',type=str,\
@@ -422,8 +466,10 @@ does not contain the file `config.ini`
                         args.parent_uuid, args.environ, args.lang )
         print(ret[1])
         return ret[0] #discard message
+    #
     elif argv[0] == 'reparse_all':
         ret = reparse_all(logger, COLDOC_SITE_ROOT, args.coldoc_nick, args.lang, args.act)
+    #
     elif argv[0] == 'check_tree':
         problems = check_tree(logger.warning, COLDOC_SITE_ROOT, args.coldoc_nick)
         if problems:
@@ -433,6 +479,13 @@ does not contain the file `config.ini`
         else:
             print("Tree for coldoc %r is fine" % (args.coldoc_nick,))
         return not bool(problems)
+    #
+    elif argv[0] == 'list_authors':
+        authors = list_authors(logger.warning, COLDOC_SITE_ROOT, args.coldoc_nick)
+        for a in authors:
+            print(repr(a) + '→' + repr(authors[a]))
+        return True
+    #
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
         sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
