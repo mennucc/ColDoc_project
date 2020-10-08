@@ -48,11 +48,13 @@ First published {{ coldoc.publication_time }}
   <li> latex_documentclass = {{ coldoc.latex_documentclass |escape }}
   <li> latex_documentclass_options = {{ coldoc.latex_documentclass_options | escape }}
 </ul>
+{% if user.is_staff %}
 <a href="/admin/ColDocApp/dcoldoc/{{ coldoc.nickname }}/change/">
 <button   type="button" class="btn btn-outline-primary btn-sm">
   EDIT INFO
 </button>
 </a>
+{% endif %}
 {% endif %}
 
 {% endblock %}
