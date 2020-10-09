@@ -348,7 +348,6 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             if _view_ext in ColDoc.config.ColDoc_allowed_logs :
                 _content_type = 'text/plain'
                 _content_encoding = 'utf-8'
-                print('as text')
             else:
                 _content_type , _content_encoding = mimetypes.guess_type(n)
         logger.debug("Serving: %r %r"%(n,_content_type))
@@ -502,10 +501,7 @@ def index(request, NICK, UUID):
                 if a[-1] != '/': a += '/'
                 a += '?lang=%s&ext=%s'  % (lang,e_)
                 availablelogs.append(  (e_, a ) )
-                print('exists:'+repr(availablelogs[-1]))
-            else:
-                print('not exists:'+a)
-    
+    #
     # just to be safe
     if not request.user.has_perm('UUID.view_view'):
         html = '[access denied]'
