@@ -239,7 +239,6 @@ def metadata_html_items(metadata, nick):
                 if  key == 'child_uuid' or key == 'parent_uuid':
                     link="/UUID/{nick}/{val}".format(val=val,nick=nick)
                 elif  key ==  'extension' :
-                    if val[0] == '.': val=val[1:]
                     link="/UUID/{nick}/{UUID}/?ext={val}".format(UUID=metadata.uuid,nick=nick,val=val)
                 vallik.append((val,link))
             yield (key,vallik)
@@ -546,6 +545,9 @@ def new_section_nr(blobs_dir = ColDoc_as_blobs, variables = ColDoc_variables):
 
 # taken from Django, for convenience
 slug_re = re.compile(r'^[-a-zA-Z0-9_]+\Z')
+
+# allow point as well
+slugp_re = re.compile(r'^[-a-zA-Z0-9_.]+\Z')
 
 # https://github.com/django/django/blob/master/django/utils/text.py
 def slugify(value, allow_unicode=False):

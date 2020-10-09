@@ -14,7 +14,7 @@ from django.conf import settings
 from django.forms import ModelForm
 from django.core.exceptions import SuspiciousOperation
 
-from ColDoc.utils import slug_re
+from ColDoc.utils import slug_re, slugp_re
 
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
@@ -265,8 +265,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     # used only for `show` view
     if _view_ext is None:
         if 'ext' in q:
-            assert slug_re.match(q['ext'])
-            _view_ext = '.' + q['ext']
+            assert slugp_re.match(q['ext'])
+            _view_ext = q['ext']
         else:
             return HttpResponse("must specify extension", status=http.HTTPStatus.NOT_FOUND)
     #
@@ -376,8 +376,8 @@ def index(request, NICK, UUID):
     q = request.GET
     ext = None
     if 'ext' in q:
-        assert slug_re.match(q['ext'])
-        ext = '.'+q['ext']
+        assert slugp_re.match(q['ext'])
+        ext = q['ext']
     lang = None
     if 'lang' in q:
         lang = q['lang']
@@ -411,7 +411,7 @@ def index(request, NICK, UUID):
     #####################################################################
     #
     pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
-        '?lang=%s&ext=%s'%(lang,ext[1:])
+        '?lang=%s&ext=%s'%(lang,ext)
     #
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
@@ -507,7 +507,7 @@ def index(request, NICK, UUID):
             logger.exception('problem finding siblings for UUID %r',UUID)
     #
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
-        '?lang=%s&ext=%s'%(lang,ext[1:])
+        '?lang=%s&ext=%s'%(lang,ext)
     #
     metadataform = MetadataForm(instance=metadata)
     if '.tex' not in metadata.get('extension'):
