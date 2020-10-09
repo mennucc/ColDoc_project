@@ -8,7 +8,7 @@ from django.contrib.auth.models import Group
 
 permissions_for_coldoc = ('add_blob','delete_blob','commit')
 # 'view_metadata','change_metadata', are standard, added by Django
-permissions_for_blob_extra = ['view_view','view_blob','change_blob','download','commit']
+permissions_for_blob_extra = ['view_view','view_log','view_blob','change_blob','download','commit']
 permissions_for_blob = permissions_for_blob_extra + ['view_dmetadata','change_dmetadata']
 groups_for_coldoc = ('editors','authors')
 
