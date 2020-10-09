@@ -10,6 +10,7 @@ from django.http import HttpResponse, QueryDict
 from django.db.models import Q
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib import messages
+from django.forms import ModelForm
 
 import ColDoc.utils, ColDocDjango
 
@@ -25,6 +26,13 @@ from .models import DColDoc
 
 from ColDocDjango.UUID.models import DMetadata, ExtraMetadata
 
+class ColDocForm(ModelForm):
+    class Meta:
+        model = DColDoc
+        exclude = []
+        exclude = ['headline']
+        fields = '__all__'
+
 def index(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
@@ -33,10 +41,19 @@ def index(request, NICK):
     if not c:
         return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     c=c[0]
+    #
+    coldocform = None
+    if request.user.is_authenticated:
+        if request.user.is_staff or c.editor.filter(username=request.user.username).exists():
+            coldocform = ColDocForm(instance=c)
+            for a in 'nickname','root_uuid':
+                coldocform.fields[a].widget.attrs['readonly'] = True
+    #
     from ColDocDjango.utils import convert_latex_return_codes
     latex_error_logs = convert_latex_return_codes(c.latex_return_codes, c.nickname, c.root_uuid)
     #
     return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname,
+                                           'coldocform' : coldocform,
                                            'latex_error_logs':latex_error_logs})
 
 def html(request, NICK, subpath=None):

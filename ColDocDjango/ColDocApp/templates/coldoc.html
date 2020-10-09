@@ -43,19 +43,7 @@ First published {{ coldoc.publication_time }}
 
 
 {% if user.is_authenticated %}
-<h2>Settings</h2>
-<ul>
-  <li> latex_engine = {{ coldoc.latex_engine }}
-  <li> latex_documentclass = {{ coldoc.latex_documentclass |escape }}
-  <li> latex_documentclass_options = {{ coldoc.latex_documentclass_options | escape }}
-</ul>
-{% if user.is_staff %}
-<a href="/admin/ColDocApp/dcoldoc/{{ coldoc.nickname }}/change/">
-<button   type="button" class="btn btn-outline-primary btn-sm">
-  EDIT INFO
-</button>
-</a>
-{% endif %}
+
 <h2>Checks and statistics </h2>
 <div class="border border-info mt-2">
 <div id='id_check_tree'>......</div>
@@ -64,6 +52,8 @@ First published {{ coldoc.publication_time }}
 </button>
 </div>
 <script>window.addEventListener('ready', AJAXcheck_tree() );</script>
+
+
 {% if latex_error_logs %}
     <div class="border border-info mt-2">
        There were errors while compiling
@@ -77,6 +67,24 @@ First published {{ coldoc.publication_time }}
      </div>
 {% endif %}
 
+
+{% if coldocform %}
+<h2>Settings</h2>
+<div class="border border-info mt-2">
+<table>
+{{ coldocform }}
+</table>
+</div>
 {% endif %}
+
+{% if user.is_staff %}
+<a href="/admin/ColDocApp/dcoldoc/{{ coldoc.nickname }}/change/">
+<button   type="button" class="btn btn-outline-primary btn-sm">
+  edit settings in admin form
+</button>
+</a>
+{% endif %}
+
+{% endif %} <!-- if authenticated-->
 
 {% endblock %}
