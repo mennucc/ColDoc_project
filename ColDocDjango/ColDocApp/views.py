@@ -33,7 +33,11 @@ def index(request, NICK):
     if not c:
         return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     c=c[0]
-    return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname})
+    from ColDocDjango.utils import convert_latex_return_codes
+    latex_error_logs = convert_latex_return_codes(c.latex_return_codes, c.nickname, c.root_uuid)
+    #
+    return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname,
+                                           'latex_error_logs':latex_error_logs})
 
 def html(request, NICK, subpath=None):
     if not slug_re.match(NICK):

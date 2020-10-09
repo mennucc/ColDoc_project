@@ -548,6 +548,10 @@ def index(request, NICK, UUID):
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext)
     #
+    from ColDocDjango.utils import convert_latex_return_codes
+    a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
+    latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
+    #
     metadataform = MetadataForm(instance=metadata)
     if '.tex' not in metadata.get('extension'):
         metadataform.fields['environ'].widget.attrs['readonly'] = True

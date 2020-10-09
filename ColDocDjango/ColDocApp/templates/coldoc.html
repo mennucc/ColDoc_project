@@ -64,6 +64,19 @@ First published {{ coldoc.publication_time }}
 </button>
 </div>
 <script>window.addEventListener('ready', AJAXcheck_tree() );</script>
+{% if latex_error_logs %}
+    <div class="border border-info mt-2">
+       There were errors while compiling
+       <ul>
+        {% for val,link in latex_error_logs %}
+                <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
+                {{ val }}
+                {% if link %}  </a>   {% endif %}
+         {% endfor %}
+         </ul>
+     </div>
+{% endif %}
+
 {% endif %}
 
 {% endblock %}

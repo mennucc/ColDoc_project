@@ -61,6 +61,18 @@
      {% if pdfurl %}
       <a href="{{ pdfurl }}" class="btn btn-outline-primary btn-sm">Download PDF</a><br>
       {% endif %}
+      {% if latex_error_logs %}
+        <div class="border border-info mt-2">
+       There were errors while compiling
+       <ul>
+        {% for val,link in latex_error_logs %}
+                <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
+                {{ val }}
+                {% if link %}  </a>   {% endif %}
+         {% endfor %}
+         </ul>
+        </div>
+      {% endif %}
   </div>
  {% endif %}
  {% if perms.UUID.view_blob %}
