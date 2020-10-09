@@ -422,6 +422,7 @@ def index(request, NICK, UUID):
         a = 'Access denied to this content.'
         if request.user.is_anonymous: a += ' Please login.'
         messages.add_message(request, messages.WARNING, a)
+        return render(request, 'UUID.html', locals() )
     #
     # TODO
     show_comment = request.user.is_superuser
