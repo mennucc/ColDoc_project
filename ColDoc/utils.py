@@ -37,7 +37,7 @@ __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir",
             "sort_extensions", "choose_blob", "plastex_invoke",
             "metadata_html_items",
             'prepare_anon_tree',
-            'json_to_dict', 'dict_to_json',
+            'json_to_dict', 'dict_to_json', 'dict_save_or_del',
             )
 
 class ColDocException(Exception):
@@ -47,6 +47,14 @@ class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
 
 #####################
+
+def dict_save_or_del(d,k,v):
+    " delete `k` from `d` if `v` is True, otherwise `d[k]=v` "
+    if v is True:
+        if k in d:
+            del d[k]
+    else:
+        d[k] = v
 
 def json_to_dict(thestr):
     thedict = {}
