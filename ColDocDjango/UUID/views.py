@@ -239,12 +239,16 @@ def html(request, NICK, UUID, subpath=None):
 def show(request, NICK, UUID):
     return view_(request, NICK, UUID, None, None, None, prefix='blob')
 
+def log(request, NICK, UUID):
+    return view_(request, NICK, UUID, None, None, None, prefix='log')
+
+
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view'):
     #
     # do not allow subpaths for non html
     assert _view_ext == '_html' or subpath is None
     assert _view_ext in ('_html','.pdf',None)
-    assert prefix in ('main','view','blob')
+    assert prefix in ('main','view','blob','log')
     #
     if not slug_re.match(UUID):
         return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type), status=http.HTTPStatus.BAD_REQUEST)
@@ -269,6 +273,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             _view_ext = q['ext']
         else:
             return HttpResponse("must specify extension", status=http.HTTPStatus.NOT_FOUND)
+    #
+    if prefix == 'log' and  _view_ext not in ColDoc.config.ColDoc_allowed_logs:
+        return HttpResponse("Permission denied (log)", status=http.HTTPStatus.UNAUTHORIZED)
     #
     # TODO if user is editor, provide true access
     if prefix == 'main' and not request.user.is_superuser :
@@ -300,6 +307,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if prefix=='blob' and not request.user.has_perm('UUID.view_blob'):
             return HttpResponse("Permission denied (blob)",
                                 status=http.HTTPStatus.UNAUTHORIZED)
+        if prefix=='log' and not request.user.has_perm('UUID.view_log'):
+            return HttpResponse("Permission denied (log)",
+                                status=http.HTTPStatus.UNAUTHORIZED)
         #
         env = metadata.get('environ')[0]
         if env in ColDoc.latex.environments_we_wont_latex and _view_ext == '_html':
@@ -310,13 +320,16 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         n = None
         isdir = False
         langs += metadata.get('lang') + [None]
+        pref_ = prefix
+        if  prefix == 'log' :
+            pref_ = 'main' if UUID == metadata.coldoc.root_uuid else 'view'
         for l in langs:
             assert l in (None,'') or slug_re.match(l)
             if l not in (None,''):
                 l='_'+l
             else:
                 l=''
-            n = os.path.join(blobs_dir, uuid_dir, prefix+l+_view_ext)
+            n = os.path.join(blobs_dir, uuid_dir, pref_ + l + _view_ext)
             if subpath is not None:
                 n = os.path.join(n,subpath)
             if os.path.isfile(n):
@@ -328,11 +341,16 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             else:
                 n = None
         if n is None:
-            return HttpResponse("Cannot find blob..%s.%s, subpath %r, for UUID %r , looking for languages in %r." %\
-                                (prefix,_view_ext,subpath,UUID,langs),
+            return HttpResponse("Cannot find %s.....%s, subpath %r, for UUID %r , looking for languages in %r." %\
+                                (pref_,_view_ext,subpath,UUID,langs),
                                 content_type='text/plain', status=http.HTTPStatus.NOT_FOUND)
         if _content_type is None:
-            _content_type , _content_encoding = mimetypes.guess_type(n)
+            if _view_ext in ColDoc.config.ColDoc_allowed_logs :
+                _content_type = 'text/plain'
+                _content_encoding = 'utf-8'
+                print('as text')
+            else:
+                _content_type , _content_encoding = mimetypes.guess_type(n)
         logger.debug("Serving: %r %r"%(n,_content_type))
         if _content_type == 'text/html':
             f = open(n).read()
@@ -467,6 +485,26 @@ def index(request, NICK, UUID):
     else:
         blobcontenttype = 'other'
         file = html = ''
+    #
+    if lang not in (None,''):
+        lang_ = '_' + lang
+    else:
+        lang_ = ''
+    availablelogs = []
+    if  request.user.has_perm('UUID.view_log'):
+        d = os.path.dirname(filename)
+        pref_ = 'main' if UUID == metadata.coldoc.root_uuid else 'view'
+        for e_ in ColDoc.config.ColDoc_allowed_logs:
+            a = osjoin(d, pref_ + lang_ + e_)
+            if os.path.exists(a):
+                a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':NICK,'UUID':UUID})
+                if a[-1] != '/': a += '/'
+                a += '?lang=%s&ext=%s'  % (lang,e_)
+                availablelogs.append(  (e_, a ) )
+                print('exists:'+repr(availablelogs[-1]))
+            else:
+                print('not exists:'+a)
+    
     # just to be safe
     if not request.user.has_perm('UUID.view_view'):
         html = '[access denied]'
