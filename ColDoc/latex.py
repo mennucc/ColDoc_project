@@ -139,7 +139,7 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
         return True
     #
     res = True
-    retcodes = {}
+    retcodes = ColDoc.utils.json_to_dict(metadata.latex_return_codes)
     for l in langs:
         rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
                             uuid=uuid, uuid_dir=uuid_dir, options = options)
@@ -147,11 +147,10 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
         j = (':'+l) if (isinstance(l,str) and l) else ''
         retcodes['latex'+j] = rp
         retcodes['plastex'+j] = rh
-    metadata.latex_time_update()
-    if res:
-        metadata.latex_return_codes = ''
-    else:
-        metadata.latex_return_codes = json.dumps(retcodes)
+    if lang is None:
+        # update only if all languages were recomputed
+        metadata.latex_time_update()
+    metadata.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
     metadata.save()
     return res
 
@@ -272,7 +271,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     # update the PDF/HTML view of only one language. This timestamp
     # does not record which language was updated. We should have different timestamps
     # for different languages.
-    metadata.latex_time_update()
+    if len(metadata.get('lang')) == 1:
+        metadata.latex_time_update()
     metadata.save()
     return rh, rp
 
@@ -293,7 +293,10 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         langs=metadata.get('lang')
     #
     ret = True
-    retcodes = {}
+    coldoc = options.get('coldoc')
+    if coldoc is not None:
+        retcodes = ColDoc.utils.json_to_dict(coldoc.latex_return_codes)
+    #
     for lang in  langs:
         #
         _lang = ('_'+lang) if (isinstance(lang,str) and lang) else ''
@@ -347,13 +350,12 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
                 shutil.copy(a,b)
         #
         ret = ret and rh and rp
-    coldoc = options.get('coldoc')
+    #
     if coldoc is not None:
-        coldoc.latex_time_update()
-        if ret:
-            coldoc.latex_return_codes = ''
-        else:
-            coldoc.latex_return_codes = json.dumps(retcodes)
+        if lang is None:
+            # update only if all languages were updated
+            coldoc.latex_time_update()
+        coldoc.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
         coldoc.save()
     return ret
 

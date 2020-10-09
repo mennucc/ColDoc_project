@@ -1,5 +1,5 @@
 import itertools, sys, os, io, copy, logging, shelve, unicodedata
-import re, pathlib, subprocess, datetime
+import re, pathlib, subprocess, datetime, json
 import tempfile, shutil, json
 import os.path
 from os.path import join as osjoin
@@ -37,6 +37,7 @@ __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir",
             "sort_extensions", "choose_blob", "plastex_invoke",
             "metadata_html_items",
             'prepare_anon_tree',
+            'json_to_dict', 'dict_to_json',
             )
 
 class ColDocException(Exception):
@@ -44,6 +45,26 @@ class ColDocException(Exception):
 
 class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
+
+#####################
+
+def json_to_dict(thestr):
+    thedict = {}
+    try:
+        if thestr:
+            thedict = json.loads(thestr)
+        assert isinstance(thedict, dict)
+    except:
+        thedict = {}
+        logger.exception('While json loading thestr')
+    return thedict
+
+
+def dict_to_json(thedict):
+    if not thedict:
+        return ''
+    return json.dumps(thedict)
+
 
 #####################
 
