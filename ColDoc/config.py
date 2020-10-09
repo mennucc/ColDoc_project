@@ -69,11 +69,11 @@ ColDoc_invalid_nickname = ['static','static_collect','static_root','static_local
 # Before compiling with latex a file, these files are copied back from 
 # blobs/UUID/N/N/N/YYYY_ll_LL.XXX or
 # (where YYYY is `main` or `view` )
-ColDoc_pdflatex_fakemain_reuse_extensions = ['.aux','.toc','.idx','.bbl']
+ColDoc_pdflatex_fakemain_reuse_extensions = ['.aux','.toc','.idx','.bbl','.out']
 
 # after compiling with latex a file, these files are saved as 
 # blobs/UUID/N/N/N/YYYY_ll_LL.XXX or
-ColDoc_pdflatex_fakemain_preserve_extensions = ColDoc_pdflatex_fakemain_reuse_extensions + ['.tex','.log','.pdf','.out','.fls','.blg']
+ColDoc_pdflatex_fakemain_preserve_extensions = ColDoc_pdflatex_fakemain_reuse_extensions + ['.tex','.log','.pdf','.fls','.blg']
 
 # Before compiling with plastex a file, these files are copied back from 
 # blobs/UUID/N/N/N/YYYY_ll_LL.XXX or
