@@ -19,7 +19,7 @@ def convert_latex_return_codes(latex_return_codes, NICK, UUID):
                         e,l = k.split(':')
                     else:
                         e,l = k,''
-                    e_ = {'latex':'.log', 'pdflatex':'_pdflatex.log'}[e]
+                    e_ = {'latex':'.log', 'plastex':'_plastex.log'}[e]
                     a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':NICK,'UUID':UUID})
                     if a[-1] != '/': a += '/'
                     a += '?lang=%s&ext=%s'  % (l,e_)
