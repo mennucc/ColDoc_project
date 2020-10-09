@@ -58,6 +58,8 @@ if __name__ == '__main__':
                         required=True)
     parser.add_argument('--coldoc-site-root',type=str,\
                         help='directory where the ColDoc Django site was deployed')
+    parser.add_argument('--editor',action='append',default=[],\
+                        help='editor for this coldoc')
     BI.add_arguments_to_parser(parser)
     args = parser.parse_args()
     BI.parse_EDB(args)
@@ -93,7 +95,8 @@ to specify where the ColDoc site is located.
     #
     ## check that usernames are ColDocUser
     from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-    for j in args.author:
+    from itertools import chain
+    for j in chain(args.author , args.editor):
         try:
             a = users.ColDocUser.objects.get(username=j)
         except ObjectDoesNotExist:
@@ -140,6 +143,12 @@ to specify where the ColDoc site is located.
         coldoc.save()
         r =  BI.main(args, metadata_class=blob_models.DMetadata, coldoc=coldoc)
         coldoc.save()
+        #
+        for ed in args.editor:
+            if isinstance(ed,str):
+                ed = users.ColDocUser.objects.get(username=ed)
+            coldoc.editor.add(ed)
+        #
     #
     with transaction.atomic():
         users.add_permissions_for_coldoc(coldoc.nickname)
