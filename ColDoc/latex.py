@@ -139,18 +139,13 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
         return True
     #
     res = True
-    retcodes = ColDoc.utils.json_to_dict(metadata.latex_return_codes)
     for l in langs:
         rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
                             uuid=uuid, uuid_dir=uuid_dir, options = options)
         res = res and rh and rp
-        j = (':'+l) if (isinstance(l,str) and l) else ''
-        retcodes['latex'+j] = rp
-        retcodes['plastex'+j] = rh
     if lang is None:
         # update only if all languages were recomputed
         metadata.latex_time_update()
-    metadata.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
     metadata.save()
     return res
 
@@ -273,6 +268,13 @@ def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {
     # for different languages.
     if len(metadata.get('lang')) == 1:
         metadata.latex_time_update()
+    #
+    retcodes = ColDoc.utils.json_to_dict(metadata.latex_return_codes)
+    j = (':'+lang) if (isinstance(lang,str) and lang) else ''
+    ColDoc.utils.dict_save_or_del( retcodes, 'latex'+j, rp)
+    ColDoc.utils.dict_save_or_del( retcodes, 'plastex'+j, rh)
+    metadata.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
+    #
     metadata.save()
     return rh, rp
 
@@ -325,7 +327,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         #
         open(fake_abs_name+'.tex','w').write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
-        retcodes['latex'+lang_] = rp
+        ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_, rp)
         try:
             ColDoc.utils.os_rel_symlink(save_name+'.pdf','main'+_lang+'.pdf',
                                         blobs_dir, False, True)
@@ -334,7 +336,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
         open(fake_abs_name+'.tex','w').write(f_html)
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
-        retcodes['plastex'+lang_] = rh
+        ColDoc.utils.dict_save_or_del(retcodes, 'plastex'+lang_, rh)
         try:
             ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
                                         blobs_dir, True, True)
