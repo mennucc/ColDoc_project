@@ -67,6 +67,14 @@ First published {{ coldoc.publication_time }}
      </div>
 {% endif %}
 
+<h2>Failed blobs in tree</h2>
+<ul>
+ {% for val ,link in failedblobs %}
+ <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
+                {{ val }}
+                {% if link %}  </a>   {% endif %}
+{% endfor %}
+<ul>
 
 {% if coldocform %}
 <h2>Settings</h2>

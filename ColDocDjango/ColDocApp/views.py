@@ -52,8 +52,12 @@ def index(request, NICK):
     from ColDocDjango.utils import convert_latex_return_codes
     latex_error_logs = convert_latex_return_codes(c.latex_return_codes, c.nickname, c.root_uuid)
     #
+    failed_blobs = map( lambda x : (x, django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':x})),
+                        DMetadata.objects.exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
+    #
     return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname,
                                            'coldocform' : coldocform,
+                                           'failedblobs' : failed_blobs,
                                            'latex_error_logs':latex_error_logs})
 
 def html(request, NICK, subpath=None):
