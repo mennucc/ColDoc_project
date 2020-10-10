@@ -128,6 +128,11 @@ def postedit(request, NICK, UUID):
         logger.error('Hacking attempt',request.META)
         raise SuspiciousOperation("Permission denied")
     #
+    if split_selection_ and not request.user.has_perm('ColDocApp.add_blob'):
+        logger.error('Hacking attempt %r',request.META)
+        #messages.add_message(request,messages.WARNING,'No permission to split selection')
+        #split_selection_ = False
+        raise SuspiciousOperation("Permission denied (add_blob)")
     #
     new_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     if file_md5 != new_file_md5:
@@ -519,6 +524,9 @@ def index(request, NICK, UUID):
                                                  'file_md5' : file_md5,
                                                  })
             blobeditform.fields['split_environment'].choices = choices
+            if not request.user.has_perm('ColDocApp.add_blob'):
+                blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
+                blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
     #
     try:
         j = metadata.get('child_uuid')[0]
