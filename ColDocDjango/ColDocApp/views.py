@@ -60,14 +60,15 @@ def index(request, NICK):
     #coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,NICK)
     c = DColDoc.objects.filter(nickname = NICK).get()
     #
+    request.user.associate_coldoc_blob_for_has_perm(c, None)
+    #
+    #
     coldocform = None
-    if request.user.is_authenticated:
-        if request.user.is_staff or c.editor.filter(username=request.user.username).exists():
-            coldocform = ColDocForm(instance=c)
-            for a in 'nickname','root_uuid':
-                coldocform.fields[a].widget.attrs['readonly'] = True
-    #
-    #
+    if request.user.has_perm('ColDocApp.view_dcoldoc'):
+        coldocform = ColDocForm(instance=c)
+        coldocform.htmlid = 'id_coldocform'
+        for a in 'nickname','root_uuid':
+            coldocform.fields[a].widget.attrs['readonly'] = True
     #
     latex_error_logs = []
     failed_blobs = []
