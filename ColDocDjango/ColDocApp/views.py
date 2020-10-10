@@ -90,13 +90,13 @@ def html(request, NICK, subpath=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     c = DColDoc.objects.filter(nickname = NICK).get()
-    return UUIDviews.view_(request, NICK, c.root_uuid, '_html', None, subpath, prefix='main')
+    return UUIDviews.view_(request, c, c.root_uuid, '_html', None, subpath, prefix='main')
 
 def pdf(request, NICK, subpath=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     c = DColDoc.objects.filter(nickname = NICK).get()
-    return UUIDviews.view_(request, NICK, c.root_uuid, '.pdf', None, subpath, prefix='main')
+    return UUIDviews.view_(request, c, c.root_uuid, '.pdf', None, subpath, prefix='main')
 
 def search(request, NICK):
     if not slug_re.match(NICK):
