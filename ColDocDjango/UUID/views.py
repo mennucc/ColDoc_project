@@ -280,11 +280,12 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     if prefix == 'log' and  _view_ext not in ColDoc.config.ColDoc_allowed_logs:
         return HttpResponse("Permission denied (log)", status=http.HTTPStatus.UNAUTHORIZED)
     #
-    # TODO if user is editor, provide true access
-    if prefix == 'main' and not request.user.is_superuser :
-        blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
-    else:
-        blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
+    # if user is editor, provide true access
+    blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
+    if prefix == 'main':
+        request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
+        if not request.user.is_editor :
+            blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
     if not os.path.isdir(blobs_dir):
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     #
