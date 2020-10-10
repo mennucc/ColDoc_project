@@ -6,7 +6,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Group
 
 
-permissions_for_coldoc = ('add_blob','delete_blob','commit')
+permissions_for_coldoc_extra = ['add_blob','delete_blob','commit']
+permissions_for_coldoc = permissions_for_coldoc_extra + ['view_dcoldoc','change_dcoldoc']
+
 # 'view_metadata','change_metadata', are standard, added by Django
 permissions_for_blob_extra = ['view_view','view_log','view_blob','change_blob','download','commit']
 permissions_for_blob = permissions_for_blob_extra + ['view_dmetadata','change_dmetadata']
@@ -93,9 +95,11 @@ def user_has_perm(user, perm, coldoc, blob, obj):
             elif s == 'public' and perm in ('UUID.view_view',):
                 return True
         return False
-    if perm.startswith('ColDocApp.') and  \
-       perm[len('ColDocApp.'):] in permissions_for_coldoc:
-        n = name_of_permission_for_coldoc(coldoc.nickname, perm)
+    if perm.startswith('ColDocApp.') and perm[10:] in permissions_for_coldoc:
+        #allow complete access to editors
+        if coldoc.editor.filter(username=user.username).exists():
+            return True
+        n = 'ColDocApp.' + name_of_permission_for_coldoc(coldoc.nickname, perm[10:])
         if user.has_perm(n, obj):
             return True
     return False

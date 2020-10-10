@@ -29,7 +29,7 @@ from ColDoc.utils import uuid_to_int, int_to_uuid, uuid_check_normalize, uuid_va
 from ColDoc.latex import ColDoc_latex_engines
 import ColDoc.config
 
-from ColDocDjango.users import permissions_for_coldoc
+from ColDocDjango.users import permissions_for_coldoc_extra
 
 #####################################
 
@@ -115,7 +115,7 @@ class DColDoc(models.Model):
     #
     class Meta:
         verbose_name = "ColDoc"
-        permissions = [(j,"can %s on any coldoc"%j) for j in permissions_for_coldoc]
+        permissions = [(j,"can %s on any coldoc"%j) for j in permissions_for_coldoc_extra]
     #https://docs.djangoproject.com/en/3.0/ref/urlresolvers/#django.urls.reverse
     #https://docs.djangoproject.com/en/3.0/ref/models/instances/#django.db.models.Model.get_absolute_url
     def get_absolute_url(self):
