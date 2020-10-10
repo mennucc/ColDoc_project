@@ -76,6 +76,7 @@ def user_has_perm(user, perm, coldoc, blob, obj):
     if not user.is_active:
         return False
     if user.has_perm(perm, obj):
+        ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,perm,coldoc,blob,obj)
         # takes care of superuser
         return True
     if coldoc is None:
@@ -101,6 +102,7 @@ def user_has_perm(user, perm, coldoc, blob, obj):
             return True
         n = 'ColDocApp.' + name_of_permission_for_coldoc(coldoc.nickname, perm[10:])
         if user.has_perm(n, obj):
+            ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,n,coldoc,blob,obj)
             return True
     return False
     
