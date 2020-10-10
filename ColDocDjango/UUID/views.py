@@ -225,7 +225,7 @@ def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, uuid, lang, metadata):
         " helper factory"
         return squash_helper_ref(coldoc, *v, **k)
     options["squash_helper"] = foobar
-    options['metadata_class'] = ColDoc.utils.FMetadata
+    options['metadata_class'] = DMetadata
     #
     from ColDoc import latex
     return latex.latex_blob(blobs_dir, metadata, uuid=uuid, lang = lang, options=options)
