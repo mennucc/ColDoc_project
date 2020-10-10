@@ -363,10 +363,12 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
 
 
 def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
-                   levels = False, tok = False, strip_head = True):
+                   levels = False, tok = False, strip_head = True, plastex_theme=None):
     " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
+    #
+    plastex_theme = options.get('plastex_theme','green')
     #
     fake_support=[]
     for es,ed in ColDoc.config.ColDoc_plastex_fakemain_reuse_extensions:
@@ -398,7 +400,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     n =  osjoin(blobs_dir,save_name+'_paux')
     if not os.path.isdir(n):    os.mkdir(n)
     #
-    argv = ['-d',save_name+'_html',"--renderer=HTML5", ]
+    argv = ['-d',save_name+'_html',"--renderer=HTML5", '--theme-css', plastex_theme]
     if not levels :
         argv += [ '--split-level','0']
     if tok is False or (environ[:2] == 'E_' and tok == 'auto'):
@@ -685,6 +687,7 @@ def main_by_args(args,options):
     elif argv[0] == 'main':
         ret = latex_main(blobs_dir, uuid=UUID, options=options)
     elif argv[0] == 'anon':
+        options['plastex_theme'] = 'blue'
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False,
                                                   metadata_class=ColDoc.utils.FMetadata)
         if anon_dir is not None:
@@ -692,8 +695,10 @@ def main_by_args(args,options):
         else:
             ret = False
     elif argv[0] == 'all':
+        options['plastex_theme'] = 'green'
         ret = latex_main(blobs_dir, uuid=UUID, options=options)
         ret &= latex_tree(blobs_dir,UUID, options=options)
+        options['plastex_theme'] = 'blue'
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
                                                  metadata_class=ColDoc.utils.FMetadata)
         if anon_dir is not None:
