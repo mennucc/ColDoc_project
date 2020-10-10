@@ -76,14 +76,19 @@ First published {{ coldoc.publication_time }}
 {% endif %}
 {% endif %} <!-- if editor-->
 
-{% if coldocform %}
+
+{% if perms.ColDocApp.view_dcoldoc %}
 <h2>Settings</h2>
 <div class="border border-info mt-2">
-<table>
-{{ coldocform }}
-</table>
+     {% if perms.ColDocApp.change_dcoldoc %}
+     <form action="{% url 'ColDoc:postcoldocedit' NICK=NICK %}" id="{{ coldocform.htmlid }}" method="post" class="w-100">
+     {% csrf_token %}{{ coldocform.non_field_errors }}
+     {% endif %}
+<table class="w-100">{{ coldocform }}</table>
+{% if perms.ColDocApp.change_dcoldoc %} <input type="submit" class="btn btn-primary" value="Submit">   </form> {% else %}
+   <div class="alert alert-warning" role="alert">No permission to change data.</div>{% endif %}
 </div>
-{% endif %}
+{% endif %} <!--perms.ColDocApp.view_dcoldoc-->
 
 {% if user.is_staff %}
 <a href="/admin/ColDocApp/dcoldoc/{{ coldoc.nickname }}/change/" class="btn btn-outline-primary btn-sm">
