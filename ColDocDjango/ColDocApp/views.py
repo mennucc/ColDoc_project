@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib import messages
 from django.forms import ModelForm
+from django.core.exceptions import SuspiciousOperation
 
 import ColDoc.utils, ColDocDjango
 
