@@ -153,6 +153,8 @@ class DColDoc(models.Model):
     #
     anonymous_can_view = models.BooleanField(default=True)
     #
+    author_can_add_blob = models.BooleanField('An user can add a children if s/he is the author of the blob',default=True)
+    #
     LATEX_ENGINES=ColDoc_latex_engines
     latex_engine = models.CharField("latex-type command used to compile",
         max_length=15,
