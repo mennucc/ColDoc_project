@@ -11,6 +11,8 @@
     <!-- plasTeX CSS -->
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script type="text/x-mathjax-config"> MathJax.Hub.Config({tex2jax: {inlineMath: [ ['\\(','\\)']]}});</script>
+    <!-- Custom styles for this template -->
+    <link href="{% static 'ColDoc/css/sticky-footer-navbar.css' %}" rel="stylesheet">
     {% endblock head %}
     {% block extrahead %}{% endblock extrahead %}
   </head>
@@ -125,6 +127,18 @@
         {% block content %}fake content{% endblock %}
     </div>
     
+<footer class="footer pull-right">
+  <span  class="container text-muted">
+   The <i>ColDoc</i> document management system is 
+   Copyright 2019-20 A. Mennucci 
+  </span>
+  <span  class="container text-muted">
+      Quality control
+       <a href="http://validator.w3.org/check?uri=referer" class="text-muted">HTML 4.0.1 strict</a>
+       | 
+      <a href="http://jigsaw.w3.org/css-validator/check/referer" class="text-muted">CSS 2.1</a>
+  </span>
+   </footer>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
