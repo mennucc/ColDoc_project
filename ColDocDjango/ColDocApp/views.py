@@ -91,6 +91,11 @@ def index(request, NICK):
 def latex(request, NICK):
     assert slug_re.match(NICK)
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    #
+    request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
+    if not request.user.is_editor:
+        raise SuspiciousOperation("Permission denied")
+    #
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
     blobs_dir = osjoin(coldoc_dir,'blobs')
     if not os.path.isdir(blobs_dir):
