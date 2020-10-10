@@ -19,22 +19,16 @@ First published {{ coldoc.publication_time }}
 
 <br>
 
-<a href="{% url 'ColDoc:html' NICK=coldoc.nickname %}">
-<button   type="button" class="btn btn-outline-primary btn-sm">
+<a href="{% url 'ColDoc:html' NICK=coldoc.nickname %}" class="btn btn-outline-primary btn-sm">
  View whole document
-</button>
 </a>
 
-<a href="{% url 'ColDoc:pdf' NICK=coldoc.nickname %}">
-<button   type="button" class="btn btn-outline-primary btn-sm">
+<a href="{% url 'ColDoc:pdf' NICK=coldoc.nickname %}" class="btn btn-outline-primary btn-sm">
  View whole document, as PDF
-</button>
 </a>
 
-<a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=coldoc.root_uuid %}">
-<button   type="button" class="btn btn-outline-primary btn-sm">
+<a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=coldoc.root_uuid %}" class="btn btn-outline-primary btn-sm">
  Navigate document tree
-</button>
 </a>
 
 <!-- <a href="{{ htmlurl }}?download"><button type="button" class="btn btn-outline-primary btn-sm">Download</button></a>    <br> -->
@@ -86,10 +80,8 @@ First published {{ coldoc.publication_time }}
 {% endif %}
 
 {% if user.is_staff %}
-<a href="/admin/ColDocApp/dcoldoc/{{ coldoc.nickname }}/change/">
-<button   type="button" class="btn btn-outline-primary btn-sm">
+<a href="/admin/ColDocApp/dcoldoc/{{ coldoc.nickname }}/change/" class="btn btn-outline-primary btn-sm">
   edit settings in admin form
-</button>
 </a>
 {% endif %}
 
