@@ -33,6 +33,27 @@ class ColDocForm(ModelForm):
         exclude = ['headline']
         fields = '__all__'
 
+def post_coldoc_edit(request, NICK):
+    assert slug_re.match(NICK)
+    if request.method != 'POST' :
+        return redirect(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,}))
+    #
+    coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    #
+    request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
+    if not request.user.has_perm('ColDocApp.change_dcoldoc'):
+        logger.error('Hacking attempt',request.META)
+        raise SuspiciousOperation("Permission denied")
+    #
+    form = ColDocForm(request.POST, instance=coldoc)
+    #
+    if not form.is_valid():
+        return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
+    form.save()
+    messages.add_message(request,messages.INFO,'Changes saved')
+    return index(request, NICK)
+
+
 def index(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
