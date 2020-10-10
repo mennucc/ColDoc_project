@@ -18,7 +18,7 @@
     <ul>
       {% for object in DColDocs %}
       <li> <a href="{% url 'ColDoc:index' object.nickname %}">
-	  <h3>{% if object.title %} {{ object.title }} {% else %} <div>Coldoc — {{  object.nickname }}</div> {% endif %}</h3>
+	  <h3>{% if object.title %} {{ object.title }} {% else %} Coldoc — {{  object.nickname }} {% endif %}</h3>
 	</a>
 	<!-- <ul> -->
 	<!--   {% for key, val in object.get_fields %} -->
