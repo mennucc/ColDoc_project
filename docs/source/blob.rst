@@ -13,8 +13,8 @@ The ColDoc is a tree of UUIDs, connected by a parent-children
 relationship.
 
 There is a special UUID called `root_uuid` usually 001. It is the root
-of the tree.  (The `root_uuid` can be changed, it is stored as field
-`root_uuid` in the `DColDoc` model.)
+of the tree.  (The `root_uuid` may be changed, it is stored as field
+`root_uuid` in the `DColDoc` model, but this is untested and may break the portal.)
 
 Relationship between blobs and UUID
 -----------------------------------

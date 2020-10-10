@@ -21,6 +21,8 @@ Welcome to ColDoc's documentation!
   blob
   metadata
   permission
+  blobify
+  editing
 
 
 

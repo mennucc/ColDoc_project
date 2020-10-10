@@ -111,11 +111,11 @@ Before we create some fake users, to be able to interact with the portal.
 
 (The list of users and passwords will be printed on terminal)
 
-We insert the test LaTeX document in the portal. Note that `jsmith` is the author of all blobs, and will have special access rights.
+We insert the test LaTeX document in the portal. Note that `jsmith` is the author of all blobs, and will have special access rights; similarly `ed_itor` is the editor, and will have access to some administrative information in the coldoc main page.
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/blob_inator.py --coldoc-nick=test --ZS  --author=jsmith  --SP --SAT    ${COLDOC_SRC_ROOT}/test/latex/latex_test.tex
+	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/blob_inator.py --coldoc-nick=paper --ZS --editor=ed_itor --author=jsmith  --SP --SAT    ${COLDOC_SRC_ROOT}/test/paper/paper.tex
 
 Then you should generate all PDF and HTML associated to the test paper
 

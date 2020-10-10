@@ -4,7 +4,7 @@ Permissions
 (See in ColDocDjango/users.py for more details).
 
 There is a list of permissions for each UUID. Currently it is:
- 'view_view','view_blob','change_blob','download','commit','view_dmetadata','change_dmetadata'
+ 'view_view','view_log','view_blob','change_blob','download','commit','view_dmetadata','change_dmetadata'
 
 Permissions are associated to the UUID of the blob,
 so they are the same for all languages and/or content types.
@@ -37,7 +37,8 @@ This is the Permissions meaning and rule for each `UUID`.
   If the UUID `access` state is
 
   - `open` or `public`, this is always granted to authenticated users; and
-     granted to anonymous users it the property `
+     granted to anonymous users if the property `Anonymous can view` is set in the coldoc settings
+     (an editor can change it from the main web page for the coldoc)
 
   - `private` , it is granted to the author or any user with `view_view` permission
 
@@ -48,14 +49,20 @@ This is the Permissions meaning and rule for each `UUID`.
 
   - `private` or `public` , it is granted to the author or any user with `view_blob` permission
 
+- `view_log` : permission to  view logs created by `LaTeX` `and plastex`
+
 Protecting protected content
 ----------------------------
 
-The root UUID of the document refers to the whole document,
+If the user is not an `editor`, then
+the content served from the buttons `View whole document` and  `View whole document, as PDF`
+is compiled from an `anon` tree where all protected content is masked out,
+so that the generic user will not see the protected content; indeed it is
+not sensible to generate different whole document representations
+for each and any user.
 
-so for that the `view_view` is
-enforced serving the HTML or PDF from the `anon` tree (instead of the `blobs` tree).
-
+Insted when the user accessing it is an `editor` then the content will all be visible;
+note that in this case the HTML pages use a green theme, to distinguish.
 
 
 
