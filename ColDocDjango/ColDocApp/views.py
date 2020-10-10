@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http
+import os, sys, mimetypes, http, pathlib
 from os.path import join as osjoin
 
 import logging
@@ -85,6 +85,54 @@ def index(request, NICK):
                                            'failedblobs' : failed_blobs,
                                            'check_tree_url' : check_tree_url,
                                            'latex_error_logs':latex_error_logs})
+
+
+def latex(request, NICK):
+    assert slug_re.match(NICK)
+    coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    blobs_dir = osjoin(coldoc_dir,'blobs')
+    if not os.path.isdir(blobs_dir):
+        raise SuspiciousOperation("No blobs for this ColDoc %r.\n" % (NICK,))    
+    #
+    q = request.GET
+    typ_ = q.get('type')
+    if typ_ not in ('main','anon'):
+        messages.add_message(request,messages.WARNING,'Wrong request')
+        return index(request, NICK)
+    #
+    assert slug_re.match(typ_)
+    #
+    from ColDoc.latex import prepare_options_for_latex
+    options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc)
+    #
+    url = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
+    url = request.build_absolute_uri(url)
+    # used for PDF
+    options['url_UUID'] = url
+    options['coldoc'] = coldoc
+    options['metadata_class'] = DMetadata
+    #
+    from ColDoc.latex import latex_main
+    ret = False
+    if typ_ == 'main':
+        options['plastex_theme'] = 'green'
+        ret = latex_main(blobs_dir, uuid=coldoc.root_uuid, options=options)
+    else:
+        options['plastex_theme'] = 'blue'
+        n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
+                                             metadata_class=ColDoc.utils.FMetadata)
+        if anon_dir is not None:
+            assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
+            ret = latex_main(anon_dir, uuid=coldoc.root_uuid, options=options)
+        else:
+            messages.add_message(request,messages.WARNING,'Anon tree failed')
+    if ret:
+        messages.add_message(request,messages.INFO,'Compilation finished for '+typ_)
+    else:
+        messages.add_message(request,messages.WARNING,'Compilation failed for '+typ_)
+    return index(request, NICK)
+
 
 def html(request, NICK, subpath=None):
     if not slug_re.match(NICK):

@@ -13,4 +13,5 @@ urlpatterns = [
     path('<str:NICK>/search', views.search, name='search'),
     path('<str:NICK>/check_tree', views.check_tree, name='check_tree'),
     path('<str:NICK>/postcoldocedit', views.post_coldoc_edit, name='postcoldocedit'),
+    path('<str:NICK>/latex', views.latex, name='latex'),
 ]
