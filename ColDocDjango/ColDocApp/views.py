@@ -58,10 +58,7 @@ def index(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     #coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,NICK)
-    c = list(DColDoc.objects.filter(nickname = NICK))
-    if not c:
-        return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
-    c=c[0]
+    c = DColDoc.objects.filter(nickname = NICK).get()
     #
     coldocform = None
     if request.user.is_authenticated:
@@ -86,19 +83,13 @@ def index(request, NICK):
 def html(request, NICK, subpath=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    c = list(DColDoc.objects.filter(nickname = NICK))
-    if not c:
-        return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
-    c=c[0]
+    c = DColDoc.objects.filter(nickname = NICK).get()
     return UUIDviews.view_(request, NICK, c.root_uuid, '_html', None, subpath, prefix='main')
 
 def pdf(request, NICK, subpath=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    c = list(DColDoc.objects.filter(nickname = NICK))
-    if not c:
-        return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
-    c=c[0]
+    c = DColDoc.objects.filter(nickname = NICK).get()
     return UUIDviews.view_(request, NICK, c.root_uuid, '.pdf', None, subpath, prefix='main')
 
 def search(request, NICK):
@@ -123,10 +114,7 @@ def search(request, NICK):
         messages.add_message(request, messages.WARNING, "Search key is too short.")
         return index(request, NICK)
     #
-    coldoc = list(DColDoc.objects.filter(nickname = NICK))
-    if not coldoc:
-        return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
-    coldoc=coldoc[0]
+    coldoc = DColDoc.objects.filter(nickname = NICK).get()
     #
     request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
     # UUID
@@ -180,10 +168,7 @@ def search(request, NICK):
 def check_tree(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    c = list(DColDoc.objects.filter(nickname = NICK))
-    if not c:
-        return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
-    c=c[0]
+    c = DColDoc.objects.filter(nickname = NICK).get()
     try:
         from ColDocDjango.helper import check_tree
         problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
