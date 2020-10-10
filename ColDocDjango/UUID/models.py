@@ -107,7 +107,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         self.blob_modification_time = default
     #
     latex_time = models.DateTimeField('time of last run of latex',
-                                      default=None, null=True)
+                                      default=None, null=True, blank=True)
     def latex_time_update(self, default=None):
         if default is None: default=DT.now()
         self.latex_time = default
