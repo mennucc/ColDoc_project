@@ -125,7 +125,7 @@ def postedit(request, NICK, UUID):
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     if not request.user.has_perm('UUID.change_blob'):
-        logger.error('Hacking attempt',request.META)
+        logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation("Permission denied")
     #
     if split_selection_ and not request.user.has_perm('ColDocApp.add_blob'):

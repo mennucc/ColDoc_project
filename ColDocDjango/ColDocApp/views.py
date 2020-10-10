@@ -43,7 +43,7 @@ def post_coldoc_edit(request, NICK):
     #
     request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
     if not request.user.has_perm('ColDocApp.change_dcoldoc'):
-        logger.error('Hacking attempt',request.META)
+        logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation("Permission denied")
     #
     form = ColDocForm(request.POST, instance=coldoc)
