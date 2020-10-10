@@ -249,11 +249,14 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     assert _view_ext == '_html' or subpath is None
     assert _view_ext in ('_html','.pdf',None)
     assert prefix in ('main','view','blob','log')
+    assert ( isinstance(NICK,str) and slug_re.match(NICK) )  or isinstance(NICK,DColDoc)
+    assert ( isinstance(UUID,str) and slug_re.match(UUID) )
     #
-    if not slug_re.match(UUID):
-        return HttpResponse("Invalid UUID %r (for %r)." % (UUID,_content_type), status=http.HTTPStatus.BAD_REQUEST)
-    if not slug_re.match(NICK):
-        return HttpResponse("Invalid ColDoc %r (for %r)." % (NICK,_content_type), status=http.HTTPStatus.BAD_REQUEST)
+    if isinstance(NICK,DColDoc):
+        coldoc = NICK
+        NICK = coldoc.nickname
+    else:
+        coldoc = DColDoc.objects.filter(nickname = NICK).get()
     #
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
