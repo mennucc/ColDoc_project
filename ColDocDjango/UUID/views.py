@@ -549,6 +549,7 @@ def index(request, NICK, UUID):
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
     #
     metadataform = MetadataForm(instance=metadata)
+    metadataform.htmlid = "id_form_metadataform"
     if '.tex' not in metadata.get('extension'):
         metadataform.fields['environ'].widget.attrs['readonly'] = True
         metadataform.fields['optarg'].widget.attrs['readonly'] = True

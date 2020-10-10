@@ -113,7 +113,7 @@
     {% if perms.UUID.change_dmetadata %}
      <div class="border border-info mt-2">
       <h3>Editable metadata</h3>
-      <form action="{% url 'UUID:postmetadataedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
+      <form action="{% url 'UUID:postmetadataedit' NICK=NICK UUID=UUID %}" id="{{ metadataform.htmlid }}" method="post" class="w-100">
       {% csrf_token %}{{ metadataform.non_field_errors }}
        <table class="w-100">{{ metadataform }}</table>
          <input type="submit" class="btn btn-primary" value="Submit">
