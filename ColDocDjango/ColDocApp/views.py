@@ -76,9 +76,11 @@ def index(request, NICK):
     failed_blobs = map( lambda x : (x, django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':x})),
                         DMetadata.objects.exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
     #
+    check_tree_url = django.urls.reverse('ColDoc:check_tree', kwargs={'NICK':NICK,})
     return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname,
                                            'coldocform' : coldocform,
                                            'failedblobs' : failed_blobs,
+                                           'check_tree_url' : check_tree_url,
                                            'latex_error_logs':latex_error_logs})
 
 def html(request, NICK, subpath=None):

@@ -3,7 +3,7 @@
 
 var xmlhttp;
 
-function AJAXcheck_tree()
+function AJAXcheck_tree(url)
 {
  let button_check_tree = document.getElementById("id_button_check_tree");
  if (   button_check_tree ) {   button_check_tree.disabled = true; }
@@ -15,7 +15,6 @@ function AJAXcheck_tree()
    alert ("Your browser does not support AJAX!");
    return;
   }
-  url=window.location.pathname + "/check_tree";
   xmlhttp.onreadystatechange=check_tree_state_changed;
   xmlhttp.open("GET",url,true);
   xmlhttp.send(null);

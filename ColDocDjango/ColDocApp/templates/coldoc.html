@@ -41,11 +41,11 @@ First published {{ coldoc.publication_time }}
 <h2>Checks and statistics </h2>
 <div class="border border-info mt-2">
 <div id='id_check_tree'>......</div>
-<button   type="button" class="btn btn-outline-primary btn-sm" id="id_button_check_tree" onClick="AJAXcheck_tree();">
+<button   type="button" class="btn btn-outline-primary btn-sm" id="id_button_check_tree" onClick="AJAXcheck_tree('{{ check_tree_url }}');">
   check tree
 </button>
 </div>
-<script>window.addEventListener('ready', AJAXcheck_tree() );</script>
+<script>window.addEventListener('ready', AJAXcheck_tree('{{ check_tree_url }}') );</script>
 
 
 {% if latex_error_logs %}
