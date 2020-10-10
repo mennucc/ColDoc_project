@@ -67,12 +67,14 @@ def index(request, NICK):
             for a in 'nickname','root_uuid':
                 coldocform.fields[a].widget.attrs['readonly'] = True
     #
-    from ColDocDjango.utils import convert_latex_return_codes
-    latex_error_logs = convert_latex_return_codes(c.latex_return_codes, c.nickname, c.root_uuid)
     #
     failed_blobs = map( lambda x : (x, django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':x})),
                         DMetadata.objects.exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
     #
+    latex_error_logs = []
+    if request.user.is_editor:
+        from ColDocDjango.utils import convert_latex_return_codes
+        latex_error_logs = convert_latex_return_codes(c.latex_return_codes, c.nickname, c.root_uuid)
     check_tree_url = django.urls.reverse('ColDoc:check_tree', kwargs={'NICK':NICK,})
     return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname,
                                            'coldocform' : coldocform,
