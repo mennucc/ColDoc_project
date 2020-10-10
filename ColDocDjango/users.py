@@ -123,6 +123,16 @@ class BaseColDocUser():
             blob = None
         self._blob = blob
 
+    #
+    @property
+    def is_editor(self):
+        return False
+    #
+    @property
+    def is_author(self):
+        return False
+
+
 class ColDocUser(AbstractUser, BaseColDocUser):
     class Meta:
         app_label = 'ColDocApp'
@@ -132,6 +142,21 @@ class ColDocUser(AbstractUser, BaseColDocUser):
         # will be an instance of DMetadata
         self._blob = None
         super(AbstractUser,self).__init__(*v, **k)
+    #
+    @property
+    def is_editor(self):
+        if self._coldoc is None:
+            return False
+        from ColDocDjango.ColDocApp.models import DColDoc
+        return self._coldoc.editor.filter(username=self.username).exists()
+    #
+    @property
+    def is_author(self):
+        if self._blob is None:
+            return False
+        from ColDocDjango.ColDocApp.models import DColDoc
+        return self._blob.author.filter(username=self.username).exists()
+    #
     def has_perm(self, perm, obj=None):
         if self._coldoc is None:
             return super(AbstractUser,self).has_perm(perm, obj)
