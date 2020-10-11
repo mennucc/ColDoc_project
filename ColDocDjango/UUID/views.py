@@ -30,6 +30,9 @@ class MetadataForm(ModelForm):
     class Meta:
         model = DMetadata
         fields = ['author', 'access', 'environ','optarg','latex_documentclass_choice']
+        widgets = {
+                    'environ': django.forms.Select(choices=[('invalid','invalid')])
+                  }
     # record these values from submitter
     uuid_  = forms.CharField(widget=forms.HiddenInput())
     ext_  = forms.CharField(widget=forms.HiddenInput())
@@ -208,6 +211,10 @@ def postmetadataedit(request, NICK, UUID):
         raise SuspiciousOperation("Permission denied")
     #
     form=MetadataForm(request.POST, instance=metadata)
+    # useless
+    form.fields['environ'].choices = _environ_choices_(blobs_dir)
+    # useful
+    form.fields['environ'].widget.choices = _environ_choices_(blobs_dir)
     #
     if not form.is_valid():
         return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
@@ -215,11 +222,16 @@ def postmetadataedit(request, NICK, UUID):
     uuid_ = form.cleaned_data['uuid_']
     lang_ = form.cleaned_data['lang_']
     ext_ = form.cleaned_data['ext_']
+    environ_ = form.cleaned_data['environ']
     if uuid != uuid_ :
         logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation('UUID Mismatch')
     if metadata.get('extension') != [ext_]  :
         messages.add_message(request,messages.WARNING,'Internal problem, check the metadata again %r != %r' %([ext_], metadata.extension))
+    # just in case
+    if environ_ not in [a[0] for a in _environ_choices_(blobs_dir)]:
+        messages.add_message(request,messages.WARNING,'Invalid environment %r'%(environ_,))
+        return index(request, NICK, UUID)
     #
     form.save()
     messages.add_message(request,messages.INFO,'Changes saved')
@@ -593,6 +605,10 @@ def index(request, NICK, UUID):
     #
     metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':lang, })
     metadataform.htmlid = "id_form_metadataform"
+    # useless
+    metadataform.fields['environ'].choices = _environ_choices_(blobs_dir)
+    # useful
+    metadataform.fields['environ'].widget.choices = _environ_choices_(blobs_dir)
     if '.tex' not in metadata.get('extension'):
         metadataform.fields['environ'].widget.attrs['readonly'] = True
         metadataform.fields['optarg'].widget.attrs['readonly'] = True
