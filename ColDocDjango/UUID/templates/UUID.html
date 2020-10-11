@@ -46,6 +46,9 @@
     <a class="nav-link" id="other-tab" data-toggle="tab" href="#other" role="tab" aria-controls="other" aria-selected="false">Other</a>
   </li>
 </ul>
+
+
+
 <div class="tab-content" id="myTabContent">
  {% if perms.UUID.view_view %}
   <div class="tab-pane fade show active" id="view" role="tabpanel" aria-labelledby="view-tab">
@@ -75,6 +78,8 @@
       {% endif %}
   </div>
  {% endif %}
+
+
  {% if perms.UUID.view_blob %}
   <div class="tab-pane fade show" id="blob" role="tabpanel" aria-labelledby="blob-tab">
     <h2>Blob</h2>
@@ -107,6 +112,8 @@
     </div>
   </div>
  {% endif %}
+ 
+ 
  {% if perms.UUID.view_dmetadata %}
   <div class="tab-pane fade" id="metadata" role="tabpanel" aria-labelledby="metadata-tab">
   <h2>Metadata</h2>
@@ -144,12 +151,16 @@
     </div>
   </div>
  {% endif %} <!--if perms.UUID.view_dmetadata -->
+ 
+ 
  {% if show_comment %}
   <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
    TODO COMMENTS
      Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
   </div>
  {% endif %}
+ 
+ 
  {% if perms.UUID.view_log %}
   <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
     <ul>
@@ -161,6 +172,8 @@
     </ul>
   </div>
  {% endif %}
+ 
+ 
   <div class="tab-pane fade" id="other" role="tabpanel" aria-labelledby="other-tab">
     TODO OTHER
   Lorem ipsum dolor sit amet, consectetur adipisci elit, sed do eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrum exercitationem ullamco laboriosam, nisi ut aliquid ex ea commodi consequatur. Duis aute irure reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum
