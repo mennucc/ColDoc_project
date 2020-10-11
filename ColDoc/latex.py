@@ -141,7 +141,7 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
     res = True
     for l in langs:
         rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
-                            uuid=uuid, uuid_dir=uuid_dir, options = options)
+                            uuid_dir=uuid_dir, options = options)
         res = res and rh and rp
     if lang is None:
         # update only if all languages were recomputed
@@ -149,12 +149,11 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
     metadata.save()
     return res
 
-def  latex_blob(blobs_dir, metadata, lang, uuid=None, uuid_dir=None, options = {}, squash = True):
+def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash = True):
     """ `latex` the blob identified by the `metadata`, for the given language `lang`.
     ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )
     Optionally squashes all sublevels, replacing with \\uuidplaceholder """
-    if uuid is None:
-        uuid = metadata.uuid
+    uuid = metadata.uuid
     if uuid_dir is None:
         uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
     #

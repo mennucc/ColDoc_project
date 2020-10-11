@@ -171,7 +171,7 @@ def postedit(request, NICK, UUID):
             reparse_blob(addfilename, addmetadata, blobs_dir, warn)
             # compile it
             if ext_ == '.tex' and split_environment_ not in environments_we_wont_latex:
-                rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, adduuid, lang, addmetadata)
+                rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, addmetadata)
                 if rh and rp:
                     messages.add_message(request,messages.INFO,'Compilation of new blob succeded')
                 else:
@@ -185,7 +185,7 @@ def postedit(request, NICK, UUID):
     reparse_blob(filename, metadata, blobs_dir, warn)
     #
     if ext_ == '.tex'  and metadata.environ not in environments_we_wont_latex:
-        rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, uuid, lang, metadata)
+        rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, metadata)
         if rh and rp:
             messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
         else:
@@ -250,10 +250,10 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     options['metadata_class'] = DMetadata
     return options
 
-def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, uuid, lang, metadata):
+def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, metadata):
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     from ColDoc import latex   
-    return latex.latex_blob(blobs_dir, metadata, uuid=uuid, lang = lang, options=options)
+    return latex.latex_blob(blobs_dir, metadata, lang, options=options)
 
 def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, uuid, metadata):
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
