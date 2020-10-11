@@ -8,6 +8,19 @@ To test it, you may use the tests in the `test` directory (go there and type `ma
 	  # cd test
 	  # make
 
+For example the commands
+
+.. code:: shell
+
+	  # cd test
+	  # make clean
+	  # make django_deploy
+	  # make django_paper
+	  # make django_run
+
+will create a fully fledged coldoc site accessible at `http://localhost:8000`.
+
+
 
 Blobify
 -------

@@ -33,8 +33,13 @@ Edit it at taste.
 
 
 It will also create an empty settings.py file
-${COLDOC_SITE_ROOT}/settings.py where you may override the values in 
-${COLDOC_SRC_ROOT}/settings.py 
+`${COLDOC_SITE_ROOT}/settings.py` where you may override the values in 
+`${COLDOC_SRC_ROOT}/settings.py`
+
+You may want to setup
+in `${COLDOC_SITE_ROOT}/settings.py` some variables related to the deployed site;
+for example, configuration to send email; as in the example at the bottom of
+:doc:`install <install>`
 
 Social auth
 -----------
@@ -69,7 +74,7 @@ a `social application` in the database, that contains all credentials
 (in the above case, for Google OAuth2).
 
 
-`See docs for more details <https://django-allauth.readthedocs.io/en/latest/index.html>`_
+`See django-allauth docs for more details <https://django-allauth.readthedocs.io/en/latest/index.html>`_
 
 Moreover you may need to setup the Django smtp machinery, to send emails
 (emails are sent automatically to verify emails addresses or reset passwords).
