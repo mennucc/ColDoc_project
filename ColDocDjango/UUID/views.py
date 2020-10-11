@@ -223,6 +223,14 @@ def postmetadataedit(request, NICK, UUID):
     #
     form.save()
     messages.add_message(request,messages.INFO,'Changes saved')
+    #
+    from ColDoc.latex import environments_we_wont_latex
+    if ext_ =='.tex'  and metadata.environ not in environments_we_wont_latex:
+        ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, uuid, metadata)
+        if ret :
+            messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
+        else:
+            messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
     return index(request, NICK, UUID)
 
 def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
