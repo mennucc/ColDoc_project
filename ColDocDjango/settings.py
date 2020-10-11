@@ -206,6 +206,15 @@ STATICFILES_DIRS = [
 ]
 
 
+try:
+    from ColDocDjango.settings_local import *
+    logger.debug('loaded settings_local')
+except ImportError:
+    pass
+except:
+    logger.warning("Error importing ColDocDjango.settings_local")
+
+
 if COLDOC_SITE_ROOT is None:
     logger.debug('Environ COLDOC_SITE_ROOT not set')
 else:
