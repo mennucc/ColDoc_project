@@ -225,7 +225,7 @@ def postmetadataedit(request, NICK, UUID):
     messages.add_message(request,messages.INFO,'Changes saved')
     return index(request, NICK, UUID)
 
-def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, uuid, lang, metadata):
+def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc)
     #
@@ -240,9 +240,18 @@ def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, uuid, lang, metadata):
         return squash_helper_ref(coldoc, *v, **k)
     options["squash_helper"] = foobar
     options['metadata_class'] = DMetadata
-    #
-    from ColDoc import latex
+    return options
+
+def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, uuid, lang, metadata):
+    options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
+    from ColDoc import latex   
     return latex.latex_blob(blobs_dir, metadata, uuid=uuid, lang = lang, options=options)
+
+def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, uuid, metadata):
+    options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
+    from ColDoc import latex   
+    return latex.latex_uuid(blobs_dir, uuid, metadata=metadata, options=options)
+
 
 ###############################################################
 
