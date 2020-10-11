@@ -30,6 +30,10 @@ class MetadataForm(ModelForm):
     class Meta:
         model = DMetadata
         fields = ['author', 'access', 'environ','optarg','latex_documentclass_choice']
+    # record these values from submitter
+    uuid_  = forms.CharField(widget=forms.HiddenInput())
+    ext_  = forms.CharField(widget=forms.HiddenInput())
+    lang_ = forms.CharField(widget=forms.HiddenInput(),required = False)    
 
 ###############################################################
 
@@ -207,6 +211,16 @@ def postmetadataedit(request, NICK, UUID):
     #
     if not form.is_valid():
         return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
+    #
+    uuid_ = form.cleaned_data['uuid_']
+    lang_ = form.cleaned_data['lang_']
+    ext_ = form.cleaned_data['ext_']
+    if uuid != uuid_ :
+        logger.error('Hacking attempt %r',request.META)
+        raise SuspiciousOperation('UUID Mismatch')
+    if metadata.get('extension') != [ext_]  :
+        messages.add_message(request,messages.WARNING,'Internal problem, check the metadata again %r != %r' %([ext_], metadata.extension))
+    #
     form.save()
     messages.add_message(request,messages.INFO,'Changes saved')
     return index(request, NICK, UUID)
@@ -560,7 +574,7 @@ def index(request, NICK, UUID):
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
     #
-    metadataform = MetadataForm(instance=metadata)
+    metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':lang, })
     metadataform.htmlid = "id_form_metadataform"
     if '.tex' not in metadata.get('extension'):
         metadataform.fields['environ'].widget.attrs['readonly'] = True
