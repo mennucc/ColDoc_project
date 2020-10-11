@@ -82,6 +82,7 @@ $(COLDOC_SITE_ROOT)/.__deployed_timestamp:
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT)  deploy
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  makemigrations
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  migrate
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT)  set_site
 	# this is not really used since `manage.py runserver` ignores the static_root directory
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  collectstatic
 	cd $(COLDOC_SITE_ROOT)/static_local &&  cp -a ../static_root/* .
