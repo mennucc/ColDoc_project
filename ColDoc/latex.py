@@ -483,9 +483,10 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
     #
     extensions = ColDoc.config.ColDoc_pdflatex_fakemain_preserve_extensions
     #
-    for e in extensions:
-        if e not in ('.tex','.aux','.bbl') and os.path.exists(fake_abs_name+e):
-            logger.warning('Overwriting: %r',fake_abs_name+e)
+    ## dunno what this may be useful for
+    #for e in extensions:
+    #    if e not in ('.tex','.aux','.bbl') and os.path.exists(fake_abs_name+e):
+    #        logger.warning('Overwriting: %r',fake_abs_name+e)
     #
     engine = options.get('latex_engine','pdflatex')
     logger.debug('Using engine %r',engine)
