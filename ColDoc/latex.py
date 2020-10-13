@@ -11,8 +11,11 @@ Command help:
     tree
        convert all the blobs in BLOBS_DIR, starting from --uuid=UUID
 
-    main
-       convert the whole document
+    main_public
+       compile the whole document, for the general public
+
+    main_private
+       compile the whole document, including protected material, visible to the editors
 
     all
        all of the above
@@ -688,9 +691,9 @@ def main_by_args(args,options):
         ret = latex_uuid(blobs_dir,UUID,lang=lang, options=options)
     elif argv[0] == 'tree':
         ret = latex_tree(blobs_dir,UUID, options=options)
-    elif argv[0] == 'main':
+    elif argv[0] == 'main_private':
         ret = latex_main(blobs_dir, uuid=UUID, options=options, access='private')
-    elif argv[0] == 'anon':
+    elif argv[0] == 'main_public':
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False,
                                                   metadata_class=ColDoc.utils.FMetadata)
         if anon_dir is not None:
