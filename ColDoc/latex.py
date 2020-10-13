@@ -75,6 +75,7 @@ environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_preamble
                                'usepackage', 'bibliography' )
 
 standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
+%(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
 \usepackage{ColDocUUID}
@@ -86,6 +87,7 @@ standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 """
 
 preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s}
+%(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
 \usepackage{hyperref}
@@ -101,6 +103,7 @@ preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s
 ##%\usepackage[active]{preview}
 
 plastex_template=r"""\documentclass{article}
+%(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
 \usepackage{hyperref}
@@ -180,6 +183,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
          'width':'4in',
          'begin':'','end':'',
          'url_UUID' : options['url_UUID'],
+         'latex_macros' : options.get('latex_macros',metadata.coldoc.latex_macros_uuid),
          }
     #
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
@@ -294,8 +298,10 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
     #
     if access =='public':
         options['plastex_theme'] = 'blue'
+        latex_macros = metadata.coldoc.latex_macros_public
     else:
         options['plastex_theme'] = 'green'
+        latex_macros = metadata.coldoc.latex_macros_private
     if lang is not None:
         langs=[lang]
     else:
@@ -323,6 +329,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
         if not(preamble):
             logger.warning(r" cannot locate '\begin{document}' ") 
         if True:
+            preamble = [latex_macros] + preamble
             import re
             r = re.compile(r'\\usepackage{ColDocUUID}')
             if not any(r.match(a) for a in preamble):
