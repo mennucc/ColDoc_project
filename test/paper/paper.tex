@@ -1,3 +1,7 @@
+% !TeX TS-program = pdflatex
+% !TeX encoding = UTF-8
+% !TeX spellcheck = en_US
+
 \documentclass[a4paper]{article}
 
 %%%%%%%%% early packages that for some reason must be loaded before
@@ -70,6 +74,9 @@ The introduction
   \iftutex Using \texttt{XeTeX} or \texttt{LuaTeX} \fi ;
   \ifplastex Using \texttt{plasTeX} \fi .
 
+  \ifColDocPublic Public \else Private \fi
+  version, compiled
+  \ifColDocOneUUID only this UUID \else as a whole \fi
 \end{abstract}
 
 Stress test  \texttt{plasTeX} embedding \texttt{HTML}
@@ -92,3 +99,8 @@ BBM test for bold ``1''
 \bibliography{subdir/paper}
 
 \end{document}
+  
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
