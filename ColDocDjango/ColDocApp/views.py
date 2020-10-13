@@ -122,15 +122,13 @@ def latex(request, NICK):
     from ColDoc.latex import latex_main
     ret = False
     if typ_ == 'main':
-        options['plastex_theme'] = 'green'
-        ret = latex_main(blobs_dir, uuid=coldoc.root_uuid, options=options)
+        ret = latex_main(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private')
     else:
-        options['plastex_theme'] = 'blue'
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
                                              metadata_class=ColDoc.utils.FMetadata)
         if anon_dir is not None:
             assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
-            ret = latex_main(anon_dir, uuid=coldoc.root_uuid, options=options)
+            ret = latex_main(anon_dir, uuid=coldoc.root_uuid, options=options, access='public')
         else:
             messages.add_message(request,messages.WARNING,'Anon tree failed')
     if ret:

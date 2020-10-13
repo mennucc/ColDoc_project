@@ -277,9 +277,10 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     metadata.save()
     return rh, rp
 
-def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
+def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
     "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
     #
+    assert access in ('public','private')
     assert isinstance(blobs_dir, (str, pathlib.Path)), blobs_dir
     assert os.path.isdir(blobs_dir)
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
@@ -288,6 +289,10 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}):
                                               metadata_class= options['metadata_class'])
     environ = metadata.environ
     #
+    if access =='public':
+        options['plastex_theme'] = 'blue'
+    else:
+        options['plastex_theme'] = 'green'
     if lang is not None:
         langs=[lang]
     else:
@@ -684,25 +689,22 @@ def main_by_args(args,options):
     elif argv[0] == 'tree':
         ret = latex_tree(blobs_dir,UUID, options=options)
     elif argv[0] == 'main':
-        ret = latex_main(blobs_dir, uuid=UUID, options=options)
+        ret = latex_main(blobs_dir, uuid=UUID, options=options, access='private')
     elif argv[0] == 'anon':
-        options['plastex_theme'] = 'blue'
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False,
                                                   metadata_class=ColDoc.utils.FMetadata)
         if anon_dir is not None:
-            ret = latex_main(anon_dir, uuid=UUID, options=options)
+            ret = latex_main(anon_dir, uuid=UUID, options=options, access='public')
         else:
             ret = False
     elif argv[0] == 'all':
-        options['plastex_theme'] = 'green'
-        ret = latex_main(blobs_dir, uuid=UUID, options=options)
+        ret = latex_main(blobs_dir, uuid=UUID, options=options, access='private')
         ret &= latex_tree(blobs_dir,UUID, options=options)
-        options['plastex_theme'] = 'blue'
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
                                                  metadata_class=ColDoc.utils.FMetadata)
         if anon_dir is not None:
             assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
-            ret &= latex_main(anon_dir, uuid=UUID, options=options)
+            ret &= latex_main(anon_dir, uuid=UUID, options=options, access='public')
         else:
             ret = False
     else:
