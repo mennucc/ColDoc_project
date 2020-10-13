@@ -6,10 +6,10 @@ cmd_help="""
 Command help:
 
     blob
-       convert the blob --uuid=UUID in BLOBS_DIR,
+       compile the blob(s) with --uuid=UUID,
     
     tree
-       convert all the blobs in BLOBS_DIR, starting from --uuid=UUID
+       compile all the blobs starting from --uuid=UUID
 
     main_public
        compile the whole document, for the general public

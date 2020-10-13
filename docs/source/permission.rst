@@ -33,6 +33,9 @@ True, and the blob the UUID `access` state is `open` or `public`.
 
 This is the Permissions meaning and rule for each `UUID`.
 
+(Recall that each UUID has an `access` metadata that can be
+`open` , `public` or `private`.)
+
 - `view_view` : permission to  view a a `view` (a representation of the blob, as a html or PDF).
   If the UUID `access` state is
 
@@ -50,6 +53,20 @@ This is the Permissions meaning and rule for each `UUID`.
   - `private` or `public` , it is granted to the author or any user with `view_blob` permission
 
 - `view_log` : permission to  view logs created by `LaTeX` `and plastex`
+
+Access to protected content in the whole document
+-------------------------------------------------
+
+As aforementioned, the LaTeX data is stored on disk inside a `blobs`
+directory tree.
+
+Two versions of the whole document are generated, one from the `blobs` tree,
+and in this case the generate document (HTML or PDF) will contain all the material:
+this is the `private` version of the document.
+
+Another version is from the `anon` tree.  The `anon` tree is automatically
+generated as a copy of the `blobs` tree where all material with `access` set to `private`
+will be masked out. This is the `public` version of the whole document.
 
 LaTeX macros
 ------------
@@ -74,16 +91,22 @@ the web interface will make sure that only authorized users can access the conte
 
 The value of these macros can be used to trigger different behaviours in the preamble
 and in the document.
+
+
+Accessing the whole document
 ----------------------------
 
 If the user is not an `editor`, then
 the content served from the buttons `View whole document` and  `View whole document, as PDF`
-is compiled from an `anon` tree where all protected content is masked out,
-so that the generic user will not see the protected content; indeed it is
+is compiled from the `anon` tree:
+so that the generic user will not see the protected content.
+Note that an user that is an `author` but not an `editor`
+will not see the protected content in the whole document: indeed it is
 not sensible to generate different whole document representations
 for each and any user.
 
-Insted when the user accessing it is an `editor` then the content will all be visible;
+Insted when the user accessing it is an `editor` then the content
+compiled from the `main` tree will be used, so it will all be visible;
 note that in this case the HTML pages use a green theme, to distinguish.
 
 
