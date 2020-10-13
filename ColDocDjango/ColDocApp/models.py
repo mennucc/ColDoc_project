@@ -27,7 +27,7 @@ def _(s):
 
 from ColDoc.utils import uuid_to_int, int_to_uuid, uuid_check_normalize, uuid_valid_symbols
 from ColDoc.latex import ColDoc_latex_engines
-import ColDoc.config
+import ColDoc.config as CC
 
 from ColDocDjango.users import permissions_for_coldoc_extra
 
@@ -104,7 +104,7 @@ class UUID_Field(models.IntegerField):
 COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 
 def validate_coldoc_nickname(value):
-    if value in ColDoc.config.ColDoc_invalid_nickname :
+    if value in CC.ColDoc_invalid_nickname :
         raise ValidationError(
             _('Please do not use %(value)s as nickname, it may generate confusion'),
             params={'value': value},
@@ -148,6 +148,15 @@ class DColDoc(models.Model):
     def latex_time_update(self, default=None):
         if default is None: default=DT.now()
         self.latex_time = default
+    #
+    # see description in the `permission` section of the documentation
+    latex_macros_private = models.TextField(max_length=1000, blank=True,
+                                            default=CC.ColDoc_latex_macros_private)
+    latex_macros_public = models.TextField(max_length=1000, blank=True,
+                                            default=CC.ColDoc_latex_macros_public)
+    latex_macros_uuid = models.TextField(max_length=1000, blank=True,
+                                            default=CC.ColDoc_latex_macros_uuid)
+    #
     # blank means that no error occoured
     latex_return_codes = models.CharField(max_length=2000, blank=True)
     #

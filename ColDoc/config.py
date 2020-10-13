@@ -85,3 +85,8 @@ ColDoc_anon_keep_extensions = ColDoc_pdflatex_fakemain_reuse_extensions + ['.pau
 # Logs that can be served to users with 'view_log' permission
 ColDoc_allowed_logs = ['.aux','.log','.out','.toc','.idx','.bbl', '.blg', '.fls', '_plastex.bbl', '_plastex.log', '_plastex.stdout']
 
+# defaults for the values in the DColDoc
+# see description in the `permission` section of the documentation
+ColDoc_latex_macros_private = '\\newif\\ifColDocPublic\\ColDocPublicfalse\n\\newif\\ifColDocOneUUID\\ColDocOneUUIDfalse\n'
+ColDoc_latex_macros_public  = '\\newif\\ifColDocPublic\\ColDocPublictrue \n\\newif\\ifColDocOneUUID\\ColDocOneUUIDfalse\n'
+ColDoc_latex_macros_uuid    = '\\newif\\ifColDocPublic\\ColDocPublicfalse\n\\newif\\ifColDocOneUUID\\ColDocOneUUIDtrue\n'

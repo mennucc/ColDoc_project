@@ -51,7 +51,29 @@ This is the Permissions meaning and rule for each `UUID`.
 
 - `view_log` : permission to  view logs created by `LaTeX` `and plastex`
 
-Protecting protected content
+LaTeX macros
+------------
+
+In the coldoc metadata there are three keys: `latex_macros_private`,  `latex_macros_public`
+and  `latex_macros_uuid`.
+
+When compiling the `private whole document` the  `latex_macros_private` is automatically insert just after
+the `documentclass` ; the  `latex_macros_public` when compiling  `public whole document`;
+the `latex_macros_uuid` when compiling one single blob in one UUID
+
+The defaults are:
+
+-  `latex_macros_private` defaults to `\newif\ifColDocPublic\ColDocPublicfalse \newif\ifColDocOneUUID\ColDocOneUUIDfalse`
+
+-  `latex_macros_public` defaults to `\newif\ifColDocPublic\ColDocPublictrue  \newif\ifColDocOneUUID\ColDocOneUUIDfalse`
+
+-  `latex_macros_uuid` defaults to `\newif\ifColDocPublic\ColDocPublicfalse  \newif\ifColDocOneUUID\ColDocOneUUIDtrue`
+
+Note that `\ifColDocPublicfalse` is used when compiling each single blob by itself: this makes sense since in this case
+the web interface will make sure that only authorized users can access the content.
+
+The value of these macros can be used to trigger different behaviours in the preamble
+and in the document.
 ----------------------------
 
 If the user is not an `editor`, then
