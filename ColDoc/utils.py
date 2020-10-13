@@ -28,7 +28,8 @@ from ColDoc.config import *
 from ColDoc.classes import MetadataBase
 
 
-__all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir",
+__all__ = ( "slugify", "slug_re", "slugp_re",
+            "absdict", "FMetadata", "uuid_to_dir",
             "dir_to_uuid", "file_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid",
             "new_uuid", "backtrack_uuid",
