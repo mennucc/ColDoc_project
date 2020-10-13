@@ -319,18 +319,19 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
         fake_abs_name = os.path.join(blobs_dir, fake_name)
         #
         a = os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex')
-        f = open(a).read()
-        # FIXME should check in preamble
-        try:
-            j = f.index(r'\begin{document}')
-        except:
-            logger.exception(r" cannot locate '\begin{document}' ") 
-        else:
-            if not r'\usepackage{ColDocUUID}' in f:
-                f = f[:j] + r'\usepackage{ColDocUUID}' + f[j:]
+        prologue, preamble, body, epilogue = ColDoc.utils.split_blob(open(a))
+        if not(preamble):
+            logger.warning(r" cannot locate '\begin{document}' ") 
+        if True:
+            import re
+            r = re.compile(r'\\usepackage{ColDocUUID}')
+            if not any(r.match(a) for a in preamble):
+                preamble += ['\\usepackage{ColDocUUID}\n']
                 logger.info(r" adding \usepackage{ColDocUUID}")
-            f_pdf = f[:j] + (r'\def\uuidbaseurl{%s}'%(options['url_UUID'],)) + f[j:]
-            f_html = f[:j] + (r'\def\uuidbaseurl{%s}'%(ColDoc.config.ColDoc_url_placeholder,)) + f[j:]
+            a = (r'\def\uuidbaseurl{%s}'%(options['url_UUID'],)+'\n')
+            f_pdf = ''.join(prologue + preamble + [a] + body + epilogue)
+            a = (r'\def\uuidbaseurl{%s}'%(ColDoc.config.ColDoc_url_placeholder,)+'\n')
+            f_html = ''.join(prologue + preamble + [a] + body + epilogue)
         #
         open(fake_abs_name+'.tex','w').write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
