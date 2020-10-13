@@ -38,6 +38,7 @@ __all__ = ( "slugify", "slug_re", "absdict", "FMetadata", "uuid_to_dir",
             "metadata_html_items",
             'prepare_anon_tree',
             'json_to_dict', 'dict_to_json', 'dict_save_or_del',
+            'split_blob',
             )
 
 class ColDocException(Exception):
@@ -882,6 +883,60 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
                 metadata.add(key,value)
     metadata.save()
 
+############################
+
+re_document_class = re.compile(r'^[ \t]*\\documentclass')
+re_document = re.compile(r'^[ \t]*\\begin{document}')
+re_uuid = re.compile(r'^[ \t]*\\uuid')
+re_comment = re.compile(r'^[ \t]*%')
+re_emptyline = re.compile(r'^[ \t]*$')
+re_section = re.compile(r'^[ \t]*\\section')
+
+def split_blob(blob):
+    " split LaTeX document in prologue, preamble, body, epilogue "
+    if isinstance(blob,str):
+        blob = blob.splitlines(keepends = True)
+    if isinstance(blob, (tuple,list)):
+        blob = iter(blob)
+    prologue = []
+    preamble = []
+    body = []
+    epilogue = []
+    try:
+        while True:
+            a = next(blob)
+            if re_comment.match(a) or re_emptyline.match(a):
+                prologue.append(a)
+            else:
+                break
+        if re_document_class.match(a) or re_uuid.match(a) or re_section.match(a):
+            try:
+                i = a.index('}')
+                prologue.append(a[:(i+1)])
+                if re_document_class.match(a):
+                    preamble.append(a[(i+1):])
+                else:
+                    prologue.append(a[(i+1):])
+            except ValueError:
+                logger.warning('No "}" in %r',a)
+                prologue.append(a)
+        else:
+            body.append(a)
+        while True:
+            body.append(next(blob))
+    except StopIteration:
+        pass
+    while body and ( re_comment.match( body[-1]) or re_emptyline.match( body[-1]) ):
+        epilogue.insert(0,body.pop())
+    j = [bool(re_document.match(j)) for j in body]
+    if any(j):
+        if not preamble:
+            logger.warning('\\documentclass without \\begin{document}')
+        i = j.index(True)
+        preamble += body[:(i)]
+        body = body[(i):]
+    return prologue, preamble, body, epilogue
+
 
 ############################
 if __name__ == '__main__':
@@ -907,11 +962,35 @@ if __name__ == '__main__':
         logging.getLogger().setLevel(0)
         r = prepare_anon_tree(sys.argv[2])
         print('Copied %d'%(r,))
+    elif len(sys.argv) > 1 and sys.argv[1] == 'split_blob':
+        F = (sys.argv[2]) if (len(sys.argv) > 2) else os.path.join(os.path.dirname(sys.argv[0]),'../test/paper/paper.tex')
+        p,r,b,e = split_blob(open(F))
+        if '-v' in sys.argv:
+            print('prologue\n> ',end='')
+            print('> '.join(p))
+            print('preamble\n> ',end='')
+            print('> '.join(r))
+            print('body\n> ',end='')
+            print('> '.join(b))
+            print('epilogue\n> ',end='')
+            print('> '.join(e))
+        s = ''
+        for j in p,r,b,e:
+            s += ''.join(j)
+        import tempfile
+        t = tempfile.NamedTemporaryFile(delete=False)
+        t.write(s.encode())
+        t.close()
+        r = os.system('diff -us %r %r'%(t.name,F))
+        os.unlink(t.name)
+        sys.exit(r)
     else:
         print(""" Commands:
 %s test_uuid
   
   prepare_anon coldoc_dir
+
+  split_blob FILENAME
 """ % (sys.argv[0],))
 
 
