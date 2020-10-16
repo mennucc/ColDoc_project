@@ -140,6 +140,13 @@ class BaseColDocUser():
     @property
     def is_author(self):
         return False
+    #
+    @property
+    def pretty_user_name(self):
+        if self.first_name or self.last_name:
+            return self.last_name + ' , ' + self.first_name
+        return self.username
+    
 
 
 class ColDocUser(AbstractUser, BaseColDocUser):

@@ -70,7 +70,7 @@
        {% for  u in MA %} {{ u }} ; {% endfor %}
       {% endwith %}
       {% with metadata.author.all as A %}
-       {% for  u in A %}  {{ u.username }} {% if u == A.last %} . {% else %} ; {% endif %} {% endfor %}
+       {% for  u in A %}  {{ u.pretty_user_name }} {% if u == A.last %} . {% else %} ; {% endif %} {% endfor %}
       {% endwith %}
       </div>
       {% if latex_error_logs %}
