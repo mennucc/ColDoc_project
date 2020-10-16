@@ -64,6 +64,15 @@
      {% if pdfurl %}
       <a href="{{ pdfurl }}" class="btn btn-outline-primary btn-sm">Download PDF</a><br>
       {% endif %}
+      <div class="border border-info mt-2">
+      Authors:
+      {% with metadata.M_author as MA %}
+       {% for  u in MA %} {{ u }} ; {% endfor %}
+      {% endwith %}
+      {% with metadata.author.all as A %}
+       {% for  u in A %}  {{ u.username }} {% if u == A.last %} . {% else %} ; {% endif %} {% endfor %}
+      {% endwith %}
+      </div>
       {% if latex_error_logs %}
         <div class="border border-info mt-2">
        There were errors while compiling

@@ -342,6 +342,15 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     #
     def htmlitems(self):
         return coldoc_utils.metadata_html_items(self, self.coldoc.nickname)
+    #
+    def M_author(self):
+        for j in ExtraMetadata.objects.filter(blob=self, key='M_author').values_list('value', flat=True):
+            j = j.strip()
+            if j and j[0] == '{': j=j[1:]
+            if j and j[-1] == '}': j=j[:-1]
+            #if ',' in j
+            if j:
+                yield j
 
 class ExtraMetadata(models.Model):
     blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)
