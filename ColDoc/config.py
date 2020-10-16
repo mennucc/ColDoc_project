@@ -30,11 +30,11 @@ ColDoc_show_as_text = ('.tex', '.sty', '.bbl', '.bib')
 ColDoc_write_UUID = 'auto'
 
 # list of environments that are not coming from  \begin....\end statements
-ColDoc_environments = ('main_file','preamble','input','include','input_preamble','include_preamble',
+ColDoc_environments = ('main_file','preamble','input','include','input_preamble',
                        'usepackage','bibliography','section','paragraph')
 
 # see description of `ColDoc_write_UUID`
-ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble','include_preamble',
+ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble',
                                'usepackage','bibliography')
 
 # cannot add children to these environments in an existing coldoc
