@@ -43,6 +43,21 @@ ColDoc_cant_add_children_to_environments =  'main_file','usepackage','bibliograp
 
 # cannot add begin/end children to these environments in an existing coldoc
 ColDoc_cant_add_begin_end_children_to_environments =  'main_file','preamble','input_preamble','include_preamble','usepackage','bibliography','paragraph'
+# structure of the blob tree, 'E_*' is any begin...end , but for E_document
+ColDoc_environments_parent_child = {
+    'main_file' : ('preamble','E_document'),
+    'preamble' : ('input_preamble','usepackage'),
+    'input_preamble' : ('input_preamble','usepackage'),
+    'input' : ('section','paragraph','E_*'),
+    'include' : ('section','paragraph','E_*'),
+    'usepackage' : (),
+    'bibliography': (),
+    'section' : ('input','paragraph','E_*'),
+    'paragraph' : (),
+    'E_document' : ('','input','paragraph','E_*'),
+    'E_*' : ('input','paragraph','E_*'),
+    }
+
 
 # cannot be added as children in an existing coldoc
 ColDoc_environments_cant_be_added_as_children =  ('main_file','E_document','preamble')
