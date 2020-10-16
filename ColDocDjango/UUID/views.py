@@ -144,7 +144,7 @@ def postedit(request, NICK, UUID):
     new_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     if file_md5 != new_file_md5:
         messages.add_message(request,messages.ERROR, "The file was changed on disk before this commit: commit aborted")
-        return index(request, NICK, UUID)
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_))
     #
     # convert to UNIX line ending 
     import re
@@ -193,7 +193,7 @@ def postedit(request, NICK, UUID):
             messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
         else:
             messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
-    return index(request, NICK, UUID)
+    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_))
 
 def postmetadataedit(request, NICK, UUID):
     if request.method != 'POST' :
@@ -243,7 +243,7 @@ def postmetadataedit(request, NICK, UUID):
             messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
         else:
             messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
-    return index(request, NICK, UUID)
+    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID})  + '?lang=%s&ext=%s'%(lang_,ext_))
 
 def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     from ColDoc.latex import prepare_options_for_latex
