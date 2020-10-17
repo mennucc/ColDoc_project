@@ -619,7 +619,7 @@ def index(request, NICK, UUID):
     if parent_metadata is not None:
         choices = teh.list_allowed_choices(parent_metadata.environ, metadata.get('extension'))
     else:
-        choices = ('main_file','main_file')
+        choices = [('main_file','main_file')]
     # useless
     metadataform.fields['environ'].choices = choices
     # useful
