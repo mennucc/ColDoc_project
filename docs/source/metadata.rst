@@ -53,6 +53,9 @@ already present as default into `blob_inator`.
 
 - `paragraph` is used for long paragraphs of text (as specified by the `--split-paragraph` option)
 
+- `graphic_file` is used for blobs containing images (usually inserted using `\\includegraphics`
+    or other commands specified with the option `--split-graphic` of `blob_inator`)
+
 Metadata key list
 -----------------
 

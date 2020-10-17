@@ -31,6 +31,7 @@ ColDoc_write_UUID = 'auto'
 
 # list of environments that are not coming from  \begin....\end statements
 ColDoc_environments = ('main_file','preamble','input','include','input_preamble',
+                       'graphic_file',
                        'usepackage','bibliography','section','paragraph')
 
 # see description of `ColDoc_write_UUID`
@@ -48,14 +49,14 @@ ColDoc_environments_parent_child = {
     'main_file' : ('preamble','E_document'),
     'preamble' : ('input_preamble','usepackage'),
     'input_preamble' : ('input_preamble','usepackage'),
-    'input' : ('section','paragraph','E_*'),
-    'include' : ('section','paragraph','E_*'),
+    'input' : ('section','paragraph','graphic_file','E_*'),
+    'include' : ('section','paragraph','graphic_file','E_*'),
     'usepackage' : (),
     'bibliography': (),
-    'section' : ('input','paragraph','E_*'),
+    'section' : ('input','paragraph','graphic_file','E_*'),
     'paragraph' : (),
-    'E_document' : ('','input','paragraph','E_*'),
-    'E_*' : ('input','paragraph','E_*'),
+    'E_document' : ('include','input','section','graphic_file','paragraph','E_*'),
+    'E_*' : ('input','paragraph','graphic_file','E_*'),
     }
 
 

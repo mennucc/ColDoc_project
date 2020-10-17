@@ -860,6 +860,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         m.add('original_filename', inputfile)
                         m.add('original_command', src)
                         m.add('parent_uuid',stack.topstream.uuid)
+                        m.add('environ','graphic_file')
                         m.add('extension',os.path.splitext(inputfile)[1])
                         m.save()
                         logger.warning("duplicate graphical input, copied once: %r", inputfile)
@@ -895,6 +896,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         fm.uuid = uuid
                         fm.add('original_filename', inputfile)
                         fm.add('original_command', src)
+                        fm.add('environ','graphic_file')
                         fm.add('parent_uuid', stack.topstream.uuid)
                         # will load the same extension, if specified
                         stack.topstream.write(cmd+'{'+fo+ei+'}')
