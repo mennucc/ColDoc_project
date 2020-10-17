@@ -977,7 +977,7 @@ class tree_environ_helper(object):
         if parent.startswith('E_') and parent != 'E_document':
             parent = 'E_*'
         self._parent = parent
-        logger.warning('parent coded as %r',parent)
+        logger.debug('parent coded as %r',parent)
     #
     def child_is_allowed(self, child, parent=None):
         """ checks if the environ `child` can be child of `parent`
