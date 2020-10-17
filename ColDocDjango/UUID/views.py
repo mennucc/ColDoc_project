@@ -509,7 +509,7 @@ def index(request, NICK, UUID):
             except:
                 logger.exception('cannot find E_document')
             html+='<ul>'
-            for b in DMetadata.objects.filter(coldoc=NICK):
+            for b in DMetadata.objects.filter(coldoc=NICK, extension='.tex\n'):
                 try:
                     e_ = b.environ
                     if e_ in ColDoc.latex.environments_we_wont_latex or \
