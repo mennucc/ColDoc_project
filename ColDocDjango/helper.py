@@ -157,10 +157,6 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     with open(f) as a:
         blobinator_args = json.load(a)
     #
-    if environ in CC.ColDoc_environments_cant_be_added_as_children:
-        a="Cannot add a child with environ %r"%environ
-        logger.error(a)
-        return False, a, None
     if environ[:2] == 'E_':
         if environ[2:] not in (blobinator_args['split_environment'] + blobinator_args['split_list']):
             a = 'The environ %r was never splitted when the document was first created '%environ
@@ -200,16 +196,16 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         logger.error(a)
         return False, a, None
     #
+    from ColDoc.utils import tree_environ_helper
     parent_environ = parent_metadata.environ
-    if parent_environ in CC.ColDoc_cant_add_children_to_environments:
-        a="Cannot add a new child to a blob that has environ=%r " % parent_environ
+    teh = tree_environ_helper(parent = parent_environ, blobs_dir = blobs_dir)
+    if not teh.child_is_allowed(environ):
+        if environ[:2] == 'E_':
+            a="Cannot add a \\begin{%s}..\\end{%s} to a blob that has environ=%r " % (environ[2:],environ[2:],parent_environ)
+        else:
+            a="Cannot add a child with environ %r to a parent with environ %r"% (parent_environ, environ)
         logger.error(a)
         return False, a, None
-    if parent_environ in CC.ColDoc_cant_add_begin_end_children_to_environments and environ[:2] == 'E_':
-        a="Cannot add a \\begin{%s}..\\end{%s} to a blob that has environ=%r " % (environ[2:],environ[2:],parent_environ)
-        logger.error(a)
-        return False, a, None
-    #
     #
     #from ColDocDjango.users import user_has_perm
     user.associate_coldoc_blob_for_has_perm(parent_metadata.coldoc, parent_metadata)
@@ -334,6 +330,10 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     " returns `problems`, a list of problems found in tree"
     # TODO implement some tree check regarding `lang`
     #
+    from functools import partial
+    from ColDoc.utils import recurse_tree
+    from ColDocDjango.UUID.models import DMetadata
+    #
     from ColDoc.utils import slug_re
     assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
     assert ((isinstance(lang,str) and slug_re.match(lang)) or lang is None), lang
@@ -343,9 +343,14 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     #
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     #
+    from ColDoc.utils import tree_environ_helper
+    teh = tree_environ_helper(blobs_dir=blobs_dir)
+    #
     from ColDocDjango.ColDocApp.models import DColDoc
     coldoc = list(DColDoc.objects.filter(nickname = coldoc_nick))
     coldoc = coldoc[0]
+    #
+    load_by_uuid = partial(DMetadata.load_by_uuid, coldoc=coldoc)
     #
     from ColDocDjango.UUID.models import DMetadata
     #
@@ -357,7 +362,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     for metadata in DMetadata.objects.filter(coldoc = coldoc):
         available.add( metadata.uuid)
         all_metadata[metadata.uuid] = metadata
-    def actor(seen, available, warn, problems, uuid, branch, *v , **k):
+    def actor(teh, seen, available, warn, problems, uuid, branch, *v , **k):
         if uuid in branch:
             warn("loop detected along branch %r",branch)
             problems.append(("LOOP", branch + [uuid]))
@@ -372,11 +377,18 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             ret = False
             warn("already deleted from queue %r" % uuid)
         seen.add(uuid)
+        if len(branch) > 1:
+            c = load_by_uuid(branch[-1])
+            p = load_by_uuid(branch[-2])
+            if not teh.child_is_allowed(c.environ, p.environ):
+                problems.append(("WRONG_LINK", p.environ, c.environ))
+                warn("The node %r %r cannot be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ))
+                ret = False
+            #else:
+            #    warn("The node %r %r can be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ))                
         return ret
-    from ColDoc.utils import recurse_tree
-    from ColDocDjango.UUID.models import DMetadata
-    from functools import partial
-    action = partial(actor, seen=seen, available=available, warn=warn, problems=problems)
+    #
+    action = partial(actor, teh=teh, seen=seen, available=available, warn=warn, problems=problems)
     ret = recurse_tree(coldoc, blobs_dir, all_metadata, action=action)
     if available:
         a = ("Disconnected nodes %r"%available)
