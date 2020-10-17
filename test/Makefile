@@ -102,6 +102,7 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	./django_tester.py isthere
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 005  --user jsmith --lang it_IT --environ E_itemize add_blob
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 005  --user jsmith --lang it_IT --environ E_privateremark add_blob
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 005  --user jsmith --lang it_IT --environ graphic_file add_blob
 	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID="http://localhost:8000/UUID/paper/" all
 
 # load a latex test in the ColDoc portal
