@@ -199,11 +199,11 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     from ColDoc.utils import tree_environ_helper
     parent_environ = parent_metadata.environ
     teh = tree_environ_helper(parent = parent_environ, blobs_dir = blobs_dir)
-    if not teh.child_is_allowed(environ):
+    if not teh.child_is_allowed(environ, extension=extension):
         if environ[:2] == 'E_':
             a="Cannot add a \\begin{%s}..\\end{%s} to a blob that has environ=%r " % (environ[2:],environ[2:],parent_environ)
         else:
-            a="Cannot add a child with environ %r to a parent with environ %r"% (parent_environ, environ)
+            a="Cannot add a child with environ %r extension %r to a parent with environ %r"% (parent_environ, extension, environ)
         logger.error(a)
         return False, a, None
     #
