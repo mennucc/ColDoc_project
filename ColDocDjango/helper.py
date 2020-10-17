@@ -147,6 +147,16 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     else:
         lang_ = '_'+lang
     #
+    if environ.startswith('E_'):
+        extension = '.tex'
+    elif environ == 'graphic_file':
+        extension = '.png'
+    else:
+        extension = None
+        for k in CC.ColDoc_latex_mime:
+            if environ in CC.ColDoc_latex_mime:
+                extension = k
+    #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
     assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
     #
@@ -237,14 +247,15 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     while not filename:
         new_uuid = utils.new_uuid(blobs_dir=blobs_dir)
         new_dir = utils.uuid_to_dir(new_uuid, blobs_dir=blobs_dir, create=True)
-        filename = osjoin(new_dir,'blob' + lang_ + '.tex')
+        filename = osjoin(new_dir,'blob' + lang_ + extension)
         if os.path.exists( osjoin(blobs_dir, filename) ):
             logger.error(' output exists %r, trying next UUID' % filename)
             filename = None
     #
     child_metadata = metadata_class(coldoc=parent_metadata.coldoc, uuid=new_uuid)
     #child_metadata.add('uuid', new_uuid)
-    child_metadata.add('extension','.tex')
+    if extension is not None:
+        child_metadata.add('extension',extension)
     child_metadata.add('environ',environ)
     if lang is not None:
         child_metadata.add('lang',lang)
@@ -258,6 +269,10 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     placeholder='placeholder'
     parent_file = open(parent_abs_filename).read()
     if selection_start is not None and selection_end != selection_start:
+        if extension is None or environ == 'graphic_file':
+            a=("cannot select region when adding a non-TeX file")
+            logger.error(a)
+            return False, a, None
         placeholder = parent_file[selection_start:selection_end]
     with open(parent_abs_filename,'w') as f:
         if selection_start is None :
@@ -270,16 +285,23 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
             if add_beginend: f.write("\\begin{"+environ[2:]+"}")
             if environ[2:] in blobinator_args['split_list']:
                 f.write("\\item")
-        f.write("\\input{"+filename+"}")
+        if environ == 'graphic_file':
+            f.write("\\includegraphics{"+filename+"}")
+        else: 
+            f.write("\\input{"+filename+"}")
         if environ[:2] == 'E_' and add_beginend:
             f.write("\\end{"+environ[2:]+"}")
         f.write("\n")
         if selection_start is not None :
             f.write(parent_file[selection_end:])
     #
-    with open(osjoin(blobs_dir,filename),'w') as f:
-        f.write("\\uuid{%s}%%\n" % (new_uuid,))
-        f.write(placeholder+'\n')
+    if environ == 'graphic_file':
+        import shutil
+        shutil.copy(osjoin(COLDOC_SRC_ROOT,'ColDocDjango/assets/placeholder.png'),osjoin(blobs_dir,filename))
+    else:
+        with open(osjoin(blobs_dir,filename),'w') as f:
+            f.write("\\uuid{%s}%%\n" % (new_uuid,))
+            f.write(placeholder+'\n')
     #
     # write  the metadata (including, a a text copy in filesytem)
     parent_metadata.save()
@@ -380,7 +402,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
         if len(branch) > 1:
             c = load_by_uuid(branch[-1])
             p = load_by_uuid(branch[-2])
-            if not teh.child_is_allowed(c.environ, p.environ):
+            if not teh.child_is_allowed(c.environ, p.environ, c.get('extension')):
                 problems.append(("WRONG_LINK", p.environ, c.environ))
                 warn("The node %r %r cannot be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ))
                 ret = False
