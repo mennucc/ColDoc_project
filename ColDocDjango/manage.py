@@ -60,4 +60,18 @@ if __name__ == '__main__':
         if j in sys.path:
             logger.warning('del %r from sys.path',j)
             del sys.path[sys.path.index(j)]
+    #
+    a = os.path.realpath(sys.argv[0])
+    a = os.path.dirname(a)
+    a = os.path.dirname(a)
+    assert os.path.isdir(a), a
+    if a not in sys.path:
+        sys.path.insert(0, a)
+    COLDOC_SRC_ROOT=a
+    del a
+    if 'COLDOC_SRC_ROOT' in os.environ and COLDOC_SRC_ROOT != os.environ['COLDOC_SRC_ROOT']:
+        logger.error('Substituting environment COLDOC_SRC_ROOT=% with %r',os.environ('COLDOC_SRC_ROOT'))
+    os.environ['COLDOC_SRC_ROOT'] = COLDOC_SRC_ROOT
+    #
+    #
     main()
