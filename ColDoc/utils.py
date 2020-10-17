@@ -979,9 +979,23 @@ class tree_environ_helper(object):
         self._parent = parent
         logger.debug('parent coded as %r',parent)
     #
-    def child_is_allowed(self, child, parent=None):
+    def child_is_allowed(self, child, parent=None, extension=None):
         """ checks if the environ `child` can be child of `parent`
-         parent=`False` means that there is no parent i.e. child== `main_file` """
+         parent=`False` means that there is no parent i.e. child== `main_file` 
+         `extension` may be a list or tuple of extensions, or a string,
+         it is related to the child
+         """
+        if extension is not None:
+            if isinstance(extension,(list,tuple)):
+                if len(extension) != 1:
+                    logger.debug(' len != 1  %r',extension)
+                    return child == 'graphic_file'
+                extension = extension[0]
+            else:
+                assert isinstance(extension,str)
+            if extension not in ColDoc_latex_mime:
+                logger.debug(' not latex  %r',extension)
+                return child == 'graphic_file'
         if parent is False:
             return child == 'main_file'
         if parent is not None:
@@ -995,18 +1009,37 @@ class tree_environ_helper(object):
                 logger.warning('Should not get this child environ: '+child)
                 return False
             child = 'E_*'
+        if extension in ColDoc_latex_mime and child not in ColDoc_latex_mime[extension]:
+            logger.debug('test link c %r p %r ext %r -> %r'%(child,self._parent,extension,False))
+            return False
         r = child in ColDoc_environments_parent_child[self._parent]
-        logger.debug('test link c %r p %r -> %r'%(child,self._parent,r))
+        logger.debug('test link c %r p %r ext %r -> %r'%(child,self._parent,extension,r))
         return r
     #
-    def iter_allowed_choices(self, parent=None):
+    def iter_allowed_choices(self, parent=None, extension=None):
         if parent is False:
             yield ('main_file','main_file',)
             return
+        if extension is not None:
+            if isinstance(extension,(list,tuple)):
+                if len(extension) != 1:
+                    yield ('graphic_file','graphic_file')
+                    return
+                extension = extension[0]
+            assert isinstance(extension,str)
+            if extension not in ColDoc_latex_mime:
+                yield ('graphic_file','graphic_file')
+                return
+            allowed_by_mime =  ColDoc_latex_mime[extension]
+        else:
+            allowed_by_mime =  True
         if parent is not None:
             self.set_parent(parent)
         assert self._parent is not None , "Call `set_parent` to initialize"
         for child in ColDoc_environments_parent_child[self._parent]:
+            if  allowed_by_mime is not True and (not (child in allowed_by_mime)):
+                logger.debug('not allowed by mime %r %r',child,child)
+                continue
             if child == 'E_*':
                 for z in self.E_choices:
                     logger.debug('allowed %r',z)
@@ -1015,8 +1048,8 @@ class tree_environ_helper(object):
                 yield (child,child)
                 logger.debug('allowed %r %r',child,child)
     #
-    def list_allowed_choices(self, parent=None):
-        return list(self.iter_allowed_choices(parent))
+    def list_allowed_choices(self, parent=None, extension=None):
+        return list(self.iter_allowed_choices(parent,extension))
     #
     def list_allowed_children(self):
         for a,b in self.list_allowed_choices():

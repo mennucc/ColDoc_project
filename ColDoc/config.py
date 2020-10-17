@@ -59,7 +59,14 @@ ColDoc_environments_parent_child = {
     'E_*' : ('input','paragraph','graphic_file','E_*'),
     }
 
-
+# maps extension to environments
+# any extension not listed here is necessarily a `graphic_file`
+ColDoc_latex_mime = {
+    '.tex': ('main_file','preamble','input','include','input_preamble','section','paragraph','E_document','E_thebibliography','E_*'),
+    '.sty': ('usepackage',), 
+    '.bbl': ('E_thebibliography',), # this appears also with '.tex' extension
+    '.bib': ('bibliography',),
+    }
 
 # strips the last lines in blobs if they are all made of whitespace
 ColDoc_blob_rstrip = True
