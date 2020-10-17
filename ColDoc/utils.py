@@ -40,6 +40,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'prepare_anon_tree',
             'json_to_dict', 'dict_to_json', 'dict_save_or_del',
             'split_blob',
+            'tree_environ_helper',
             )
 
 class ColDocException(Exception):
@@ -938,6 +939,99 @@ def split_blob(blob):
         body = body[(i):]
     return prologue, preamble, body, epilogue
 
+############################
+
+class tree_environ_helper(object):
+    " checks some consistencies rules"
+    def __init__(self, blobs_dir, parent=None):
+        self.scan_E(blobs_dir)
+        if parent is not None:
+            self.set_parent(parent)
+        else:
+            self._parent = None
+    #
+    def scan_E(self, blobs_dir):
+        "prepare internal list of begin...end environments, but for `document`"
+        choices = []
+        children = []
+        f = osjoin(blobs_dir, '.blob_inator-args.json')
+        if not os.path.exists(f):
+            logger.error("File of blob_inator args does not exit: %r\n"%(f,))
+        else:
+            with open(f) as a:
+                blobinator_args = json.load(a)
+            for a in (blobinator_args['split_environment'] + blobinator_args['split_list']):
+                if a != 'document':
+                    choices.append(( 'E_'+a , '\\begin{'+a))
+                    children.append('E_'+a)
+        self.E_choices = sorted(choices)
+        self.E_children = sorted(children)
+    #
+    def set_parent(self, parent):
+        " parent=`False` means that there is no parent , the only 'child' can be 'main_file' "
+        if parent is False:
+            self._parent = False
+            return
+        assert isinstance(parent,str)
+        assert parent.startswith('E_') or parent in ColDoc_environments
+        if parent.startswith('E_') and parent != 'E_document':
+            parent = 'E_*'
+        self._parent = parent
+        logger.warning('parent coded as %r',parent)
+    #
+    def child_is_allowed(self, child, parent=None):
+        """ checks if the environ `child` can be child of `parent`
+         parent=`False` means that there is no parent i.e. child== `main_file` """
+        if parent is False:
+            return child == 'main_file'
+        if parent is not None:
+            self.set_parent(parent)
+        else:
+            assert self._parent is not None , "Call `set_parent` to initialize"
+        assert isinstance(child,str)
+        assert child.startswith('E_') or child in ColDoc_environments
+        if child.startswith('E_') and child != 'E_document':
+            if child not in self.E_children:
+                logger.warning('Should not get this child environ: '+child)
+                return False
+            child = 'E_*'
+        r = child in ColDoc_environments_parent_child[self._parent]
+        logger.debug('test link c %r p %r -> %r'%(child,self._parent,r))
+        return r
+    #
+    def iter_allowed_choices(self, parent=None):
+        if parent is False:
+            yield ('main_file','main_file',)
+            return
+        if parent is not None:
+            self.set_parent(parent)
+        assert self._parent is not None , "Call `set_parent` to initialize"
+        for child in ColDoc_environments_parent_child[self._parent]:
+            if child == 'E_*':
+                for z in self.E_choices:
+                    logger.debug('allowed %r',z)
+                    yield z
+            else:
+                yield (child,child)
+                logger.debug('allowed %r %r',child,child)
+    #
+    def list_allowed_choices(self, parent=None):
+        return list(self.iter_allowed_choices(parent))
+    #
+    def list_allowed_children(self):
+        for a,b in self.list_allowed_choices():
+            yield a
+    #
+    def list_all_choices(self):
+        yield ('','')
+        for child in ColDoc_environments:
+            yield (child,child)
+        for z in self.E_choices:
+            yield z
+    #
+    def list_all_children(self):
+        for a,b in self.list_all_choices():
+            yield a
 
 ############################
 if __name__ == '__main__':
