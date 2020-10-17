@@ -34,6 +34,9 @@ ColDoc_environments = ('main_file','preamble','input','include','input_preamble'
                        'graphic_file',
                        'usepackage','bibliography','section','paragraph')
 
+# once assigned, these cannot be changed
+ColDoc_environments_locked =  ('main_file','preamble','E_document','graphic_file',)
+
 # see description of `ColDoc_write_UUID`
 ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble',
                                'usepackage','bibliography')

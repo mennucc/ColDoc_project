@@ -617,7 +617,7 @@ def index(request, NICK, UUID):
     metadataform.fields['environ'].choices = choices
     # useful
     metadataform.fields['environ'].widget.choices = choices
-    if '.tex' not in metadata.get('extension'):
+    if '.tex' not in metadata.get('extension') or env in ColDoc.config.ColDoc_environments_locked:
         metadataform.fields['environ'].widget.attrs['readonly'] = True
         metadataform.fields['optarg'].widget.attrs['readonly'] = True
     return render(request, 'UUID.html', locals() )
