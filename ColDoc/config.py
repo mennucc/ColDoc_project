@@ -35,14 +35,14 @@ ColDoc_environments = ('main_file','preamble','input','include','input_preamble'
                        'usepackage','bibliography','section','paragraph')
 
 # once assigned, these cannot be changed
-ColDoc_environments_locked =  ('main_file','preamble','E_document','graphic_file',)
+ColDoc_environments_locked =  ('main_file','preamble','E_document','graphic_file','bibliography','E_thebibliography','usepackage')
 
 # see description of `ColDoc_write_UUID`
 ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble',
                                'usepackage','bibliography')
 
 
-# structure of the blob tree, 'E_*' is any begin...end , but for E_document
+# structure of the blob tree, 'E_*' is any begin...end , but for E_document and E_thebibliography
 #  `False` means there is no parent. (`False` is short-circuited in most code)
 ColDoc_environments_parent_child = {
     False : ('main_file',),
@@ -55,7 +55,8 @@ ColDoc_environments_parent_child = {
     'bibliography': (),
     'section' : ('input','paragraph','graphic_file','E_*'),
     'paragraph' : (),
-    'E_document' : ('include','input','section','graphic_file','paragraph','E_*'),
+    'E_document' : ('include','input','section','graphic_file','paragraph','bibliography','E_thebibliography','E_*',),
+    'E_thebibliography' : (),
     'E_*' : ('input','paragraph','graphic_file','E_*'),
     }
 

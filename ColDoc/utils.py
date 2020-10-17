@@ -943,6 +943,9 @@ def split_blob(blob):
 
 class tree_environ_helper(object):
     " checks some consistencies rules"
+    #
+    env_not_star = ['document' , 'thebibliography']
+    #
     def __init__(self, blobs_dir, parent=None):
         self.scan_E(blobs_dir)
         if parent is not None:
@@ -961,7 +964,7 @@ class tree_environ_helper(object):
             with open(f) as a:
                 blobinator_args = json.load(a)
             for a in (blobinator_args['split_environment'] + blobinator_args['split_list']):
-                if a != 'document':
+                if a  not in self.env_not_star :
                     choices.append(( 'E_'+a , '\\begin{'+a))
                     children.append('E_'+a)
         self.E_choices = sorted(choices)
@@ -974,7 +977,7 @@ class tree_environ_helper(object):
             return
         assert isinstance(parent,str)
         assert parent.startswith('E_') or parent in ColDoc_environments
-        if parent.startswith('E_') and parent != 'E_document':
+        if parent.startswith('E_') and parent[2:] not in self.env_not_star:
             parent = 'E_*'
         self._parent = parent
         logger.debug('parent coded as %r',parent)
@@ -1004,7 +1007,7 @@ class tree_environ_helper(object):
             assert self._parent is not None , "Call `set_parent` to initialize"
         assert isinstance(child,str)
         assert child.startswith('E_') or child in ColDoc_environments
-        if child.startswith('E_') and child != 'E_document':
+        if child.startswith('E_') and child[2:] not in self.env_not_star:
             if child not in self.E_children:
                 logger.warning('Should not get this child environ: '+child)
                 return False
