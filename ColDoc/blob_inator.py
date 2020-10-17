@@ -1152,7 +1152,7 @@ def add_arguments_to_parser(parser):
     parser.add_argument('--split-sections','--SS',action='store_true',help='split each section in a separate blob')
     parser.add_argument('--split-environment','--SE',action='append',
                         help='split the content of this LaTeX environment in a separate blob',
-                        default=['document'])
+                        default=['document','thebibliography'])
     parser.add_argument('--private-environment',action='append',default=[],
                         help='split this environment and mark as access=private')
     parser.add_argument('--split-list','--SL',action='append',help='split each \\item of this environment in a separate blob', default=[])
