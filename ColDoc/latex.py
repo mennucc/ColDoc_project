@@ -71,8 +71,7 @@ from plasTeX.Packages import amsthm , graphicx
 
 # the package ColDocUUID.sty defines a LaTeX command \uuid , that can be overriden in the preamble
 
-environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_preamble',
-                               'usepackage', 'bibliography' )
+environments_we_wont_latex = ColDoc.config.ColDoc_environments_we_wont_latex
 
 standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 %(latex_macros)s
