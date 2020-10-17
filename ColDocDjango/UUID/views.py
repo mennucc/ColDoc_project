@@ -572,21 +572,23 @@ def index(request, NICK, UUID):
                 blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
                 blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
     #
+    parent_metadata = parent_uuid = uplink = downlink = None
     try:
-        j = metadata.get('child_uuid')[0]
-        downlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j})
+        j = metadata.get('child_uuid')
+        if j:
+            downlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[0]})
+        j = metadata.get('parent_uuid')
+        if j:
+            parent_uuid = j[0]
+            parent_metadata = DMetadata.load_by_uuid(parent_uuid, metadata.coldoc)
+            uplink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':parent_uuid})
+        elif env != 'main_file':
+            logger.warning('no parent for UUID %r',UUID)
     except:
-        downlink = None
-    try:
-        j = metadata.get('parent_uuid')[0]
-        uplink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j})
-    except:
-        logger.debug('no parent for UUID %r',UUID)
-        uplink = j = None
+        logger.exception('WHY?')
     leftlink = rightlink = None 
-    if j is not None:
-        p = DMetadata.load_by_uuid(j,NICK)
-        j = p.get('child_uuid')
+    if parent_metadata is not None:
+        j = parent_metadata.get('child_uuid')
         try:
             j = sorted(j)
             i = j.index(uuid)
