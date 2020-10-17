@@ -40,7 +40,9 @@ ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','incl
 
 
 # structure of the blob tree, 'E_*' is any begin...end , but for E_document
+#  `False` means there is no parent. (`False` is short-circuited in most code)
 ColDoc_environments_parent_child = {
+    False : ('main_file',),
     'main_file' : ('preamble','E_document'),
     'preamble' : ('input_preamble','usepackage'),
     'input_preamble' : ('input_preamble','usepackage'),
