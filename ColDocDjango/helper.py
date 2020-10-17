@@ -179,6 +179,12 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
             logger.error(a)
             return False, a, None
     #
+    if selection_start is not None and selection_end != selection_start:
+        if extension is None or environ == 'graphic_file':
+            a=("cannot select region when adding a non-TeX file")
+            logger.error(a)
+            return False, a, None
+    #
     if isinstance(user,str):
         from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
         import django.contrib.auth as A
@@ -270,10 +276,6 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     placeholder='placeholder'
     parent_file = open(parent_abs_filename).read()
     if selection_start is not None and selection_end != selection_start:
-        if extension is None or environ == 'graphic_file':
-            a=("cannot select region when adding a non-TeX file")
-            logger.error(a)
-            return False, a, None
         placeholder = parent_file[selection_start:selection_end]
     with open(parent_abs_filename,'w') as f:
         if selection_start is None :
