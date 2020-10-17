@@ -198,6 +198,9 @@ def postmetadataedit(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
+    from ColDoc.utils import tree_environ_helper
+    teh = tree_environ_helper(blobs_dir = blobs_dir)
+    #
     uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
                                                    blobs_dir = blobs_dir, coldoc = NICK,
                                                    metadata_class=DMetadata)
@@ -211,7 +214,7 @@ def postmetadataedit(request, NICK, UUID):
     #
     j = metadata.get('parent_uuid')
     if j:
-        parent_metadata = DMetadata.load_by_uuid(j[0])
+        parent_metadata = DMetadata.load_by_uuid(j[0], metadata.coldoc)
         choices = teh.list_allowed_choices(parent_metadata.environ)
     else:
         choices = [('main_file','main_file',)] # == teh.list_allowed_choices(False)
@@ -232,10 +235,6 @@ def postmetadataedit(request, NICK, UUID):
         raise SuspiciousOperation('UUID Mismatch')
     if ext_ not in metadata.get('extension') :
         messages.add_message(request,messages.WARNING,'Internal problem, check the metadata again %r != %r' %([ext_], metadata.extension))
-    # just in case
-    if environ_ not in [a[0] for a in _environ_choices_(blobs_dir)]:
-        messages.add_message(request,messages.WARNING,'Invalid environment %r'%(environ_,))
-        return index(request, NICK, UUID)
     #
     form.save()
     messages.add_message(request,messages.INFO,'Changes saved')
