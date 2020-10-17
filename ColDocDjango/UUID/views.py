@@ -156,24 +156,28 @@ def postedit(request, NICK, UUID):
             add_blob(logger, request.user, settings.COLDOC_SITE_ROOT, nick_, uuid_, 
                  split_environment_, lang_, selection_start_ , selection_end_, split_add_beginend_)
         if addsuccess:
-            addfilename, adduuid, addmetadata, addlang, addext = \
-                    ColDoc.utils.choose_blob(uuid=addnew_uuid, blobs_dir = blobs_dir,
-                                             ext = ext_, lang = lang_, 
-                                             metadata_class=DMetadata, coldoc=NICK)
             messages.add_message(request,messages.INFO,addmessage)
+            addmetadata = DMetadata.load_by_uuid(uuid=addnew_uuid,coldoc=coldoc)
+            add_extension = addmetadata.get('extension')
+        else:
+            add_extension = []
+            messages.add_message(request,messages.WARNING,addmessage)
+        if  '.tex' in add_extension:
+            addfilename, adduuid, addmetadata, addlang, addext = \
+                ColDoc.utils.choose_blob(uuid=addnew_uuid, blobs_dir = blobs_dir,
+                                         ext = ext_, lang = lang_,
+                                         metadata_class=DMetadata, coldoc=NICK)
             # parse it for metadata
             def warn(msg):
                 messages.add_message(request,messages.INFO,'In new blob: '+msg)
             reparse_blob(addfilename, addmetadata, blobs_dir, warn)
             # compile it
-            if ext_ == '.tex' and split_environment_ not in environments_we_wont_latex:
+            if split_environment_ not in environments_we_wont_latex:
                 rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, addmetadata)
                 if rh and rp:
                     messages.add_message(request,messages.INFO,'Compilation of new blob succeded')
                 else:
                     messages.add_message(request,messages.WARNING,'Compilation of new blob failed')
-        else:
-            messages.add_message(request,messages.WARNING,addmessage)
     #
     # parse it to refresh metadata (after splitting)
     def warn(msg):
