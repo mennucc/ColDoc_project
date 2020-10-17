@@ -612,7 +612,10 @@ def index(request, NICK, UUID):
     metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':lang, })
     metadataform.htmlid = "id_form_metadataform"
     ## restrict to allowed choices
-    choices = teh.list_allowed_choices(False if parent_metadata is None else parent_metadata.environ)
+    if parent_metadata is not None:
+        choices = teh.list_allowed_choices(parent_metadata.environ, metadata.get('extension'))
+    else:
+        choices = ('main_file','main_file')
     # useless
     metadataform.fields['environ'].choices = choices
     # useful
