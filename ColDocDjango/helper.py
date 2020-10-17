@@ -33,8 +33,6 @@ import os, sys, argparse, json
 from os.path import join as osjoin
 
 
-
-
 if __name__ == '__main__':
     for j in ('','.'):
         if j in sys.path:
@@ -52,6 +50,8 @@ if __name__ == '__main__':
     del a
     #
     from ColDoc import loggin
+
+from ColDoc.utils import ColDocException
 
 if __name__ == '__main__':
     import logging
@@ -341,12 +341,16 @@ def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=False):
     #    return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     from ColDoc.utils import reparse_blob, choose_blob
     from ColDocDjango.UUID.models import DMetadata
-    for metadata in DMetadata.objects.filter(coldoc = coldoc):
+    for metadata in DMetadata.objects.filter(coldoc = coldoc, extension='.tex\n'):
         for avail_lang in metadata.get('lang'):
-            filename, uuid, metadata, lang, ext = choose_blob(blobs_dir=blobs_dir, ext='.tex', lang=avail_lang, metadata=metadata)
-            def warn(msg):
-                logger.warning('Parsing uuid %r lang %r : %s'%(uuid,lang,msg))
-            reparse_blob(filename, metadata, blobs_dir, warn, act=act)
+            try:
+                filename, uuid, metadata, lang, ext = choose_blob(blobs_dir=blobs_dir, ext='.tex', lang=avail_lang, metadata=metadata)
+            except ColDocException:
+                pass
+            else:
+                def warn(msg):
+                    logger.warning('Parsing uuid %r lang %r : %s'%(uuid,lang,msg))
+                reparse_blob(filename, metadata, blobs_dir, warn, act=act)
 
 
 def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
