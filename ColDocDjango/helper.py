@@ -48,6 +48,7 @@ if __name__ == '__main__':
     if a not in sys.path:
         sys.path.insert(0, a)
     COLDOC_SRC_ROOT=a
+    os.environ['COLDOC_SRC_ROOT'] = COLDOC_SRC_ROOT
     del a
     #
     from ColDoc import loggin
@@ -297,7 +298,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     #
     if environ == 'graphic_file':
         import shutil
-        shutil.copy(osjoin(COLDOC_SRC_ROOT,'ColDocDjango/assets/placeholder.png'),osjoin(blobs_dir,filename))
+        shutil.copy(osjoin(os.environ['COLDOC_SRC_ROOT'],'ColDocDjango/assets/placeholder.png'),osjoin(blobs_dir,filename))
     else:
         with open(osjoin(blobs_dir,filename),'w') as f:
             f.write("\\uuid{%s}%%\n" % (new_uuid,))
