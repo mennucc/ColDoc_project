@@ -423,6 +423,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
         a = ("Disconnected nodes %r"%available)
         warn(a)
         problems.append(('DISCONNECTED',available))
+        ret = False
     assert bool(problems) ^ (bool(ret)), (ret,problems, bool(ret), bool(problems))
     return problems
 
