@@ -410,8 +410,9 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             c = load_by_uuid(branch[-1])
             p = load_by_uuid(branch[-2])
             if not teh.child_is_allowed(c.environ, p.environ, c.get('extension')):
-                problems.append(("WRONG_LINK", p.environ, c.environ))
-                warn("The node %r %r cannot be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ))
+                a = "The node %r %r cannot be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ)
+                problems.append(("WRONG_LINK", a))
+                warn(a)
                 ret = False
             #else:
             #    warn("The node %r %r can be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ))                
