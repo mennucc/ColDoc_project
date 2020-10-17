@@ -483,11 +483,12 @@ def index(request, NICK, UUID):
     pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext)
     #
+    envs = metadata.get('environ')
+    env = envs[0] if envs else None 
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
         file = open(filename).read()
         file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
-        env = metadata.get('environ')[0]
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
             pdfurl = ''
@@ -503,13 +504,13 @@ def index(request, NICK, UUID):
             html+='<ul>'
             for b in DMetadata.objects.filter(coldoc=NICK):
                 try:
-                    env = b.environ
-                    if env in ColDoc.latex.environments_we_wont_latex or \
-                       env in ('section','input','include'):
+                    e_ = b.environ
+                    if e_ in ColDoc.latex.environments_we_wont_latex or \
+                       e_ in ('section','input','include'):
                         a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':b.uuid})
                         s = b.environ or 'blob'
                         s += ' '
-                        if env == 'section':
+                        if e_ == 'section':
                             j = b.get('section')
                         else:
                             j = b.get('section')
