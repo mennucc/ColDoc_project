@@ -40,20 +40,8 @@ class MetadataForm(ModelForm):
 
 ###############################################################
 
-# https://docs.djangoproject.com/en/dev/topics/forms/
 
-def _environ_choices_(blobs_dir):
-    choices=[('section','section')]
-    f = osjoin(blobs_dir, '.blob_inator-args.json')
-    if not os.path.exists(f):
-        logger.error("File of blob_inator args does not exit: %r\n"%(f,))
-    else:
-        with open(f) as a:
-            blobinator_args = json.load(a)
-        for a in (blobinator_args['split_environment'] + blobinator_args['split_list']):
-            if a not in ('document','main_file'):
-                choices.append(( 'E_'+a , a))
-    return choices
+
 
 
 class BlobEditForm(forms.Form):
@@ -107,8 +95,12 @@ def postedit(request, NICK, UUID):
     #
     form=BlobEditForm(request.POST)
     #
-    choices = _environ_choices_(blobs_dir)
-    form.fields['split_environment'].choices = choices
+    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+    env = metadata.environ
+    from ColDoc.utils import tree_environ_helper
+    teh = tree_environ_helper(blobs_dir = blobs_dir)
+    ## https://docs.djangoproject.com/en/dev/topics/forms/
+    form.fields['split_environment'].choices = teh.list_allowed_choices(env)
     #
     if not form.is_valid():
         return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
@@ -127,6 +119,7 @@ def postedit(request, NICK, UUID):
     #
     filename, uuid, metadata, lang, ext = \
         ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
+                                 metadata = metadata,
                                  ext = ext_, lang = lang_, 
                                  metadata_class=DMetadata, coldoc=NICK)
     #
@@ -211,10 +204,17 @@ def postmetadataedit(request, NICK, UUID):
         raise SuspiciousOperation("Permission denied")
     #
     form=MetadataForm(request.POST, instance=metadata)
+    #
+    j = metadata.get('parent_uuid')
+    if j:
+        parent_metadata = DMetadata.load_by_uuid(j[0])
+        choices = teh.list_allowed_choices(parent_metadata.environ)
+    else:
+        choices = [('main_file','main_file',)] # == teh.list_allowed_choices(False)
     # useless
-    form.fields['environ'].choices = _environ_choices_(blobs_dir)
+    form.fields['environ'].choices = choices
     # useful
-    form.fields['environ'].widget.choices = _environ_choices_(blobs_dir)
+    form.fields['environ'].widget.choices = choices
     #
     if not form.is_valid():
         return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
@@ -480,6 +480,9 @@ def index(request, NICK, UUID):
     #
     #####################################################################
     #
+    from ColDoc.utils import tree_environ_helper
+    teh = tree_environ_helper(blobs_dir = blobs_dir)
+    #
     pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext)
     #
@@ -562,13 +565,13 @@ def index(request, NICK, UUID):
         file = '[access denied]'
     elif  blobcontenttype == 'text' :
         if request.user.has_perm('UUID.change_blob'):
-            choices = _environ_choices_(blobs_dir)
             blobeditform = BlobEditForm(initial={'BlobEditTextarea':  file,
                                                  'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang,
                                                  'file_md5' : file_md5,
                                                  })
+            choices = teh.list_allowed_choices(metadata.environ)
             blobeditform.fields['split_environment'].choices = choices
-            if not request.user.has_perm('ColDocApp.add_blob'):
+            if not request.user.has_perm('ColDocApp.add_blob') or not choices or env == 'main_file':
                 blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
                 blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
     #
@@ -608,10 +611,12 @@ def index(request, NICK, UUID):
     #
     metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':lang, })
     metadataform.htmlid = "id_form_metadataform"
+    ## restrict to allowed choices
+    choices = teh.list_allowed_choices(False if parent_metadata is None else parent_metadata.environ)
     # useless
-    metadataform.fields['environ'].choices = _environ_choices_(blobs_dir)
+    metadataform.fields['environ'].choices = choices
     # useful
-    metadataform.fields['environ'].widget.choices = _environ_choices_(blobs_dir)
+    metadataform.fields['environ'].widget.choices = choices
     if '.tex' not in metadata.get('extension'):
         metadataform.fields['environ'].widget.attrs['readonly'] = True
         metadataform.fields['optarg'].widget.attrs['readonly'] = True
