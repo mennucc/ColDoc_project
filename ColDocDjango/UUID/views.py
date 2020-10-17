@@ -226,7 +226,7 @@ def postmetadataedit(request, NICK, UUID):
     if uuid != uuid_ :
         logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation('UUID Mismatch')
-    if metadata.get('extension') != [ext_]  :
+    if ext_ not in metadata.get('extension') :
         messages.add_message(request,messages.WARNING,'Internal problem, check the metadata again %r != %r' %([ext_], metadata.extension))
     # just in case
     if environ_ not in [a[0] for a in _environ_choices_(blobs_dir)]:
