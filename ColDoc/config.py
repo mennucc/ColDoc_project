@@ -42,7 +42,7 @@ ColDoc_environment_inside_blob = ('thebibliography',)
 
 # see description of `ColDoc_write_UUID`
 ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble',
-                               'usepackage','bibliography')
+                               'usepackage','bibliography','E_thebibliography',)
 
 
 # structure of the blob tree, 'E_*' is any begin...end , but for E_document and E_thebibliography
@@ -52,11 +52,11 @@ ColDoc_environments_parent_child = {
     'main_file' : ('preamble','E_document'),
     'preamble' : ('input_preamble','usepackage'),
     'input_preamble' : ('input_preamble','usepackage'),
-    'input' : ('section','paragraph','graphic_file','E_*'),
-    'include' : ('section','paragraph','graphic_file','E_*'),
+    'input' : ('section','paragraph','graphic_file','E_thebibliography','E_*'),
+    'include' : ('section','paragraph','graphic_file','E_thebibliography','E_*'),
     'usepackage' : (),
     'bibliography': (),
-    'section' : ('input','paragraph','graphic_file','E_*'),
+    'section' : ('input','paragraph','graphic_file','E_thebibliography','E_*'),
     'paragraph' : (),
     'E_document' : ('include','input','section','graphic_file','paragraph','bibliography','E_thebibliography','E_*',),
     'E_thebibliography' : (),
