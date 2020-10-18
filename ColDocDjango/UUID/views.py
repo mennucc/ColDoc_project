@@ -469,6 +469,34 @@ def index(request, NICK, UUID):
     except Exception as e:
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
+    ###################################### navigation arrows
+    #
+    parent_metadata = parent_uuid = uplink = downlink = None
+    try:
+        j = metadata.get('child_uuid')
+        if j:
+            downlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[0]})
+        j = metadata.get('parent_uuid')
+        if j:
+            parent_uuid = j[0]
+            parent_metadata = DMetadata.load_by_uuid(parent_uuid, metadata.coldoc)
+            uplink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':parent_uuid})
+        elif env != 'main_file':
+            logger.warning('no parent for UUID %r',UUID)
+    except:
+        logger.exception('WHY?')
+    leftlink = rightlink = None 
+    if parent_metadata is not None:
+        j = list(parent_metadata.get('child_uuid'))
+        try:
+            i = j.index(uuid)
+            if i>0:
+                leftlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i-1]})
+            if i<len(j)-1:
+                rightlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i+1]})
+        except:
+            logger.exception('problem finding siblings for UUID %r',UUID)
+    #
     ########################################## permission management
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
@@ -577,32 +605,6 @@ def index(request, NICK, UUID):
             if not request.user.has_perm('ColDocApp.add_blob') or not choices or env == 'main_file':
                 blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
                 blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
-    #
-    parent_metadata = parent_uuid = uplink = downlink = None
-    try:
-        j = metadata.get('child_uuid')
-        if j:
-            downlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[0]})
-        j = metadata.get('parent_uuid')
-        if j:
-            parent_uuid = j[0]
-            parent_metadata = DMetadata.load_by_uuid(parent_uuid, metadata.coldoc)
-            uplink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':parent_uuid})
-        elif env != 'main_file':
-            logger.warning('no parent for UUID %r',UUID)
-    except:
-        logger.exception('WHY?')
-    leftlink = rightlink = None 
-    if parent_metadata is not None:
-        j = list(parent_metadata.get('child_uuid'))
-        try:
-            i = j.index(uuid)
-            if i>0:
-                leftlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i-1]})
-            if i<len(j)-1:
-                rightlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i+1]})
-        except:
-            logger.exception('problem finding siblings for UUID %r',UUID)
     #
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext)
