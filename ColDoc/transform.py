@@ -12,6 +12,9 @@ import os.path
 from os.path import join as osjoin
 
 
+# note that from python 3.6 on, `dict` preserves order
+from collections import OrderedDict
+
 if __name__ == '__main__':
     for j in ('','.'):
         if j in sys.path:
@@ -72,8 +75,8 @@ class squash_helper_base(object):
 class squash_input_uuid(squash_helper_base):
     " replaces \\input and similar with placeholders; delete comments"
     def __init__(self, blobs_dir, blob, options):
-        self.forw_map = {}
-        self.back_map = {}
+        self.forw_map = OrderedDict()
+        self.back_map = OrderedDict()
         self.blobs_dir =  blobs_dir
         self.blob = blob
         self.options = options
