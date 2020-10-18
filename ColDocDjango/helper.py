@@ -155,7 +155,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     else:
         extension = None
         for k in CC.ColDoc_latex_mime:
-            if environ in CC.ColDoc_latex_mime:
+            if environ in CC.ColDoc_latex_mime[k]:
                 extension = k
     #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
