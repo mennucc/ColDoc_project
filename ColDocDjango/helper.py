@@ -270,7 +270,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         child_metadata.add('access', 'private')
     child_metadata.save()
     child_metadata.add('author',user)
-    blob_models.UUID_Tree_Edge(coldoc = parent_metadata.coldoc, parent = parent_uuid, child = new_uuid).save()
+    parent_metadata.add('child_uuid',new_uuid)
     child_metadata.save()
     #
     placeholder='placeholder'

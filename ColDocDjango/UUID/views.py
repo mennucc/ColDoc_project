@@ -594,9 +594,8 @@ def index(request, NICK, UUID):
         logger.exception('WHY?')
     leftlink = rightlink = None 
     if parent_metadata is not None:
-        j = parent_metadata.get('child_uuid')
+        j = list(parent_metadata.get('child_uuid'))
         try:
-            j = sorted(j)
             i = j.index(uuid)
             if i>0:
                 leftlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i-1]})

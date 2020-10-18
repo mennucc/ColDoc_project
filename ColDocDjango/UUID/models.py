@@ -29,10 +29,13 @@ COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 
 class UUID_Tree_Edge(models.Model):
     "edges for the graph parent-child of blobs in a coldoc"
+    class Meta:
+        ordering = ['coldoc','parent','child_ordering','child']
     #
     coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     parent = UUID_Field(db_index = True)
     child = UUID_Field(db_index = True)
+    child_ordering = models.IntegerField("used to order the children as in the TeX",default=0)
 
 #class UUID_Tree_Edge_(models.Model):
 #    "edges for the graph parent-child of blobs in a coldoc"
@@ -205,14 +208,19 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 v += '\n'
             setattr(self,k, v)
         r = super().save()
-        for c in self._children:
+        a = UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid).values_list('child_ordering', flat=True)
+        j = max( a, default=0 ) + 1
+        for n,c in enumerate(self._children):
             if not UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid, child = c).exists():
-                UUID_Tree_Edge(coldoc = self.coldoc, parent = self.uuid, child = c).save()
+                UUID_Tree_Edge(coldoc = self.coldoc, parent = self.uuid, child = c, child_ordering=(n+j)).save()
         self._children = []
         # no need to save parents...
         for p in self._parents:
+            # fixme, here we do not know the correct ordering, so we set us last
             if not UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = p, child = self.uuid).exists():
-                UUID_Tree_Edge(coldoc = self.coldoc, parent = p, child = self.uuid).save()
+                a = UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = p).values_list('child_ordering', flat=True)
+                j = max( a, default=0 )
+                UUID_Tree_Edge(coldoc = self.coldoc, parent = p, child = self.uuid, child_ordering=(j+1)).save()
         self._parents = []
         #
         for k,v in self._extra_metadata:
