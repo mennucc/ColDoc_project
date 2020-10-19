@@ -10,6 +10,7 @@ from django.utils import timezone as DT
 from django.db import models
 from django.core.validators  import RegexValidator
 from django.urls import reverse
+from django.templatetags.static import static
 
 from django.conf import settings
 AUTH_USER_MODEL = settings.AUTH_USER_MODEL
@@ -359,6 +360,14 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             #if ',' in j
             if j:
                 yield j
+
+ACCESS_ICONS = {'open':    ('<img src="%s" style="height: 12pt"  data-toggle="tooltip" title="%s">' % \
+                            (static('ColDoc/Open_Access_logo_PLoS_white.svg'),DMetadata.ACCESS_CHOICES[0][1])), #
+                'public':  ('<span style="font-size: 12pt" data-toggle="tooltip" title="%s">%s</span>' %\
+                            (DMetadata.ACCESS_CHOICES[1][1],chr(0x1F513),)), # '🔓'
+                'private': ('<span style="font-size: 12pt" data-toggle="tooltip" title="%s">%s</span>' %\
+                            (DMetadata.ACCESS_CHOICES[2][1],chr(0x1F512),)), # '🔒'
+                    }   
 
 class ExtraMetadata(models.Model):
     blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)

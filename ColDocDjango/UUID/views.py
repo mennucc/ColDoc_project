@@ -497,6 +497,10 @@ def index(request, NICK, UUID):
         except:
             logger.exception('problem finding siblings for UUID %r',UUID)
     #
+    if not request.user.is_anonymous:
+        a = metadata.access
+        access_icon  = ColDocDjango.UUID.models.ACCESS_ICONS[a]
+    else: access_icon = ''
     ########################################## permission management
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
