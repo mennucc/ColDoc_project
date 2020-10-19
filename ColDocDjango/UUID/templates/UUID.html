@@ -113,7 +113,7 @@
         <input type="submit" class="btn btn-primary" onclick="update_and_send()" value="Submit">
       </form>
      {% else %}
-       {{ file | safe }}
+       <div class="border border-info"><code>{{ escapedfile | safe }}</code></div>
      {% endif %}
     {% else %}
       (this is not text but {{ blobcontenttype }})

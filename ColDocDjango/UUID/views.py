@@ -13,6 +13,7 @@ from django import forms
 from django.conf import settings
 from django.forms import ModelForm
 from django.core.exceptions import SuspiciousOperation
+from django.utils.html import escape
 
 from ColDoc.utils import slug_re, slugp_re
 
@@ -526,6 +527,7 @@ def index(request, NICK, UUID):
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
         file = open(filename).read()
+        escapedfile = escape(file).replace('\n', '<br>') #.replace('\\', '&#92;')
         file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
@@ -575,7 +577,7 @@ def index(request, NICK, UUID):
                 html = '[NO HTML AVAILABLE]'
     else:
         blobcontenttype = 'other'
-        file = html = ''
+        file = html = escapedfile = ''
     #
     if lang not in (None,''):
         lang_ = '_' + lang
