@@ -365,14 +365,6 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             if j:
                 yield j
 
-ACCESS_ICONS = {'open':    ('<img src="%s" style="height: 12pt"  data-toggle="tooltip" title="%s">' % \
-                            (static('ColDoc/Open_Access_logo_PLoS_white.svg'),DMetadata.ACCESS_CHOICES[0][1])), #
-                'public':  ('<span style="font-size: 12pt" data-toggle="tooltip" title="%s">%s</span>' %\
-                            (DMetadata.ACCESS_CHOICES[1][1],chr(0x1F513),)), # '🔓'
-                'private': ('<span style="font-size: 12pt" data-toggle="tooltip" title="%s">%s</span>' %\
-                            (DMetadata.ACCESS_CHOICES[2][1],chr(0x1F512),)), # '🔒'
-                    }   
-
 class ExtraMetadata(models.Model):
     blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)
     key = models.SlugField(max_length=80, db_index = True)

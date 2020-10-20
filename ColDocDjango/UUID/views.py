@@ -14,6 +14,7 @@ from django.conf import settings
 from django.forms import ModelForm
 from django.core.exceptions import SuspiciousOperation
 from django.utils.html import escape
+from django.templatetags.static import static
 
 from ColDoc.utils import slug_re, slugp_re
 
@@ -427,6 +428,16 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e),
                             status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
 
+def get_access_icon(access):
+    ACCESS_ICONS = {'open':    ('<img src="%s" style="height: 12pt"  data-toggle="tooltip" title="%s">' % \
+                                (static('ColDoc/Open_Access_logo_PLoS_white.svg'),DMetadata.ACCESS_CHOICES[0][1])), #
+                    'public':  ('<span style="font-size: 12pt" data-toggle="tooltip" title="%s">%s</span>' %\
+                                (DMetadata.ACCESS_CHOICES[1][1],chr(0x1F513),)), # '🔓'
+                    'private': ('<span style="font-size: 12pt" data-toggle="tooltip" title="%s">%s</span>' %\
+                               (DMetadata.ACCESS_CHOICES[2][1],chr(0x1F512),)), # '🔒'
+                        }
+    return ACCESS_ICONS[access]
+
 
 def index(request, NICK, UUID):
     if not slug_re.match(UUID):
@@ -500,7 +511,7 @@ def index(request, NICK, UUID):
     #
     if not request.user.is_anonymous:
         a = metadata.access
-        access_icon  = ColDocDjango.UUID.models.ACCESS_ICONS[a]
+        access_icon  = get_access_icon(a)
     else: access_icon = ''
     ########################################## permission management
     #
