@@ -94,6 +94,7 @@ $(COLDOC_SITE_ROOT)/.__deployed_timestamp:
 	#	cd $(COLDOC_SITE_ROOT)/static_local &&  cp -a ../static_root/* . && ln -s ../static_root/CDdedup .
 	## change to DEBUG mode, and store dedup files inside the static tree, so they will be available in DEBUG mode
 	sed -i~~ 's!debug.*!debug = True!;s!dedup_root.*!dedup_root = %(site_root)s/static_local/dedup!;s!dedup_url.*!dedup_url = /static/dedup!' $(COLDOC_SITE_ROOT)/config.ini
+	sed -i~~~ 's/whitenoise.*False/whitenoise = True/' $(COLDOC_SITE_ROOT)/config.ini
 	../ColDocDjango/helper.py  --coldoc-site-root $(COLDOC_SITE_ROOT)  create_fake_users
 	touch $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 

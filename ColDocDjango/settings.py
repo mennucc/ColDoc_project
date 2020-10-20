@@ -146,6 +146,21 @@ try:
 except ImportError:
     logger.error('Please install `django-select2`')
 
+# http://whitenoise.evans.io/en/stable/django.html
+USE_WHITENOISE = config['django'].getboolean('use_whitenoise')
+if USE_WHITENOISE:
+    try:
+        import whitenoise
+    except ImportError:
+        logger.warning('`whitenoise` not available, static files may be inaccessible')
+    else:
+        MIDDLEWARE.insert(2, 'whitenoise.middleware.WhiteNoiseMiddleware')
+        STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+        if DEBUG:
+            logger.warning('`whitenoise` is disabled in debug mode')
+        else:
+            logger.info('`whitenoise` enabled')
+
 
 ROOT_URLCONF = 'ColDocDjango.urls'
 
