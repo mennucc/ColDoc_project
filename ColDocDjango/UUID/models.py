@@ -214,6 +214,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         for n,c in enumerate(self._children):
             if not UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid, child = c).exists():
                 UUID_Tree_Edge(coldoc = self.coldoc, parent = self.uuid, child = c, child_ordering=(n+j)).save()
+            else:
+                logger.debug("Duplicate children %r for parent %r",c,self.uuid)
         self._children = []
         # no need to save parents...
         for p in self._parents:
@@ -222,6 +224,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 a = UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = p).values_list('child_ordering', flat=True)
                 j = max( a, default=0 )
                 UUID_Tree_Edge(coldoc = self.coldoc, parent = p, child = self.uuid, child_ordering=(j+1)).save()
+            else:
+                logger.debug("Parent %r for child %r already registered",p,self.uuid)
         self._parents = []
         #
         for k,v in self._extra_metadata:
