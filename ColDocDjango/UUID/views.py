@@ -481,6 +481,9 @@ def index(request, NICK, UUID):
     except Exception as e:
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
+    envs = metadata.get('environ')
+    env = envs[0] if envs else None     
+    #
     ###################################### navigation arrows
     #
     parent_metadata = parent_uuid = uplink = downlink = None
@@ -533,8 +536,6 @@ def index(request, NICK, UUID):
     pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext)
     #
-    envs = metadata.get('environ')
-    env = envs[0] if envs else None 
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
         file = open(filename).read()
