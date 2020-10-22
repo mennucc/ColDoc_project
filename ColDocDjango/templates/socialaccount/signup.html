@@ -1,0 +1,33 @@
+{% extends "socialaccount/base.html" %}
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Complete registration" %}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Complete registration" %}</h1>
+
+<div class="border">{% blocktrans with provider_name=account.get_provider.name site_name=site.name %}
+  We checked that, using your {{provider_name}} account,
+  you will be able to login to {{site_name}}.
+  Still, some information may be useful:
+  <ul><li> an <i>username</i> is required to identify you inside this portal
+      (you may also use it to login if you set a local password),</li>
+   <li>  an <i>email</i> (in case the provider  {{provider_name}} did not provide one, or if you wish to use a different
+     one for this portal — in this latter case you should verify it using the <i>`email`</i> menu)</li>
+ </ul>
+ {% endblocktrans %}
+</div>
+
+<p>{% blocktrans %} Please complete the following form:{% endblocktrans %}</p>
+
+<form class="signup border" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {% if redirect_field_value %}
+  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+  {% endif %}
+  <button type="submit">{% trans "Sign Up" %} &raquo;</button>
+</form>
+
+{% endblock %}

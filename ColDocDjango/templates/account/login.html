@@ -1,0 +1,57 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+
+<h1>{% trans "Login" %}</h1>
+
+{% get_providers as socialaccount_providers %}
+
+{% if socialaccount_providers %}
+<p>{% blocktrans with site.name as site_name %}
+  Please sign in with one
+of your existing third party accounts. Or, <a href="{{ signup_url }}">register</a>
+for a {{ site_name }} account.{% endblocktrans %}</p>
+
+<div class="socialaccount_ballot border mt-2">
+<h2>login using social providers</h2>
+  
+  <ul class="socialaccount_providers">
+    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+  </ul>
+</div>
+
+<div class="border">
+{% include "socialaccount/snippets/login_extra.html" %}
+</div>
+
+{% else %}
+
+<p>{% blocktrans %}If you have not created an account yet, then please
+<a href="{{ signup_url }}">register</a> first.{% endblocktrans %}</p>
+{% endif %}
+
+<div class="border mt-2">
+  <h2>login </h2>
+You may use this form to login using an account created specific for this portal «{{ site.name }}».
+
+<form class="login border rounded mt-2" method="POST" action="{% url 'account_login' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {% if redirect_field_value %}
+  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+  {% endif %}
+  <button class="btn btn-outline-primary btn-sm" type="submit">{% trans "Sign In" %}</button>
+</form>
+
+<a class="btn btn-outline-primary btn-sm mt-4" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+
+<a class="btn btn-outline-primary btn-sm mt-4" href="{{ signup_url }}">{% trans "Create new local account" %}</a>
+
+</div>
+
+{% endblock %}
