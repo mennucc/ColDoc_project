@@ -42,6 +42,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'split_blob',
             'tree_environ_helper',
             'is_image_blob',
+            'get_blobinator_args',
             )
 
 class ColDocException(Exception):
@@ -49,6 +50,18 @@ class ColDocException(Exception):
 
 class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
+
+
+#####################
+
+def get_blobinator_args(blobs_dir):
+    # currently they are written in this text file)
+    f = osjoin(blobs_dir, '.blob_inator-args.json')
+    assert os.path.exists(f), ("File of blob_inator args does not exit: %r\n"%(f,))
+    with open(f) as a:
+        blobinator_args = json.load(a)
+    assert isinstance(blobinator_args,dict)
+    return blobinator_args
 
 #####################
 
