@@ -61,7 +61,7 @@ As aforementioned, the LaTeX data is stored on disk inside a `blobs`
 directory tree.
 
 Two versions of the whole document are generated, one from the `blobs` tree,
-and in this case the generate document (HTML or PDF) will contain all the material:
+and in this case the generate document (both HTML and PDF) will contain all the material:
 this is the `private` version of the document.
 
 Another version is from the `anon` tree.  The `anon` tree is automatically
@@ -96,18 +96,27 @@ and in the document.
 Accessing the whole document
 ----------------------------
 
-If the user is not an `editor`, then
-the content served from the buttons `View whole document` and  `View whole document, as PDF`
-is compiled from the `anon` tree:
-so that the generic user will not see the protected content.
+The whole document can be accessed using buttons
+ `View whole document` and  `View whole document, as PDF`
+in the main page of the coldoc.
+
+These buttons will serve either the `private` or the `public` version.
+
+
+If the user is an `editor`, or s/he has the `view_view` permission,
+then the content served from the buttons is the `private` version
+(compile from the material inside the `blobs` directory);
+note that in this case the HTML pages use a green theme, to distinguish;
+otherwise it is the the `public` version
+(compile from the material inside the `anon` directory);
+so that the generic user will not see the protected content;
+in this case the HTML pages use a blue theme, to distinguish.
+
+
 Note that an user that is an `author` but not an `editor`
 will not see the protected content in the whole document: indeed it is
 not sensible to generate different whole document representations
 for each and any user.
-
-Insted when the user accessing it is an `editor` then the content
-compiled from the `main` tree will be used, so it will all be visible;
-note that in this case the HTML pages use a green theme, to distinguish.
 
 
 
