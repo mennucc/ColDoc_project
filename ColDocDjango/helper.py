@@ -300,6 +300,8 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     #
     if environ == 'graphic_file':
         import shutil
+        child_metadata.original_filename = child_metadata.uuid + '.png'
+        child_metadata.save()
         shutil.copy(osjoin(os.environ['COLDOC_SRC_ROOT'],'ColDocDjango/assets/placeholder.png'),osjoin(blobs_dir,filename))
     else:
         with open(osjoin(blobs_dir,filename),'w') as f:
