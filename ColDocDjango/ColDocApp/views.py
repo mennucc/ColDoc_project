@@ -15,7 +15,7 @@ from django.core.exceptions import SuspiciousOperation
 
 import ColDoc.utils, ColDocDjango
 
-from ColDoc.utils import slug_re
+from ColDoc.utils import slug_re, get_blobinator_args
 
 from django.conf import settings
 
@@ -214,16 +214,29 @@ def search(request, NICK):
                                                 Q(value__contains=searchtoken))
     else:
         label_list = ref_list = []
+    #
+    meta_list = []
+    if request.user.is_authenticated and coldoc.anonymous_can_view :
+        # FIXME , would like to use `has_perm('UUID.view_view')`
+        # but this currently works only on a per-blob basis:
+        # so we should filter this list accordingly
+        blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
+        blobinator_args = get_blobinator_args(blobs_dir)
+        for j in blobinator_args["metadata_command"]:
+            if j not in ('label','ref','eqref','pageref','index'):
+                meta_list += list(ExtraMetadata.objects.filter(Q(key__endswith=('M_'+j)) & 
+                                                      Q(blob__coldoc=coldoc) &
+                                                      Q(value__contains=searchtoken)))
     # TODO search in text
     # shortcut
-    if len(uuid_list)==1 and not label_list and not index_list and not ref_list:
+    if len(uuid_list)==1 and not label_list and not index_list and not ref_list and not meta_list:
         return redirect(django.urls.reverse('UUID:index',
                                             kwargs={'NICK':NICK,'UUID':uuid_list[0].uuid}))
     
     return render(request, 'search.html',
                   {'coldoc':coldoc, 'NICK':coldoc.nickname, 'maybe_uuid':maybe_uuid,
                    'uuid_list':uuid_list,'label_list':label_list,'ref_list':ref_list,
-                   'index_list':index_list,
+                   'index_list':index_list, 'meta_list':meta_list,
                    })
 
 

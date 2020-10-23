@@ -38,6 +38,21 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} — search results</h1>
     <p><i>You do not have permissions to search this catalog. Please login.</i></p>
 {% endif %}
 
+<h2>Blob metadata</h2>
+{% if user.is_authenticated %}
+{% if meta_list %}
+    <ul>
+    {% for extra in meta_list %}
+        <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=extra.blob.uuid %}">
+        {{ extra.blob.uuid }}</a>: {{extra.key}} = {{extra.value}}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p><i>The query does not match any metadata entry.</i></p>
+{% endif %}
+{% else %}
+    <p><i>You do not have permissions to search this catalog. Please login.</i></p>
+{% endif %}
 
 <h2>Blob label</h2>
 {% if perms.UUID.view_blob %}
