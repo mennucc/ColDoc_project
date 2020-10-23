@@ -626,7 +626,7 @@ def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None
         logger.error('No %r',a)
     #
     try:
-        blobinator_args = get_blobinator_args(blobs_dir)
+        blobinator_args = ColDoc.utils.get_blobinator_args(blobs_dir)
         options.update(blob_inator_args)
         logger.debug('From %r options %r',a,options)
     except:
