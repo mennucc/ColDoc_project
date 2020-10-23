@@ -95,6 +95,11 @@ def user_has_perm(user, perm, coldoc, blob, obj):
                 return True
             elif s == 'public' and perm in ('UUID.view_view',):
                 return True
+        else:
+            # main page, access to the whole document
+            if  perm in ('UUID.view_view', ) and \
+                 coldoc.editor.filter(username=user.username).exists() :
+                return True
         return False
     if perm.startswith('ColDocApp.') and perm[10:] in permissions_for_coldoc:
         #allow complete access to editors

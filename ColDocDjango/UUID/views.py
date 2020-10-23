@@ -337,7 +337,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
     if prefix == 'main':
         request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
-        if not request.user.is_editor :
+        if not request.user.has_perm('UUID.view_view') :
+            # users.user_has_perm() will grant `public` access to editors
             blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
     if not os.path.isdir(blobs_dir):
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
