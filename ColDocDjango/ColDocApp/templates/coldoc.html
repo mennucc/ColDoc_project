@@ -19,11 +19,11 @@ First published {{ coldoc.publication_time }}
 
 <br>
 
-<a href="{% url 'ColDoc:html' NICK=coldoc.nickname %}" class="btn btn-outline-primary btn-sm">
+<a href="{% url 'ColDoc:html' NICK=coldoc.nickname %}" class="btn {{ whole_button_class }} btn-sm">
  View whole document
 </a>
 
-<a href="{% url 'ColDoc:pdf' NICK=coldoc.nickname %}" class="btn btn-outline-primary btn-sm">
+<a href="{% url 'ColDoc:pdf' NICK=coldoc.nickname %}" class="btn {{ whole_button_class }} btn-sm">
  View whole document, as PDF
 </a>
 

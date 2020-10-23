@@ -63,6 +63,10 @@ def index(request, NICK):
     #
     request.user.associate_coldoc_blob_for_has_perm(c, None)
     #
+    if request.user.has_perm('UUID.view_view') :
+        whole_button_class = 'btn-outline-success'
+    else:
+        whole_button_class = 'btn-outline-primary'
     #
     coldocform = None
     if request.user.has_perm('ColDocApp.view_dcoldoc'):
@@ -85,6 +89,7 @@ def index(request, NICK):
                                            'coldocform' : coldocform,
                                            'failedblobs' : failed_blobs,
                                            'check_tree_url' : check_tree_url,
+                                           'whole_button_class' : whole_button_class,
                                            'latex_error_logs':latex_error_logs})
 
 
