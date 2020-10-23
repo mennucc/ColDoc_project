@@ -844,8 +844,7 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
     if warn is None:
         warn = logger.warning
     #
-    a = osjoin(blobs_dir, '.blob_inator-args.json')
-    options = json.load(open(a))
+    options =  get_blobinator_args(blobs_dir)
     #
     from ColDoc.transform import reparse_metadata
     parsed_back_map, parsed_metadata = reparse_metadata(filename, metadata, blobs_dir, options)
@@ -978,12 +977,11 @@ class tree_environ_helper(object):
         "prepare internal list of begin...end environments, but for `document`"
         choices = []
         children = []
-        f = osjoin(blobs_dir, '.blob_inator-args.json')
-        if not os.path.exists(f):
+        try:
+            blobinator_args = get_blobinator_args(blobs_dir)
+        except:
             logger.error("File of blob_inator args does not exit: %r\n"%(f,))
         else:
-            with open(f) as a:
-                blobinator_args = json.load(a)
             for a in (blobinator_args['split_environment'] + blobinator_args['split_list']):
                 if a  not in self.env_not_star :
                     choices.append(( 'E_'+a , '\\begin{'+a))

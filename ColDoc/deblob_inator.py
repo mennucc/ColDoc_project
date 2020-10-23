@@ -298,17 +298,15 @@ def deblob_inator(blob_uuid, thetex, cmdargs):
     #
     filename = 'main.tex'
     #
-    a = osjoin(cmdargs.blobs_dir, '.blob_inator-args.json')
-    if os.path.isfile(a):
-        with open(a) as a:
-            oldargs = json.load(a)
+    try:
+        oldargs = get_blobinator_args(blobs_dir)
         cmdargs.verbatim_environment = oldargs['verbatim_environment']
         cmdargs.split_graphic = oldargs['split_graphic']
         filename = os.path.basename(oldargs['input_file'])
-    else:
+    except:
         cmdargs.verbatim_environment = ['verbatim']
         cmdargs.split_graphic = ["includegraphics"]
-        logger.error("File with `blob_inator` parameters is missing?? %r",a)
+        logger.exception("File with `blob_inator` parameters is missing??")
     #
     a= osjoin(args.latex_dir,filename)
     if os.path.exists(a) and not args.overwrite:

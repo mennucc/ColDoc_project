@@ -51,7 +51,7 @@ if __name__ == '__main__':
     #
     from ColDoc import loggin
 
-from ColDoc.utils import ColDocException
+from ColDoc.utils import ColDocException, get_blobinator_args
 
 if __name__ == '__main__':
     import logging
@@ -163,10 +163,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     #
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     #
-    f = osjoin(blobs_dir, '.blob_inator-args.json')
-    assert os.path.exists(f), ("File of blob_inator args does not exit: %r\n"%(f,))
-    with open(f) as a:
-        blobinator_args = json.load(a)
+    blobinator_args = get_blobinator_args(blobs_dir)
     #
     if environ[:2] == 'E_':
         if environ[2:] not in (blobinator_args['split_environment'] + blobinator_args['split_list']):
@@ -319,7 +316,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
 def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
     " returns (success, message, new_uuid)"
     #
-    from ColDoc.utils import slug_re
+    from ColDoc.utils import slug_re, get_blobinator_args
     assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
     assert ((isinstance(lang,str) and slug_re.match(lang)) or lang is None), lang
     #
@@ -333,10 +330,7 @@ def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
     #
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     #
-    f = osjoin(blobs_dir, '.blob_inator-args.json')
-    assert os.path.exists(f), ("File of blob_inator args does not exit: %r\n"%(f,))
-    with open(f) as a:
-        blobinator_args = json.load(a)
+    blobinator_args = get_blobinator_args(blobs_dir)
     #
     from ColDocDjango.ColDocApp.models import DColDoc
     coldoc = list(DColDoc.objects.filter(nickname = coldoc_nick))

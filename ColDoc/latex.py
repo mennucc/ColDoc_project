@@ -625,14 +625,12 @@ def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None
     else:
         logger.error('No %r',a)
     #
-    a = osjoin(blobs_dir, '.blob_inator-args.json')
-    if os.path.isfile( a ):
-        blob_inator_args = json.load(open(a))
-        assert isinstance(blob_inator_args,dict)
+    try:
+        blobinator_args = get_blobinator_args(blobs_dir)
         options.update(blob_inator_args)
         logger.debug('From %r options %r',a,options)
-    else:
-        logger.debug('No %r',a)
+    except:
+        logger.exception('No blobinator_args')
     return options
 
 
