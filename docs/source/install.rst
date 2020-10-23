@@ -57,5 +57,13 @@ to enable email sending, as in this example.
 	  EMAIL_USE_TLS = True
 	  DEFAULT_FROM_EMAIL = "Helpdesk <helpdesk@that_email"
 
+or to enhance the code, *e.g.* adding some mimetypes used in your `coldoc` s
+
+.. code:: shell
+
+	  import mimetypes
+	  # https://bugs.freedesktop.org/show_bug.cgi?id=5455
+	  for j in ('.gplt','.gnuplot'):
+	      mimetypes.add_type('application/x-gnuplot',j)
 
 
