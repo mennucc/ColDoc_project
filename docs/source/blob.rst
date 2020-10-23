@@ -79,4 +79,8 @@ There are two versions of the `main` view.
   This reduced version view is stored in the directory
   `anon/UUID/0/0/1`.
 
-
+For graphical content, there is no much difference between `blobs`
+and `views`, so an user that has `view_view` access will
+be able to view the blobs.
+(The precise definition of `graphical content` is encoded in
+`ColDoc.utils.is_image_blob`)

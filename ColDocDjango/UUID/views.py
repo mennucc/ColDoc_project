@@ -16,7 +16,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.utils.html import escape
 from django.templatetags.static import static
 
-from ColDoc.utils import slug_re, slugp_re
+from ColDoc.utils import slug_re, slugp_re, is_image_blob
 
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
@@ -362,9 +362,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if not request.user.has_perm('UUID.view_view'):
             return HttpResponse("Permission denied (view)",
                                 status=http.HTTPStatus.UNAUTHORIZED)
-        if prefix=='blob' and not request.user.has_perm('UUID.view_blob'):
-            return HttpResponse("Permission denied (blob)",
-                                status=http.HTTPStatus.UNAUTHORIZED)
+        # at this point we know that 'UUID.view_view' is granted; will check 'UUID.view_blob'
+        # later, so that for image files, access will be granted regardless of 'UUID.view_blob'
         if prefix=='log' and not request.user.has_perm('UUID.view_log'):
             return HttpResponse("Permission denied (log)",
                                 status=http.HTTPStatus.UNAUTHORIZED)
@@ -408,6 +407,11 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
                 _content_encoding = 'utf-8'
             else:
                 _content_type , _content_encoding = mimetypes.guess_type(n)
+        #
+        if prefix=='blob' and not ( request.user.has_perm('UUID.view_blob') or is_image_blob(metadata, _content_type) ):
+            return HttpResponse("Permission denied (blob)",
+                                status=http.HTTPStatus.UNAUTHORIZED)
+        #
         logger.debug("Serving: %r %r"%(n,_content_type))
         if _content_type == 'text/html':
             f = open(n).read()

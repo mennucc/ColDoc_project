@@ -41,6 +41,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'json_to_dict', 'dict_to_json', 'dict_save_or_del',
             'split_blob',
             'tree_environ_helper',
+            'is_image_blob',
             )
 
 class ColDocException(Exception):
@@ -48,6 +49,13 @@ class ColDocException(Exception):
 
 class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
+
+#####################
+
+def is_image_blob(metadata, content_type):
+    " check that this is an image blob"
+    return metadata.environ == 'graphic_file' and  content_type is not None \
+           and ( content_type.startswith('image/') or content_type in ('application/pdf',) )
 
 #####################
 
