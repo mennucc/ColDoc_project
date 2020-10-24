@@ -622,8 +622,7 @@ def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None
             coldoc_root_uuid = ColDoc.utils.int_to_uuid(coldoc_root_uuid)
         options['root_uuid'] = coldoc_root_uuid
         #
-        root_filename, root_uuid, root_metadata, root_lang, root_ext =\
-            ColDoc.utils.choose_blob(uuid=coldoc_root_uuid, blobs_dir=blobs_dir, metadata_class=metadata_class, coldoc=coldoc)
+        root_metadata = metadata_class.load_by_uuid(uuid=coldoc_root_uuid, coldoc=coldoc, basepath=blobs_dir)
         for a in ('documentclass', 'documentclassoptions'):
             b = root_metadata.get(a)
             if b:
