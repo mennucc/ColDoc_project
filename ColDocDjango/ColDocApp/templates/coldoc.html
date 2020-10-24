@@ -58,11 +58,6 @@ First published {{ coldoc.publication_time }}
 </button>
 </div>
 <script>window.addEventListener('ready', AJAXcheck_tree('{{ check_tree_url }}') );</script>
-{% endif %} <!-- if editor-->
-
-
-
-{% if user.is_editor %}
 {% if latex_error_logs %}
     <div class="border border-info mt-2">
        There were LaTeX errors while compiling the main document
@@ -75,9 +70,6 @@ First published {{ coldoc.publication_time }}
         </ul>
      </div>
 {% endif %}
-{% endif %} <!-- if editor-->
-
-{% if user.is_editor %}
 {% if failedblobs %}
 <h2>Failed blobs in tree</h2>
 <ul>
