@@ -759,6 +759,8 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
                     r += 1
                     logger.debug('symlink %s -> %s',src,k)
                     os.symlink(k,dst)
+                elif os.path.isfile(src) and j in  ColDoc_anon_copy_paths:
+                    shutil.copy2(src,dst, follow_symlinks=False)
                 #else:
                 #    logger.debug('not symlink %s',src)
         # preserve certain files when rebuilding anon tree
