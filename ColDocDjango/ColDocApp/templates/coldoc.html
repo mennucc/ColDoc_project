@@ -51,7 +51,7 @@ First published {{ coldoc.publication_time }}
 
 {% if user.is_editor %}
 <h2>Document checks</h2>
-<div class="border border-info mt-2">
+<div class="border border-info m-2 p-1">
 <div id='id_check_tree'>......</div>
 <button   type="button" class="btn btn-outline-primary btn-sm" id="id_button_check_tree" onClick="AJAXcheck_tree('{{ check_tree_url }}');">
   check tree
@@ -59,7 +59,7 @@ First published {{ coldoc.publication_time }}
 </div>
 <script>window.addEventListener('ready', AJAXcheck_tree('{{ check_tree_url }}') );</script>
 {% if latex_error_logs %}
-    <div class="border border-info mt-2">
+    <div class="border border-info m-2 p-1">
        There were LaTeX errors while compiling the main document
        <ul>
         {% for val,link in latex_error_logs %}
@@ -85,7 +85,7 @@ First published {{ coldoc.publication_time }}
 
 {% if perms.ColDocApp.view_dcoldoc %}
 <h2>Settings</h2>
-<div class="border border-info mt-2">
+<div class="border border-info m-2 p-1">
      {% if perms.ColDocApp.change_dcoldoc %}
      <form action="{% url 'ColDoc:postcoldocedit' NICK=NICK %}" id="{{ coldocform.htmlid }}" method="post" class="w-100">
      {% csrf_token %}{{ coldocform.non_field_errors }}
@@ -105,7 +105,7 @@ First published {{ coldoc.publication_time }}
 
 {% if  USE_BACKGROUND_TASKS and user.is_editor %}
 <h2> Tasks </h2>
-<div class="border border-info mt-2">
+<div class="border border-info m-2 p-1">
 <ul>
 {% for val in tasks %}
 <li> {{ val }} </li>
@@ -113,7 +113,7 @@ First published {{ coldoc.publication_time }}
 </ul>
 </div>
 <h2> Completed Tasks </h2>
-<div class="border border-info mt-2">
+<div class="border border-info m-2 p-1">
 <ul>
 {% for val in completed_tasks %}
 <li> {{ val }} </li>
