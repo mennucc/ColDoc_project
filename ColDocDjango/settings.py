@@ -61,6 +61,15 @@ if config.get('django','allowed_hosts'):
 # https://django-allauth.readthedocs.io/en/latest/installation.html#django
 USE_ALLAUTH = config['django'].getboolean('use_allauth')
 
+# https://django-background-tasks.readthedocs.io/en/latest/
+USE_BACKGROUND_TASKS = config['django'].getboolean('use_background_tasks')
+if USE_BACKGROUND_TASKS:
+    try:
+        import background_task
+    except ImportError:
+        logger.error('Please install `django-background-tasks`')
+        USE_BACKGROUND_TASKS = False
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -85,6 +94,9 @@ if USE_ALLAUTH:
 ## settings.py file in COLDOC_SITE_ROOT
 # INSTALLED_APPS += [
 #     'allauth.socialaccount.providers.google']
+
+if USE_BACKGROUND_TASKS:
+    INSTALLED_APPS += ['background_task',]
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
