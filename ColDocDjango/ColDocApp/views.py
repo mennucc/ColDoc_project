@@ -163,7 +163,7 @@ def latex(request, NICK):
         messages.add_message(request,messages.INFO,'Compilation finished for '+typ_)
     else:
         messages.add_message(request,messages.WARNING,'Compilation failed for '+typ_)
-    return index(request, NICK)
+    return redirect(django.urls.reverse('ColDoc:index',kwargs={'NICK':NICK,}))
 
 
 def html(request, NICK, subpath=None):
