@@ -297,6 +297,10 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
     metadata_class = options.get('metadata_class')
     coldoc_dir = options.get('coldoc_dir')
     coldoc = options.get('coldoc')
+    #
+    if coldoc_dir is not None:
+        options = prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc, options)
+    #
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                               blobs_dir = blobs_dir,
                                               coldoc = coldoc,
