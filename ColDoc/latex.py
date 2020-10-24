@@ -21,7 +21,7 @@ Command help:
        all of the above
 """
 
-import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib
+import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64
 
 from os.path import join as osjoin
 
@@ -289,6 +289,11 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
     assert access in ('public','private')
     assert isinstance(blobs_dir, (str, pathlib.Path)), blobs_dir
     assert os.path.isdir(blobs_dir)
+    #
+    if isinstance(options, (str,bytes) ):
+        # base64 accepts both bytes and str
+        options = pickle.loads(base64.b64decode(options))
+    #
     metadata_class = options.get('metadata_class')
     coldoc_dir = options.get('coldoc_dir')
     coldoc = options.get('coldoc')
