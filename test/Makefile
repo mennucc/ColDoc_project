@@ -74,6 +74,7 @@ django_help:
 	@echo " django_paper  : to add paper/paper.tex to that portal"
 	@echo "django_latextest : to add latex/latex_test.tex to that portal (a stress test)"
 	@echo " django_run    : to run a local server to test django portal "
+	@echo " django_tasks  : to run the server for background tasks"
 	@echo " django_clean  : to clean everything "
 
 ########## deploy a ColDoc portal
@@ -117,6 +118,10 @@ django_latextest: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 
 django_run:
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  runserver
+
+django_tasks:
+	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  process_tasks --dev -v 2
+
 
 django_paper_clean:
 	-./django_tester.py delete
