@@ -49,7 +49,31 @@ First published {{ coldoc.publication_time }}
 <!-- <h2>View</h2> <iframe src="{{ htmlurl }}"   width="100%"   height="640px">(View should be displayed here)</iframe> -->
 
 
+
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+ {% if user.is_editor %}
+  <li class="nav-item">
+    <a class="nav-link" id="status-tab" data-toggle="tab" href="#status" role="tab" aria-controls="status" aria-selected="true">Status</a>
+  </li>
+ {% endif %}
+ {% if  user.is_staff or perms.ColDocApp.view_dcoldoc %}
+  <li class="nav-item">
+      <a class="nav-link" id="settings-tab" data-toggle="tab" href="#settings" role="tab" aria-controls="settings" aria-selected="false">Settings</a>
+  </li>
+ {% endif %}
+ {% if user.is_editor %}
+  <li class="nav-item">
+    <a class="nav-link" id="tasks-tab" data-toggle="tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
+  </li>
+ {% endif %}
+</ul>
+
+
+
+<div class="tab-content" id="myTabContent">
+
 {% if user.is_editor %}
+<div class="tab-pane fade show active border m-2 p-1" id="status" role="tabpanel" aria-labelledby="status-tab">
 <h2>Document checks</h2>
 <div class="border border-info m-2 p-1">
 <div id='id_check_tree'>......</div>
@@ -80,9 +104,11 @@ First published {{ coldoc.publication_time }}
 {% endfor %}
 </ul>
 {% endif %}
+</div> <!-- div view -->
 {% endif %} <!-- if editor-->
 
 
+<div class="tab-pane fade show border m-2 p-1" id="settings" role="tabpanel" aria-labelledby="settings-tab">
 {% if perms.ColDocApp.view_dcoldoc %}
 <h2>Settings</h2>
 <div class="border border-info m-2 p-1">
@@ -101,9 +127,11 @@ First published {{ coldoc.publication_time }}
   edit settings in admin form
 </a>
 {% endif %}
+</div>  <!-- settings tab -->
 
 
 {% if  USE_BACKGROUND_TASKS and user.is_editor %}
+ <div class="tab-pane fade show border m-2 p-1" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
 <h2> Tasks </h2>
 <div class="border border-info m-2 p-1">
 <ul>
@@ -120,5 +148,9 @@ First published {{ coldoc.publication_time }}
 {% endfor %}
 </ul>
 </div>
+</div> <!-- view tab -->
 {% endif %} <!-- if editor etc -->
+
+</div> <!--class="tab-content" id="myTabContent"-->
+
 {% endblock %}
