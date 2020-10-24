@@ -61,6 +61,7 @@ First published {{ coldoc.publication_time }}
 {% endif %} <!-- if editor-->
 
 
+
 {% if user.is_editor %}
 {% if latex_error_logs %}
     <div class="border border-info mt-2">
@@ -110,4 +111,22 @@ First published {{ coldoc.publication_time }}
 {% endif %}
 
 
+{% if  USE_BACKGROUND_TASKS and user.is_editor %}
+<h2> Tasks </h2>
+<div class="border border-info mt-2">
+<ul>
+{% for val in tasks %}
+<li> {{ val }} </li>
+{% endfor %}
+</ul>
+</div>
+<h2> Completed Tasks </h2>
+<div class="border border-info mt-2">
+<ul>
+{% for val in completed_tasks %}
+<li> {{ val }} </li>
+{% endfor %}
+</ul>
+</div>
+{% endif %} <!-- if editor etc -->
 {% endblock %}

@@ -77,6 +77,8 @@ def index(request, NICK):
     #
     latex_error_logs = []
     failed_blobs = []
+    tasks = []
+    completed_tasks = []
     if request.user.is_editor:
         from ColDocDjango.utils import convert_latex_return_codes
         latex_error_logs = convert_latex_return_codes(c.latex_return_codes, c.nickname, c.root_uuid)
@@ -84,12 +86,17 @@ def index(request, NICK):
         failed_blobs = map( lambda x : (x, django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':x})),
                             DMetadata.objects.exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
         #
+        if Task is not None:
+            tasks = [ TaskForm(instance=j) for j in Task.objects.all() ]
+            completed_tasks = [ TaskForm(instance=j) for j in CompletedTask.objects.all() ]
+        #
     check_tree_url = django.urls.reverse('ColDoc:check_tree', kwargs={'NICK':NICK,})
     return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname,
                                            'coldocform' : coldocform,
                                            'failedblobs' : failed_blobs,
                                            'check_tree_url' : check_tree_url,
                                            'whole_button_class' : whole_button_class,
+                                           'tasks' : tasks, 'completed_tasks' : completed_tasks,
                                            'latex_error_logs':latex_error_logs})
 
 ##################
@@ -108,8 +115,17 @@ if settings.USE_BACKGROUND_TASKS:
         a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
         logger.debug('Starting scheduled latex_main ( %s , %s)' , ' , '.join(v), a)
         return latex_main(*v,**k)
+    #
+    from background_task.models import Task, CompletedTask
+    from django.forms import ModelForm
+    class TaskForm(ModelForm):
+        class Meta:
+            model = Task
+            fields = ['verbose_name','run_at','failed_at']
+    #
 else:
     background = None
+    Task = CompletedTask = None
     latex_main_sched = latex_main
 
 def latex(request, NICK):
