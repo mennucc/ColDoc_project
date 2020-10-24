@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, pathlib
+import os, sys, mimetypes, http, pathlib, pickle, base64
 from os.path import join as osjoin
 
 import logging
@@ -125,6 +125,8 @@ def latex(request, NICK):
     options['metadata_class'] = DMetadata
     #
     from ColDoc.latex import latex_main
+    options = base64.b64encode(pickle.dumps(options)).decode()
+    #
     ret = False
     if typ_ == 'main':
         ret = latex_main(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private')
