@@ -599,12 +599,20 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
 
 
 
-def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None): 
+def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None, options = None): 
+    if options is None:
+        options = {}
+    ### get and set some options
+    if coldoc is None:
+        coldoc = options.get('coldoc')
+    else:
+        options['coldoc'] = coldoc
+    options['coldoc_dir'] = coldoc_dir
+    #
     a = osjoin(coldoc_dir, 'coldoc.json')
-    options = {}
     if os.path.isfile( a ):
         coldoc_args = json.load(open(a))
-        options = coldoc_args['fields']
+        options.update(coldoc_args['fields'])
         #
         coldoc_root_uuid = options.get('root_uuid')
         if isinstance(coldoc_root_uuid,int):
