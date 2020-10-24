@@ -283,7 +283,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     metadata.save()
     return rh, rp
 
-def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
+def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, verbose_name=None):
     "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
     #
     assert access in ('public','private')
