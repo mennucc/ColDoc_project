@@ -289,10 +289,13 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
     assert access in ('public','private')
     assert isinstance(blobs_dir, (str, pathlib.Path)), blobs_dir
     assert os.path.isdir(blobs_dir)
+    metadata_class = options.get('metadata_class')
+    coldoc_dir = options.get('coldoc_dir')
+    coldoc = options.get('coldoc')
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                               blobs_dir = blobs_dir,
-                                              coldoc = options.get('coldoc'),
-                                              metadata_class= options['metadata_class'])
+                                              coldoc = coldoc,
+                                              metadata_class = metadata_class)
     environ = metadata.environ
     #
     if access =='public':
