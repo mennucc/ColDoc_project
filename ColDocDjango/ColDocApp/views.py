@@ -92,6 +92,19 @@ def index(request, NICK):
                                            'whole_button_class' : whole_button_class,
                                            'latex_error_logs':latex_error_logs})
 
+##################
+
+from ColDoc.latex import latex_main #as latex_main__
+
+if settings.USE_BACKGROUND_TASKS:
+    from background_task import background
+    @background()
+    def latex_main_sched(*v,**k):
+        logger.debug('Starting scheduled latex_main %r %r',v,k)
+        return latex_main(*v,**k)
+else:
+    background = None
+    latex_main_sched = latex_main
 
 def latex(request, NICK):
     assert slug_re.match(NICK)
@@ -123,22 +136,22 @@ def latex(request, NICK):
     options['url_UUID'] = url
     options['coldoc'] = coldoc
     options['metadata_class'] = DMetadata
-    #
-    from ColDoc.latex import latex_main
     options = base64.b64encode(pickle.dumps(options)).decode()
     #
     ret = False
     if typ_ == 'main':
-        ret = latex_main(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private')
+        ret = latex_main_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private')
     else:
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
                                              metadata_class=ColDoc.utils.FMetadata)
         if anon_dir is not None:
             assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
-            ret = latex_main(anon_dir, uuid=coldoc.root_uuid, options=options, access='public')
+            ret = latex_main_sched(anon_dir, uuid=coldoc.root_uuid, options=options, access='public')
         else:
             messages.add_message(request,messages.WARNING,'Anon tree failed')
-    if ret:
+    if background is not None:
+        messages.add_message(request,messages.INFO,'Compilation scheduled for '+typ_)
+    elif ret:
         messages.add_message(request,messages.INFO,'Compilation finished for '+typ_)
     else:
         messages.add_message(request,messages.WARNING,'Compilation failed for '+typ_)
