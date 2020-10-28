@@ -101,14 +101,17 @@ def index(request, NICK):
 
 ##################
 
-from ColDoc.latex import latex_main #as latex_main__
+from ColDoc.latex import latex_main, latex_tree
 
 if settings.USE_BACKGROUND_TASKS:
-    from .tasks import latex_main_sched, Task, CompletedTask, TaskForm, CompletedTaskForm
+    from .tasks import latex_main_sched, latex_tree_sched, Task, CompletedTask, TaskForm, CompletedTaskForm
     #
 else:
     Task = CompletedTask = None
     latex_main_sched = latex_main
+    latex_tree_sched = latex_tree
+
+
 
 def latex(request, NICK):
     assert slug_re.match(NICK)
@@ -125,7 +128,7 @@ def latex(request, NICK):
     #
     q = request.GET
     typ_ = q.get('type')
-    if typ_ not in ('main','anon'):
+    if typ_ not in ('main','anon','tree'):
         messages.add_message(request,messages.WARNING,'Wrong request')
         return index(request, NICK)
     #
@@ -140,12 +143,19 @@ def latex(request, NICK):
     options['url_UUID'] = url
     options['coldoc'] = coldoc
     options['metadata_class'] = DMetadata
+    # needed by `latex_tree`
+    if typ_ == 'tree':
+        import functools
+        from ColDocDjango.transform import squash_helper_ref
+        options["squash_helper"] =  functools.partial(squash_helper_ref, coldoc)
     # this signals `latex_main` to run `prepare_options_for_latex()` 
     options['coldoc_dir'] = coldoc_dir
     options = base64.b64encode(pickle.dumps(options)).decode()
     #
     ret = False
-    if typ_ == 'main':
+    if typ_ == 'tree':
+        ret = latex_tree_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, verbose_name="latex_tree")
+    elif typ_ == 'main':
         ret = latex_main_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private', verbose_name="latex_main:private")
     else:
         n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
