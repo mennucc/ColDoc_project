@@ -163,6 +163,24 @@ def latex(request, NICK):
         messages.add_message(request,messages.WARNING,'Compilation failed for '+typ_)
     return redirect(django.urls.reverse('ColDoc:index',kwargs={'NICK':NICK,}))
 
+def reparse(request, NICK):
+    assert slug_re.match(NICK)
+    coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    #
+    request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
+    if not request.user.is_editor:
+        raise SuspiciousOperation("Permission denied")
+    #
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    blobs_dir = osjoin(coldoc_dir,'blobs')
+    if not os.path.isdir(blobs_dir):
+        raise SuspiciousOperation("No blobs for this ColDoc %r.\n" % (NICK,))
+    #
+    from ColDocDjango.helper import reparse_all
+    ret = reparse_all(logger, settings.COLDOC_SITE_ROOT, NICK)
+    messages.add_message(request,messages.INFO,'Reparsing done')
+    return redirect(django.urls.reverse('ColDoc:index',kwargs={'NICK':NICK,}))
+
 
 def html(request, NICK, subpath=None):
     if not slug_re.match(NICK):

@@ -42,6 +42,10 @@ First published {{ coldoc.publication_time }}
  data-toggle="tooltip" title="This HTML and PDF are visible only to editors; all material is visible.">
  Compile private HTML and PDF.
 </a>
+<a href="{% url 'ColDoc:reparse' NICK=coldoc.nickname  %}" class="btn btn-outline-primary btn-sm"
+ data-toggle="tooltip" title="Reparse all blobs to extract metadata.">
+ Reparse.
+</a>
 {% endif %}
 
 <!-- <a href="{{ htmlurl }}?download"><button type="button" class="btn btn-outline-primary btn-sm">Download</button></a>    <br> -->

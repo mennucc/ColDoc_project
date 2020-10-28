@@ -14,4 +14,5 @@ urlpatterns = [
     path('<str:NICK>/check_tree', views.check_tree, name='check_tree'),
     path('<str:NICK>/postcoldocedit', views.post_coldoc_edit, name='postcoldocedit'),
     path('<str:NICK>/latex', views.latex, name='latex'),
+    path('<str:NICK>/reparse', views.reparse, name='reparse'),
 ]
