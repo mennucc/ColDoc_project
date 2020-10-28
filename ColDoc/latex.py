@@ -695,10 +695,7 @@ def main(argv):
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, FMetadata)
     options['url_UUID'] = args.url_UUID
     #
-    def foobar(*v, **k):
-        " helper factory"
-        return ColDoc.transform.squash_input_uuid(*v, **k)
-    options["squash_helper"] = foobar
+    options["squash_helper"] = ColDoc.transform.squash_input_uuid
     options['metadata_class'] = ColDoc.utils.FMetadata
     return main_by_args(args,options)
 
