@@ -22,6 +22,7 @@ def latex_main_sched(*v,**k):
         # base64 accepts both bytes and str
         options = pickle.loads(base64.b64decode(options))
     k['options'] = options
+    if 'verbose_name' in k: del k['verbose_name']
     a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
     logger.debug('Starting scheduled latex_main ( %s , %s)' , ' , '.join(v), a)
     return latex_main(*v,**k)
