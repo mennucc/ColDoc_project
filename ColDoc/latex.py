@@ -589,13 +589,25 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
 def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
     " latex the whole tree, starting from `uuid` "
     warn = logging.WARNING if warn else logging.DEBUG
+    #
+    if isinstance(options, (str,bytes) ):
+        # base64 accepts both bytes and str
+        options = pickle.loads(base64.b64decode(options))
+    #
+    metadata_class = options.get('metadata_class')
+    coldoc_dir = options.get('coldoc_dir')
+    coldoc = options.get('coldoc')
+    #
+    if coldoc_dir is not None:
+        options = prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc, options)
+    #
     if uuid is None:
         logger.warning('Assuming root_uuid = 001')
         uuid = '001'
     uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir,
-                                                   coldoc = options.get('coldoc'),
-                                                   metadata_class=options['metadata_class'])
+                                                   coldoc = coldoc,
+                                                   metadata_class=metadata_class)
     #
     ret = True
     if metadata.environ in environments_we_wont_latex and warn:
