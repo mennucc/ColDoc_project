@@ -313,7 +313,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     #    return False, "Exception %r"%e
 
 
-def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
+def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
     " returns (success, message, new_uuid)"
     #
     from ColDoc.utils import slug_re, get_blobinator_args
@@ -347,7 +347,7 @@ def reparse_all(logger, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
                 pass
             else:
                 def warn(msg):
-                    logger.warning('Parsing uuid %r lang %r : %s'%(uuid,lang,msg))
+                    writelog('Parsing uuid %r lang %r : %s'%(uuid,lang,msg))
                 reparse_blob(filename, metadata, blobs_dir, warn, act=act)
 
 
@@ -532,7 +532,9 @@ does not contain the file `config.ini`
         return ret[0] #discard message
     #
     elif argv[0] == 'reparse_all':
-        ret = reparse_all(logger, COLDOC_SITE_ROOT, args.coldoc_nick, args.lang, not args.no_act)
+        def writelog(s):
+            sys.stdout.write(' '+ s + '\n')
+        ret = reparse_all(writelog, COLDOC_SITE_ROOT, args.coldoc_nick, args.lang, not args.no_act)
     #
     elif argv[0] == 'check_tree':
         problems = check_tree(logger.warning, COLDOC_SITE_ROOT, args.coldoc_nick)

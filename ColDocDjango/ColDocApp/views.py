@@ -177,7 +177,9 @@ def reparse(request, NICK):
         raise SuspiciousOperation("No blobs for this ColDoc %r.\n" % (NICK,))
     #
     from ColDocDjango.helper import reparse_all
-    ret = reparse_all(logger, settings.COLDOC_SITE_ROOT, NICK)
+    def writelog(s):
+        messages.add_message(request,messages.INFO,s)
+    ret = reparse_all(writelog, settings.COLDOC_SITE_ROOT, NICK)
     messages.add_message(request,messages.INFO,'Reparsing done')
     return redirect(django.urls.reverse('ColDoc:index',kwargs={'NICK':NICK,}))
 
