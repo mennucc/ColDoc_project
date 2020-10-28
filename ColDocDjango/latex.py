@@ -77,10 +77,8 @@ def main(argv):
     for k in 'server_url', 'hostname':
         options[k] = config['django'][k]
     #
-    def foobar(*v, **k):
-        " helper factory"
-        return squash_helper_ref(coldoc, *v, **k)
-    options["squash_helper"] = foobar
+    import functools
+    options["squash_helper"] = functools.partial(squash_helper_ref, coldoc)
     options['metadata_class'] = blob_models.DMetadata
     return ColDoc.latex.main_by_args(args,options)
 
