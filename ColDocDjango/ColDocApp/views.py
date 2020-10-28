@@ -88,7 +88,7 @@ def index(request, NICK):
         #
         if Task is not None:
             tasks = [ TaskForm(instance=j) for j in Task.objects.all() ]
-            completed_tasks = [ TaskForm(instance=j) for j in CompletedTask.objects.all() ]
+            completed_tasks = [ CompletedTaskForm(instance=j) for j in CompletedTask.objects.all() ]
         #
     check_tree_url = django.urls.reverse('ColDoc:check_tree', kwargs={'NICK':NICK,})
     return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname,
@@ -104,27 +104,9 @@ def index(request, NICK):
 from ColDoc.latex import latex_main #as latex_main__
 
 if settings.USE_BACKGROUND_TASKS:
-    from background_task import background
-    @background()
-    def latex_main_sched(*v,**k):
-        options = k['options']
-        if isinstance(options, (str,bytes) ):
-            # base64 accepts both bytes and str
-            options = pickle.loads(base64.b64decode(options))
-        k['options'] = options
-        a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
-        logger.debug('Starting scheduled latex_main ( %s , %s)' , ' , '.join(v), a)
-        return latex_main(*v,**k)
-    #
-    from background_task.models import Task, CompletedTask
-    from django.forms import ModelForm
-    class TaskForm(ModelForm):
-        class Meta:
-            model = Task
-            fields = ['verbose_name','run_at','failed_at']
+    from .tasks import latex_main_sched, Task, CompletedTask, TaskForm, CompletedTaskForm
     #
 else:
-    background = None
     Task = CompletedTask = None
     latex_main_sched = latex_main
 
@@ -173,7 +155,7 @@ def latex(request, NICK):
             ret = latex_main_sched(anon_dir, uuid=coldoc.root_uuid, options=options, access='public', verbose_name="latex_main:public")
         else:
             messages.add_message(request,messages.WARNING,'Anon tree failed')
-    if background is not None:
+    if settings.USE_BACKGROUND_TASKS:
         messages.add_message(request,messages.INFO,'Compilation scheduled for '+typ_)
     elif ret:
         messages.add_message(request,messages.INFO,'Compilation finished for '+typ_)
