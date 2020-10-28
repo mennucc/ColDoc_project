@@ -51,4 +51,6 @@ to recreate the HTML PDF for each blob (this is useful if you edited many blobs 
 to run all of the above.
 
 Note that when you edit a blob using the web interface, it is automatically reparsed
-and HTML and PDF are recomputed; but the `main` and `anon` complete documents are not recompiled.
+and HTML and PDF are recomputed; but the `private` and `public` complete documents are not recompiled
+automatically, you have to either use the command above or the button in the web interface
+(visible only to editors).
