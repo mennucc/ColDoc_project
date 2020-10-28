@@ -176,11 +176,18 @@ def reparse(request, NICK):
     if not os.path.isdir(blobs_dir):
         raise SuspiciousOperation("No blobs for this ColDoc %r.\n" % (NICK,))
     #
-    from ColDocDjango.helper import reparse_all
-    def writelog(s):
-        messages.add_message(request,messages.INFO,s)
-    ret = reparse_all(writelog, settings.COLDOC_SITE_ROOT, NICK)
-    messages.add_message(request,messages.INFO,'Reparsing done')
+    if settings.USE_BACKGROUND_TASKS:
+        from .tasks import reparse_all_sched
+        reparse_all_sched(request.user.email, NICK, verbose_name='reparse')
+        messages.add_message(request,messages.INFO,'Reparsing scheduled')
+        if request.user.email:
+            messages.add_message(request,messages.INFO,'Reparsing results will be sent to '+str(request.user.email))
+    else:
+        from ColDocDjango.helper import reparse_all
+        def writelog(s):
+            messages.add_message(request,messages.INFO,s)
+        reparse_all(writelog, settings.COLDOC_SITE_ROOT, NICK)
+        messages.add_message(request,messages.INFO,'Reparsing done')
     return redirect(django.urls.reverse('ColDoc:index',kwargs={'NICK':NICK,}))
 
 
