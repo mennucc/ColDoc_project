@@ -283,7 +283,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     metadata.save()
     return rh, rp
 
-def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'):
+def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public', verbose_name=None):
     #
     assert access=='public'
     #
@@ -305,7 +305,7 @@ def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'
         return False
 
 
-def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
+def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, verbose_name=None):
     "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
     #
     assert access in ('public','private')
@@ -608,7 +608,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
     return res
 
 
-def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}):
+def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_name=None):
     " latex the whole tree, starting from `uuid` "
     warn = logging.WARNING if warn else logging.DEBUG
     #
