@@ -283,6 +283,28 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     metadata.save()
     return rh, rp
 
+def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'):
+    #
+    assert access=='public'
+    #
+    if isinstance(options, (str,bytes) ):
+        # base64 accepts both bytes and str
+        options = pickle.loads(base64.b64decode(options))
+    #
+    metadata_class = options.get('metadata_class')
+    assert coldoc_dir == options.get('coldoc_dir',coldoc_dir)
+    coldoc = options.get('coldoc')
+    warn = options.get('warn')
+    #
+    n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=uuid, lang=lang, warn=warn,
+                                                 metadata_class=metadata_class, coldoc=coldoc)
+    if anon_dir is not None:
+        assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
+        return latex_main(anon_dir, uuid=uuid, lang=lang, options = options, access='public')
+    else:
+        return False
+
+
 def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None):
     "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
     #
@@ -728,22 +750,11 @@ def main_by_args(args,options):
     elif argv[0] == 'main_private':
         ret = latex_main(blobs_dir, uuid=UUID, options=options, access='private')
     elif argv[0] == 'main_public':
-        n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False,
-                                                  metadata_class=ColDoc.utils.FMetadata)
-        if anon_dir is not None:
-            ret = latex_main(anon_dir, uuid=UUID, options=options, access='public')
-        else:
-            ret = False
+        ret = latex_anon(coldoc_dir, uuid=UUID, options=options, access='public')
     elif argv[0] == 'all':
         ret = latex_main(blobs_dir, uuid=UUID, options=options, access='private')
+        ret &= latex_anon(coldoc_dir, uuid=UUID, options=options, access='public')
         ret &= latex_tree(blobs_dir,UUID, options=options)
-        n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
-                                                 metadata_class=ColDoc.utils.FMetadata)
-        if anon_dir is not None:
-            assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
-            ret &= latex_main(anon_dir, uuid=UUID, options=options, access='public')
-        else:
-            ret = False
     else:
         sys.stderr.write('Unknown command, see --help')
         return False
