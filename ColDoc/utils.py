@@ -664,12 +664,12 @@ def plastex_invoke(cwd_, stdout_ , argv_):
 
 
 
-def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class):
+def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class, coldoc=None):
     " subrouting for `prepare_anon_tree` "
     warn = logging.WARNING if warn else logging.DEBUG
     uuid_, uuid_dir, metadata = resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir,
-                                                   metadata_class=metadata_class)
+                                                   metadata_class=metadata_class, coldoc=coldoc)
     ret = 0
     bd = osjoin(blobs_dir,uuid_dir)
     td = osjoin(temp_dir,uuid_dir)
@@ -726,12 +726,12 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_cl
             logger.log(logging.DEBUG,'did not copy %r',f)
     for u in metadata.get('child_uuid'):
         logger.debug('moving down from node %r to node %r',uuid,u)
-        ret += prepare_anon_tree_recurse(blobs_dir, temp_dir, u, lang, warn, metadata_class)
+        ret += prepare_anon_tree_recurse(blobs_dir, temp_dir, u, lang, warn, metadata_class, coldoc)
     return ret
     
 
 def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
-                      warn=False, metadata_class=FMetadata):
+                      warn=False, metadata_class=FMetadata, coldoc=None):
     """ copy the whole tree, starting from `uuid`, and masking private content;
     returns `(n,anon)` , where `n` is the number of copied files, and
     `anon` is the anonymous directory (or `None` in case of failure).
@@ -747,7 +747,7 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
     logger.log(warn, 'Preparing anon tree in %s', temp_dir)
     r = 0
     try:
-        r = prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class)
+        r = prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class, coldoc)
         for dirpath, dirnames, filenames in os.walk(blobs_dir,followlinks=False):
             tmp_path = osjoin(temp_dir,dirpath[1+len(blobs_dir):])
             os.makedirs(tmp_path, exist_ok=True)
