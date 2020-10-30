@@ -101,14 +101,15 @@ def index(request, NICK):
 
 ##################
 
-from ColDoc.latex import latex_main, latex_tree
+from ColDoc.latex import latex_main, latex_anon, latex_tree
 
 if settings.USE_BACKGROUND_TASKS:
-    from .tasks import latex_main_sched, latex_tree_sched, Task, CompletedTask, TaskForm, CompletedTaskForm
+    from .tasks import latex_main_sched, latex_anon_sched, latex_tree_sched, Task, CompletedTask, TaskForm, CompletedTaskForm
     #
 else:
     Task = CompletedTask = None
     latex_main_sched = latex_main
+    latex_anon_sched = latex_anon
     latex_tree_sched = latex_tree
 
 
@@ -158,13 +159,7 @@ def latex(request, NICK):
     elif typ_ == 'main':
         ret = latex_main_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private', verbose_name="latex_main:private")
     else:
-        n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False,
-                                                     metadata_class=DMetadata, coldoc=coldoc)
-        if anon_dir is not None:
-            assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
-            ret = latex_main_sched(anon_dir, uuid=coldoc.root_uuid, options=options, access='public', verbose_name="latex_main:public")
-        else:
-            messages.add_message(request,messages.WARNING,'Anon tree failed')
+        ret = latex_anon_sched(coldoc_dir, uuid=coldoc.root_uuid, options=options, access='public', verbose_name="latex_main:public")
     if settings.USE_BACKGROUND_TASKS:
         messages.add_message(request,messages.INFO,'Compilation scheduled for '+typ_)
     elif ret:
