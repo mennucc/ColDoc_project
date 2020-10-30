@@ -329,6 +329,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             _view_ext = q['ext']
         else:
             return HttpResponse("must specify extension", status=http.HTTPStatus.NOT_FOUND)
+    # used for main document logs
+    access = q.get('access')
+    assert access is None or slugp_re.match(access)
     #
     if prefix == 'log' and  _view_ext not in ColDoc.config.ColDoc_allowed_logs:
         return HttpResponse("Permission denied (log)", status=http.HTTPStatus.UNAUTHORIZED)
@@ -378,8 +381,15 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         isdir = False
         langs += metadata.get('lang') + [None]
         pref_ = prefix
+        # access to logs
         if  prefix == 'log' :
-            pref_ = 'main' if UUID == metadata.coldoc.root_uuid else 'view'
+            if UUID == metadata.coldoc.root_uuid:
+                pref_ = 'main'
+                if access == 'public':
+                    blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
+            else:
+                pref_ = 'view'
+        #
         for l in langs:
             assert l in (None,'') or slug_re.match(l)
             if l not in (None,''):

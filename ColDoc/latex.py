@@ -375,7 +375,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         #
         open(fake_abs_name+'.tex','w').write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
-        ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_, rp)
+        ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
         try:
             ColDoc.utils.os_rel_symlink(save_name+'.pdf','main'+_lang+'.pdf',
                                         blobs_dir, False, True)
@@ -384,7 +384,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         open(fake_abs_name+'.tex','w').write(f_html)
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
-        ColDoc.utils.dict_save_or_del(retcodes, 'plastex'+lang_, rh)
+        ColDoc.utils.dict_save_or_del(retcodes, 'plastex'+lang_+':'+access, rh)
         try:
             ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
                                         blobs_dir, True, True)
