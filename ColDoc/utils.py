@@ -709,7 +709,7 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, c
                     # We include all LaTeX children, to keep tree connectivity
                     sub_uuid_, sub_uuid_dir, sub_metadata = resolve_uuid(uuid=u, uuid_dir=None,
                                                                          blobs_dir = blobs_dir,
-                                                                         metadata_class=metadata_class)
+                                                                         metadata_class=metadata_class, coldoc=coldoc)
                     if '.tex' in sub_metadata.get('extension'):
                         F.write('\\input{%s/blob%s.tex}'%(sub_uuid_dir,L))
                 F.close()
