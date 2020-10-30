@@ -9,7 +9,7 @@ from django.core.mail import EmailMessage
 import logging
 logger = logging.getLogger(__name__)
 
-from ColDoc.latex import latex_main , latex_tree
+from ColDoc.latex import latex_main , latex_anon, latex_tree
 
 
 # https://django-background-tasks.readthedocs.io/en/latest/
@@ -27,6 +27,18 @@ def latex_main_sched(*v,**k):
     a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
     logger.debug('Starting scheduled latex_main ( %s , %s)' , ' , '.join(v), a)
     return latex_main(*v,**k)
+
+@background()
+def latex_anon_sched(*v,**k):
+    options = k['options']
+    if isinstance(options, (str,bytes) ):
+        # base64 accepts both bytes and str
+        options = pickle.loads(base64.b64decode(options))
+    k['options'] = options
+    if 'verbose_name' in k: del k['verbose_name']
+    a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
+    logger.debug('Starting scheduled latex_anon ( %s , %s)' , ' , '.join(v), a)
+    return latex_anon(*v,**k)
 
 @background()
 def latex_tree_sched(*v,**k):
