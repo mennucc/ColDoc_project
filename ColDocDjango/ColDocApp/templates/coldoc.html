@@ -35,20 +35,20 @@ First published {{ coldoc.publication_time }}
 
 {% if user.is_editor %}
 <a href="{% url 'ColDoc:latex' NICK=coldoc.nickname %}?type=anon"
- class="btn btn-outline-primary btn-sm" data-toggle="tooltip" title="In this HTML and PDF private material is omitted.">
- Compile public HTML and PDF. 
+ class="btn btn-outline-primary btn-sm" data-toggle="tooltip" title="Compile whole document. In this HTML and PDF private material is omitted.">
+ Compile public 
 </a>
 <a href="{% url 'ColDoc:latex' NICK=coldoc.nickname  %}?type=main" class="btn btn-outline-primary btn-sm"
- data-toggle="tooltip" title="This HTML and PDF are visible only to editors; all material is visible.">
- Compile private HTML and PDF.
+ data-toggle="tooltip" title="Compile whole document. This HTML and PDF are visible only to editors; all material is visible.">
+ Compile private
 </a>
 <a href="{% url 'ColDoc:latex' NICK=coldoc.nickname  %}?type=tree" class="btn btn-outline-primary btn-sm"
  data-toggle="tooltip" title="Recompile HTML and PDF for all blobs.">
- Compile all blobs.
+ Compile blobs
 </a>
 <a href="{% url 'ColDoc:reparse' NICK=coldoc.nickname  %}" class="btn btn-outline-primary btn-sm"
  data-toggle="tooltip" title="Reparse all blobs to extract metadata.">
- Reparse.
+ Reparse
 </a>
 {% endif %}
 
