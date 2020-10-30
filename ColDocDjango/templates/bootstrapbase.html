@@ -65,7 +65,11 @@
    	{% if user.is_authenticated %}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          😀  {{ user.get_username }} 
+          <span data-toggle="tooltip" title="Succesfully logged in">  😀 </span>
+          {% if user.is_author %} <span data-toggle="tooltip" title="Author"> ✎ </span> {% endif %}
+	  {% if user.is_editor %} <span data-toggle="tooltip" title="Editor"> 🎩 </span>  {% endif %}
+	  {% if user.is_staff %}  <span data-toggle="tooltip" title="Staff"> 🔧 </span> {% endif %}
+	  {{ user.get_username }} 
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 	  {% if USE_ALLAUTH %}
@@ -80,9 +84,6 @@
 	  {% endif %} {# USE_ALLAUTH #}
         </div>
       </li>
-          {% if user.is_author %} <a href="#" data-toggle="tooltip" title="Author">✎ </a> {% endif %}
-	  {% if user.is_editor %} <a href="#" data-toggle="tooltip" title="Editor"> 🎩 </a>  {% endif %}
-	  {% if user.is_staff %}  <a href="#" data-toggle="tooltip" title="Staff"> 🔧 </a> {% endif %}
       {% else %} {# user.is_authenticated #}
       <li class="nav-item active">
       {% if USE_ALLAUTH %}
