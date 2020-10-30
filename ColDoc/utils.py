@@ -664,9 +664,8 @@ def plastex_invoke(cwd_, stdout_ , argv_):
 
 
 
-def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class, coldoc=None):
+def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, coldoc=None):
     " subrouting for `prepare_anon_tree` "
-    warn = logging.WARNING if warn else logging.DEBUG
     uuid_, uuid_dir, metadata = resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir,
                                                    metadata_class=metadata_class, coldoc=coldoc)
@@ -726,7 +725,7 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_cl
             logger.log(logging.DEBUG,'did not copy %r',f)
     for u in metadata.get('child_uuid'):
         logger.debug('moving down from node %r to node %r',uuid,u)
-        ret += prepare_anon_tree_recurse(blobs_dir, temp_dir, u, lang, warn, metadata_class, coldoc)
+        ret += prepare_anon_tree_recurse(blobs_dir, temp_dir, u, lang, metadata_class, coldoc)
     return ret
     
 
@@ -747,7 +746,7 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
     logger.log(warn, 'Preparing anon tree in %s', temp_dir)
     r = 0
     try:
-        r = prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, warn, metadata_class, coldoc)
+        r = prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, coldoc)
         for dirpath, dirnames, filenames in os.walk(blobs_dir,followlinks=False):
             tmp_path = osjoin(temp_dir,dirpath[1+len(blobs_dir):])
             os.makedirs(tmp_path, exist_ok=True)
