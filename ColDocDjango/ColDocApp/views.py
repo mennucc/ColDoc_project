@@ -158,8 +158,8 @@ def latex(request, NICK):
     elif typ_ == 'main':
         ret = latex_main_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private', verbose_name="latex_main:private")
     else:
-        n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False, 
-                                             metadata_class=ColDoc.utils.FMetadata)
+        n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=None, lang=None, warn=False,
+                                                     metadata_class=DMetadata, coldoc=coldoc)
         if anon_dir is not None:
             assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
             ret = latex_main_sched(anon_dir, uuid=coldoc.root_uuid, options=options, access='public', verbose_name="latex_main:public")
