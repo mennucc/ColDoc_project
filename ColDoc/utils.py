@@ -730,20 +730,19 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, c
     
 
 def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
-                      warn=False, metadata_class=FMetadata, coldoc=None):
+                      metadata_class=FMetadata, coldoc=None):
     """ copy the whole tree, starting from `uuid`, and masking private content;
     returns `(n,anon)` , where `n` is the number of copied files, and
     `anon` is the anonymous directory (or `None` in case of failure).
     If `lang` is not None, skip any blob that has a language that is not None.
     """
-    warn = logging.WARNING if warn else logging.DEBUG
     if uuid is None:
         uuid = '001'
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     assert os.path.isdir(blobs_dir)
     anon_dir = osjoin(coldoc_dir, 'anon')
     temp_dir = tempfile.mkdtemp(dir=coldoc_dir)
-    logger.log(warn, 'Preparing anon tree in %s', temp_dir)
+    logger.info('Preparing anon tree in %s', temp_dir)
     r = 0
     try:
         r = prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, coldoc)

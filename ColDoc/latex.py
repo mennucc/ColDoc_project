@@ -296,7 +296,7 @@ def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'
     coldoc = options.get('coldoc')
     warn = options.get('warn')
     #
-    n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=uuid, lang=lang, warn=warn,
+    n, anon_dir = ColDoc.utils.prepare_anon_tree(coldoc_dir, uuid=uuid, lang=lang,
                                                  metadata_class=metadata_class, coldoc=coldoc)
     if anon_dir is not None:
         assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
