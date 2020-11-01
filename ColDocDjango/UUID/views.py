@@ -459,9 +459,17 @@ def index(request, NICK, UUID):
         return HttpResponse("Invalid UUID %r." % (UUID,), status=http.HTTPStatus.BAD_REQUEST)
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+    #
     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
     if not os.path.isdir(blobs_dir):
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
+    #
+    coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
+    has_general_view_view = request.user.has_perm('UUID.view_view')
+    anon_dir  = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
+    global_blobs_dir = blobs_dir if has_general_view_view else anon_dir
+    #
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -554,7 +562,7 @@ def index(request, NICK, UUID):
     if env not in ColDoc.latex.environments_we_wont_latex:
         pdfUUIDurl = django.urls.reverse('ColDoc:pdf', kwargs={'NICK':NICK,}) +\
             '?lang=%s&ext=%s#UUID:%s'%(lang, ext, UUID)
-        section, anchor = ColDoc.latex.get_specific_html_for_UUID(blobs_dir,UUID)
+        section, anchor = ColDoc.latex.get_specific_html_for_UUID(global_blobs_dir,UUID)
         htmlUUIDurl = django.urls.reverse('ColDoc:html', kwargs={'NICK':NICK,}) +\
              section +\
             '?lang=%s&ext=%s#%s'%(lang, ext, anchor)
