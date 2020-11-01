@@ -1,12 +1,21 @@
 \ifdefined\uuidbaseurl\else\def\uuidbaseurl{@URLPLACEHOLDER91HDLP@/}\fi%
+
+%%% you may customize the formatting of the UUID marker
+\ifdefined\uuidformatter\else
+\newcommand{\uuidformatter}[1]{{\texttt{[#1]}}}%
+\fi
+
+
+%%% you should not alter these
 \ifdefined\uuid\else\ifdefined\href%
-\newcommand{\uuid}[1]{\href{\uuidbaseurl#1}{\texttt{[#1]}}}%
+\newcommand{\uuid}[1]{\href{\uuidbaseurl#1}{\uuidformatter{#1}}}%
 \else%
-\newcommand{\uuid}[1]{\texttt{[#1]}}%
+\newcommand{\uuid}[1]{\uuidformatter{#1}}%
 \fi\fi%
+
 \ifdefined\uuidplaceholder\else\ifdefined\href%
-\newcommand{\uuidplaceholder}[2]{\href{\uuidbaseurl#1}{\texttt{[{\ldots}#2{\ldots}]}}}%
+\newcommand{\uuidplaceholder}[2]{\href{\uuidbaseurl#1}{\uuidformatter{#2}}}%
 \else%
-\newcommand{\uuidplaceholder}[2]{\texttt{[{\ldots}#2{\ldots}]}}%
+\newcommand{\uuidplaceholder}[2]{\uuidformatter{#2}}%
 \fi\fi%
 
