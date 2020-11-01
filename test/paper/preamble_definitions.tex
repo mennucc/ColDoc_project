@@ -18,3 +18,9 @@
 %%
 %% See in ColDocUUID.sty
 
+
+\ifplastex
+%% plastex currently does not know eqref
+\def\eqref{\ref}
+\fi
+
