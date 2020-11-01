@@ -21,7 +21,7 @@ Command help:
        all of the above
 """
 
-import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64
+import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json
 
 from os.path import join as osjoin
 
@@ -409,6 +409,26 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         coldoc.save()
     return ret
 
+def parse_plastex_html(blobs_dir, html_dir):
+    # yes I have read https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags
+    R = re.compile('<a *name="UUID:(.*?)" *>', re.DOTALL)
+    D = {}
+    for s in os.listdir(html_dir):
+        if s.endswith('html'):
+            for k in R.findall(open(osjoin(html_dir,s)).read()):
+                D[k]=s
+    pickle.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.pickle'),'wb'))
+    json.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.json'),'w'))
+
+
+def get_specific_html_for_UUID(blobs_dir,UUID):
+    try:
+        D = pickle.load(open(osjoin(blobs_dir, '.UUID_html_mapping.pickle'),'rb'))
+        return D[UUID]
+    except:
+        logger.exception('Argh')
+        return ''
+
 
 def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                    levels = False, tok = False, strip_head = True, plastex_theme=None):
@@ -470,6 +490,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
             if ret: logger.warning(' rename %r to %r',s,d)
     if os.path.isfile(osjoin(blobs_dir, save_name+'_html','index.html')):
         logger.info('created html version of %r ',save_abs_name)
+        parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'))
     else:
         logger.warning('no "index.html" in %r',save_name+'_html')
         return False
