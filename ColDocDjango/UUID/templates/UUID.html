@@ -19,6 +19,10 @@
             data-toggle="tooltip" title="View this blob inside the whole PDF">
   <img src="{% static 'ColDoc/Adobe_PDF_goto_icon.svg' %}"  style="height: 14pt" ></a>
  {% endif %}
+{% if htmlUUIDurl %} <a href="{{ htmlUUIDurl | safe }}" class="btn btn-outline-primary"
+            data-toggle="tooltip" title="View this blob inside the whole HTML">
+  <img src="{% static 'ColDoc/HTML_goto_icon.svg' %}"  style="height: 14pt" ></a>
+ {% endif %}
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
  {% if perms.UUID.view_view %}
