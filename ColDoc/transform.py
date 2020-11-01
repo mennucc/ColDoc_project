@@ -217,7 +217,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
                 r = helper.process_end(end,thetex)
                 out.write(r if r is not None else ('\\end{'+end+'}'))
                 if end != beginenvironment:
-                    logger.warning(" begin %r ended by end%r ")
+                    logger.warning(" begin %r ended by end%r ",beginenvironment,end)
                 return
             elif macroname == 'verb':
                 obj = Base.verb()
