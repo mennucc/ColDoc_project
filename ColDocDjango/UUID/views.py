@@ -554,9 +554,10 @@ def index(request, NICK, UUID):
     if env not in ColDoc.latex.environments_we_wont_latex:
         pdfUUIDurl = django.urls.reverse('ColDoc:pdf', kwargs={'NICK':NICK,}) +\
             '?lang=%s&ext=%s#UUID:%s'%(lang, ext, UUID)
+        section, anchor = ColDoc.latex.get_specific_html_for_UUID(blobs_dir,UUID)
         htmlUUIDurl = django.urls.reverse('ColDoc:html', kwargs={'NICK':NICK,}) +\
-            ColDoc.latex.get_specific_html_for_UUID(blobs_dir,UUID) +\
-            '?lang=%s&ext=%s#UUID:%s'%(lang, ext, UUID)
+             section +\
+            '?lang=%s&ext=%s#%s'%(lang, ext, anchor)
     else: pdfUUIDurl = htmlUUIDurl = ''
     #
     if ext in ColDoc.config.ColDoc_show_as_text:

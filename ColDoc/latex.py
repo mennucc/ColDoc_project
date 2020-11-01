@@ -410,13 +410,30 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
     return ret
 
 def parse_plastex_html(blobs_dir, html_dir):
-    # yes I have read https://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags
-    R = re.compile('<a *name="UUID:(.*?)" *>', re.DOTALL)
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        logger.error('Please install BeautifulSoup4: pip3 install BeautifulSoup4')
+        return
     D = {}
-    for s in os.listdir(html_dir):
-        if s.endswith('html'):
-            for k in R.findall(open(osjoin(html_dir,s)).read()):
-                D[k]=s
+    P = ColDoc.config.ColDoc_url_placeholder
+    for S in os.listdir(html_dir):
+        if S.endswith('html'):
+            name = href = uuid = None
+            soup = BeautifulSoup(open(osjoin(html_dir,S)).read(), 'html.parser')
+            for link in soup.find_all('a'):
+                h = link.get('href')
+                n = link.get('name')
+                if n:
+                    if n.startswith('UUID:'):
+                        uuid = n[5:]
+                        D[uuid] = (S, n)
+                    else:
+                        name = n
+                if h and h.startswith(P):
+                    uuid = h[len(P):]
+                    if uuid not in D and name:
+                        D[uuid] = (S,name)
     pickle.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.pickle'),'wb'))
     json.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.json'),'w'))
 
@@ -427,7 +444,7 @@ def get_specific_html_for_UUID(blobs_dir,UUID):
         return D[UUID]
     except:
         logger.exception('Argh')
-        return ''
+        return '',''
 
 
 def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
