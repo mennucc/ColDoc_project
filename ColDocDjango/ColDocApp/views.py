@@ -59,7 +59,10 @@ def index(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     #coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,NICK)
-    c = DColDoc.objects.filter(nickname = NICK).get()
+    try:
+        c = DColDoc.objects.filter(nickname = NICK).get()
+    except DColDoc.DoesNotExist:
+        return HttpResponse("No such ColDoc %r.\n" % (NICK,) , status=http.HTTPStatus.NOT_FOUND)
     #
     request.user.associate_coldoc_blob_for_has_perm(c, None)
     #
