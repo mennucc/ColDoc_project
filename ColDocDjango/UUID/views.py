@@ -610,13 +610,14 @@ def index(request, NICK, UUID):
                 a = os.path.dirname(filename)+'/view'
                 if lang:
                     a += '_' + lang
-                    a += '_html/index.html'
+                a += '_html/index.html'
                 html = open(a).read()
                 a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
                 html = html.replace(ColDoc.config.ColDoc_url_placeholder,a[:-4])
                 # help plasTeX find its images
                 html = html.replace('src="images/','src="html/images/')
             except:
+                logger.exception('Problem when preparing HTML for %r',UUID)
                 messages.add_message(request, messages.WARNING,"HTML preview not available")
                 html = '[NO HTML AVAILABLE]'
     else:
