@@ -72,10 +72,16 @@ class BlobEditForm(forms.Form):
 
 def common_checks(request, NICK, UUID):
     if not slug_re.match(UUID):
+        logger.error('ip=%r user=%r coldoc=%r uuid=%r  : invalid UUID',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
         raise SuspiciousOperation("Invalid UUID %r." % (UUID,))
     if not slug_re.match(NICK):
+        logger.error('ip=%r user=%r coldoc=%r uuid=%r  : invalid NICK',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
         raise SuspiciousOperation("Invalid ColDoc %r." % (NICK,))
     if request.user.is_anonymous:
+        logger.error('ip=%r coldoc=%r uuid=%r  : is anonymous',
+                       request.META.get('REMOTE_ADDR'), NICK, UUID)
         raise SuspiciousOperation("Permission denied")
     #
     try:
@@ -192,6 +198,8 @@ def postedit(request, NICK, UUID):
             messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
         else:
             messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
+    logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
+                request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_))
 
 def postmetadataedit(request, NICK, UUID):
@@ -248,6 +256,8 @@ def postmetadataedit(request, NICK, UUID):
             messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
         else:
             messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
+    logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
+                request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID})  + '?lang=%s&ext=%s'%(lang_,ext_))
 
 def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
@@ -298,6 +308,9 @@ def log(request, NICK, UUID):
 
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view'):
     #
+    logger.debug('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r : entering',
+                request.META.get('REMOTE_ADDR'), request.user.username,
+                NICK,UUID,_view_ext,_content_type,subpath,prefix)
     # do not allow subpaths for non html
     assert _view_ext == '_html' or subpath is None
     assert _view_ext in ('_html','.pdf',None)
@@ -337,11 +350,13 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return HttpResponse("Permission denied (log)", status=http.HTTPStatus.UNAUTHORIZED)
     #
     # if user is editor, provide true access
+    blobs_subdir = 'blobs'
     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
     if prefix == 'main':
         request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
         if not request.user.has_perm('UUID.view_view') :
             # users.user_has_perm() will grant `public` access to editors
+            blobs_subdir = 'anon'
             blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
     if not os.path.isdir(blobs_dir):
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
@@ -363,11 +378,17 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         #
         request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
         if not request.user.has_perm('UUID.view_view'):
+            logger.info('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r blobs=%r: permission denied',
+                        request.META.get('REMOTE_ADDR'), request.user.username,
+                        NICK,UUID,_view_ext,_content_type,subpath,prefix)
             return HttpResponse("Permission denied (view)",
                                 status=http.HTTPStatus.UNAUTHORIZED)
         # at this point we know that 'UUID.view_view' is granted; will check 'UUID.view_blob'
         # later, so that for image files, access will be granted regardless of 'UUID.view_blob'
         if prefix=='log' and not request.user.has_perm('UUID.view_log'):
+            logger.info('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r : permission denied',
+                        request.META.get('REMOTE_ADDR'), request.user.username,
+                        NICK,UUID,_view_ext,_content_type,subpath,prefix)
             return HttpResponse("Permission denied (log)",
                                 status=http.HTTPStatus.UNAUTHORIZED)
         #
@@ -386,6 +407,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             if UUID == metadata.coldoc.root_uuid:
                 pref_ = 'main'
                 if access == 'public':
+                    blobs_subdir = 'anon'
                     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
             else:
                 pref_ = 'view'
@@ -407,7 +429,11 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
                 break
             else:
                 n = None
+        lang = l
         if n is None:
+            logger.warning('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r pref_=%r langs=%r blobs_subdir=%r : cannot find',
+                        request.META.get('REMOTE_ADDR'), request.user.username,
+                        NICK,UUID,_view_ext,_content_type,subpath, pref_, langs, blobs_subdir)
             return HttpResponse("Cannot find %s.....%s, subpath %r, for UUID %r , looking for languages in %r." %\
                                 (pref_,_view_ext,subpath,UUID,langs),
                                 content_type='text/plain', status=http.HTTPStatus.NOT_FOUND)
@@ -419,10 +445,12 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
                 _content_type , _content_encoding = mimetypes.guess_type(n)
         #
         if prefix=='blob' and not ( request.user.has_perm('UUID.view_blob') or is_image_blob(metadata, _content_type) ):
+            logger.info('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r pref_=%r : permission denied',
+                        request.META.get('REMOTE_ADDR'), request.user.username,
+                        NICK,UUID,_view_ext,_content_type,subpath,pref_)
             return HttpResponse("Permission denied (blob)",
                                 status=http.HTTPStatus.UNAUTHORIZED)
         #
-        logger.debug("Serving: %r %r"%(n,_content_type))
         if _content_type == 'text/html':
             f = open(n).read()
             a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'001'})
@@ -433,9 +461,13 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             response = HttpResponse(fsock, content_type=_content_type)
         if download:
             response['Content-Disposition'] = "attachment; filename=ColDoc-%s%s" % (UUID,_view_ext)
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r lang=%r pref_=%r blobs_subdir=%r : content served',
+                    request.META.get('REMOTE_ADDR'), request.user.username,
+                    NICK,UUID,_view_ext,_content_type,subpath,prefix,lang,pref_,blobs_subdir)
         return response
     
     except FileNotFoundError:
+        logger.warning('FileNotFoundError user=%r coldoc=%r uuid=%r ext=%r lang=%r',request.user.username,NICK,UUID,ext,lang)
         return HttpResponse("Cannot find UUID %r with langs=%r , extension=%r." % (UUID,langs,_view_ext),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
@@ -470,6 +502,9 @@ def index(request, NICK, UUID):
     anon_dir  = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
     global_blobs_dir = blobs_dir if has_general_view_view else anon_dir
     #
+    logger.debug('ip=%r user=%r coldoc=%r uuid=%r : entering',
+                request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
+    #
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
         if a != UUID:
@@ -499,9 +534,13 @@ def index(request, NICK, UUID):
                                      ext = ext, lang = lang, 
                                      metadata_class=DMetadata, coldoc=NICK)
     except FileNotFoundError:
+        logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
+        logger.error('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
     envs = metadata.get('environ')
@@ -546,6 +585,8 @@ def index(request, NICK, UUID):
         a = 'Access denied to this content.'
         if request.user.is_anonymous: a += ' Please login.'
         messages.add_message(request, messages.WARNING, a)
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: access denied',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return render(request, 'UUID.html', locals() )
     #
     # TODO
@@ -678,6 +719,8 @@ def index(request, NICK, UUID):
     if '.tex' not in metadata.get('extension') or env in ColDoc.config.ColDoc_environments_locked:
         metadataform.fields['environ'].widget.attrs['readonly'] = True
         metadataform.fields['optarg'].widget.attrs['readonly'] = True
+    logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
+                request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
     return render(request, 'UUID.html', locals() )
 
 
@@ -714,11 +757,16 @@ def download(request, NICK, UUID):
     download_as = q.get('as',None)
     if download_as is None or download_as not in ('zip','single','email','blob'):
         messages.add_message(request, messages.WARNING, 'Invalid method' )
+        logger.warning('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : invalid method',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
     for j in q:
         if j not in ('ext','lang','as'):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
+    #
+    logger.debug('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : entering',
+                request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
     #
     try:
         filename, uuid, metadata, lang, ext = \
@@ -726,9 +774,13 @@ def download(request, NICK, UUID):
                                      ext = ext, lang = lang, 
                                      metadata_class=DMetadata, coldoc=NICK)
     except FileNotFoundError:
+        logger.warning('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : cannot find',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
         return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
+        logger.exception('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : exception',
+                         request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as) 
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
     uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
@@ -742,6 +794,8 @@ def download(request, NICK, UUID):
     env = envs[0] if envs else None
     #
     if metadata.get('extension') != ['.tex']:
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : not TeX',
+                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
         messages.add_message(request, messages.WARNING, 'This blob is not ".tex" , but = %r ' % (metadata.extension,))
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
@@ -750,18 +804,27 @@ def download(request, NICK, UUID):
         a = 'Access denied to this content.'
         if request.user.is_anonymous: a += ' Please login.'
         messages.add_message(request, messages.WARNING, a)
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : access denied',
+                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     if not request.user.has_perm('UUID.download'):
         a = 'Download denied for this content.'
         if request.user.is_anonymous: a += ' Please login.'
         messages.add_message(request, messages.WARNING, a)
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : download denied',
+                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
     s = os.path.join(uuid_dir, osjoin(blobs_dir, uuid_dir, 'squash'+_lang+'.tex'))
     if not os.path.isfile(s):
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : no squashed version',
+                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
         messages.add_message(request, messages.WARNING, 'Cannot download ("squashed version" is unavailable)')
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     content = open(s).read()
+    #
+    logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : serving',
+                request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
     #
     if download_as == 'blob':
         response = HttpResponse(content, content_type=tex_mimetype)
