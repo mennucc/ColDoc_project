@@ -1,0 +1,15 @@
+%%% these are properly defined in the ColDoc machinery
+%%% but if you want to compile 'paper.tex' by itself
+%%% you need to give them some reasonable value
+%%% because they are used here and there
+
+
+%\ifcsname ifColDocPublic\endcsname\else
+ \typeout{Definining ifColDocPublic as false}
+ \newif\ifColDocPublic\ColDocPublicfalse
+%\fi
+
+%\ifcsname ifColDocOneUUID\endcsname\else
+ \typeout{Definining ifColDocOneUUID as false}
+ \newif\ifColDocOneUUID\ColDocOneUUIDfalse
+%\fi
