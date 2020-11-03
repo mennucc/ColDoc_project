@@ -765,7 +765,12 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     else:
                         inputfile = thetex.readArgument(type=str)
                     thetex.currentInput[0].pass_comments = True
-                    inputfileext = inputfile + ('' if inputfile[-4:] == '.tex' else '.tex' )
+                    if inputfile.endswith('.tex'):
+                        logger.warning("Stripping '.tex'  from \\input{%s}", inputfile)
+                        inputfileext = inputfile
+                        inputfile = inputfile[:-4]
+                    else:
+                        inputfileext = inputfile + '.tex'
                     if inputfileext in file_blob_map:
                         O,U = file_blob_map[inputfileext]
                         if not isinstance(O,named_stream):
@@ -784,23 +789,24 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         logger.warning("duplicate input, parsed once: %r", inputfile)
                         stack.topstream.write('\\%s{%s}' % (macroname,O.filename))
                     else:
+                        # create new stream
                         newoutput = named_stream(macroname + ('_preamble' if in_preamble else ''),
                                                  parent=stack.topstream)
                         newoutput.add_metadata(r'original_filename',inputfile)
                         stack.push(newoutput)
+                        file_blob_map[inputfileext] = newoutput, newoutput.uuid
+                        # symlink it if requested
                         if cmdargs.symlink_input:
                             newoutput.symlink_file_add(inputfileext)
-                        if not os.path.isabs(inputfile):
-                            inputfile = os.path.join(input_basedir,inputfile)
-                        if not os.path.isfile(inputfile):
-                            inputfile += '.tex'
-                        assert os.path.isfile(inputfile), "file does not exist: %r"%(inputfile,)
-                        file_blob_map[inputfile] = newoutput, newoutput.uuid
                         del newoutput
+                        # parse new input
+                        if not os.path.isabs(inputfileext):
+                            inputfileext = os.path.join(input_basedir,inputfileext)
+                        assert os.path.isfile(inputfileext), "file does not exist: %r"%(inputfileext,)
                         logger.info(' processing %r ' % (inputfile))
                         write_special_EOF()
-                        thetex.input(open(inputfile), Tokenizer=TokenizerPassThru.TokenizerPassThru)
-                    del inputfile
+                        thetex.input(open(inputfileext), Tokenizer=TokenizerPassThru.TokenizerPassThru)
+                    del inputfile, inputfileext
                 elif macroname == specialblobinatorEOFcommand:
                     pop_paragraph()
                     pop_section()
