@@ -856,16 +856,26 @@ def download(request, NICK, UUID):
             m = DMetadata.objects.filter(original_filename = a).get()
         except:
             logger.warning("No blob has filename %r", a)
-        else:
+            continue
+        if m is None:
+            continue
+        z = None
+        try:
+            z = ColDoc.utils.choose_blob(blobs_dir = blobs_dir, ext=None, lang = lang, metadata=m)
+            f = z[0]
+            ext = z[-1]
+        except ColDoc.utils.ColDocException as e:
+            logger.debug('No choice for filename=%r lang=%r error=%r, retrying w/o lang',a,lang,e)
+        if z is None:
             try:
-                f = ColDoc.utils.choose_blob(blobs_dir = blobs_dir,
-                                             lang = lang, metadata=m)[0]
-            except ColDoc.utils.ColDocException:
-                try:
-                    f = ColDoc.utils.choose_blob(blobs_dir = blobs_dir, metadata=m)[0]
-                except ColDoc.utils.ColDocException:
-                    logger.exception('Could not find content for %r',m)
-                    continue
+                z = ColDoc.utils.choose_blob(blobs_dir = blobs_dir, lang=None, ext=None, metadata=m)
+                f = z[0]
+                ext = z[-1]
+            except ColDoc.utils.ColDocException as e:
+                logger.error('Could not find content for filename=%r metadata=%r error=%r',a,m,e)
+        if z is None:
+            continue
+        else:
             # check permissions
             request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, m)
             if not request.user.has_perm('UUID.download'):
@@ -874,7 +884,8 @@ def download(request, NICK, UUID):
                 messages.add_message(request, messages.WARNING, a)
             else:
                 s=open(osjoin(blobs_dir,f)).read()
-                preambles.append( ( (a+'.tex') , ('\\input{%s}'%(a,)) , s) )
+                k = {'.sty':'usepackage','.tex':'input'}.get(ext,'input')
+                preambles.append( ( (a+ext) , ('\\%s{%s}'%(k,a,)) , s) )
                 preamble += '\n%%%%%%%%%%%%%% '+a + '\n'+s
     
     #
