@@ -681,3 +681,119 @@ def index(request, NICK, UUID):
     return render(request, 'UUID.html', locals() )
 
 
+
+
+download_template=r"""\documentclass %(documentclassoptions)s {%(documentclass)s}
+\newif\ifplastex\plastexfalse
+%(latex_macros)s
+\def\uuidbaseurl{%(url_UUID)s}
+%(preamble)s
+\usepackage{hyperref}
+\usepackage{ColDocUUID}
+\begin{document}
+%(begin)s
+%(content)s
+%(end)s
+\end{document}
+"""
+
+def download(request, NICK, UUID):
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    #
+    q = request.GET
+    ext = None
+    if 'ext' in q:
+        assert slugp_re.match(q['ext'])
+        ext = q['ext']
+    lang = None
+    if 'lang' in q:
+        lang = q['lang']
+        assert lang=='' or slug_re.match(lang)
+    for j in q:
+        if j not in ('ext','lang'):
+            messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
+    #
+    try:
+        filename, uuid, metadata, lang, ext = \
+            ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
+                                     ext = ext, lang = lang, 
+                                     metadata_class=DMetadata, coldoc=NICK)
+    except FileNotFoundError:
+        return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext),
+                            status=http.HTTPStatus.NOT_FOUND)
+    except Exception as e:
+        return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
+    #
+    uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
+    #
+    if lang is None or lang == '':
+        _lang=''
+    else:
+        _lang = '_' + lang
+    #
+    envs = metadata.get('environ')
+    env = envs[0] if envs else None
+    #
+    if metadata.get('extension') != ['.tex']:
+        messages.add_message(request, messages.WARNING, 'This blob is not ".tex" , but = %r ' % (metadata.extension,))
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
+    if not request.user.has_perm('UUID.view_view'):
+        a = 'Access denied to this content.'
+        if request.user.is_anonymous: a += ' Please login.'
+        messages.add_message(request, messages.WARNING, a)
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    if not request.user.has_perm('UUID.download'):
+        a = 'Download denied for this content.'
+        if request.user.is_anonymous: a += ' Please login.'
+        messages.add_message(request, messages.WARNING, a)
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
+    engine = options.get('latex_engine','pdflatex')
+    #
+    #if not request.user.has_perm('UUID.view_blob'):
+    s = os.path.join(uuid_dir, osjoin(blobs_dir, uuid_dir, 'squash'+_lang+'.tex'))
+    content = open(s).read()
+    #
+    options.setdefault('latex_macros',metadata.coldoc.latex_macros_uuid)
+    #
+    options['begin']=''
+    options['end']=''
+    environ = metadata.environ
+    if environ[:2] == 'E_' and environ not in ( 'E_document', ):
+        env = environ[2:]
+        options['begin'] = r'\begin{'+env+'}'
+        options['end'] = r'\end{'+env+'}'
+        if 'split_list' in options and env in options['split_list']:
+            options['begin'] += r'\item'
+    #
+    preambles = []
+    preamble = ''
+    for a in ("preamble_" + engine, "preamble_definitions"):
+        m = None
+        try:
+            m = DMetadata.objects.filter(original_filename = a).get()
+        except:
+            logger.warning("No blob has filename %r", a)
+        else:
+            f = ColDoc.utils.choose_blob(blobs_dir = blobs_dir,
+                                          ext = ext, lang = lang, metadata=m)[0]
+            request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, m)
+            if not request.user.has_perm('UUID.download'):
+                a = 'Download denied for the subpart %r .' % (a,)
+                if request.user.is_anonymous: a += ' Please login.'
+                messages.add_message(request, messages.WARNING, a)
+            else:
+                if not a.endswith('.tex'): a += '.tex'
+                s=open(osjoin(blobs_dir,f)).read()
+                preambles.append( (a,s) )
+                preamble += '\n%%%%%%%%%%%%%% '+a + '\n'+s
+    options['preamble'] = preamble
+    #
+    options['documentclassoptions'] = ColDoc.utils.parenthesizes(options.get('documentclassoptions'), '[]')
+    #
+    options['content'] = '%%%%%% start of ' + UUID + '\n' + content + '\n%%%%%% end of ' + UUID + '\n'
+    f = download_template % options
+    return HttpResponse(f, content_type='text/plain')
