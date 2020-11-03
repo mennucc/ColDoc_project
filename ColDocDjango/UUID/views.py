@@ -689,13 +689,14 @@ download_template=r"""\documentclass %(documentclassoptions)s {%(documentclass)s
 \def\uuidbaseurl{%(url_UUID)s}
 %(preamble)s
 \usepackage{hyperref}
-\usepackage{ColDocUUID}
 \begin{document}
 %(begin)s
 %(content)s
 %(end)s
 \end{document}
 """
+
+tex_mimetype = 'text/x-tex'
 
 def download(request, NICK, UUID):
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
@@ -709,8 +710,14 @@ def download(request, NICK, UUID):
     if 'lang' in q:
         lang = q['lang']
         assert lang=='' or slug_re.match(lang)
+    #
+    download_as = q.get('as',None)
+    if download_as is None or download_as not in ('zip','single','email','blob'):
+        messages.add_message(request, messages.WARNING, 'Invalid method' )
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
     for j in q:
-        if j not in ('ext','lang'):
+        if j not in ('ext','lang','as'):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
     #
     try:
@@ -750,12 +757,19 @@ def download(request, NICK, UUID):
         messages.add_message(request, messages.WARNING, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
+    s = os.path.join(uuid_dir, osjoin(blobs_dir, uuid_dir, 'squash'+_lang+'.tex'))
+    if not os.path.isfile(s):
+        messages.add_message(request, messages.WARNING, 'Cannot download ("squashed version" is unavailable)')
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    content = open(s).read()
+    #
+    if download_as == 'blob':
+        response = HttpResponse(content, content_type=tex_mimetype)
+        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s.tex' % (NICK,UUID))
+        return response
+    #
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     engine = options.get('latex_engine','pdflatex')
-    #
-    #if not request.user.has_perm('UUID.view_blob'):
-    s = os.path.join(uuid_dir, osjoin(blobs_dir, uuid_dir, 'squash'+_lang+'.tex'))
-    content = open(s).read()
     #
     options.setdefault('latex_macros',metadata.coldoc.latex_macros_uuid)
     #
@@ -769,8 +783,10 @@ def download(request, NICK, UUID):
         if 'split_list' in options and env in options['split_list']:
             options['begin'] += r'\item'
     #
-    preambles = []
-    preamble = ''
+    s = osjoin(os.environ['COLDOC_SRC_ROOT'],'tex/ColDocUUID.sty')
+    s = open(s).read()
+    preambles = [ ('ColDocUUID.sty', '\\usepackage{ColDocUUID}', s) ]
+    preamble = '%%%%%%%%%%%%%%%% ColDocUUID.sty\n' + s 
     for a in ("preamble_" + engine, "preamble_definitions"):
         m = None
         try:
@@ -786,14 +802,57 @@ def download(request, NICK, UUID):
                 if request.user.is_anonymous: a += ' Please login.'
                 messages.add_message(request, messages.WARNING, a)
             else:
-                if not a.endswith('.tex'): a += '.tex'
                 s=open(osjoin(blobs_dir,f)).read()
-                preambles.append( (a,s) )
+                preambles.append( ( (a+'.tex') , ('\\input{%s}'%(a,)) , s) )
                 preamble += '\n%%%%%%%%%%%%%% '+a + '\n'+s
-    options['preamble'] = preamble
+    
     #
     options['documentclassoptions'] = ColDoc.utils.parenthesizes(options.get('documentclassoptions'), '[]')
     #
-    options['content'] = '%%%%%% start of ' + UUID + '\n' + content + '\n%%%%%% end of ' + UUID + '\n'
-    f = download_template % options
-    return HttpResponse(f, content_type='text/plain')
+    if download_as == 'single':
+        options['preamble'] = preamble
+        options['content'] = '%%%%%% start of ' + UUID + '\n' + content + '\n%%%%%% end of ' + UUID + '\n'
+        f = download_template % options
+        response = HttpResponse(f, content_type=tex_mimetype)
+        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s_document.tex' % (NICK,UUID))
+        return response
+    #
+    options['preamble'] = '\n'.join([j[1] for j in preambles])
+    uuidname = '%s_%s.tex' % (NICK,UUID)
+    options['content'] = '\input{%s}' % (uuidname,)
+    if download_as == 'zip':
+        import zipfile, io
+        F = io.BytesIO()
+        Z = zipfile.ZipFile(F,'w')
+        Z.writestr(zinfo_or_arcname='main.tex' , data=(download_template % options) , )
+        Z.writestr(zinfo_or_arcname=uuidname , data=content, )
+        for a,i,c in preambles:
+            Z.writestr(zinfo_or_arcname=a, data=c, )
+        Z.close()
+        F.seek(0)
+        response = HttpResponse(F, content_type='application/zip')
+        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_%s.zip' % (NICK,UUID))
+        return response
+    #
+    if download_as == 'email':
+        email_to=request.user.email
+        #
+        from django.core.mail import EmailMessage
+        E = EmailMessage(subject='latex for ColDoc %s UUID %s'%(NICK,UUID),
+                         from_email=settings.DEFAULT_FROM_EMAIL,
+                         to=[email_to],)
+        E.body = 'Find attached the needed documents'
+        E.attach(filename='main.tex', content=(download_template % options) , mimetype=tex_mimetype)
+        E.attach(filename=uuidname , content=content, mimetype=tex_mimetype)
+        for a,i,c in preambles:
+            E.attach(filename=a, content=c, mimetype=tex_mimetype)
+        try:
+            E.send()
+        except:
+            messages.add_message(request, messages.WARNING, 'Failed to send email')
+            return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+        else:
+            messages.add_message(request, messages.INFO, 'Email sent to %s'%(email_to,))
+            return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    # should not reach this point
+    assert False

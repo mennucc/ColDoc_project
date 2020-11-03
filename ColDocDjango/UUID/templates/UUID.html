@@ -194,10 +194,25 @@
   <div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
   
   {% if not user.is_anonymous %}
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?lang={{ lang }}&ext={{ ext }}"
+  <h2>Download</h2>
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ lang }}&ext={{ ext }}"
+             class="btn btn-outline-primary btn-sm"
+             data-toggle="tooltip" title="Download this blob.">Download blob</a>
+             
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=single&lang={{ lang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm"
              data-toggle="tooltip" title="Download this blob embedded in a complete, compilable, LaTeX document.">
-      Download</a>
+      As single document</a>
+
+   <span class="border fill">
+   <span data-toggle="tooltip" title="Download this blob together with all parts that constitute a complete, compilable, LaTeX document.">
+   Download as multi file:</span> 
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=zip&lang={{ lang }}&ext={{ ext }}"
+             class="btn btn-outline-primary">as ZIP;</a>
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=email&lang={{ lang }}&ext={{ ext }}"
+             class="btn btn-outline-primary">
+      by email.</a><span>
+
   {% endif %}
   </div>
 
