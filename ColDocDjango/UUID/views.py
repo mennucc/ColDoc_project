@@ -794,8 +794,16 @@ def download(request, NICK, UUID):
         except:
             logger.warning("No blob has filename %r", a)
         else:
-            f = ColDoc.utils.choose_blob(blobs_dir = blobs_dir,
-                                          ext = ext, lang = lang, metadata=m)[0]
+            try:
+                f = ColDoc.utils.choose_blob(blobs_dir = blobs_dir,
+                                             lang = lang, metadata=m)[0]
+            except ColDoc.utils.ColDocException:
+                try:
+                    f = ColDoc.utils.choose_blob(blobs_dir = blobs_dir, metadata=m)[0]
+                except ColDoc.utils.ColDocException:
+                    logger.exception('Could not find content for %r',m)
+                    continue
+            # check permissions
             request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, m)
             if not request.user.has_perm('UUID.download'):
                 a = 'Download denied for the subpart %r .' % (a,)
