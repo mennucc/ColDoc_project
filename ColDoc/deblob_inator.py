@@ -299,7 +299,7 @@ def deblob_inator(blob_uuid, thetex, cmdargs):
     filename = 'main.tex'
     #
     try:
-        oldargs = get_blobinator_args(blobs_dir)
+        oldargs = get_blobinator_args(cmdargs.blobs_dir)
         cmdargs.verbatim_environment = oldargs['verbatim_environment']
         cmdargs.split_graphic = oldargs['split_graphic']
         filename = os.path.basename(oldargs['input_file'])
