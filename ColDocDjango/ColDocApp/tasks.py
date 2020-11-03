@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, pathlib, pickle, base64, tempfile
+import os, sys, mimetypes, http, pathlib, pickle, base64, tempfile, time, datetime
 from os.path import join as osjoin
 
 import django
@@ -26,7 +26,21 @@ def latex_main_sched(*v,**k):
     if 'verbose_name' in k: del k['verbose_name']
     a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
     logger.debug('Starting scheduled latex_main ( %s , %s)' , ' , '.join(v), a)
-    return latex_main(*v,**k)
+    email_to = k.pop('email_to',None)
+    coldoc = options.get('coldoc')
+    time_ = -time.time()
+    ret = latex_main(*v,**k)
+    time_ += time.time()
+    time_ = datetime.timedelta(seconds=int(time_))
+    if email_to:
+        E = EmailMessage(subject='latex whole private version of '+str(coldoc),
+                         from_email=settings.DEFAULT_FROM_EMAIL,
+                         to=[email_to],)
+        E.body = 'Run for %s, %s' %( time_ , 'success' if ret else 'failed')
+        try:
+            E.send()
+        except:
+            logger.exception('While sending email')
 
 @background()
 def latex_anon_sched(*v,**k):
@@ -38,7 +52,21 @@ def latex_anon_sched(*v,**k):
     if 'verbose_name' in k: del k['verbose_name']
     a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
     logger.debug('Starting scheduled latex_anon ( %s , %s)' , ' , '.join(v), a)
-    return latex_anon(*v,**k)
+    email_to = k.pop('email_to',None)
+    coldoc = options.get('coldoc')
+    time_ = -time.time()
+    ret = latex_anon(*v,**k)
+    time_ += time.time()
+    time_ = datetime.timedelta(seconds=int(time_))
+    if email_to:
+        E = EmailMessage(subject='latex whole public version of '+str(coldoc),
+                         from_email=settings.DEFAULT_FROM_EMAIL,
+                         to=[email_to],)
+        E.body = 'Run for %s, %s' %( time_ , 'success' if ret else 'failed')
+        try:
+            E.send()
+        except:
+            logger.exception('While sending email')
 
 @background()
 def latex_tree_sched(*v,**k):
@@ -50,7 +78,21 @@ def latex_tree_sched(*v,**k):
     if 'verbose_name' in k: del k['verbose_name']
     a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
     logger.debug('Starting scheduled latex_tree ( %s , %s)' , ' , '.join(v), a)
-    return latex_tree(*v,**k)
+    email_to = k.pop('email_to',None)
+    coldoc = options.get('coldoc')
+    time_ = -time.time()
+    ret = latex_tree(*v,**k)
+    time_ += time.time()
+    time_ = datetime.timedelta(seconds=int(time_))
+    if email_to:
+        E = EmailMessage(subject='latex whole tree of blobs of '+str(coldoc),
+                         from_email=settings.DEFAULT_FROM_EMAIL,
+                         to=[email_to],)
+        E.body = 'Run for %s, %s' %( time_ , 'success' if ret else 'failed')
+        try:
+            E.send()
+        except:
+            logger.exception('While sending email')
 
 
 from background_task.models import Task, CompletedTask

@@ -158,11 +158,11 @@ def latex(request, NICK):
     #
     ret = False
     if typ_ == 'tree':
-        ret = latex_tree_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, verbose_name="latex_tree")
+        ret = latex_tree_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, verbose_name="latex_tree", email_to=request.user.email)
     elif typ_ == 'main':
-        ret = latex_main_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private', verbose_name="latex_main:private")
+        ret = latex_main_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private', verbose_name="latex_main:private", email_to=request.user.email)
     else:
-        ret = latex_anon_sched(coldoc_dir, uuid=coldoc.root_uuid, options=options, access='public', verbose_name="latex_main:public")
+        ret = latex_anon_sched(coldoc_dir, uuid=coldoc.root_uuid, options=options, access='public', verbose_name="latex_main:public", email_to=request.user.email)
     if settings.USE_BACKGROUND_TASKS:
         messages.add_message(request,messages.INFO,'Compilation scheduled for '+typ_)
     elif ret:
