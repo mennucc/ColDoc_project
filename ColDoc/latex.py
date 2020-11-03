@@ -239,13 +239,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
             ltclsopt = ltclsopt[0]
         else:
             ltclsopt = options.get('documentclassoptions')
-        if ltclsopt is str:
-            ltclsopt = ltclsopt.strip()
-        if not ltclsopt:
-            ltclsopt = ''
-        else:
-            if ltclsopt[0] != '[':
-                ltclsopt = '[' + ltclsopt + ']'
+        ltclsopt = ColDoc.utils.parenthesizes(ltclsopt, '[]')
         D['documentclass_options'] = ltclsopt
         #
         fake_texfile.write(latextemplate % D)

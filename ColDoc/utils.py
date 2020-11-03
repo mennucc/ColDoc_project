@@ -43,6 +43,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'tree_environ_helper',
             'is_image_blob',
             'get_blobinator_args',
+            'parenthesizes',
             )
 
 class ColDocException(Exception):
@@ -51,6 +52,32 @@ class ColDocException(Exception):
 class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
 
+#####################
+
+def parenthesizes(s, p='{}', also_when_empty=None):
+    """ strip extra spaces from `s` and add parentheses `p`  ;
+        if `s` is empty (after stripping), parentheses are added if `also_when_empty` is `True` ;
+        if `also_when_empty` is not given it is `True` for `p=='{}'` """
+    assert len(p) == 2
+    assert p in ('()','[]','{}','<>')
+    if not isinstance(s, str):
+        logger.warning('Cannot parenthesize object %r of type %r',s,type(s))
+        return s
+    if also_when_empty is None:
+        also_when_empty = (p == '{}')
+    s = s.strip()
+    if not s:
+        if also_when_empty :
+            return p
+        else:
+            return s
+    else:
+        if s[0] != p[0]:
+            if s[-1] == p[-1]:
+                logger.warning('Unbalanced parentheses in %r ?',s)
+            return p[0] + s + p[1]
+        else:
+            return s
 
 #####################
 
