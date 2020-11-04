@@ -802,43 +802,60 @@ def download(request, NICK, UUID):
     envs = metadata.get('environ')
     env = envs[0] if envs else None
     #
-    if metadata.get('extension') != ['.tex']:
-        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : not TeX',
-                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
-        messages.add_message(request, messages.WARNING, 'This blob is not ".tex" , but = %r ' % (metadata.extension,))
-        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
-    #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
-    if not request.user.has_perm('UUID.view_view'):
-        a = 'Access denied to this content.'
-        if request.user.is_anonymous: a += ' Please login.'
-        messages.add_message(request, messages.WARNING, a)
-        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : access denied',
-                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
-        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    _content_type = tex_mimetype
+    _content_encoding = 'utf-8'
+    # error message
+    a = None
+    # effective file served
+    e_f = None
     if not request.user.has_perm('UUID.download'):
         a = 'Download denied for this content.'
+        e_f = None
+    elif request.user.has_perm('UUID.view_blob') and (download_as == 'blob'):
+        e_f = filename
+    elif not request.user.has_perm('UUID.view_view'):
+        a = 'Access denied to this content.'
+        e_f = None
+    elif ext == '.tex' :
+        e_f = osjoin( uuid_dir, 'squash'+_lang+'.tex')
+    else:
+        e_f = filename
+        _content_type , _content_encoding = mimetypes.guess_type(s)
+        if not is_image_blob(metadata, _content_type):
+            a = 'Access denied to this content.'
+            e_f = None
+    #
+    if e_f is None:
         if request.user.is_anonymous: a += ' Please login.'
         messages.add_message(request, messages.WARNING, a)
-        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : download denied',
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : '+a,
                     request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
-    s = os.path.join(uuid_dir, osjoin(blobs_dir, uuid_dir, 'squash'+_lang+'.tex'))
-    if not os.path.isfile(s):
-        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : no squashed version',
-                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
-        messages.add_message(request, messages.WARNING, 'Cannot download ("squashed version" is unavailable)')
+    if not os.path.isfile(os.path.join(blobs_dir, e_f)):
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : no file %r',
+                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as, e_f)
+        messages.add_message(request, messages.WARNING, 'Cannot download (you have insufficient priviledges)')
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
-    content = open(s).read()
     #
-    logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : serving',
-                request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
+    content = open(os.path.join(blobs_dir, e_f)).read()
+    #
+    logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : serving %r',
+                request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as, e_f)
     #
     if download_as == 'blob':
-        response = HttpResponse(content, content_type=tex_mimetype)
-        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s.tex' % (NICK,UUID))
+        response = HttpResponse(content, content_type = _content_type )
+        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s%s' % (NICK,UUID,ext))
         return response
+    #
+    its_something_we_would_latex = (env not in ColDoc.latex.environments_we_wont_latex)
+    if not its_something_we_would_latex or ( _content_type != tex_mimetype ) :
+        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : not something we would LaTeX',
+                    request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
+        messages.add_message(request, messages.WARNING, 'This blob is not not something we would LaTeX')
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     engine = options.get('latex_engine','pdflatex')
