@@ -600,7 +600,8 @@ def index(request, NICK, UUID):
     pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext)
     #
-    if env not in ColDoc.latex.environments_we_wont_latex:
+    its_something_we_would_latex = (env not in ColDoc.latex.environments_we_wont_latex)
+    if its_something_we_would_latex:
         pdfUUIDurl = django.urls.reverse('ColDoc:pdf', kwargs={'NICK':NICK,}) +\
             '?lang=%s&ext=%s#UUID:%s'%(lang, ext, UUID)
         section, anchor = ColDoc.latex.get_specific_html_for_UUID(global_blobs_dir,UUID)
