@@ -35,8 +35,8 @@ paper_test:
 	rm -fr tmp/pt
 	test -d tmp/pt || mkdir tmp/pt
 	cp -a -t  tmp/pt  paper/*.tex
-	cp -a -t  tmp/pt  paper/coldoc_ifs.sty
-	cd tmp/pt ; ln -s ../../../tex/*sty .
+	cp -a -t  tmp/pt  paper/*.sty
+	cd tmp/pt ; ln -sf ../../../tex/*sty .
 	cp -a -T latex/F tmp/pt/F
 	cp -a -T paper/subdir tmp/pt/subdir
 	#
