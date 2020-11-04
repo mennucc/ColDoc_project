@@ -727,7 +727,10 @@ def index(request, NICK, UUID):
 
 
 
-download_template=r"""\documentclass %(documentclassoptions)s {%(documentclass)s}
+download_template=r"""%% !TeX spellcheck = %(lang)s
+%% !TeX encoding = UTF-8
+%% !TeX TS-program = %(latex_engine)s
+\documentclass %(documentclassoptions)s {%(documentclass)s}
 \newif\ifplastex\plastexfalse
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
@@ -738,6 +741,11 @@ download_template=r"""\documentclass %(documentclassoptions)s {%(documentclass)s
 %(content)s
 %(end)s
 \end{document}
+%%%%%% Local Variables: 
+%%%%%% coding: utf-8
+%%%%%% mode: latex
+%%%%%% TeX-engine: %(latex_engine_emacs)s
+%%%%%% End: 
 """
 
 tex_mimetype = 'text/x-tex'
@@ -834,8 +842,10 @@ def download(request, NICK, UUID):
     #
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     engine = options.get('latex_engine','pdflatex')
+    options['latex_engine_emacs'] = {'xelatex':'xetex','lualatex':'luatex','pdflatex':'latex'}[engine]
     #
     options.setdefault('latex_macros',metadata.coldoc.latex_macros_uuid)
+    options.setdefault('lang',lang)
     #
     options['begin']=''
     options['end']=''
