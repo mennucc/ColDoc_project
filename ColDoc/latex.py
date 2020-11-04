@@ -690,6 +690,13 @@ def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None
         options['coldoc'] = coldoc
     options['coldoc_dir'] = coldoc_dir
     #
+    try:
+        blobinator_args = ColDoc.utils.get_blobinator_args(blobs_dir)
+        options.update(blobinator_args)
+        logger.debug('From %r options %r',a,options)
+    except:
+        logger.exception('No blobinator_args')
+    #
     a = osjoin(coldoc_dir, 'coldoc.json')
     if os.path.isfile( a ):
         coldoc_args = json.load(open(a))
@@ -713,12 +720,6 @@ def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None
     else:
         logger.error('No %r',a)
     #
-    try:
-        blobinator_args = ColDoc.utils.get_blobinator_args(blobs_dir)
-        options.update(blobinator_args)
-        logger.debug('From %r options %r',a,options)
-    except:
-        logger.exception('No blobinator_args')
     return options
 
 
