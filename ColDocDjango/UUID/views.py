@@ -878,7 +878,7 @@ def download(request, NICK, UUID):
     s = open(s).read()
     preambles = [ ('ColDocUUID.sty', '\\usepackage{ColDocUUID}', s) ]
     preamble = '%%%%%%%%%%%%%%%% ColDocUUID.sty\n' + s 
-    for a in ("preamble_" + engine, "preamble_definitions"):
+    for a in ("preamble_definitions", "preamble_" + engine, ):
         m = None
         try:
             m = DMetadata.objects.filter(original_filename = a).get()
