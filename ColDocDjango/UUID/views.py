@@ -859,7 +859,7 @@ def download(request, NICK, UUID):
     #
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     engine = options.get('latex_engine','pdflatex')
-    options['latex_engine_emacs'] = {'xelatex':'xetex','lualatex':'luatex','pdflatex':'latex'}[engine]
+    options['latex_engine_emacs'] = {'xelatex':'xetex','lualatex':'luatex','pdflatex':'default'}[engine]
     #
     options.setdefault('latex_macros',metadata.coldoc.latex_macros_uuid)
     options.setdefault('lang',lang)
