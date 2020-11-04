@@ -436,6 +436,9 @@ def get_specific_html_for_UUID(blobs_dir,UUID):
     try:
         D = pickle.load(open(osjoin(blobs_dir, '.UUID_html_mapping.pickle'),'rb'))
         return D[UUID]
+    except KeyError:
+        logger.info('Cannot resolve uuid=%r in %r',UUID,blobs_dir)
+        return '',''
     except:
         logger.exception('Argh')
         return '',''
