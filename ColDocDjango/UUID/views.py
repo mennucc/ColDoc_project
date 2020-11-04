@@ -732,10 +732,10 @@ download_template=r"""%% !TeX spellcheck = %(lang)s
 %% !TeX TS-program = %(latex_engine)s
 \documentclass %(documentclassoptions)s {%(documentclass)s}
 \newif\ifplastex\plastexfalse
+\usepackage{hyperref}
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 %(preamble)s
-\usepackage{hyperref}
 \begin{document}
 %(begin)s
 %(content)s
