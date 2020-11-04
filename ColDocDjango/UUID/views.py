@@ -394,7 +394,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         #
         env = metadata.get('environ')[0]
         if env in ColDoc.latex.environments_we_wont_latex and _view_ext == '_html':
-            return  HttpResponse('There is no %r for %r' % (_view_ext, metadata['environ'][0]), content_type='text/plain')
+            return  HttpResponse('There is no %r for %r' % (_view_ext, env), content_type='text/plain')
         # TODO should serve using external server see
         #   https://stackoverflow.com/questions/2687957/django-serving-media-behind-custom-url
         #   
