@@ -914,8 +914,12 @@ def download(request, NICK, UUID):
                 s=open(osjoin(blobs_dir,f)).read()
                 k = {'.sty':'usepackage','.tex':'input'}.get(ext,'input')
                 preambles.append( ( (a+ext) , ('\\%s{%s}'%(k,a,)) , s) )
-                preamble += '\n%%%%%%%%%%%%%% '+a + '\n'+s
-    
+                preamble += '\n%%%%%%%%%%%%%% '+a + '\n'
+                if ext == '.sty':
+                    preamble += '\\makeatletter\n'
+                preamble += s
+                if ext == '.sty':
+                    preamble += '\\makeatother\n'
     #
     options['documentclassoptions'] = ColDoc.utils.parenthesizes(options.get('documentclassoptions'), '[]')
     #
