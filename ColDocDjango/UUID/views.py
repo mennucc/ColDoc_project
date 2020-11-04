@@ -933,15 +933,16 @@ def download(request, NICK, UUID):
     #
     options['preamble'] = '\n'.join([j[1] for j in preambles])
     uuidname = '%s_%s.tex' % (NICK,UUID)
+    dirname = '%s_%s/' % (NICK,UUID)
     options['content'] = '\input{%s}' % (uuidname,)
     if download_as == 'zip':
         import zipfile, io
         F = io.BytesIO()
         Z = zipfile.ZipFile(F,'w')
-        Z.writestr(zinfo_or_arcname='main.tex' , data=(download_template % options) , )
-        Z.writestr(zinfo_or_arcname=uuidname , data=content, )
+        Z.writestr(zinfo_or_arcname=dirname+'main.tex' , data=(download_template % options) , )
+        Z.writestr(zinfo_or_arcname=dirname+uuidname , data=content, )
         for a,i,c in preambles:
-            Z.writestr(zinfo_or_arcname=a, data=c, )
+            Z.writestr(zinfo_or_arcname=dirname+a, data=c, )
         Z.close()
         F.seek(0)
         response = HttpResponse(F, content_type='application/zip')
