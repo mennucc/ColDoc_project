@@ -220,7 +220,7 @@ STATICFILES_DIRS = [
 
 # you can overwrite this in the settings.py file in the deployed COLDOC_SITE_ROOT
 GOOGLE_SITE_VERIFICATION =  None
-
+GOOGLE_ANALYTICS4 = None
 
 try:
     from ColDocDjango.settings_local import *

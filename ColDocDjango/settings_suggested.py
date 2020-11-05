@@ -18,3 +18,8 @@
 
 # GOOGLE_SITE_VERIFICATION = 'googleXXXXXXXXXXXXXXXX.html'
 
+# you can add analytics by copying the template `analytics.html` in your deployed site and editing it
+# a template for Google analytics 4 can be activated by entering the G-code below
+
+# GOOGLE_ANALYTICS4 = 'G-xxxxxxxxxx'
+
