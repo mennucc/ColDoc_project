@@ -28,6 +28,7 @@ import django.contrib.auth
 from django.contrib.auth.views import LoginView, LogoutView
 
 urlpatterns = [
+    path('robots.txt', ColDocDjango.views.robots_page),
     path('admin/', admin.site.urls),
     path('UUID/', include('ColDocDjango.UUID.urls')),
     path('CD/', include('ColDocDjango.ColDocApp.urls')),

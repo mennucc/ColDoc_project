@@ -3,6 +3,7 @@ from functools import wraps
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
+from django.http import HttpResponse
 
 from ColDocDjango.ColDocApp.models import DColDoc
 
@@ -40,4 +41,13 @@ def main_page(request):
     now = datetime.date.today()
     user = request.user
     return render(request, 'index.html', c)
+
+
+def robots_page(request):
+    return HttpResponse("""User-agent: *
+Disallow: /login/
+Disallow: /logout/
+Disallow: /accounts/
+Disallow: /admin/
+""", content_type="text/plain")
 
