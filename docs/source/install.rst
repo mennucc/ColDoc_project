@@ -46,7 +46,8 @@ Settings for a deployed site are read from three files:
 
 To better test the code,
 you may want to create a file `ColDocDjango.settings_local.py` to setup some variables
-to enable email sending, as in this example.
+to enable email sending, as in this example. Or you may want to enable them in 
+`${COLDOC_SITE_ROOT}/settings.py` .
 
 .. code:: shell
 
@@ -55,7 +56,7 @@ to enable email sending, as in this example.
 	  EMAIL_HOST_USER = "username"
 	  EMAIL_HOST_PASSWORD = "password"
 	  EMAIL_USE_TLS = True
-	  DEFAULT_FROM_EMAIL = "Helpdesk <helpdesk@that_email"
+	  DEFAULT_FROM_EMAIL = "Helpdesk <helpdesk@that_email>"
 
 or to enhance the code, *e.g.* adding some mimetypes used in your `coldoc` s
 
@@ -67,3 +68,4 @@ or to enhance the code, *e.g.* adding some mimetypes used in your `coldoc` s
 	      mimetypes.add_type('application/x-gnuplot',j)
 
 
+See in `ColDocDjango.settings_suggested.py` for more examples.

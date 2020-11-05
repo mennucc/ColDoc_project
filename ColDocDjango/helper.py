@@ -77,10 +77,13 @@ def deploy(target):
     config.deploy(a)
     #
     COLDOC_SITE_SETTINGS = os.path.join(target,'settings.py')
-    open(COLDOC_SITE_SETTINGS,'w').write("""# settings specific for this instance
+    F = open(COLDOC_SITE_SETTINGS,'w')
+    F.write("""# settings specific for this instance
 # This file will be executed after the `settings.py` file in the ColDocDjango directory
 # in the source code.
 """)
+    F.write(open(osjoin(COLDOC_SRC_ROOT,'ColDocDjango/settings_suggested.py')).read())
+    F.close()
     #
     newconfig = config.get_config(target)
     for j in ( 'coldocs' , ):
