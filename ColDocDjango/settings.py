@@ -218,6 +218,9 @@ STATICFILES_DIRS = [
     config.get('django','static_local'),
 ]
 
+# you can overwrite this in the settings.py file in the deployed COLDOC_SITE_ROOT
+GOOGLE_SITE_VERIFICATION =  None
+
 
 try:
     from ColDocDjango.settings_local import *

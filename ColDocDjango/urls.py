@@ -55,3 +55,9 @@ else:
 urlpatterns += [
     re_path(r'^$', ColDocDjango.views.main_page),
     ]
+
+if isinstance(settings.GOOGLE_SITE_VERIFICATION,str):
+    urlpatterns += [
+        path(settings.GOOGLE_SITE_VERIFICATION, lambda r: \
+             HttpResponse('google-site-verification: %s' % settings.GOOGLE_SITE_VERIFICATION,content_type='text/plain')),
+        ]

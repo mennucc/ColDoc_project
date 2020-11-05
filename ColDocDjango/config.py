@@ -35,14 +35,6 @@ config.set(section, 'template_dirs', '%(site_root)s/templates')
 config.set(section, 'sqlite_database', '%(site_root)s/var/db.sqlite3')
 
 
-section = 'web'
-config.add_section(section)
-config.set(section, 'google_site_verification', '')
-config.set(section, 'google_analytics_account', '')
-config.set(section, 'piwik_url', '')
-config.set(section, 'piwik_site_id', '')
-
-
 def deploy(a):
     " write configuration to file `a` to allow for customization"
     con = copy.copy(config)
