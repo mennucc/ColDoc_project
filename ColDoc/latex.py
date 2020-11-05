@@ -361,7 +361,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             r = re.compile(r'\\usepackage{ColDocUUID}')
             if not any(r.match(a) for a in preamble):
                 preamble += ['\\usepackage{ColDocUUID}\n']
-                logger.info(r" adding \usepackage{ColDocUUID}")
+                logger.debug(r" adding \usepackage{ColDocUUID}")
             a = (r'\def\uuidbaseurl{%s}'%(options['url_UUID'],)+'\n')
             f_pdf = ''.join(prologue + preamble + [a] + body + epilogue)
             a = (r'\def\uuidbaseurl{%s}'%(ColDoc.config.ColDoc_url_placeholder,)+'\n')
@@ -390,7 +390,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             # TODO should encode by language
             a,b = osjoin(blobs_dir,save_name+e), osjoin(blobs_dir,'main'+e)
             if os.path.isfile(a):
-                logger.info('Copy %r to %r',a,b)
+                logger.debug('Copy %r to %r',a,b)
                 shutil.copy(a,b)
         #
         ret = ret and rh and rp
@@ -456,11 +456,11 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     for es,ed in ColDoc.config.ColDoc_plastex_fakemain_reuse_extensions:
         a = osjoin(blobs_dir,'main'+es)
         if os.path.exists(a):
-            logger.info("Re-using %r as %r",a,fake_abs_name+ed)
+            logger.debug("Re-using %r as %r",a,fake_abs_name+ed)
             shutil.copy2(a,fake_abs_name+ed)
             fake_support.append((a,fake_abs_name+ed))
         elif os.path.exists(save_abs_name+es):
-            logger.info("Re-using %r as %r",save_abs_name+es,fake_abs_name+ed)
+            logger.debug("Re-using %r as %r",save_abs_name+es,fake_abs_name+ed)
             shutil.copy(save_abs_name+es,fake_abs_name+ed)
             fake_support.append((save_abs_name+es,fake_abs_name+ed))
     #
@@ -513,7 +513,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
         for f in os.listdir(osjoin(blobs_dir, save_name+'_html')):
             f = osjoin(blobs_dir, save_name+'_html', f)
             if f[-5:]=='.html':
-                logger.info('stripping <head> of %r ',f)
+                logger.debug('stripping <head> of %r ',f)
                 os.rename(f,f+'~~')
                 L=open(f+'~~').readlines()
                 try:
@@ -541,13 +541,13 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
     for e in ColDoc.config.ColDoc_pdflatex_fakemain_reuse_extensions:
         a = os.path.join(blobs_dir,'main'+e)
         if os.path.exists(save_abs_name+e):
-            logger.info("Re-using %r for %r",save_abs_name+e,fake_abs_name+e)
+            logger.debug("Re-using %r for %r",save_abs_name+e,fake_abs_name+e)
             shutil.copy2(save_abs_name+e, fake_abs_name+e)
         elif os.path.exists(a):
-            logger.info("Re-using %r for %r (hoping for the best)",a,fake_abs_name+e)
+            logger.debug("Re-using %r for %r (hoping for the best)",a,fake_abs_name+e)
             shutil.copy2(a,fake_abs_name+e)
         else:
-            logger.info("No %r file for this job",e)
+            logger.debug("No %r file for this job",e)
     #
     extensions = ColDoc.config.ColDoc_pdflatex_fakemain_preserve_extensions
     #
