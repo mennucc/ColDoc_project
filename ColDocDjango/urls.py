@@ -34,6 +34,11 @@ urlpatterns = [
     path('CD/', include('ColDocDjango.ColDocApp.urls')),
     ]
 
+if settings.USE_WALLET:
+    urlpatterns += [
+        path('wallet/', include('django_pursed.wallet.urls')),
+        ]
+
 if settings.USE_ALLAUTH:
     urlpatterns += [
         path('accounts/', include('allauth.urls')),
