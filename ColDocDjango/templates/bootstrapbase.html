@@ -81,6 +81,9 @@
 	  {% else %} {# USE_ALLAUTH #}
 	  <a class="dropdown-item" href="/change_password">Change Password</a>
 	  {% endif %} {# USE_ALLAUTH #}
+	  {% if USE_WALLET %}
+	   	  <a class="dropdown-item" href="{% url 'wallet:show' %}">Wallet</a>
+          {% endif %} {# USE_WALLET #}
 	  <a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a>
         </div>
       </li>
