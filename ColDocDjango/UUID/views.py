@@ -24,6 +24,8 @@ import ColDoc.utils, ColDoc.latex, ColDocDjango
 
 from .models import DMetadata, DColDoc
 
+from .shop import buy_download
+
 ##############################################################
 
 class MetadataForm(forms.ModelForm):
@@ -724,7 +726,6 @@ def index(request, NICK, UUID):
 
 
 
-
 download_template=r"""%% !TeX spellcheck = %(lang)s
 %% !TeX encoding = UTF-8
 %% !TeX TS-program = %(latex_engine)s
@@ -808,12 +809,14 @@ def download(request, NICK, UUID):
     a = None
     # effective file served
     e_f = None
-    if not request.user.has_perm('UUID.download'):
+    if not request.user.has_perm('UUID.download', metadata):
         a = 'Download denied for this content.'
         e_f = None
-    elif request.user.has_perm('UUID.view_blob') and (download_as == 'blob'):
+        if settings.USE_WALLET and request.user.has_perm('UUID.view_view', metadata) and request.user.has_perm('wallet.operate'):
+            return buy_download(request, metadata, NICK, UUID)
+    elif request.user.has_perm('UUID.view_blob', metadata) and (download_as == 'blob'):
         e_f = filename
-    elif not request.user.has_perm('UUID.view_view'):
+    elif not request.user.has_perm('UUID.view_view', metadata):
         a = 'Access denied to this content.'
         e_f = None
     elif ext == '.tex' :
@@ -904,7 +907,7 @@ def download(request, NICK, UUID):
         else:
             # check permissions
             request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, m)
-            if not request.user.has_perm('UUID.download'):
+            if not request.user.has_perm('UUID.download', metadata):
                 a = 'Download denied for the subpart %r .' % (a,)
                 if request.user.is_anonymous: a += ' Please login.'
                 messages.add_message(request, messages.WARNING, a)
