@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     #https://docs.djangoproject.com/en/3.0/howto/static-files/
     'django.contrib.staticfiles',
+    'guardian',
     'ColDocDjango.ColDocApp',
     'ColDocDjango.UUID',
 ]
@@ -108,7 +109,8 @@ if USE_WALLET:
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
-    ]
+    'guardian.backends.ObjectPermissionBackend',
+]
 
 
 LOGIN_REDIRECT_URL = '/'
