@@ -7,6 +7,18 @@ logger = logging.getLogger(__name__)
 import django
 
 
+#https://stackoverflow.com/questions/25967759/django-get-permpermision-string
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Permission
+
+def permission_str_to_model(perm, obj):
+    " convert permission from `str` to `Permission` for that `obj`"
+    if isinstance(perm,str):
+        content_type = ContentType.objects.get_for_model(obj)
+        perm =  Permission.objects.get(content_type = content_type, codename=perm)
+    return perm
+
+
 def convert_latex_return_codes(latex_return_codes, NICK, UUID):
     latex_error_logs = []
     try:
