@@ -115,23 +115,42 @@ def set_site(site_url = None):
     print("Set site id = %r domain %r name %r" % (one.id , one.domain, one.name))
     return True
 
+def _build_fake_email(e):
+    from django.conf import settings
+    import email
+    a = settings.DEFAULT_FROM_EMAIL
+    if not a or '@' not in a:
+        return e + '@test.local'
+    j = a.index('@')
+    return a[:j] + '+' + e + a[j:]
+
+
 def create_fake_users(COLDOC_SITE_ROOT):
-    #
+    from django.db.utils import IntegrityError
+    from django.contrib.contenttypes.models import ContentType
+    from django.contrib.auth.models import Permission
+    from django.conf import settings
     import django.contrib.auth as A
     UsMo = A.get_user_model()
-    #UsMa = A.models.UserManager()
-    UsMo.objects.create_user('foobar',email='foo@test.local',password='barfoo').save()
-    print('*** created user "foobar" password "barfoo"')
+    for U,P in ('foobar', 'barfoo'), ('jsmith',"123456"), ('ed_itor','345678'):
+        print('*** creating user %r password %r' % (U,P))
+        E=_build_fake_email(U)
+        try:
+            UsMo.objects.create_user(U,email=E,password=P).save()
+        except IntegrityError:
+            pass
+        except Exception as e:
+            print('Cannot create user %r : %r' %(U,e))
     #
-    UsMo.objects.create_user('jsmith',email='jsmith@test.local',password='123456').save()
-    print('*** created user "jsmith" password "123456"')
     #
-    UsMo.objects.create_user('ed_itor',email='ed_itor@test.local',password='345678').save()
-    print('*** created user "ed_itor" password "345678"')
-    #
-    UsMo.objects.create_superuser('napoleon',email='nap@test.local',password='adrian').save()
-    print('*** created superuser "napoleon" password "adrian"')
-    return True
+    print('*** creating superuser "napoleon" password "adrian"')
+    try:
+        UsMo.objects.create_superuser('napoleon',email=_build_fake_email('napoleon'),password='adrian').save()
+    except IntegrityError:
+        pass
+    except Exception as e:
+        print('Cannot create user %r : %r' %(U,e))    
+    return True 
 
 def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, lang, selection_start = None, selection_end = None, add_beginend = True):
     " returns (success, message, new_uuid)"
