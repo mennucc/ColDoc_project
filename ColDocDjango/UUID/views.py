@@ -6,12 +6,11 @@ logger = logging.getLogger(__name__)
 
 
 import django
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, QueryDict
 from django.contrib import messages
 from django import forms
 from django.conf import settings
-from django.forms import ModelForm
 from django.core.exceptions import SuspiciousOperation
 from django.utils.html import escape
 from django.templatetags.static import static
@@ -22,13 +21,12 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango
 
-from django.shortcuts import get_object_or_404, render, redirect
 
 from .models import DMetadata, DColDoc
 
 ##############################################################
 
-class MetadataForm(ModelForm):
+class MetadataForm(forms.ModelForm):
     class Meta:
         model = DMetadata
         fields = ['author', 'access', 'environ','optarg','latex_documentclass_choice']
