@@ -47,8 +47,8 @@ else:
                  'title': 'Login',
                  'site_title': config['DEFAULT']['site_name'],
                  'site_header': config['DEFAULT']['site_name']+' : Login'}),
-         name="my_login"),
-    path('logout/',  LogoutView.as_view(), name="my_logout"),
+         name="account_login"),
+    path('logout/',  LogoutView.as_view(), name="account_logout"),
 ]
 
 
