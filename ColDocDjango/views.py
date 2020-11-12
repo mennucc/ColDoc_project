@@ -20,5 +20,6 @@ Disallow: /login/
 Disallow: /logout/
 Disallow: /accounts/
 Disallow: /admin/
+Disallow: /wallet/
 """, content_type="text/plain")
 
