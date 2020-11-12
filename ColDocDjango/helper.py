@@ -502,6 +502,24 @@ def list_authors(warn, COLDOC_SITE_ROOT, coldoc_nick, as_django_user = True):
             smartappend(None, uuid)
     return authors
 
+def deposit(username, amount):
+    from django.db.utils import IntegrityError
+    from django.db import transaction
+    from django.contrib.contenttypes.models import ContentType
+    from django.contrib.auth.models import Permission
+    import django.contrib.auth as A
+    #
+    from django_pursed.wallet.utils import  get_wallet_or_create
+    from django_pursed.wallet.models import Wallet
+    content_type = ContentType.objects.get_for_model(Wallet)
+    #
+    UsMo = A.get_user_model()
+    user = UsMo.objects.filter(username=username).get()
+    wallet = get_wallet_or_create(user)
+    with transaction.atomic():
+        wallet.deposit(value=float(amount),description='deposit from command line')
+    return True
+
 
 
 def main(argv):
@@ -589,6 +607,8 @@ does not contain the file `config.ini`
         for a in authors:
             print(repr(a) + '→' + repr(authors[a]))
         return True
+    elif argv[0] == 'deposit':
+        return deposit(argv[1],argv[2])
     #
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
