@@ -24,6 +24,11 @@
   <img src="{% static 'ColDoc/HTML_goto_icon.svg' %}"  style="height: 14pt" ></a>
  {% endif %}
 
+ {% if buy_link %} <a href="{{ buy_link | safe }}" class="btn btn-outline-primary"
+            data-toggle="tooltip" title="{{ buy_tooltip }}">{{ buy_label }}</a>
+ {% endif %}
+
+
 <ul class="nav nav-tabs" id="myTab" role="tablist">
  {% if perms.UUID.view_view %}
   <li class="nav-item">

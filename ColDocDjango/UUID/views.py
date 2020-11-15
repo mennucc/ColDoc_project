@@ -582,6 +582,16 @@ def index(request, NICK, UUID):
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     if not request.user.has_perm('UUID.view_view', metadata):
+        #
+        buy_link = buy_label = buy_tooltip = None
+        ret = can_buy_permission(request.user, metadata, 'view_view')
+        if isinstance(ret,(int,float)):
+            buy_link = buy_permission(request.user, metadata, 'view_view', ret, request=request)
+            buy_label  = 'Buy for %s' % (ret,)
+            buy_tooltip  = 'Buy permission to view this blob for %s' % (ret,)
+        else:
+            logger.warning('Cannot buy, '+str(ret))
+        #
         a = 'Access denied to this content.'
         if request.user.is_anonymous: a += ' Please login.'
         messages.add_message(request, messages.WARNING, a)
