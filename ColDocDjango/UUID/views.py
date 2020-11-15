@@ -376,7 +376,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         #
         request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
         if not request.user.has_perm('UUID.view_view'):
-            logger.info('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r blobs=%r: permission denied',
+            logger.info('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r: permission denied',
                         request.META.get('REMOTE_ADDR'), request.user.username,
                         NICK,UUID,_view_ext,_content_type,subpath,prefix)
             return HttpResponse("Permission denied (view)",
