@@ -25,8 +25,7 @@ This program does some actions that `manage` does not. Possible commands:
 
     list_authors
         ditto
-    
-Use `command` --help for command specific options.
+
 """
 
 import os, sys, argparse, json
@@ -55,6 +54,11 @@ from ColDoc.utils import ColDocException, get_blobinator_args
 
 import logging
 logger = logging.getLogger('helper')
+
+try:
+    import django_pursed
+except ImportError:
+    django_pursed = None
 
 
 def deploy(target):
@@ -501,29 +505,15 @@ def list_authors(warn, COLDOC_SITE_ROOT, coldoc_nick, as_django_user = True):
             smartappend(None, uuid)
     return authors
 
-def deposit(username, amount):
-    from django.db.utils import IntegrityError
-    from django.db import transaction
-    from django.contrib.contenttypes.models import ContentType
-    from django.contrib.auth.models import Permission
-    import django.contrib.auth as A
-    #
-    from django_pursed.wallet.utils import  get_wallet_or_create
-    from django_pursed.wallet.models import Wallet
-    content_type = ContentType.objects.get_for_model(Wallet)
-    #
-    UsMo = A.get_user_model()
-    user = UsMo.objects.filter(username=username).get()
-    wallet = get_wallet_or_create(user)
-    with transaction.atomic():
-        wallet.deposit(value=float(amount),description='deposit from command line')
-    return True
-
 
 
 def main(argv):
+    doc = __doc__
+    if django_pursed is not None:
+        from django_pursed.helper import __doc__ as a
+        doc += '\n'.join(a.splitlines()[5:-1])
     #
-    parser = argparse.ArgumentParser(description=__doc__,
+    parser = argparse.ArgumentParser(description=doc,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
     parser.add_argument('--coldoc-site-root',type=str,\
@@ -546,6 +536,10 @@ def main(argv):
         parser.add_argument('--environ',type=str,required=True,\
                             help='environment of  newly created blob')
     parser.add_argument('command', help='specific command',nargs='+')
+    if django_pursed is not None:
+            from django_pursed.helper import parser_add_arguments
+            parser_add_arguments(parser, argv)
+    #
     args = parser.parse_args()
     #
     verbose = args.verbose
@@ -606,8 +600,12 @@ does not contain the file `config.ini`
         for a in authors:
             print(repr(a) + '→' + repr(authors[a]))
         return True
-    elif argv[0] == 'deposit':
-        return deposit(argv[1],argv[2])
+    elif django_pursed is not None:
+        from django_pursed.helper import main_call
+        from django_pursed.wallet import utils
+        ret = main_call(utils, argv, args)
+        if ret is not None:
+            return ret
     #
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
