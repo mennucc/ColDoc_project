@@ -21,7 +21,11 @@ from django.contrib.auth.admin import UserAdmin
 from ColDocDjango.users import ColDocUser
 
 if settings.USE_ALLAUTH:
-    from allauth.socialaccount.models import SocialAccount
+    from allauth.socialaccount.models import SocialAccount, EmailAddress
+    #
+    class InlineEmailAddress(admin.TabularInline):
+        model = EmailAddress
+    #
     try:
         #https://github.com/pennersr/django-allauth/issues/2688
         from allauth.socialaccount.admin  import InlineSocialAccountAdmin
@@ -40,6 +44,7 @@ if settings.USE_ALLAUTH:
         model = ColDocUser
         inlines = [
             InlineSocialAccountAdmin,
+            InlineEmailAddress,
         ]
     admin.site.register(ColDocUser, ColDocUserAdmin)
 else:
