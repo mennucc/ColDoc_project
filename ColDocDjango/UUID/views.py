@@ -581,7 +581,7 @@ def index(request, NICK, UUID):
     ########################################## permission management
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
-    if not request.user.has_perm('UUID.view_view'):
+    if not request.user.has_perm('UUID.view_view', metadata):
         a = 'Access denied to this content.'
         if request.user.is_anonymous: a += ' Please login.'
         messages.add_message(request, messages.WARNING, a)
@@ -683,7 +683,7 @@ def index(request, NICK, UUID):
                 availablelogs.append(  (e_, a ) )
     #
     # just to be safe
-    if not request.user.has_perm('UUID.view_view'):
+    if not request.user.has_perm('UUID.view_view', metadata):
         html = '[access denied]'
     if not request.user.has_perm('UUID.view_blob'):
         file = '[access denied]'
@@ -809,14 +809,14 @@ def download(request, NICK, UUID):
     a = None
     # effective file served
     e_f = None
-    if not request.user.has_perm('UUID.download', metadata):
+    if not request.user.has_perm('UUID.download'):
         a = 'Download denied for this content.'
         e_f = None
         if settings.USE_WALLET and request.user.has_perm('UUID.view_view', metadata) and request.user.has_perm('wallet.operate'):
             return buy_download(request, metadata, NICK, UUID)
-    elif request.user.has_perm('UUID.view_blob', metadata) and (download_as == 'blob'):
+    elif request.user.has_perm('UUID.view_blob') and (download_as == 'blob'):
         e_f = filename
-    elif not request.user.has_perm('UUID.view_view', metadata):
+    elif not request.user.has_perm('UUID.view_view'):
         a = 'Access denied to this content.'
         e_f = None
     elif ext == '.tex' :
@@ -907,7 +907,7 @@ def download(request, NICK, UUID):
         else:
             # check permissions
             request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, m)
-            if not request.user.has_perm('UUID.download', metadata):
+            if not request.user.has_perm('UUID.download'):
                 a = 'Download denied for the subpart %r .' % (a,)
                 if request.user.is_anonymous: a += ' Please login.'
                 messages.add_message(request, messages.WARNING, a)
