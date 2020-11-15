@@ -53,9 +53,8 @@ if __name__ == '__main__':
 
 from ColDoc.utils import ColDocException, get_blobinator_args
 
-if __name__ == '__main__':
-    import logging
-    logger = logging.getLogger('helper')
+import logging
+logger = logging.getLogger('helper')
 
 
 def deploy(target):
