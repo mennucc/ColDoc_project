@@ -24,7 +24,7 @@ import ColDoc.utils, ColDoc.latex, ColDocDjango
 
 from .models import DMetadata, DColDoc
 
-from .shop import buy_download
+from .shop import buy_permission, can_buy_permission
 
 ##############################################################
 
@@ -812,8 +812,11 @@ def download(request, NICK, UUID):
     if not request.user.has_perm('UUID.download'):
         a = 'Download denied for this content.'
         e_f = None
-        if settings.USE_WALLET and request.user.has_perm('UUID.view_view', metadata) and request.user.has_perm('wallet.operate'):
-            return buy_download(request, metadata, NICK, UUID)
+        ret = can_buy_permission(request.user, metadata, 'download')
+        if isinstance(ret,(int,float)):
+            return redirect(buy_permission(request.user, metadata, 'download', ret, request=request))
+        else:
+            logger.warning('Cannot buy, '+str(ret))
     elif request.user.has_perm('UUID.view_blob') and (download_as == 'blob'):
         e_f = filename
     elif not request.user.has_perm('UUID.view_view'):
