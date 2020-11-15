@@ -13,23 +13,38 @@ except ImportError:
 else:
     from guardian.models import UserObjectPermission
 
+try:
+    import django_pursed
+except ImportError:
+    django_pursed = None
+    StopPurchase = Exception
+else:
+    from django_pursed.wallet.errors import StopPurchase
 
 class BuyPermission(object):
     def __init__(self, perm, user, obj):
         self.user = user
         self.obj = obj
         self.perm = perm
-    def __call__(self, *v,**k):
+    #
+    def check(self, *v,**k):
         perm = self.perm
         if self.user.has_perm(perm, self.obj):
-            raise Exception( 'User %r already owns permission %r' % (self.user, self.perm, ) )
+            raise StopPurchase( 'User %r already owns permission %r' % (self.user, self.perm, ) )
         if UserObjectPermission is None:
-            raise Exception( 'Internal Error, django-guardian unavailable')
-        related_object = UserObjectPermission.objects.assign_perm(perm=perm, user_or_group=self.user, obj=self.obj)
+            raise StopPurchase( 'Internal Error, django-guardian unavailable')
+    #
+    def buy(self, *v,**k):
+        self.check()
+        related_object = UserObjectPermission.objects.assign_perm(perm=self.perm, user_or_group=self.user, obj=self.obj)
         D = { 'return_code' : True,
               'related_object' : related_object,
         }
         return D
+    #
+    def __call__(self, *v,**k):
+        return self.buy(*v,**k)
+
 
 def buy_download(request, obj, NICK, UUID):
     from django_pursed.wallet.utils import encode_purchase
