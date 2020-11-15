@@ -68,17 +68,28 @@ def add_permissions_for_coldoc(nickname):
                 gr.permissions.add(p)
         gr.save()
 
-def user_has_perm(user, perm, coldoc, blob, obj):
+def user_has_perm(user, perm, coldoc, blob, object_):
     """ when calling this, make sure that `user` is not an instance of `ColDocUser` ; in case, user `super`.
     This is used only for authenticated users. For anonymous users, see
     ColDocDjango.users.ColDocAnonymousUser
     """
     if not user.is_active:
         return False
+    if object_ is None and perm.startswith('UUID.') and blob is not None:
+        # django-guardian will check for specific permissions for this blob
+        obj = blob
+    else:
+        obj = object_
     if user.has_perm(perm, obj):
         ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,perm,coldoc,blob,obj)
         # takes care of superuser
         return True
+    #
+    if object_ is not None and object_ != blob:
+        # the code following checks permissions for blobs only
+        logger.debug('Bail out %r  permission %r since blob %r != obj %r ',user.username,perm,blob,object_)
+        return False
+    #
     if coldoc is None:
         logger.warning("Should not reach this point")
         return False
