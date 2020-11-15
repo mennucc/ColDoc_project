@@ -231,6 +231,11 @@ STATICFILES_DIRS = [
 GOOGLE_SITE_VERIFICATION =  None
 GOOGLE_ANALYTICS4 = None
 
+######################### pricing scheme for this coldoc; see settings_suggested for examples
+
+def PRICE_FOR_PERMISSION(user, blob, permission ):
+    return 'No permissions can be bought'
+
 ######################### include settings_local
 
 try:
