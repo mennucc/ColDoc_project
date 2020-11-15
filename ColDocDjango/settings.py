@@ -229,6 +229,8 @@ STATICFILES_DIRS = [
 GOOGLE_SITE_VERIFICATION =  None
 GOOGLE_ANALYTICS4 = None
 
+######################### include settings_local
+
 try:
     from ColDocDjango.settings_local import *
     logger.debug('loaded settings_local')
@@ -237,6 +239,7 @@ except ImportError:
 except:
     logger.warning("Error importing ColDocDjango.settings_local")
 
+######################### include settings for deployed site
 
 if COLDOC_SITE_ROOT is None:
     logger.debug('Environ COLDOC_SITE_ROOT not set')
