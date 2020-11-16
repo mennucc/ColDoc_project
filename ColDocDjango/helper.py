@@ -85,7 +85,11 @@ def deploy(target):
 # This file will be executed after the `settings.py` file in the ColDocDjango directory
 # in the source code.
 """)
-    F.write(open(osjoin(COLDOC_SRC_ROOT,'ColDocDjango/settings_suggested.py')).read())
+    # comment out
+    a = open(osjoin(COLDOC_SRC_ROOT,'ColDocDjango/settings_suggested.py')).readlines()
+    a = [l.strip('\n') for l in a]
+    a = [ ( ('#'+l) if l else l) for l in a ]
+    F.write('\n'.join(a))
     F.close()
     #
     newconfig = config.get_config(target)
