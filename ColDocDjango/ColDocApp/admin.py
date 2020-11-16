@@ -20,6 +20,7 @@ admin.site.register(DColDoc,DColDocAdmin)
 from django.contrib.auth.admin import UserAdmin
 from ColDocDjango.users import ColDocUser
 
+_inlines_ = []
 if settings.USE_ALLAUTH:
     from allauth.socialaccount.models import SocialAccount, EmailAddress
     #
@@ -40,12 +41,11 @@ if settings.USE_ALLAUTH:
                 base_fields = get_adapter().get_user_search_fields()
                 return list(map(lambda a: 'user__' + a, base_fields))
     #
-    class ColDocUserAdmin(UserAdmin):
-        model = ColDocUser
-        inlines = [
-            InlineSocialAccountAdmin,
-            InlineEmailAddress,
-        ]
-    admin.site.register(ColDocUser, ColDocUserAdmin)
-else:
-    admin.site.register(ColDocUser, UserAdmin)
+    _inlines_ += [ InlineSocialAccountAdmin,  InlineEmailAddress,  ]
+
+
+class ColDocUserAdmin(UserAdmin):
+    model = ColDocUser
+    inlines = _inlines_
+
+admin.site.register(ColDocUser, ColDocUserAdmin)
