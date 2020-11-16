@@ -39,6 +39,7 @@ class BuyPermission(object):
     def buy(self, *v,**k):
         self.check()
         related_object = UserObjectPermission.objects.assign_perm(perm=self.perm, user_or_group=self.user, obj=self.obj)
+        logger.info('User %r bought permission %r for blob %r', self.user, self.perm, self.obj)
         D = { 'return_code' : True,
               'related_object' : related_object,
         }
