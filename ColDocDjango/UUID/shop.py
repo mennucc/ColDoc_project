@@ -90,11 +90,13 @@ def buy_permission(user, blob, permission, amount, request=None, redirect_ok = N
     except StopPurchase as e:
         a = 'Purchase stopped : %s' % (e,)
         logger.warning(a)
-        messages.add_message(request,messages.WARNING, a)
+        if request is not None:
+            messages.add_message(request,messages.WARNING, a)
         return False
     except Exception as e:
         a = 'Purchase check failed : %r' % (e,)
-        messages.add_message(request,messages.ERROR, a)
+        if request is not None:
+            messages.add_message(request,messages.ERROR, a)
         logger.error(a)
         return False
     #
