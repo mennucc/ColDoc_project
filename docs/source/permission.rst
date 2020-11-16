@@ -52,6 +52,15 @@ This is the Permissions meaning and rule for each `UUID`.
 
   - `private` or `public` , it is granted to the author or any user with `view_blob` permission
 
+- `download` : permission to download the content of this blob in nice formatted ways.
+  If the UUID `access` state is
+
+  - `open`  this is always granted to authenticated users.
+
+  - `private` or `public` , it is granted to the author or any user with `download`.
+
+   Note that the `download` url also requires `view_view` permission.
+
 - `view_log` : permission to  view logs created by `LaTeX` `and plastex`
 
 Access to protected content in the whole document
