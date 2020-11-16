@@ -21,6 +21,26 @@ from django.contrib.auth.admin import UserAdmin
 from ColDocDjango.users import ColDocUser
 
 _inlines_ = []
+
+if settings.USE_WALLET:
+    from django_pursed.wallet.models import Wallet, Transaction
+    class InlineWallet(admin.TabularInline):
+        model = Wallet
+        extra = 0
+    #class InlineTransaction(admin.TabularInline):
+    #    model = Transaction
+    _inlines_ += [ InlineWallet, ]
+
+
+from guardian.models import UserObjectPermission
+
+class InlineUserObjectPermission(admin.TabularInline):
+    model = UserObjectPermission
+    extra = 0
+
+_inlines_ += [  InlineUserObjectPermission ]
+
+
 if settings.USE_ALLAUTH:
     from allauth.socialaccount.models import SocialAccount, EmailAddress
     #
