@@ -599,6 +599,16 @@ def index(request, NICK, UUID):
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return render(request, 'UUID.html', locals() )
     #
+    buy_download_link = buy_download_label = buy_download_tooltip = None
+    if not request.user.has_perm('UUID.download'):
+        ret = can_buy_permission(request.user, metadata, 'download')
+        if isinstance(ret,(int,float)):
+            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + ('?lang=%s&ext=%s'%(lang,ext)) + '#tools'
+            buy_download_link = buy_permission(request.user, metadata, 'download', ret, request=request, redirect_fails=a, redirect_ok=a)
+            buy_download_label  = 'Buy for %s :' % (ret,)
+            buy_download_tooltip  = 'Buy permission to download this blob for %s' % (ret,)
+        else:
+            logger.warning('Cannot buy download, '+str(ret))
     # TODO
     show_comment = request.user.is_superuser
     #

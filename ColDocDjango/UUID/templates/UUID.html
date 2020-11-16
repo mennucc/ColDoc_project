@@ -197,9 +197,11 @@
  
  
   <div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
-  
-  {% if not user.is_anonymous %}
-  <h2>Download</h2>
+  {% if buy_download_link or perms.UUID.download %}
+   <h2>Download</h2>
+    {% if buy_download_link %} <a href="{{ buy_download_link | safe }}" class="btn btn-outline-primary"
+            data-toggle="tooltip" title="{{ buy_download_tooltip }}">{{ buy_download_label }}</a>
+    {% endif %}
    <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ lang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm p-2"
              data-toggle="tooltip" title="Download this blob.">Download blob</a>
@@ -217,8 +219,8 @@
              class="btn btn-outline-primary">
       by email.</a>
    <span>
-   {% endif %}
-  {% endif %}
+   {% endif %} {# its_something_we_would_latex #}
+  {% endif %}   {# perms.UUID.download or buy_download_info #}
   </div>
 
 </div>
