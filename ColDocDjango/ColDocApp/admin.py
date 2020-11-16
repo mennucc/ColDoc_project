@@ -6,6 +6,7 @@ from ColDocDjango.UUID.models import UUID_Tree_Edge
 class UUID_Tree_Edge_Admin(admin.TabularInline):
     model = UUID_Tree_Edge
     readonly_fields = ('coldoc','parent','child','child_ordering')
+    extra = 0
 
 class DColDocAdmin(admin.ModelAdmin):
     model = DColDoc
@@ -50,6 +51,7 @@ if settings.USE_ALLAUTH:
     try:
         #https://github.com/pennersr/django-allauth/issues/2688
         from allauth.socialaccount.admin  import InlineSocialAccountAdmin
+        InlineSocialAccountAdmin.extra = 0
     except:
         class InlineSocialAccountAdmin(admin.TabularInline):
             model = SocialAccount
@@ -57,6 +59,7 @@ if settings.USE_ALLAUTH:
             raw_id_fields = ('user',)
             list_display = ('user', 'uid', 'provider')
             list_filter = ('provider',)
+            extra = 0
             def get_search_fields(self, request):
                 base_fields = get_adapter().get_user_search_fields()
                 return list(map(lambda a: 'user__' + a, base_fields))
