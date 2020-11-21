@@ -1,5 +1,3 @@
-import datetime
-from functools import wraps
 from django.template.loader import render_to_string
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
@@ -9,8 +7,6 @@ from ColDocDjango.ColDocApp.models import DColDoc
 
 def main_page(request):
     c = {'DColDocs':DColDoc.objects.all()} #default_context_for(request)
-    now = datetime.date.today()
-    user = request.user
     return render(request, 'index.html', c)
 
 
