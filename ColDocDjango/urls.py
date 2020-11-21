@@ -56,9 +56,12 @@ else:
     path('logout/',  LogoutView.as_view(), name="account_logout"),
 ]
 
+import views
 
 urlpatterns += [
     re_path(r'^$', ColDocDjango.views.main_page, name='index'),
+    path('user', views.user, name='user'),
+    path('send_email', views.send_email, name='send_email'),
     ]
 
 if isinstance(settings.GOOGLE_SITE_VERIFICATION,str):

@@ -1,0 +1,30 @@
+{% extends "bootstrapbase.html" %}
+{% block title %}User {{ thatuser.username }} {% endblock %}
+{% block content %}
+
+
+<h1>User {{ thatuser.username }}</h1>
+    
+<h2>Information</h2>
+
+<table class="table table-bordered table-sm table-hover">
+  <tr> <th>first_name </th> <td>{{ thatuser.first_name }}</td>  </tr>
+ <tr> <th>last_name  </th> <td>{{ thatuser.last_name }}</td>  </tr>
+ {% if user.is_superuser %}
+  <tr> <th>email</th> <td>{{ thatuser.email }}</td>  </tr>
+ {% endif %}
+</table>
+
+{% if email_form %}
+<h2>Send email</h2>
+<form role="form" action="{% url 'send_email' %}" method="post">
+    {% csrf_token %}
+    <table class="table table-bordered table-sm table-hover">
+    {{ email_form.as_table }}
+    </table>
+    <button type="submit">Submit</button>
+</form>
+{% endif %}{# user.email #}
+
+{% endblock %}
+
