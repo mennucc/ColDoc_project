@@ -17,6 +17,7 @@ import django
 #https://stackoverflow.com/questions/25967759/django-get-permpermision-string
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
+from django.conf import settings
 
 def permission_str_to_model(perm, obj):
     " convert permission from `str` to `Permission` for that `obj`"
@@ -54,3 +55,19 @@ def convert_latex_return_codes(latex_return_codes, NICK, UUID):
     except:
         logger.exception("While reading latex_return_codes")
     return latex_error_logs
+
+
+
+def get_email_for_user(user):
+    " get verified primary email"
+    if settings.USE_ALLAUTH:
+        from allauth.account.models import EmailAddress
+        email = EmailAddress.objects.get_primary(user)
+        if email and email.verified:
+            email = email.email
+        else: email = None
+    else:
+        email = user.email
+    return email
+
+
