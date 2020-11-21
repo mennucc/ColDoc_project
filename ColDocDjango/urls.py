@@ -58,7 +58,7 @@ else:
 
 
 urlpatterns += [
-    re_path(r'^$', ColDocDjango.views.main_page),
+    re_path(r'^$', ColDocDjango.views.main_page, name='index'),
     ]
 
 if isinstance(settings.GOOGLE_SITE_VERIFICATION,str):
