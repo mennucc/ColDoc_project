@@ -199,6 +199,11 @@ class ColDocUser(AbstractUser, BaseColDocUser):
         except:
             logger.exception('failed check on permission, set to False')
         return v
+    # https://docs.djangoproject.com/en/dev/ref/models/instances/#django.db.models.Model.get_absolute_url
+    def get_absolute_url(self):
+        from django.urls import reverse
+        return reverse('user') + ('?nr=%s' % (self.id,))
+    #
 
 
 # https://github.com/bugov/django-custom-anonymous
