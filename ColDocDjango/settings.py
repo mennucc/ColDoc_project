@@ -135,6 +135,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # https://github.com/bugov/django-custom-anonymous
     'ColDocDjango.custom_anonymous.AuthenticationMiddleware',
+    'ColDocDjango.middleware.RemoteUserMiddleware',
 ]
 
 ROOT_URLCONF = 'ColDocDjango.urls'
