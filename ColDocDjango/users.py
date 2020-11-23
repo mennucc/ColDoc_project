@@ -161,8 +161,6 @@ class BaseColDocUser():
         if self.first_name or self.last_name:
             return '"' + self.last_name + ' , ' + self.first_name + '"'
         return self.username
-    def __str__(self):
-        return self.pretty_user_name()
 
 
 class ColDocUser(AbstractUser, BaseColDocUser):
@@ -205,6 +203,8 @@ class ColDocUser(AbstractUser, BaseColDocUser):
         from django.urls import reverse
         return reverse('user') + ('?nr=%s' % (self.id,))
     #
+    def __str__(self):
+        return self.pretty_user_name
 
 
 # https://github.com/bugov/django-custom-anonymous
