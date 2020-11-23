@@ -159,9 +159,10 @@ class BaseColDocUser():
     @property
     def pretty_user_name(self):
         if self.first_name or self.last_name:
-            return self.last_name + ' , ' + self.first_name
+            return '"' + self.last_name + ' , ' + self.first_name + '"'
         return self.username
-    
+    def __str__(self):
+        return self.pretty_user_name()
 
 
 class ColDocUser(AbstractUser, BaseColDocUser):
