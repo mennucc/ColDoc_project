@@ -47,6 +47,7 @@ if settings.USE_ALLAUTH:
     #
     class InlineEmailAddress(admin.TabularInline):
         model = EmailAddress
+        extra = 0
     #
     try:
         #https://github.com/pennersr/django-allauth/issues/2688
@@ -72,3 +73,7 @@ class ColDocUserAdmin(UserAdmin):
     inlines = _inlines_
 
 admin.site.register(ColDocUser, ColDocUserAdmin)
+
+
+## group convenient interface
+from .admingroup import *
