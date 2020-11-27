@@ -18,7 +18,12 @@ class squash_helper_ref(transform.squash_input_uuid):
             return r
         if macroname not in self.__macros_refs:
             return None
-        label = '{' + thetex.readArgument(type=str) + '}'
+        label = thetex.readArgument(type=str)
+        # shortcircuit labels where UUID is evident
+        if label.startswith('UUID:'):
+            return '\\uuid{%s}' % (label[5:].strip(),)
+        #
+        label = '{' + label + '}'
         blob = None
         key = None
         logger.debug('searching label %r',label)
