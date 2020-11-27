@@ -590,7 +590,7 @@ def index(request, NICK, UUID):
             buy_label  = 'Buy for %s' % (ret,)
             buy_tooltip  = 'Buy permission to view this blob for %s' % (ret,)
         else:
-            logger.warning('Cannot buy, '+str(ret))
+            logger.debug('Cannot buy, '+str(ret))
         #
         a = 'Access denied to this content.'
         if request.user.is_anonymous: a += ' Please login.'
@@ -836,7 +836,7 @@ def download(request, NICK, UUID):
         if isinstance(ret,(int,float)):
             return redirect(buy_permission(request.user, metadata, 'download', ret, request=request))
         else:
-            logger.warning('Cannot buy, '+str(ret))
+            logger.debug('Cannot buy, '+str(ret))
     elif request.user.has_perm('UUID.view_blob') and (download_as == 'blob'):
         e_f = filename
     elif not request.user.has_perm('UUID.view_view'):
