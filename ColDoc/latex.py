@@ -738,7 +738,7 @@ def prepare_options_for_latex(coldoc_dir, blobs_dir, metadata_class, coldoc=None
 
 
 
-def prepare_parser():
+def prepare_parser(cmd_help=cmd_help):
     # parse arguments
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
     parser = argparse.ArgumentParser(description='Compile coldoc material, using `latex` and `plastex` ',
