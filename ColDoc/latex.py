@@ -429,7 +429,7 @@ def parse_plastex_html(blobs_dir, html_dir):
                     if uuid not in D and name:
                         D[uuid] = (S,name)
     pickle.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.pickle'),'wb'))
-    json.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.json'),'w'))
+    json.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.json'),'w'),indent=1)
 
 
 def get_specific_html_for_UUID(blobs_dir,UUID):
