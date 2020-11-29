@@ -228,6 +228,11 @@ STATICFILES_DIRS = [
     config.get('django','static_local'),
 ]
 
+# since PlasTeX produces many static files that are repeated in each blob HTML version, they are copied here 
+DEDUP_ROOT = config.get('django','dedup_root')
+# and served here
+DEDUP_URL = config.get('django','dedup_url')
+
 # you can overwrite this in the settings.py file in the deployed COLDOC_SITE_ROOT
 GOOGLE_SITE_VERIFICATION =  None
 GOOGLE_ANALYTICS4 = None
