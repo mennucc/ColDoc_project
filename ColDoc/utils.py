@@ -657,17 +657,30 @@ def slugify(value, allow_unicode=False):
 #    value = unicode(re.sub('[-\s]+', '-', value))
 
 def os_rel_symlink(src, dst, basedir, target_is_directory, force = False, **kwargs):
-    """ Create a symbolic link pointing to src named dst. Both must be relative paths,
-    (relative to `basedir`). `target_is_directory` must be set. `force` will delete
+    """ Create a symbolic link pointing to src named dst. Both must be either relative paths,
+    (relative to `basedir`) or subpaths of `basedir`. `target_is_directory` must be set. `force` will delete
     target if it exists and it is a symlink.
     """
-    assert not os.path.isabs(src)
-    assert not os.path.isabs(dst)
+    basedir = os.path.normpath(basedir)
     assert os.path.isdir(basedir)
-    src = os.path.abspath(os.path.join(basedir, src))
-    dst = os.path.abspath(os.path.join(basedir, dst))
+    # make sure `dst` is absolute
+    if os.path.isabs(dst):
+        dst = os.path.normpath(dst)
+        assert dst.startswith(basedir)
+    else:
+        dst = os.path.abspath(os.path.join(basedir, dst))
+    #
     dst_dir = os.path.dirname(dst) #if target_is_directory else
-    src = os.path.relpath(src, dst_dir)
+    #
+    # make sure `src_abs` is the absolute path
+    if os.path.isabs(src):
+        src_abs = os.path.normpath(src)
+        assert src_abs.startswith(basedir)
+    else:
+        src_abs = os.path.abspath(os.path.join(basedir, src))
+    #  now `src` is relative to `dst_dir`
+    src = os.path.relpath(src_abs, dst_dir)
+    #
     if not os.path.isdir(dst_dir):
         os.makedirs(dst_dir)
     if force and os.path.islink(dst):
