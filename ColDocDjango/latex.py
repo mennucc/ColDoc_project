@@ -44,6 +44,7 @@ def main(argv):
     args = parser.parse_args(argv[1:])
     #
     COLDOC_SITE_ROOT = args.coldoc_site_root
+    os.environ['COLDOC_SITE_ROOT'] = args.coldoc_site_root
     assert os.path.isdir(COLDOC_SITE_ROOT), COLDOC_SITE_ROOT
     #
     args.blobs_dir = blobs_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs')
