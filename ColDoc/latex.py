@@ -521,6 +521,9 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
         logger.warning('no "index.html" in %r',save_name+'_html')
         return False
     #
+    replacements = dedup_html(osjoin(blobs_dir, save_name+'_html'), options)
+    # TODO should replace urls in html following; but currently there are none
+    #
     if strip_head:
         for f in os.listdir(osjoin(blobs_dir, save_name+'_html')):
             f = osjoin(blobs_dir, save_name+'_html', f)
