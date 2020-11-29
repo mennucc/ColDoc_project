@@ -55,6 +55,7 @@ def main(argv):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     import django
     django.setup()
+    from django.conf import settings as django_settings
     #
     import ColDocDjango.ColDocApp.models as coldocapp_models
     import ColDocDjango.UUID.models as  blob_models
@@ -70,6 +71,9 @@ def main(argv):
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, blob_models.DMetadata, coldoc)
     options['coldoc'] = coldoc
     options['url_UUID'] = args.url_UUID
+    options['coldoc_site_root']  = args.coldoc_site_root
+    options['dedup_root'] = django_settings.DEDUP_ROOT
+    options['dedup_url'] = django_settings.DEDUP_URL
     #
     a = osjoin(COLDOC_SITE_ROOT,'config.ini')
     import configparser
