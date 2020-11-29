@@ -45,6 +45,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'get_blobinator_args',
             'parenthesizes',
             'hash_tree',
+            'replace_with_hash_symlink',
             )
 
 class ColDocException(Exception):
@@ -1165,6 +1166,53 @@ def hash_tree(S, thehash = hashlib.md5):
     recurse(S)
     dig = H.hexdigest()
     return dig
+
+
+def replace_with_hash_symlink(base_dir, src_dir , dedup_dir , obj):
+    """ inside `base_dir` there is a directory `src_dir` that contains an `obj`
+    (either a file or a directory containing only files)
+    then an appropriate directory/file named `dedup` is created inside `dedup_dir`
+    where the content is moved and a symlink is created in its place; if successful, it returns  `dedup`.
+    Both  `src_dir` , `dedup_dir` must be non-absolute paths or otherwise subpaths of `base_dir`
+    """
+    assert os.path.isabs(base_dir)
+    base_dir = os.path.normpath(base_dir)
+    #
+    if os.path.isabs(src_dir):
+        src_dir_abs =  os.path.normpath(src_dir)
+        assert src_dir_abs.startswith(base_dir)
+        src_dir = os.path.relpath(src_dir_abs, base_dir)
+    #
+    if os.path.isabs(dedup_dir):
+        dedup_dir_abs =  os.path.normpath(dedup_dir)
+        assert dedup_dir_abs.startswith(base_dir)
+        dedup_dir = os.path.relpath(dedup_dir_abs, base_dir)
+    #
+    if not os.path.isdir(dedup_dir): os.makedirs(dedup_dir)
+    # symlink common files
+    S = osjoin(src_dir_abs, obj)
+    if os.path.islink(S):
+        a = os.readlink(S)
+        a,b = os.path.split(a)
+        # fixme should check if it is inside dst
+        return b
+    # check if known
+    dig = hash_tree(S)
+    dedup = obj + '…' + dig
+    D = osjoin(dedup_dir_abs, dedup)
+    if os.path.isdir(S):
+        if not os.path.exists(D):
+            shutil.copytree(S,D)
+        else: assert os.path.isdir(D)
+        shutil.rmtree(S)
+        os_rel_symlink(D, S, base_dir, target_is_directory=True)
+    elif os.path.isfile(S):
+        if not os.path.exists(D):
+            shutil.copy2(S,D)
+        else: assert os.path.isfile(D)
+        os.unlink(S)
+        os_rel_symlink(D, S, base_dir, target_is_directory=False)
+    return dedup
 
 ############################
 if __name__ == '__main__':
