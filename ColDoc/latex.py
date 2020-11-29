@@ -443,6 +443,18 @@ def get_specific_html_for_UUID(blobs_dir,UUID):
         logger.exception('Argh')
         return '',''
 
+def dedup_html(src, options):
+    replacements = []
+    dedup_root = options.get('dedup_root')
+    dedup_url  = options.get('dedup_url')
+    if dedup_root is not None:
+        coldoc_site_root = options['coldoc_site_root']
+        for k in 'js', 'styles', 'symbol-defs.svg' :
+            if os.path.exists(osjoin(src,k)):
+                dedup = ColDoc.utils.replace_with_hash_symlink(coldoc_site_root, src, dedup_root, k)
+                if dedup:
+                    replacements.append( (k,dedup) )
+    return replacements
 
 def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                    levels = False, tok = False, strip_head = True, plastex_theme=None):
