@@ -1,6 +1,6 @@
 import itertools, sys, os, io, copy, logging, shelve, unicodedata
 import re, pathlib, subprocess, datetime, json
-import tempfile, shutil, json
+import tempfile, shutil, json, hashlib
 import os.path
 from os.path import join as osjoin
 
@@ -44,6 +44,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'is_image_blob',
             'get_blobinator_args',
             'parenthesizes',
+            'hash_tree',
             )
 
 class ColDocException(Exception):
@@ -1114,6 +1115,43 @@ class tree_environ_helper(object):
     def list_all_children(self):
         for a,b in self.list_all_choices():
             yield a
+
+################################
+
+def to_bytes(s):
+    return s.encode(errors='ignore') if isinstance(s,str) else bytes(s)
+
+def hash_tree(S, thehash = hashlib.md5):
+    " returns an hash of the contents of the directory S, or of the file S if it is a file"
+    H = thehash()
+    sep = b'\x00'
+    H.update(b'START:' + sep)
+    #
+    def recurse(p, n = None):
+        if os.path.isfile(p):
+            if n is not None:
+                H.update(sep + b'FILE:' + n + sep)
+            H.update(open(p,'rb').read())
+        elif os.path.isdir(p):
+            if n is not None:
+                H.update(sep + b'SUBDIR:' + n + sep)
+            for l in sorted(os.listdir(p)):
+                k = osjoin(p,l)
+                recurse(k, to_bytes(l))
+        elif os.path.islink(p):
+            r = os.readlink(p)
+            if '..' in p.split(os.sep):
+                logger.warning('This link is reentrant! %r → %r', p,r)
+            if n is not None:
+                H.update(sep + b'LINK:' + n + sep)
+            H.update(sep + b'LINKDST:' + to_bytes(r) + sep)
+        else:
+            H.update(sep + b'OTHER:' + to_bytes(str(os.stat(p))) + sep)
+            logger.warning('TODO cannot properly hash %r', p)
+    #
+    recurse(S)
+    dig = H.hexdigest()
+    return dig
 
 ############################
 if __name__ == '__main__':
