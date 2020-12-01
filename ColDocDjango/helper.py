@@ -521,6 +521,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             if wrong:
                 logger.warning('Parent %r includes child %r using cmd %r environ %r but child %r thinks it is environ %r',
                                parent_uuid, uuid, cmd, parent_uses_env, uuid , child_env )
+                problems.append((('child env %r parent_env %r parent_cmd %r' %(child_env,parent_uses_env,cmd)),uuid))
     #
     return problems
 
