@@ -46,6 +46,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'parenthesizes',
             'hash_tree',
             'replace_with_hash_symlink',
+            'parent_cmd_env_child',
             )
 
 class ColDocException(Exception):
@@ -1129,6 +1130,32 @@ class tree_environ_helper(object):
     def list_all_children(self):
         for a,b in self.list_all_choices():
             yield a
+    #
+
+#############
+    
+def parent_cmd_env_child(parent_uses_env, parent_uses_cmd, child_env, split_graphic, allowed_parenthood):
+    "checks if it is ok that the parent includes the child using command  `parent_uses_cmd` inside environ `parent_uses_env` and the child has env `child_env`"
+    E_type = child_env.startswith('E_')
+    wrong = False
+    if  E_type:
+        if parent_uses_cmd != 'input':
+            wrong = True
+        if ( child_env != 'E_thebibliography' ):
+            if  child_env != parent_uses_env:
+                if parent_uses_env in allowed_parenthood:
+                    wrong = child_env not in allowed_parenthood[parent_uses_env]
+                else:
+                    wrong = True
+    else:
+        if child_env == 'graphic_file':
+            wrong = parent_uses_cmd not in split_graphic
+        else:
+            if parent_uses_cmd == child_env:
+                parent_uses_cmd not in ('usepackage','bibliography')
+            else:
+                wrong =  parent_uses_cmd not in ('input','include')
+    return wrong
 
 ################################
 
