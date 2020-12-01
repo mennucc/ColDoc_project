@@ -135,7 +135,8 @@ class squash_input_uuid(squash_helper_stack):
                 else:
                     logger.debug('while squashing, no good text substitution for inputfile %r uuid %r blob %r', inputfile, uuid, blob)
                     text = uuid
-                self.back_map[uuid] = macroname, inputfile
+                context = self.stack[-1]  if self.stack else None
+                self.back_map[uuid] = macroname, inputfile, context
                 self.forw_map[inputfile] = macroname, uuid
                 placeholder += (r'\uuidplaceholder{' + uuid + '}{' + text + '}')
             return placeholder
