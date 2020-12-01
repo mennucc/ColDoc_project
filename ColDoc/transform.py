@@ -7,7 +7,7 @@
 
 ############## system modules
 
-import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json, pathlib
+import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json, pathlib, pickle
 import os.path
 from os.path import join as osjoin
 
@@ -281,6 +281,11 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     out = io.StringIO()
     itertokens = thetex.itertokens()
     squash_recurse(out, thetex, itertokens, options, helper)
+    #
+    a = osjoin(os.path.dirname(inp),'.back_map.pickle')
+    pickle.dump(helper.back_map,open(a,'wb'),)
+    print(helper.back_map)
+    #
     return helper.back_map, helper.metadata
 
 
