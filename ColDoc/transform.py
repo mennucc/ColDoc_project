@@ -254,9 +254,7 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     #
     if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
     thetex = TeX()
-    #
-    mytex = TeX()
-    mydocument = mytex.ownerDocument
+    mydocument = thetex.ownerDocument
     mycontext = mydocument.context
     #
     # give it some context
@@ -264,7 +262,6 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     #if args.split_sections:
     #    mycontext.newcommand('section',1,r'\section{#1}')
     #    mycontext.newcommand('subsection',1,r'\subsection{#1}')
-    ## FIXME this does not work..
     for name in options['metadata_command'] :
         d =  '\\' + name + '{#1}'
         #mycontext.newcommand(name, n, d)
