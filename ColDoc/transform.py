@@ -284,7 +284,6 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     #
     a = osjoin(os.path.dirname(inp),'.back_map.pickle')
     pickle.dump(helper.back_map,open(a,'wb'),)
-    print(helper.back_map)
     #
     return helper.back_map, helper.metadata
 
