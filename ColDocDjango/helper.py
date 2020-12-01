@@ -461,12 +461,13 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     #
     action = partial(actor, teh=teh, seen=seen, available=available, warn=warn, problems=problems)
     ret = recurse_tree(coldoc, blobs_dir, all_metadata, action=action)
+    # self check
+    assert bool(problems) ^ (bool(ret)), (ret,problems, bool(ret), bool(problems))
+    #
     if available:
         a = ("Disconnected nodes %r"%available)
         warn(a)
         problems.append(('DISCONNECTED',available))
-        ret = False
-    assert bool(problems) ^ (bool(ret)), (ret,problems, bool(ret), bool(problems))
     return problems
 
 
