@@ -72,7 +72,20 @@ class squash_helper_base(object):
     def process_comment(self, comment, thetex):
         return None
 
-class squash_input_uuid(squash_helper_base):
+class squash_helper_stack(squash_helper_base):
+    "manages the stack"
+    def __init__(self):
+        self.stack = []
+    #
+    def process_begin(self, begin, thetex):
+        self.stack.append('E_'+begin)
+    #
+    def process_end(self, end, thetex):
+        end = 'E_' + end
+        if not self.stack or end != self.stack.pop():
+            logger.warning('disaligned stack')
+
+class squash_input_uuid(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
     def __init__(self, blobs_dir, blob, options):
         self.forw_map = OrderedDict()
@@ -85,6 +98,7 @@ class squash_input_uuid(squash_helper_base):
         # macros where there may be multiple input files, separated by comma
         self.input_macros_comma_separated = ['usepackage','bibliography']
         # it is up to the caller to add other macros such as 'includegraphics'
+        super().__init__()
     #
     def process_macro(self, macroname, thetex):
         if macroname in (self.input_macros + self.input_macros_with_parameters):
@@ -137,16 +151,7 @@ class squash_helper_reparse_metadata(squash_input_uuid):
     def __init__(self, blobs_dir, metadata, options, *v, **k):
         self.metadata_command = options['metadata_command']
         self.metadata = []
-        self.stack = []
         super().__init__(blobs_dir, metadata, options, *v, **k)
-    #
-    def process_begin(self, begin, thetex):
-        self.stack.append('E_'+begin)
-    #
-    def process_end(self, end, thetex):
-        end = 'E_' + end
-        if not self.stack or end != self.stack.pop():
-            logger.warning('disaligned stack')
     #
     def process_macro(self, macroname, thetex, environ=None):
         r = super().process_macro(macroname, thetex)
