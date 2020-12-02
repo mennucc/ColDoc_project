@@ -515,7 +515,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
         for parent_uuid in parents:
             back_map = back_maps.get(parent_uuid)
             if back_map is None:
-                logger.error('Parent %r of %r does not have back_map')
+                logger.error('Parent %r of %r does not have back_map', parent_uuid, uuid)
                 continue
             cmd, file, parent_uses_env = back_map[uuid]
             wrong = parent_cmd_env_child(parent_uses_env, cmd, child_env, split_graphic, allowed_parenthood)
