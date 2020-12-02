@@ -117,7 +117,7 @@ plastex_template=r"""\documentclass{article}
 
 def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {}):
     " `latex` the blob identified `uuid`; if `lang` is None, `latex` all languages; ( `metadata` are courtesy , to avoid recomputing )"
-    warn = logging.WARNING if warn else logging.DEBUG
+    log_level = logging.WARNING if warn else logging.DEBUG
     if metadata is None:
         uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                 blobs_dir = blobs_dir,
@@ -132,7 +132,7 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
         return True
     #
     if metadata.environ == 'main_file':
-        logger.log(warn, 'Do not need to `pdflatex` the main_file')
+        logger.log(log_level, 'Do not need to `pdflatex` the main_file')
         return True
     #
     if lang is not None:
@@ -660,7 +660,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = 
 
 def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_name=None, email_to=None):
     " latex the whole tree, starting from `uuid` "
-    warn = logging.WARNING if warn else logging.DEBUG
+    log_level = logging.WARNING if warn else logging.DEBUG
     #
     if isinstance(options, (str,bytes) ):
         # base64 accepts both bytes and str
@@ -682,8 +682,8 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_
                                                    metadata_class=metadata_class)
     #
     ret = True
-    if metadata.environ in environments_we_wont_latex and warn:
-        logger.log(warn, 'Cannot `pdflatex` environ %r , UUID = %r'%(metadata.environ, uuid,))
+    if metadata.environ in environments_we_wont_latex:
+        logger.log(log_level, 'Cannot `latex` environ %r , UUID = %r'%(metadata.environ, uuid,))
     else:
         r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
         ret = ret and r
