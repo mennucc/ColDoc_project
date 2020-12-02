@@ -947,6 +947,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 elif macroname == "begin":
                     pop_paragraph()
                     name = thetex.readArgument(type=str)
+                    env_inside = ('E_'+name) in ColDoc_environment_inside_blob
                     if name == 'document':
                         if not in_preamble:
                             logger.error(' \\begin{document} can only be used in preamble')
@@ -967,7 +968,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                             a = osjoin(blobs_dir,'ColDocIfs.sty')
                             if not os.path.exists(a):
                                 os.symlink(osjoin(COLDOC_SRC_ROOT,'tex','ColDocIfs.sty'), a)
-                    if name not in ColDoc_environment_inside_blob:
+                    if not env_inside:
                         stack.topstream.write(r'\begin{%s}' % name)
                     else:
                         # will write the \\begin inside the splitted blob
@@ -1005,11 +1006,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                                 stack.topstream.write(str(t))
                                 t=next(itertokens)
                             thetex.pushToken(t)
-                        if name not in ColDoc_environment_inside_blob:
+                        if not env_inside:
                             # we already wrote \\begin
                             stack.topstream.write(source)
                         stack.push(named_stream('E_'+name,parent=stack.topstream))
-                        if name in ColDoc_environment_inside_blob:
+                        if env_inside:
                             stack.topstream.write((r'\begin{%s}' % name) +source)
                         if source:
                             assert source[0] == '[' and source[-1] == ']'
@@ -1041,6 +1042,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     #
                 elif macroname == "end":
                     name = thetex.readArgument(type=str)
+                    env_inside = ('E_'+name) in ColDoc_environment_inside_blob
                     if stack.topenv == 'section':
                         if name != 'document':
                             # \sections should not be used inside environments,
@@ -1050,6 +1052,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         pop_section()
                     if in_preamble:
                         logger.info( ' ignore \\end{%r} in preamble' % (name,) )
+                        stack.topstream.write(r'\end{%s}' % name)
                     elif (name in cmdargs.split_environment or name in cmdargs.split_list):
                         obj = thedocument.createElement(name)
                         obj.macroMode = Command.MODE_END
@@ -1061,13 +1064,15 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         if stack.topenv != 'E_'+name:
                             log_mismatch(stack.topenv,name)
                             # go on, hope for the best
-                        if name in ColDoc_environment_inside_blob:
+                        if env_inside:
                             stack.topstream.write(r'\end{%s}' % name)
                         r = stack.pop_stream().writeout()
                         if name == 'document':
                             os_rel_symlink(r,'document.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
                         input_it(r)
+                        if not env_inside:
+                            stack.topstream.write(r'\end{%s}' % name)
                         logger.info( 'did split \\end{%r} into %r' % (name,r) )
                     else:
                         if stack.topenv != 'E_'+name:
@@ -1077,9 +1082,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         else:
                             stack.pop()
                         logger.debug( ' did not split \\end{%r}' % (name,) )
-                    #
-                    if name not in ColDoc_environment_inside_blob:
                         stack.topstream.write(r'\end{%s}' % name)
+                    #
                 elif not in_preamble and macroname in cmdargs.metadata_command :
                     # keep this in sync with ColDocDjango.transform.py, around line 115
                     obj = thetex.ownerDocument.createElement(macroname)

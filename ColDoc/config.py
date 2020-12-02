@@ -38,7 +38,7 @@ ColDoc_environments = ('main_file','preamble','input','include','input_preamble'
 ColDoc_environments_locked =  ('main_file','preamble','E_document','graphic_file','bibliography','E_thebibliography','usepackage')
 
 # we cannot \\input inside these , so we put the \\begin\\end inside the blob
-ColDoc_environment_inside_blob = ('thebibliography',)
+ColDoc_environment_inside_blob = ('E_thebibliography',)
 
 # see description of `ColDoc_write_UUID`
 ColDoc_do_not_write_uuid_in = ('E_document','main_file','preamble','input','include','input_preamble',
