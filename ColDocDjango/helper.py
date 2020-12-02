@@ -417,8 +417,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     teh = tree_environ_helper(blobs_dir=blobs_dir)
     #
     from ColDocDjango.ColDocApp.models import DColDoc
-    coldoc = list(DColDoc.objects.filter(nickname = coldoc_nick))
-    coldoc = coldoc[0]
+    coldoc = DColDoc.objects.get(nickname = coldoc_nick)
     #
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc) 
