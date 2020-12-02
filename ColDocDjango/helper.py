@@ -471,7 +471,8 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     if available:
         a = ("Disconnected nodes %r"%available)
         warn(a)
-        problems.append(('DISCONNECTED',available))
+        for j in available:
+            problems.append(('DISCONNECTED',j))
     # load back_maps
     from ColDoc.utils import uuid_to_dir, parent_cmd_env_child
     back_maps = {}
