@@ -1146,9 +1146,9 @@ def parent_cmd_env_child(parent_uses_env, parent_uses_cmd, child_env, split_grap
             wrong = parent_uses_cmd not in split_graphic
         else:
             if parent_uses_cmd == child_env:
-                parent_uses_cmd not in ('usepackage','bibliography')
+                wrong = parent_uses_cmd not in ('usepackage','bibliography','include','input')
             else:
-                wrong =  parent_uses_cmd not in ('input','include')
+                wrong = parent_uses_cmd not in ('input','include')
     return wrong
 
 ################################
