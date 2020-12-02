@@ -422,8 +422,6 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc) 
     #
-    load_by_uuid = partial(DMetadata.load_by_uuid, coldoc=coldoc)
-    #
     from ColDocDjango.UUID.models import DMetadata
     #
     seen = set()
@@ -434,6 +432,9 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     for metadata in DMetadata.objects.filter(coldoc = coldoc):
         available.add( metadata.uuid)
         all_metadata[metadata.uuid] = metadata
+    # each one of those is equivalent
+    load_by_uuid = partial(DMetadata.load_by_uuid, coldoc=coldoc)
+    load_by_uuid = lambda uuid: all_metadata[uuid]
     #
     def actor(teh, seen, available, warn, problems, uuid, branch, *v , **k):
         if uuid in branch:
