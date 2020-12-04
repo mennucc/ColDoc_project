@@ -48,7 +48,7 @@ class MetadataForm(forms.ModelForm):
 
 class BlobEditForm(forms.Form):
     class Media:
-        js = ('ColDoc/js/blobeditform.js',)
+        js = ('UUID/js/blobeditform.js',)
     htmlid = "id_form_blobeditform"
     BlobEditTextarea=forms.CharField(label='Blob content',
                                      widget=forms.Textarea(attrs={'class': 'form-text w-100'}),
