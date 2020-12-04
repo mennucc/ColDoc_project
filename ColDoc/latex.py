@@ -378,6 +378,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         open(fake_abs_name+'.tex','w').write(f_html)
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
+        parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'))
         ColDoc.utils.dict_save_or_del(retcodes, 'plastex'+lang_+':'+access, rh)
         try:
             ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
@@ -516,7 +517,6 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
             if ret: logger.warning(' rename %r to %r',s,d)
     if os.path.isfile(osjoin(blobs_dir, save_name+'_html','index.html')):
         logger.info('created html version of %r ',save_abs_name)
-        parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'))
     else:
         logger.warning('no "index.html" in %r',save_name+'_html')
         return False
