@@ -146,10 +146,35 @@ var NICKUUID = NICK+'/'+UUID;
 
 var WindowStateManager = new WindowStateManager(false, windowUpdated);
 
+function textareaUpdate(isMain)
+{
+   classname = (isMain ? 'bg-light' : 'bg-warning');
+   textarea = document.getElementById("id_BlobEditTextarea");
+    if ( !  textarea ) {
+        var its = isMain;
+        setTimeout(function(){ textareaUpdate(its); }  , 100);
+    } else {
+      textarea.className = "form-group w-100 "+classname;
+      textarea.readOnly = ! isMain;
+   }
+}
+
 function windowUpdated()
 {
     //"this" is a reference to the WindowStateManager
-    window.document.title  = 'Coldoc '+ NICKUUID + (this.isMainWindow() ? "" : "(duplicate tab)") ;
+    isMain = this.isMainWindow();
+    window.document.title  = 'Coldoc '+ NICKUUID + ( isMain ? "" : "(duplicate tab)") ;
+    textareaUpdate(isMain);
+}
+
+function check_primary_tab()
+{
+   isMain = WindowStateManager.isMainWindow();
+   if ( ! isMain) {
+     alert("This content is opened in another tab/window");
+     return false;
+   }
+   return true;
 }
 
 //Resets the count in case something goes wrong in code
