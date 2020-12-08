@@ -14,6 +14,24 @@ function update_editform(){
     blobeditform.selection_end.value = textarea.selectionEnd;
 };
 
+function restore_editform(){
+    let blobeditform = document.getElementById("id_form_blobeditform");
+    let textarea = document.getElementById("id_BlobEditTextarea");
+    if ( blobeditform.selection_start.value  >= 0 ) {
+      textarea.selectionStart = blobeditform.selection_start.value ;
+      
+    }
+    if ( blobeditform.selection_end.value  >= 0 ) {
+      textarea.selectionEnd = blobeditform.selection_end.value  ;
+    }
+    var url = document.location.toString();
+    hash = url.split('#')[1];
+    if ( hash == "blob") {
+      textarea.focus();
+    }
+};
+
+
 function hide_and_show(){
     let blobeditform = document.getElementById("id_form_blobeditform");
     if ( ! blobeditform ) {
@@ -29,6 +47,7 @@ function hide_and_show(){
 	    o1.style.display = "none";
 	    o2.style.display = "none";
 	}
+	restore_editform();
     }
 };
 
