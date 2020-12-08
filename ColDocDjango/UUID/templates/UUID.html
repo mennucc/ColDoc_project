@@ -1,6 +1,8 @@
 {% extends "bootstrapbase.html" %}
-{% block extrahead %}<script>var NICK="{{NICK}}"; var UUID="{{UUID}}";</script>
-<script src="/static/UUID/js/unique.js"></script>{% endblock %}
+{% block extrahead %}
+<script>var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var FILEMD5="{{file_md5}}";</script>
+<script src="/static/UUID/js/unique.js"></script>
+{% endblock %}
 {% load static %}
 
 {% block title %} ColDoc — {{ NICK  }} — {{ UUID  }}{% endblock %}

@@ -554,6 +554,8 @@ def index(request, NICK, UUID):
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
+    BLOB = os.path.basename(filename)
+    #
     envs = metadata.get('environ')
     env = envs[0] if envs else None     
     #
