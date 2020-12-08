@@ -101,6 +101,7 @@ def postedit(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
+    assert 'commit' in request.POST or 'save' in request.POST
     form=BlobEditForm(request.POST)
     #
     metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
@@ -142,14 +143,24 @@ def postedit(request, NICK, UUID):
         #split_selection_ = False
         raise SuspiciousOperation("Permission denied (add_blob)")
     #
-    new_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
-    if file_md5 != new_file_md5:
+    real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
+    if file_md5 != real_file_md5:
         messages.add_message(request,messages.ERROR, "The file was changed on disk before this commit: commit aborted")
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_))
     #
     # convert to UNIX line ending 
     import re
     blobcontent = re.sub("\r\n", '\n', blobcontent)
+    form.cleaned_data['BlobEditTextarea'] = blobcontent
+    # save state of edit form
+    file_editstate = filename[:-4] + '_editstate.json'
+    if 'commit' in request.POST:
+        newfile_md5 = hashlib.md5(blobcontent.encode()).hexdigest()
+        form.cleaned_data['file_md5'] = newfile_md5
+    json.dump(form.cleaned_data, open(file_editstate,'w'))
+    if 'commit' not in request.POST:
+        messages.add_message(request,messages.INFO,'saved')
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     # write new content
     open(filename,'w').write(blobcontent)
     metadata.blob_modification_time_update()
@@ -630,6 +641,7 @@ def index(request, NICK, UUID):
             '?lang=%s&ext=%s#%s'%(lang, ext, anchor)
     else: pdfUUIDurl = htmlUUIDurl = ''
     #
+    blobdiff=''
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
         file = open(filename).read()
@@ -709,10 +721,27 @@ def index(request, NICK, UUID):
         file = '[access denied]'
     elif  blobcontenttype == 'text' :
         if request.user.has_perm('UUID.change_blob'):
-            blobeditform = BlobEditForm(initial={'BlobEditTextarea':  file,
-                                                 'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang,
-                                                 'file_md5' : file_md5,
-                                                 })
+            a = filename[:-4]+'_editstate.json'
+            D = {'BlobEditTextarea':  file,
+                 'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang,
+                 'file_md5' : file_md5,
+                 }
+            if os.path.isfile(a):
+                N=(json.load(open(a)))
+                if N['file_md5'] != file_md5:
+                    messages.add_message(request, messages.WARNING,
+                                         'File was changed on disk since you committed' )
+                    N['file_md5'] = file_md5
+                if N['BlobEditTextarea'] != file:
+                    messages.add_message(request, messages.INFO,
+                                         'Your saved changes are yet uncommitted' )
+                    import difflib
+                    H = difflib.HtmlDiff()
+                    blobdiff = H.make_table(file.split('\n'),
+                                            N['BlobEditTextarea'].split('\n'),
+                                            'Orig','New', True)
+                D.update(N)
+            blobeditform = BlobEditForm(initial=D)
             choices = teh.list_allowed_choices(metadata.environ)
             blobeditform.fields['split_environment'].choices = choices
             if not request.user.has_perm('ColDocApp.add_blob') or not choices or env == 'main_file':

@@ -125,8 +125,11 @@
           {% endif %}
          </div>
         {% endif %}{% endfor %}
-        <input type="submit" class="btn btn-primary" onclick="update_editform(); return check_primary_tab();" value="Submit">
+        <input type="submit" class="btn btn-primary" onclick="update_editform(); return check_primary_tab();" id="id_blobeditform_commit" name="commit" value="Commit">
+        <input type="submit" class="btn btn-primary" onclick="update_editform(); return check_primary_tab();" id="id_blobeditform_save" name="save" value="Save">
       </form>
+      <h3>Diff</h3>
+      {{blobdiff | safe}}
      {% else %}
        <div class="border border-info"><code>{{ escapedfile | safe }}</code></div>
      {% endif %}
