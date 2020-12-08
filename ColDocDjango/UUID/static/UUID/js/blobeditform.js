@@ -17,7 +17,7 @@ function update_editform(){
 function hide_and_show(){
     let blobeditform = document.getElementById("id_form_blobeditform");
     if ( ! blobeditform ) {
-	setTimeout(hide_and_show, 1000);
+	setTimeout(hide_and_show, 200);
     } else {
 	let value = blobeditform.split_selection.checked;
 	let o1 = document.getElementById("id_div_blobeditform_split_environment");
