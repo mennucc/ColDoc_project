@@ -8,8 +8,12 @@
           {% endif %}
          </div>
         {% endif %}{% endfor %}
-        <input type="submit" class="btn btn-primary" onclick="update_editform(); return check_primary_tab();" id="id_blobeditform_commit" name="commit" value="Commit">
-        <input type="submit" class="btn btn-primary"  id="id_blobeditform_save_no_reload" name="save" value="Save">
+        <input type="submit" class="btn btn-primary"
+         data-toggle="tooltip" title="Commit changes, update PDF and HTML"
+         onclick="update_editform(); return check_primary_tab();" id="id_blobeditform_commit" name="commit" value="Commit">
+        <input type="submit" class="btn btn-primary" 
+         data-toggle="tooltip" title="Save changes so far, update diff"
+         id="id_blobeditform_save_no_reload" name="save" value="Save">
 </form>
 <!--onclick="update_editform(); post_blobeditform(); alert('{{ blobeditform.htmlid }}');"-->
 <script>
