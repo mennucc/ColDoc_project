@@ -182,7 +182,7 @@ def postedit(request, NICK, UUID):
     if file_md5 != real_file_md5 and 'commit' in request.POST:
         a = "The file was changed on disk: aborted"
         messages.add_message(request,messages.ERROR, a)
-        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_))            
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     #
     # convert to UNIX line ending 
     import re
