@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 import django
 from django.shortcuts import get_object_or_404, render, redirect
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse, JsonResponse, QueryDict
 from django.contrib import messages
 from django import forms
 from django.conf import settings
@@ -131,7 +131,8 @@ def postedit(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    assert 'commit' in request.POST or 'save' in request.POST
+    assert 'commit' in request.POST or 'save' in request.POST or 'save_no_reload' in request.POST
+    #
     form=BlobEditForm(request.POST)
     #
     metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
@@ -142,7 +143,10 @@ def postedit(request, NICK, UUID):
     form.fields['split_environment'].choices = teh.list_allowed_choices(env)
     #
     if not form.is_valid():
-        return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
+        a = "Invalid form: "+repr(form.errors)
+        if 'save_no_reload'  in request.POST:
+            return JsonResponse({"message":a})
+        return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
     blobcontent = form.cleaned_data['BlobEditTextarea']
     uuid_ = form.cleaned_data['UUID']
     nick_ = form.cleaned_data['NICK']
@@ -174,9 +178,10 @@ def postedit(request, NICK, UUID):
         raise SuspiciousOperation("Permission denied (add_blob)")
     #
     real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
-    if file_md5 != real_file_md5:
-        messages.add_message(request,messages.ERROR, "The file was changed on disk before this commit: commit aborted")
-        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_))
+    if file_md5 != real_file_md5 and 'commit' in request.POST:
+        a = "The file was changed on disk: aborted"
+        messages.add_message(request,messages.ERROR, a)
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_))            
     #
     # convert to UNIX line ending 
     import re
@@ -188,8 +193,14 @@ def postedit(request, NICK, UUID):
         newfile_md5 = hashlib.md5(blobcontent.encode()).hexdigest()
         form.cleaned_data['file_md5'] = newfile_md5
     json.dump(form.cleaned_data, open(file_editstate,'w'))
-    if 'commit' not in request.POST:
-        messages.add_message(request,messages.INFO,'saved')
+    #
+    a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
+    if 'save_no_reload' in request.POST:
+        return JsonResponse({"message":a})
+    if 'save'  in request.POST:
+        messages.add_message(request,messages.INFO,'Saved')
+        if a:
+            messages.add_message(request,messages.WARNING, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     # write new content
     open(filename,'w').write(blobcontent)
