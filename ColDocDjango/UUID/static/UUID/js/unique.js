@@ -146,6 +146,8 @@ var NICKUUID = NICK+'/'+UUID;
 
 var WindowStateManager = new WindowStateManager(false, windowUpdated);
 
+var text_was_locked = false;
+
 function textareaUpdate(isMain)
 {
    classname = (isMain ? 'bg-light' : 'bg-warning');
@@ -156,6 +158,7 @@ function textareaUpdate(isMain)
     } else {
       textarea.className = "form-group w-100 "+classname;
       textarea.readOnly = ! isMain;
+      if ( ! isMain) text_was_locked = true;
    }
 }
 
@@ -164,6 +167,11 @@ function windowUpdated()
     //"this" is a reference to the WindowStateManager
     isMain = this.isMainWindow();
     window.document.title  = 'Coldoc '+ NICKUUID + ( isMain ? "" : "(duplicate tab)") ;
+    if ( (text_was_locked) && (isMain) ) {
+        // it reloads so fast that it does not get the new content
+        //window.location.reload(true);
+        alert("It is advisable to reload this page");
+    }
     textareaUpdate(isMain);
 }
 
