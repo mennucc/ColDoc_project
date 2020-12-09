@@ -258,7 +258,7 @@ def postedit(request, NICK, UUID):
             messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
-    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_))
+    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 def postmetadataedit(request, NICK, UUID):
     if request.method != 'POST' :
