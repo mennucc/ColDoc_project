@@ -13,6 +13,7 @@
          onclick="update_editform(); return check_primary_tab();" id="id_blobeditform_commit" name="commit" value="Commit">
         <input type="submit" class="btn btn-primary" 
          data-toggle="tooltip" title="Save changes so far, update diff"
+         onclick="blob_save_no_reload(); return false;"
          id="id_blobeditform_save_no_reload" name="save" value="Save">
 </form>
 <button class="btn btn-primary" 

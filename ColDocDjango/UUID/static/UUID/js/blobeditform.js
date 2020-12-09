@@ -71,7 +71,8 @@ function check_remote_changed_md5() {
 };
 // https://stackoverflow.com/a/18170009/5058564
 // https://stackoverflow.com/a/32749586/5058564
-$("#id_blobeditform_save_no_reload").click(function() {
+
+function blob_save_no_reload() {
   if (! check_primary_tab() ) {
      return false;
   }
@@ -101,4 +102,6 @@ $("#id_blobeditform_save_no_reload").click(function() {
 	 });
    // avoid to execute the actual submit of the form.
     return false;
-});
+};
+
+$("#id_blobeditform_save_no_reload").click(blob_save_no_reload);
