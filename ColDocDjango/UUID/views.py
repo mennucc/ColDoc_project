@@ -126,6 +126,23 @@ def _build_blobeditform_data(NICK, UUID,
         blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
     return blobeditform
 
+
+def md5(request, NICK, UUID, BLOB):
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+    request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
+    if not request.user.has_perm('UUID.change_blob'):
+        logger.error('Hacking attempt %r',request.META)
+        raise SuspiciousOperation("Permission denied")
+    from ColDoc.utils import uuid_to_dir
+    assert '/' not in BLOB and BLOB.startswith('blob')
+    filename = osjoin(blobs_dir, uuid_to_dir(UUID), BLOB)
+    if not os.path.isfile(filename):
+        return HttpResponse(filename, status=http.HTTPStatus.NOT_FOUND)
+    real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
+    return JsonResponse({'real_file_md5':real_file_md5})
+
+
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
@@ -602,6 +619,7 @@ def index(request, NICK, UUID):
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
     BLOB = os.path.basename(filename)
+    file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     #
     envs = metadata.get('environ')
     env = envs[0] if envs else None     

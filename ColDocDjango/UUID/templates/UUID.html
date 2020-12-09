@@ -1,7 +1,8 @@
 {% extends "bootstrapbase.html" %}
 {% load static %}
 {% block extrahead %}
-<script>var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var FILEMD5="{{file_md5}}";</script>
+<script>var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var FILEMD5="{{file_md5}}";
+var get_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID BLOB=BLOB %}";</script>
 <script src="{% static 'UUID/js/unique.js' %}"></script>
 {% endblock %}
 

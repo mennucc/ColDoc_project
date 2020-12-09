@@ -54,6 +54,21 @@ function hide_and_show(){
 window.addEventListener('ready', hide_and_show() );
 
 ////////////////////
+var real_file_md5 = FILEMD5;
+
+function check_remote_changed_md5() {
+  $.get( get_md5_url, function( response ) {
+     if ( 'real_file_md5' in response ) {
+       real_file_md5 = response['real_file_md5'];
+       if ( real_file_md5 != FILEMD5 ) {
+	  alert("Remote file was changed, check diff" );
+       } else {
+	  alert("(Remote file was unchanged)");
+	 return false;
+       }
+      } else { console.log("Error in getting the MD5 from " + get_md5_url ); }
+   });
+};
 // https://stackoverflow.com/a/18170009/5058564
 // https://stackoverflow.com/a/32749586/5058564
 $("#id_blobeditform_save_no_reload").click(function() {
