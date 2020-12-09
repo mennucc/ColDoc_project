@@ -39,6 +39,11 @@ $("#id_blobeditform_save_no_reload").click(function() {
                if ( msg ) {
                  alert(msg); 
                }
+               if ( 'blobdiff' in response ) {
+                 blobdiff = response['blobdiff'];
+                 blobdiffdiv = document.getElementById("id_blob_diff");
+                 blobdiffdiv.innerHTML = blobdiff;
+               }
            }
          });
    // avoid to execute the actual submit of the form.

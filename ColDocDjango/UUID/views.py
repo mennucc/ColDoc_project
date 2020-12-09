@@ -196,7 +196,12 @@ def postedit(request, NICK, UUID):
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
     if 'save_no_reload' in request.POST:
-        return JsonResponse({"message":a})
+        import difflib
+        H = difflib.HtmlDiff()
+        blobdiff = H.make_table(open(filename).readlines(),
+                                blobcontent.split('\n'),
+                                'Orig','New', True)
+        return JsonResponse({"message":a, 'blobdiff':blobdiff})
     if 'save'  in request.POST:
         messages.add_message(request,messages.INFO,'Saved')
         if a:
