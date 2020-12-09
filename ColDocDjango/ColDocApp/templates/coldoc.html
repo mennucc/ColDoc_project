@@ -1,6 +1,7 @@
 {% extends "bootstrapbase.html" %}
+{% load static %}
 {% block title %} ColDoc — {{ coldoc.nickname }}{% endblock %}
-{% block extrahead %}<script src="/static/ColDoc/js/dyna.js"></script>{% endblock %}
+{% block extrahead %}<script src="{% static 'ColDoc/js/dyna.js' %}"></script>{% endblock %}
 {% block content %}
 
 
