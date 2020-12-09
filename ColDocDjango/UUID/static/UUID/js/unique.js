@@ -150,10 +150,10 @@ var text_was_locked = false;
 
 function textareaUpdate(isMain)
 {
-   classname = (isMain ? 'bg-light' : 'bg-warning');
-   textarea = document.getElementById("id_BlobEditTextarea");
+   let classname = (isMain ? 'bg-light' : 'bg-warning');
+   let textarea = document.getElementById("id_BlobEditTextarea");
     if ( !  textarea ) {
-        var its = isMain;
+        let its = isMain;
         setTimeout(function(){ textareaUpdate(its); }  , 100);
     } else {
       textarea.className = "form-group w-100 "+classname;
@@ -165,7 +165,7 @@ function textareaUpdate(isMain)
 function windowUpdated()
 {
     //"this" is a reference to the WindowStateManager
-    isMain = this.isMainWindow();
+    let isMain = this.isMainWindow();
     window.document.title  = 'Coldoc '+ NICKUUID + ( isMain ? "" : "(duplicate tab)") ;
     if ( (text_was_locked) && (isMain) ) {
         // it reloads so fast that it does not get the new content
@@ -177,7 +177,7 @@ function windowUpdated()
 
 function check_primary_tab()
 {
-   isMain = WindowStateManager.isMainWindow();
+   let isMain = WindowStateManager.isMainWindow();
    if ( ! isMain) {
      alert("This content is opened in another tab/window");
      return false;

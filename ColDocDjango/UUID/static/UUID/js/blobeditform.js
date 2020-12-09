@@ -24,8 +24,8 @@ function restore_editform(){
     if ( blobeditform.selection_end.value  >= 0 ) {
       textarea.selectionEnd = blobeditform.selection_end.value  ;
     }
-    var url = document.location.toString();
-    hash = url.split('#')[1];
+    let url = document.location.toString();
+    let hash = url.split('#')[1];
     if ( hash == "blob") {
       textarea.focus();
     }
@@ -64,7 +64,7 @@ $("#id_blobeditform_save_no_reload").click(function() {
   update_editform();
   let blobeditform = document.getElementById("id_form_blobeditform");
    // serializes the form's elements.
-  data = $("#id_form_blobeditform").serializeArray();
+  let data = $("#id_form_blobeditform").serializeArray();
   // add fake button press
   data = data.concat([ {name: "save_no_reload", value: "save_no_reload"},]);
   // post form
