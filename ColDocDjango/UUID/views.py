@@ -95,6 +95,36 @@ def common_checks(request, NICK, UUID):
         raise SuspiciousOperation("No blobs for this ColDoc %r.\n" % (NICK,))
     return coldoc, coldoc_dir, blobs_dir
 
+
+def _build_blobeditform_data(NICK, UUID,
+                             filename,
+                             ext, lang,
+                             choices, can_add_blob,
+                             msgs):
+    file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
+    file = open(filename).read()
+    a = filename[:-4]+'_editstate.json'
+    D = {'BlobEditTextarea':  file,
+         'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,
+         'file_md5' : file_md5,
+         }
+    if os.path.isfile(a):
+        N=(json.load(open(a)))
+        if N['file_md5'] != file_md5:
+            msgs.append(( messages.WARNING,
+                         'File was changed on disk since you committed' ))
+            N['file_md5'] = file_md5
+            if N['BlobEditTextarea'] != file:
+                msgs.append(( messages.INFO,
+                             'Your saved changes are yet uncommitted' ))
+        D.update(N)
+    blobeditform = BlobEditForm(initial=D)
+    blobeditform.fields['split_environment'].choices = choices
+    if not can_add_blob:
+        blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
+        blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
+    return blobeditform
+
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
@@ -643,12 +673,10 @@ def index(request, NICK, UUID):
             '?lang=%s&ext=%s#%s'%(lang, ext, anchor)
     else: pdfUUIDurl = htmlUUIDurl = ''
     #
-    blobdiff=''
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
         file = open(filename).read()
         escapedfile = escape(file).replace('\n', '<br>') #.replace('\\', '&#92;')
-        file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
             pdfurl = ''
@@ -716,6 +744,7 @@ def index(request, NICK, UUID):
                 a += '?lang=%s&ext=%s'  % (lang,e_)
                 availablelogs.append(  (e_, a ) )
     #
+    blobdiff = ''
     # just to be safe
     if not request.user.has_perm('UUID.view_view', metadata):
         html = '[access denied]'
@@ -723,32 +752,18 @@ def index(request, NICK, UUID):
         file = '[access denied]'
     elif  blobcontenttype == 'text' :
         if request.user.has_perm('UUID.change_blob'):
-            a = filename[:-4]+'_editstate.json'
-            D = {'BlobEditTextarea':  file,
-                 'NICK':NICK,'UUID':uuid,'ext':ext,'lang':lang,
-                 'file_md5' : file_md5,
-                 }
-            if os.path.isfile(a):
-                N=(json.load(open(a)))
-                if N['file_md5'] != file_md5:
-                    messages.add_message(request, messages.WARNING,
-                                         'File was changed on disk since you committed' )
-                    N['file_md5'] = file_md5
-                if N['BlobEditTextarea'] != file:
-                    messages.add_message(request, messages.INFO,
-                                         'Your saved changes are yet uncommitted' )
-                    import difflib
-                    H = difflib.HtmlDiff()
-                    blobdiff = H.make_table(file.split('\n'),
-                                            N['BlobEditTextarea'].split('\n'),
-                                            'Orig','New', True)
-                D.update(N)
-            blobeditform = BlobEditForm(initial=D)
             choices = teh.list_allowed_choices(metadata.environ)
-            blobeditform.fields['split_environment'].choices = choices
-            if not request.user.has_perm('ColDocApp.add_blob') or not choices or env == 'main_file':
-                blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
-                blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
+            can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
+            msgs = []
+            blobeditform = _build_blobeditform_data(NICK, UUID, filename,
+                                                    ext, lang, choices, can_add_blob, msgs)
+            for l, m in msgs:
+                messages.add_message(request, l, m)
+            import difflib
+            H = difflib.HtmlDiff()
+            blobdiff = H.make_table(file.split('\n'),
+                                    blobeditform.initial['BlobEditTextarea'].split('\n'),
+                                    'Orig','New', True)
     #
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(lang,ext)
