@@ -73,10 +73,15 @@ function check_remote_changed_md5() {
       } else { console.log("Error in getting the MD5 from " + get_md5_url ); }
    });
 };
+
+
+var last_textarea_keypress = 0;
+
 // https://stackoverflow.com/a/18170009/5058564
 // https://stackoverflow.com/a/32749586/5058564
 
 function blob_save_no_reload() {
+  $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
   if (! check_primary_tab() ) {
      return false;
   }
@@ -104,8 +109,23 @@ function blob_save_no_reload() {
 	       }
 	   }
 	 });
+    //
+    last_textarea_keypress = 0;
+    $("#id_blobeditform_save_no_reload").addClass("btn-primary");
    // avoid to execute the actual submit of the form.
     return false;
 };
 
 $("#id_blobeditform_save_no_reload").click(blob_save_no_reload);
+
+
+function update_blobedit_timestamp()
+{   
+    if( last_textarea_keypress == 0) {
+       $("#id_blobeditform_save_no_reload").removeClass("btn-primary");
+       $("#id_blobeditform_save_no_reload").addClass("btn-warning");
+   }
+   last_textarea_keypress = new Date().getTime();
+   return true;
+};
+

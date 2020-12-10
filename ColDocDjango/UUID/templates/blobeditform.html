@@ -19,3 +19,6 @@
 <button class="btn btn-primary" 
          data-toggle="tooltip" title="Check if remote was changed"
          id="id_blob_check_md5" onclick="check_remote_changed_md5();">Check</button>
+<script>
+$('#id_BlobEditTextarea').on('input propertychange change keyup paste', update_blobedit_timestamp );
+</script>
