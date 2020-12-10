@@ -207,9 +207,6 @@ def postedit(request, NICK, UUID):
     form.cleaned_data['BlobEditTextarea'] = blobcontent
     # save state of edit form
     file_editstate = filename[:-4] + '_editstate.json'
-    if 'commit' in request.POST:
-        newfile_md5 = hashlib.md5(blobcontent.encode()).hexdigest()
-        form.cleaned_data['file_md5'] = newfile_md5
     json.dump(form.cleaned_data, open(file_editstate,'w'))
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
@@ -275,6 +272,14 @@ def postedit(request, NICK, UUID):
             messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
+    # re-save form data, to account for possible splitting
+    form.cleaned_data['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
+    form.cleaned_data['BlobEditTextarea'] = open(filename).read()
+    form.cleaned_data['split_selection'] = False
+    if split_selection_:
+        form.cleaned_data['selection_end'] = str(selection_start_)
+    json.dump(form.cleaned_data, open(file_editstate,'w'))
+    #
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 def postmetadataedit(request, NICK, UUID):
