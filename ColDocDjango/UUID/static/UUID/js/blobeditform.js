@@ -17,6 +17,10 @@ function update_editform(){
 function restore_editform(){
     let blobeditform = document.getElementById("id_form_blobeditform");
     let textarea = document.getElementById("id_BlobEditTextarea");
+    if ( ! blobeditform ) {
+	setTimeout(restore_editform, 200);
+	return;
+    }
     if ( blobeditform.selection_start.value  >= 0 ) {
       textarea.selectionStart = blobeditform.selection_start.value ;
       
@@ -31,6 +35,7 @@ function restore_editform(){
     }
 };
 
+window.addEventListener('ready', restore_editform() );
 
 function hide_and_show(){
     let blobeditform = document.getElementById("id_form_blobeditform");
@@ -47,7 +52,6 @@ function hide_and_show(){
 	    o1.style.display = "none";
 	    o2.style.display = "none";
 	}
-	restore_editform();
     }
 };
 
