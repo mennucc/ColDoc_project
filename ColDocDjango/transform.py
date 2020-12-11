@@ -21,7 +21,8 @@ class squash_helper_ref(transform.squash_input_uuid):
         label = thetex.readArgument(type=str)
         # shortcircuit labels where UUID is evident
         if label.startswith('UUID:'):
-            return '\\uuid{%s}' % (label[5:].strip(),)
+            a = label[5:].strip()
+            return '\\uuidplaceholder{%s}{%s}' % (a,a)
         #
         label = '{' + label + '}'
         blob = None
@@ -46,6 +47,6 @@ class squash_helper_ref(transform.squash_input_uuid):
             logger.warning('TODO cannot properly reference from [%s] \\%s%s to key %r inside [%s]',
                            self.blob.uuid , macroname, label ,
                            key , blob.uuid)
-        a = '\\uuid{%s}' % blob.uuid
+        a = '\\uuidplaceholder{%s}{%s}' % (blob.uuid, blob.uuid)
         logger.debug('convert %s%s  to %s',macroname,label,a)
         return a
