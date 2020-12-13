@@ -58,22 +58,32 @@ function hide_and_show(){
 window.addEventListener('ready', hide_and_show() );
 
 ////////////////////
-var real_file_md5 = FILEMD5;
 
-function check_remote_changed_md5() {
-  $.get( get_md5_url, function( response ) {
-     if ( 'real_file_md5' in response ) {
-       real_file_md5 = response['real_file_md5'];
-       if ( real_file_md5 != FILEMD5 ) {
-	  alert("Remote file was changed, check diff" );
-       } else {
-	  alert("(Remote file was unchanged)");
-	 return false;
-       }
-      } else { console.log("Error in getting the MD5 from " + get_md5_url ); }
-   });
+//////////////////////////////////////////
+
+var blob_polling = 240000;
+
+// check_changed_md5() is in unique.js
+
+function check_blob_changed_md5() { 
+   let blob_callback = (ret) => 
+      { if( (ret != undefined) && (blob_md5 != ret)) {
+      blob_save_no_reload();
+      blob_md5 = ret; 
+   }};
+   check_changed_md5(get_blob_md5_url, blob_callback);
 };
 
+
+function poll_blob_changed_md5() {
+    check_blob_changed_md5();
+    setTimeout(poll_blob_changed_md5, blob_polling);
+};
+
+// start polling
+setTimeout(poll_blob_changed_md5, blob_polling);
+
+///////////////////////////////////////////
 
 var last_textarea_keypress = 0;
 
@@ -106,7 +116,12 @@ function blob_save_no_reload() {
 		 blobdiff = response['blobdiff'];
 		 blobdiffdiv = document.getElementById("id_blob_diff");
 		 blobdiffdiv.innerHTML = blobdiff;
-	       }
+	       } else { console.log("Did not get blobdiff"); }
+	       if ( 'blob_md5' in response ) {
+		  blob_md5 = response['blob_md5'];
+		  let blobeditform = document.getElementById("id_form_blobeditform");
+		  blobeditform.file_md5.value = blob_md5;
+	       } else { console.log("Did not get blob_md5"); }
 	   }
 	 });
     //
@@ -126,6 +141,8 @@ function update_blobedit_timestamp()
        $("#id_blobeditform_save_no_reload").addClass("btn-warning");
    }
    last_textarea_keypress = new Date().getTime();
+   // once the user starts editing, the polling is reduced to 10 seconds
+   if(blob_polling > 10000) { blob_polling = 10000; setTimeout(poll_blob_changed_md5, blob_polling); }
    return true;
 };
 
