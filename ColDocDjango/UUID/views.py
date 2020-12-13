@@ -222,7 +222,7 @@ def postedit(request, NICK, UUID):
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.split('\n'),
                                 'Orig','New', True)
-        return JsonResponse({"message":a, 'blobdiff':blobdiff})
+        return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5})
     if 'save'  in request.POST:
         messages.add_message(request,messages.INFO,'Saved')
         if a:
@@ -630,7 +630,6 @@ def index(request, NICK, UUID):
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
     BLOB = os.path.basename(filename)
-    file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     #
     envs = metadata.get('environ')
     env = envs[0] if envs else None     
