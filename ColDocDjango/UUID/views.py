@@ -71,7 +71,8 @@ class BlobEditForm(forms.Form):
                                           help_text="environment for newly created blob")
     split_add_beginend = forms.BooleanField(label='Add begin/end',required = False,help_text="add a begin{}..end{} around the splitted ")
 
-def common_checks(request, NICK, UUID):
+def common_checks(request, NICK, UUID, accept_anon=False):
+    assert isinstance(NICK,str) and isinstance(UUID,str)
     if not slug_re.match(UUID):
         logger.error('ip=%r user=%r coldoc=%r uuid=%r  : invalid UUID',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
@@ -80,7 +81,7 @@ def common_checks(request, NICK, UUID):
         logger.error('ip=%r user=%r coldoc=%r uuid=%r  : invalid NICK',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
         raise SuspiciousOperation("Invalid ColDoc %r." % (NICK,))
-    if request.user.is_anonymous:
+    if (not accept_anon) and  request.user.is_anonymous:
         logger.error('ip=%r coldoc=%r uuid=%r  : is anonymous',
                        request.META.get('REMOTE_ADDR'), NICK, UUID)
         raise SuspiciousOperation("Permission denied")
