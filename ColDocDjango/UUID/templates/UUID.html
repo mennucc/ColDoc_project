@@ -1,8 +1,14 @@
 {% extends "bootstrapbase.html" %}
 {% load static %}
 {% block extrahead %}
-<script>var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var FILEMD5="{{file_md5}}";
-var get_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID BLOB=BLOB %}";</script>
+<script>var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var VIEW="{{VIEW}}"; 
+var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
+{% if VIEW %}
+  var get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID FILE=VIEW %}";
+{% else %}
+  var get_view_md5_url = "";
+{% endif %}
+</script>
 <script src="{% static 'UUID/js/unique.js' %}"></script>
 {% endblock %}
 
