@@ -630,6 +630,8 @@ def index(request, NICK, UUID):
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
     BLOB = os.path.basename(filename)
+    blob_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
+    blob_mtime = str(os.path.getmtime(filename))
     #
     envs = metadata.get('environ')
     env = envs[0] if envs else None     
@@ -718,6 +720,10 @@ def index(request, NICK, UUID):
             '?lang=%s&ext=%s#%s'%(lang, ext, anchor)
     else: pdfUUIDurl = htmlUUIDurl = ''
     #
+    view_md5 = ''
+    view_mtime = ''
+    VIEW = ''
+    #
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
         file = open(filename).read()
@@ -756,10 +762,15 @@ def index(request, NICK, UUID):
             html+='</ul>'
         else:
             try:
-                a = os.path.dirname(filename)+'/view'
+                d = os.path.dirname(filename) + '/'
+                a = 'view'
                 if lang:
                     a += '_' + lang
                 a += '_html/index.html'
+                VIEW = a
+                a = d + a
+                view_md5 = hashlib.md5(open(a,'rb').read()).hexdigest()
+                view_mtime = str(os.path.getmtime(a))
                 html = open(a).read()
                 a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
                 html = html.replace(ColDoc.config.ColDoc_url_placeholder,a[:-4])
@@ -772,6 +783,11 @@ def index(request, NICK, UUID):
     else:
         blobcontenttype = 'other'
         file = html = escapedfile = ''
+        # TODO
+        #  a = ... see in `show()`
+        # VIEW = 
+        #view_md5 = hashlib.md5(open(a,'rb').read()).hexdigest()
+        #view_mtime = str(os.path.getmtime(a))
     #
     if lang not in (None,''):
         lang_ = '_' + lang
