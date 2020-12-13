@@ -155,7 +155,7 @@ def postedit(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    assert 'commit' in request.POST or 'save' in request.POST or 'save_no_reload' in request.POST
+    assert 1 == ( 'commit' in request.POST ) + ( 'save' in request.POST ) + ( 'save_no_reload' in request.POST )
     #
     form=BlobEditForm(request.POST)
     #
