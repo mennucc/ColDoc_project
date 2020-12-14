@@ -120,17 +120,7 @@
 </nav>
 -->
 
-
-{% if messages %}
-<div class="alert alert-primary" role="alert">
-  <ul class="messages">
-    {% for message in messages %}
-    <li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-  </ul>
-</div>
-{% endif %}
-
+{% include 'messages.html' %}
 
  <main class="container">
     <!-- Content here -->
@@ -161,6 +151,8 @@
     $('.nav-tabs a').on('shown.bs.tab', function (e) {
        window.location.hash = e.target.hash;
     })
+    // 
+    $('.toast').toast("show");
 </script>
   </body>
 </html>
