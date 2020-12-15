@@ -573,16 +573,8 @@ def get_access_icon(access):
 
 
 def index(request, NICK, UUID):
-    if not slug_re.match(UUID):
-        return HttpResponse("Invalid UUID %r." % (UUID,), status=http.HTTPStatus.BAD_REQUEST)
-    if not slug_re.match(NICK):
-        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID, accept_anon=True)
     #
-    blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
-    if not os.path.isdir(blobs_dir):
-        return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
-    #
-    coldoc = DColDoc.objects.filter(nickname = NICK).get()
     request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
     has_general_view_view = request.user.has_perm('UUID.view_view')
     anon_dir  = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
