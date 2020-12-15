@@ -115,7 +115,7 @@ function blob_save_no_reload() {
 	       if ( 'blobdiff' in response ) {
 		 blobdiff = response['blobdiff'];
 		 blobdiffdiv = document.getElementById("id_blob_diff");
-		 blobdiffdiv.innerHTML = blobdiff;
+		 blobdiffdiv.innerHTML = '<code>' + blobdiff + '</code>';
 	       } else { console.log("Did not get blobdiff"); }
 	       if ( 'blob_md5' in response ) {
 		  blob_md5 = response['blob_md5'];

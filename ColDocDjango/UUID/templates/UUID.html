@@ -129,7 +129,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
       </div>
       <h3>Diff</h3>
       <div id="id_blob_diff" class="border border-info p-1 m-1">
-      {{blobdiff | safe}}
+      <code>{{blobdiff | safe}}</code>
       </div>
      {% else %}
        <div class="border border-info"><code>{{ escapedfile | safe }}</code></div>
