@@ -114,11 +114,11 @@ def _build_blobeditform_data(NICK, UUID,
         N=(json.load(open(a)))
         if N['file_md5'] != file_md5:
             msgs.append(( messages.WARNING,
-                         'File was changed on disk since you committed' ))
+                         'File was changed on disk: check the diff' ))
             N['file_md5'] = file_md5
-            if N['BlobEditTextarea'] != file:
-                msgs.append(( messages.INFO,
-                             'Your saved changes are yet uncommitted' ))
+        if N['BlobEditTextarea'] != file:
+            msgs.append(( messages.INFO,
+                          'Your saved changes are yet uncommitted' ))
         D.update(N)
     blobeditform = BlobEditForm(initial=D)
     blobeditform.fields['split_environment'].choices = choices
@@ -203,7 +203,7 @@ def postedit(request, NICK, UUID):
     #
     real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     if file_md5 != real_file_md5 and 'commit' in request.POST:
-        a = "The file was changed on disk: aborted"
+        a = "The file was changed on disk: commit aborted"
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     #
