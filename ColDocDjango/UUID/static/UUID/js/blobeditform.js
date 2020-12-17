@@ -76,6 +76,7 @@ function check_blob_changed_md5() {
 
 
 function poll_blob_changed_md5() {
+    if(blob_polling == 0 ) { return ; }
     check_blob_changed_md5();
     setTimeout(poll_blob_changed_md5, blob_polling);
 };

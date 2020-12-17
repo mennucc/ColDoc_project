@@ -214,6 +214,7 @@ function check_view_changed_md5() {
 var view_polling = 600000;
 
 function poll_view_changed_md5() {
+    if(view_polling == 0 ) { return ; }
     check_view_changed_md5();
     setTimeout(poll_view_changed_md5, view_polling);
 };

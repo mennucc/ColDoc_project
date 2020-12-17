@@ -18,7 +18,7 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
         {% endif %}{% endfor %}
         <input type="submit" class="btn btn-primary"
          data-toggle="tooltip" title="Commit changes, update PDF and HTML"
-         onclick="update_editform(); return check_primary_tab();" id="id_blobeditform_commit" name="commit" value="Commit">
+         onclick="update_editform(); if ( check_primary_tab() ) { blob_polling =0 ; view_polling =0 ; return true; } else {return false;}" id="id_blobeditform_commit" name="commit" value="Commit">
         <input type="submit" class="btn btn-primary" 
          data-toggle="tooltip" title="Save changes so far, update diff"
          onclick="blob_save_no_reload(); return false;"
