@@ -138,7 +138,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
         .diff_sub {background-color:#ffaaaa}
         </style>
       <div id="id_blob_diff" class="border border-info p-1 m-1">
-      <code>{{blobdiff | safe}}</code>
+      <pre>{{blobdiff | safe}}</pre>
       </div>
      {% else %}
        <div class="border border-info"><code>{{ escapedfile | safe }}</code></div>
