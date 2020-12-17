@@ -56,7 +56,7 @@ else:
     path('logout/',  LogoutView.as_view(), name="account_logout"),
 ]
 
-import views
+from ColDocDjango import views
 
 urlpatterns += [
     re_path(r'^$', ColDocDjango.views.main_page, name='index'),
