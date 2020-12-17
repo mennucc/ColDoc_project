@@ -128,6 +128,15 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
        {% include "blobeditform.html" %}
       </div>
       <h3>Diff</h3>
+        <style type="text/css">
+        table.diff {font-family:Courier; border:medium;}
+        .diff_header {background-color:#e0e0e0}
+        td.diff_header {text-align:right}
+        .diff_next {background-color:#c0c0c0}
+        .diff_add {background-color:#aaffaa}
+        .diff_chg {background-color:#ffff77}
+        .diff_sub {background-color:#ffaaaa}
+        </style>
       <div id="id_blob_diff" class="border border-info p-1 m-1">
       <code>{{blobdiff | safe}}</code>
       </div>

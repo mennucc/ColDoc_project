@@ -6,15 +6,6 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
   var get_blob_md5_url = "";
 {% endif %}
 </script>
-<style type="text/css">
-        table.diff {font-family:Courier; border:medium;}
-        .diff_header {background-color:#e0e0e0}
-        td.diff_header {text-align:right}
-        .diff_next {background-color:#c0c0c0}
-        .diff_add {background-color:#aaffaa}
-        .diff_chg {background-color:#ffff77}
-        .diff_sub {background-color:#ffaaaa}
-</style>
 <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
         {% csrf_token %}{{ blobeditform.non_field_errors }}
         {% for field in blobeditform %}{% if field.is_hidden %} {{ field }} {% else %}
