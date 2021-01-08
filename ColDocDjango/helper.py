@@ -625,9 +625,10 @@ does not contain the file `config.ini`
 """.format_map(locals()) )
             return False
     #
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
-    import django
-    django.setup()
+    if argv[0] != 'deploy':
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
+        import django
+        django.setup()
     #
     if argv[0] == 'deploy':
         return deploy(COLDOC_SITE_ROOT)
