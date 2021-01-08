@@ -8,13 +8,43 @@ whose name is saved in the environment variable COLDOC_SRC_ROOT.
 
 You need to use a terminal where you can insert shell commands.
 
-We assume that the new document will be contained in `/home/.../test_site` . Make
+Serving with Apache
+-------------------
+
+To serve the site using Apache2 in Debian or Ubuntu, you may install the packages
+
+.. code:: shell
+
+	  # sudo apt install apache2 libapache2-mod-wsgi-py3
+
+
+It is advisable to put the test site under `/var/www`
+(or otherwise, you should edit `/etc/apache2/apache2.conf`
+otherwise `apache` will not serve your content).
+
+.. code:: shell
+
+	  # export COLDOC_SITE_ROOT=/var/www/test_site
+	  # sudo mkdir ${COLDOC_SITE_ROOT}
+	  # sudo chown owner.group ${COLDOC_SITE_ROOT}
+
+where `owner.group` is who is performing the install.
+
+Serving without Apache
+----------------------
+
+If you just want to test the ColDoc, then
+you may setup the test site anywhere, let's say `/home/.../test_site` . Make
 sure that this directory is empty, and set its name in an environ variable as follows.
 
 .. code:: shell
 
 	  # export COLDOC_SITE_ROOT=/home/.../test_site
 	  # mkdir ${COLDOC_SITE_ROOT}
+
+
+Deploying the skeleton
+----------------------
 
 In the following you may omit the part `${COLDOC_SRC_ROOT}/`
 if you are sure that the current working directory of the shell is the directory
@@ -32,14 +62,15 @@ ${COLDOC_SITE_ROOT}/config.ini.
 Edit it at taste.
 
 
-It will also create an empty settings.py file
+It will also create a settings.py file
 `${COLDOC_SITE_ROOT}/settings.py` where you may override the values in 
-`${COLDOC_SRC_ROOT}/settings.py`
-
+`${COLDOC_SRC_ROOT}/settings.py`.
 You may want to setup
 in `${COLDOC_SITE_ROOT}/settings.py` some variables related to the deployed site;
-for example, configuration to send email; as in the example at the bottom of
+for example, configuration to send email (some examples are already there, commented);
+see also the example at the bottom of
 :doc:`install <install>`
+
 
 Social auth
 -----------
@@ -103,6 +134,8 @@ Then initialize `django` for your deployed site
 	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
 	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
 
+
+
 Add test material
 -----------------
 
@@ -131,6 +164,27 @@ Then you should generate all PDF and HTML associated to the test paper
 
 
 (The command line option `--url-UUID` is needed so that the hyperlinks inside the PDF version will point to the correct URL)
+
+Activate the Apache portal 
+--------------------------
+
+If you are preparing the web site to be served by Apache2, you should
+
+.. code:: shell
+
+	  # sudo chown -R www-data:www-data ${COLDOC_SITE_ROOT}
+
+otherwise Apache will not be able to access it. Then set up Apache as follows:
+
+
+.. code:: shell
+
+	  # sudo cp ${COLDOC_SITE_ROOT}/apache2.conf /etc/apache2/sites-available/test_site.conf
+	  # sudo a2ensite test_site
+	  # sudo systemctl reload apache2
+
+Serve without Apache
+--------------------
 
 Start the simplest Django server and access the portal
 
