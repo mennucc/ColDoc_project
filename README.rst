@@ -55,9 +55,7 @@ or, if you prefer, in Debian-based systems (like Ubuntu):
 
 .. code:: shell
 
-	  # sudo apt show python3-sphinx
-
-
+	  # sudo apt install python3-sphinx
 
 Then
 

@@ -106,7 +106,7 @@ Accessing the whole document
 ----------------------------
 
 The whole document can be accessed using buttons
- `View whole document` and  `View whole document, as PDF`
+`View whole document` and  `View whole document, as PDF`
 in the main page of the coldoc.
 
 These buttons will serve either the `private` or the `public` version.

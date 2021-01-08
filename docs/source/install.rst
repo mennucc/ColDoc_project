@@ -27,7 +27,8 @@ Installing `plastex` is somewhat complex, since ColDoc needs a patched version.
 
 The script `plastex/prepare.sh` can download and patch plastex for you
 
-Install it, using `pip3 intstall .` inside the directory `plastex/plastex`.
+Install it, using `pip3 install .` inside the directory `plastex/plastex`.
+(Do not forget the dot at the end of `pip3 install .` ).
 
 
 Local variables
