@@ -105,7 +105,22 @@ def deploy(target):
         if not os.path.isdir(a):
             os.makedirs(a)
     #
-    print("TODO : migrate, collectstatic, copy  wsgi.py, create and customize an apache2.conf")
+    a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','wsgi.py')
+    b = osjoin(target, 'wsgi.py')
+    os.symlink(a, b)
+    #
+    a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','apache2_template.conf')
+    z = open(a).read()
+    z = z.replace('@COLDOC_SITE_ROOT@', target)
+    z = z.replace('@COLDOC_SRC_ROOT@', COLDOC_SRC_ROOT)
+    v = ''
+    if 'VIRTUAL_ENV' in os.environ:
+        v = 'python-home=' + os.environ['VIRTUAL_ENV']
+    z = z.replace('@VIRTUAL_ENV@', v)
+    b = osjoin(target, 'apache2.conf')
+    open(b,'w').write(z)
+    #
+    print("TODO : migrate, collectstatic, customize and install apache2.conf")
     return True
 
 def set_site(site_url = None):
