@@ -5,7 +5,7 @@ EMAIL_PORT = "587"
 EMAIL_HOST_USER = "username"
 EMAIL_HOST_PASSWORD = "password"
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = "Helpdesk <helpdesk@that_email>"
+DEFAULT_FROM_EMAIL = "helpdesk@that_email"
 
 
 ## as per https://bugs.freedesktop.org/show_bug.cgi?id=5455
