@@ -26,6 +26,8 @@ This program does some actions that `manage` does not. Possible commands:
     list_authors
         ditto
 
+    send_test_email TO
+        ditto
 """
 
 import os, sys, argparse, json, pickle
@@ -581,7 +583,17 @@ def list_authors(warn, COLDOC_SITE_ROOT, coldoc_nick, as_django_user = True):
             smartappend(None, uuid)
     return authors
 
-
+def send_test_email(email_to):
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
+    import django
+    from django.conf import settings
+    django.setup()
+    from django.core.mail import EmailMessage
+    E = EmailMessage(subject="test email",
+                     from_email=settings.DEFAULT_FROM_EMAIL,
+                     to=[email_to],)
+    E.body = 'test email'
+    E.send()
 
 def main(argv):
     doc = __doc__
@@ -672,6 +684,8 @@ does not contain the file `config.ini`
             print("Tree for coldoc %r is fine" % (args.coldoc_nick,))
         return not bool(problems)
     #
+    elif argv[0] == 'send_test_email':
+        return send_test_email(argv[1])
     elif argv[0] == 'list_authors':
         authors = list_authors(logger.warning, COLDOC_SITE_ROOT, args.coldoc_nick)
         for a in authors:
