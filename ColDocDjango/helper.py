@@ -683,7 +683,10 @@ does not contain the file `config.ini`
         ret = main_call(utils, argv, args)
         if ret is not None:
             return ret
-    #
+        else:
+            sys.stderr.write("command not recognized : %r\n" % (argv,))
+            sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
+            return False
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
         sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
