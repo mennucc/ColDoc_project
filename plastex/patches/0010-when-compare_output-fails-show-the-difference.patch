@@ -1,0 +1,24 @@
+From 7f707d7ee12c0adcd187709b58e5d30077086ee4 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Thu, 14 Jan 2021 21:09:50 +0100
+Subject: [PATCH 10/14] when compare_output fails, show the difference
+
+---
+ unittests/helpers/utils.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/unittests/helpers/utils.py b/unittests/helpers/utils.py
+index 606dfa1..e93bddd 100644
+--- a/unittests/helpers/utils.py
++++ b/unittests/helpers/utils.py
+@@ -80,6 +80,6 @@ def compare_output(tex: str):
+                 tex_out = out.stdout.strip()
+                 (CACHE_LOCATION / tex_hash).write_text(tex_out)
+ 
+-        assert plastex_out == tex_out
++        assert plastex_out == tex_out, ('%r != %r ' % (plastex_out, tex_out))
+     finally:
+         os.chdir(cwd)
+-- 
+2.17.1
+

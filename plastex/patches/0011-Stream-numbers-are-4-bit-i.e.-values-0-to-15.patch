@@ -1,0 +1,36 @@
+From c4e6f5eeb5fa83cc53f532c25c07ae8b24265cf4 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Fri, 15 Jan 2021 08:50:10 +0100
+Subject: [PATCH 11/14] =?UTF-8?q?Stream=20numbers=20are=204-bit,=20i.e.=20?=
+ =?UTF-8?q?values=200=20to=2015=20=C2=ABThe=20status=20of=20input=20stream?=
+ =?UTF-8?q?s=20(Chapter=2030)=20can=20be=20tested=20with=20the=20end-of-fi?=
+ =?UTF-8?q?le=20test=20\ifeof=20[number],=20which=20is=20only=20false=20if?=
+ =?UTF-8?q?=20the=20number=20is=20in=20the=20range=200=E2=80=9315,=20and?=
+ =?UTF-8?q?=20the=20corresponding=20stream=20is=20open=20and=20not=20fully?=
+ =?UTF-8?q?=20read.=C2=BB=20From=20"TeX=20by=20topic",=20Sec=2013.5.3.=20S?=
+ =?UTF-8?q?o=20'\ifeof16'=20will=20crash=20pdflatex,=20making=20this=20tes?=
+ =?UTF-8?q?t=20quite=20useless?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ unittests/If.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/unittests/If.py b/unittests/If.py
+index d817cc7..e344ed7 100755
+--- a/unittests/If.py
++++ b/unittests/If.py
+@@ -63,7 +63,7 @@ class TestIfs(TestCase):
+     # This is defined to be unconditionally false
+     @pytest.mark.xfail
+     def testIfEOF(self):
+-        compare_output(r'\ifeof12 bye\else text\fi\ifeof16 one\else two\fi')
++        compare_output(r'\ifeof12 bye\else text\fi\ifeof15 one\else two\fi')
+ 
+     def testIfTrue(self):
+         compare_output(r'\iftrue bye\else text\fi\iftrue one\else two\fi')
+-- 
+2.17.1
+

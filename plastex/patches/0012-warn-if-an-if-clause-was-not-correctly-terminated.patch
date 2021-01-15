@@ -1,0 +1,42 @@
+From 47d540021c2546471338dc4e9051767710a31951 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Thu, 14 Jan 2021 19:33:57 +0100
+Subject: [PATCH 12/14] warn if an \if clause was not correctly terminated
+
+---
+ plasTeX/TeX.py | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
+index 113b549..febf30a 100644
+--- a/plasTeX/TeX.py
++++ b/plasTeX/TeX.py
+@@ -548,6 +548,7 @@ class TeX(object):
+ 
+         cases = [[]]
+         nesting = 0
++        correctly_terminated = False
+ 
+         for t in self.itertokens():
+             name = getattr(t, 'macroName', '') or ''
+@@ -556,6 +557,7 @@ class TeX(object):
+                 nesting += 1
+             elif name == 'fi':
+                 if not nesting:
++                    correctly_terminated = True
+                     break
+                 cases[-1].append(t)
+                 nesting -= 1
+@@ -568,6 +570,9 @@ class TeX(object):
+             else:
+                 cases[-1].append(t)
+ 
++        if not correctly_terminated:
++            log.warning(r'\end occurred when \if was incomplete')
++
+         # else case for ifs without elses
+         cases.append([])
+ 
+-- 
+2.17.1
+

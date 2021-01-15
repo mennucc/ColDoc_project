@@ -56,7 +56,7 @@ import plasTeX
 import plasTeX.TeX, plasTeX.Base.LaTeX, plasTeX.Context , plasTeX.Tokenizer , plasTeX.Base
 
 from plasTeX.TeX import TeX
-from plasTeX import TeXDocument, Command
+from plasTeX import TeXDocument, Command, Environment
 
 import plasTeX.Base as Base
 
@@ -371,16 +371,15 @@ def new_theorem(a,doc,con):
             con.newcounter(name, initial=0)
             con.newcommand("the"+name, 0, "\\arabic{%s}" %name)
 
-    data = {
-            'macroName': name,
+    data = {'nodeName': 'thmenv',
+            'thmName': name,
+            'args': '[title]',
             'counter': thecounter,
-            'thehead': header,
-            'thename': name,
-            'labelable': True,
+            'caption': header,
             'forcePars': True,
-            'thestyle': style
-        }
-    th = type(name, (amsthm.theoremCommand,), data)
+            'style': style
+            }
+    th = type(name, (Environment,), data)
     return th
 
 
@@ -992,7 +991,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         obj.macroMode = Command.MODE_BEGIN
                         obj.ownerDocument = thedocument
                         source = ''
-                        if isinstance(obj, amsthm.theoremCommand) or name == 'figure':
+                        if ( obj.nodeName == 'thmenv') or name == 'figure':
                             thetex.currentInput[0].pass_comments = False
                             _,source = thetex.readArgumentAndSource('[]')
                             thetex.currentInput[0].pass_comments = True

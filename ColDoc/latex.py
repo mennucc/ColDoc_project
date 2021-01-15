@@ -477,15 +477,6 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
             shutil.copy(save_abs_name+es,fake_abs_name+ed)
             fake_support.append((save_abs_name+es,fake_abs_name+ed))
     #
-    import glob, string
-    import plasTeX
-    from plasTeX.TeX import TeX
-    #from plasTeX.Config import config
-    from plasTeX.Config import config as plastex_config
-    #from plasTeX.ConfigManager import *
-    import plasTeX.ConfigManager
-    #from plasTeX.Logging import getLogger, updateLogLevels
-    #
     F = fake_name+'.tex'
     d = os.path.dirname(F)
     #assert os.path.isfile(F),F

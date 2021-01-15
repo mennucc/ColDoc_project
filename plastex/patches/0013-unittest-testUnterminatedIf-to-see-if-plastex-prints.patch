@@ -1,0 +1,55 @@
+From bf388fc741daff55e88bb931f15ef540dea0f534 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Fri, 15 Jan 2021 08:46:13 +0100
+Subject: [PATCH 13/14] unittest testUnterminatedIf to see if plastex prints
+ warning on unterminated '`if' currently not working , due to the way plastex
+ manages loggin see in the patch for further info
+
+---
+ plasTeX/TeX.py  | 8 ++++++++
+ unittests/If.py | 9 +++++++++
+ 2 files changed, 17 insertions(+)
+
+diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
+index febf30a..0bfe56b 100644
+--- a/plasTeX/TeX.py
++++ b/plasTeX/TeX.py
+@@ -25,7 +25,15 @@ from plasTeX.Logging import getLogger, disableLogging, fileLogging
+ # Only export the TeX class
+ __all__ = ['TeX']
+ 
++### TODO if we replace
+ log = getLogger()
++### with
++#import logging
++#log = logging.getLogger()
++## then 'testUnterminatedIf' in unittest.If.py  will work correctly
++## TODO so it may be useful to change the way plastex manages logging
++
++
+ status = getLogger('status')
+ _type = type
+ 
+diff --git a/unittests/If.py b/unittests/If.py
+index e344ed7..897dfe6 100755
+--- a/unittests/If.py
++++ b/unittests/If.py
+@@ -80,6 +80,15 @@ class TestIfs(TestCase):
+     def testNestedIf2(self):
+         compare_output(r'\ifnum 2 > 3 bye\iftrue text\ifcat() hi\fi\else one\fi\fi foo')
+ 
++    # TODO This works if the standard Python logging is used, see in TeX.py
++    @pytest.mark.xfail
++    def testUnterminatedIf(self):
++        with self.assertLogs(level='WARNING') as cm:
++            tex = r'\if one \else two '
++            plastex_out = TeX().input(tex).parse().textContent.strip()
++        expected_warning = 'WARNING:root:\\end occurred when \\if was incomplete'
++        assert(expected_warning in cm.output), (" %r not in %r " % (expected_warning, cm.output))
++
+ if __name__ == '__main__':
+     unittest.main()
+ 
+-- 
+2.17.1
+
