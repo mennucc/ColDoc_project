@@ -1,8 +1,10 @@
 import itertools, sys, os, io, copy, logging, shelve, unicodedata
 import re, pathlib, subprocess, datetime, json
-import tempfile, shutil, json, hashlib
+import tempfile, shutil, json, hashlib, importlib
 import os.path
 from os.path import join as osjoin
+
+import plasTeX
 
 if __name__ == '__main__':
     for j in ('','.'):
@@ -695,12 +697,61 @@ def os_rel_symlink(src, dst, basedir, target_is_directory, force = False, **kwar
 
 ############################
 
+
+def collect_renderer_config(config):
+    plastex_dir = os.path.dirname(os.path.realpath(plasTeX.__file__))
+    renderers_dir = os.path.join(plastex_dir, 'Renderers')
+    renderers = next(os.walk(renderers_dir))[1]
+    for renderer in renderers:
+        try:
+            conf = importlib.import_module('plasTeX.Renderers.'+renderer+'.Config')
+        except ImportError as msg:
+            continue
+
+        conf.addConfig(config)
+
+def plastex_main(argv):
+    """ Main program routine , taken from bin/plastex"""
+    import plasTeX
+    from argparse import ArgumentParser
+    from plasTeX.Compile import run
+    from plasTeX.Config import defaultConfig
+
+    config = defaultConfig()
+    collect_renderer_config(config)
+
+    parser = ArgumentParser(prog="plasTeX")
+
+    group = parser.add_argument_group("External Configuration Files")
+    group.add_argument("--config", "-c", dest="config", help="Config files to load. Non-existent files are silently ignored", action="append")
+
+    config.registerArgparse(parser)
+
+    parser.add_argument("file", help="File to process")
+
+    data = parser.parse_args(argv)
+    data = vars(data)
+    if data["config"] is not None:
+        config.read(data["config"])
+
+    config.updateFromDict(data)
+
+    filename = data["file"]
+
+    run(filename, config)
+
 def plastex_invoke(cwd_, stdout_ , argv_):
-    "invoke plastex with given args. Currently by subprocess. TODO internally, caching some stuff"
-    p = subprocess.Popen(['plastex']+argv_, cwd=cwd_, stdin=open(os.devnull),
-                         stdout=stdout_, stderr=subprocess.STDOUT)
-    p.wait()
-    return p.returncode
+    "invoke plastex with given args.  TODO cache some stuff"
+    cwdO = os.getcwd()
+    os.chdir(cwd_)
+    # TODO stdout_ is ignored
+    try:
+        plastex_main(argv_)
+    except Exception as msg:
+        logger.exception(msg)
+        return 1
+    os.chdir(cwdO)
+    return 0
 
 ############################
 
