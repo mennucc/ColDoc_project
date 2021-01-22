@@ -1,0 +1,11 @@
+--- /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg.distrib	2019-03-02 03:27:24.000000000 +0100
++++ /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg	2021-01-22 10:46:37.110805572 +0100
+@@ -25,7 +25,7 @@
+ %%   0x0010  Do not optimize PDF destinations. Use this if you want to
+ %%           refer from other files to destinations in the current file.
+ 
+-%C  0x0000
++%C  0x0010
+ 
+ %% PDF Document Settings
+ %%

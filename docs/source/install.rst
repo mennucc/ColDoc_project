@@ -70,3 +70,37 @@ or to enhance the code, *e.g.* adding some mimetypes used in your `coldoc` s
 
 
 See in `ColDocDjango.settings_suggested.py` for more examples.
+
+
+Fix PdfLaTeX
+------------
+
+Some TeX/LaTeX versions, by default, mangle the tags in the output PDF; then
+the cross-referencing machinery in ColDoc will not work.
+
+To solve this problem, you should
+edit the file `/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg` and change
+`%C  0x0000` to `%C  0x0010`.
+
+You may use the patch `${COLDOC_SRC_ROOT}/patch/texmf.patch` for this.
+
+
+Note that this file is not marked as a `configuration file` in Debian/Ubuntu,
+so it would be overwritten if the package `texlive-base` is upgraded; to avoid this
+problem, you may want to run (as `root` user)
+
+.. code:: shell
+
+	  dpkg-divert --add --rename /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
+	  cp -a /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg.distrib  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
+	  patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg ${COLDOC_SRC_ROOT}/patch/texmf.patch
+
+
+Alternatively, you may add
+
+.. code:: TeX
+
+	  \special{dvipdfmx:config C 0x0010}
+	  \special{xdvipdfmx:config C 0x0010}
+
+to the preamble of all LaTeX documents.
