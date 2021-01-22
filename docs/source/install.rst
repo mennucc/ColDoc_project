@@ -61,7 +61,7 @@ to enable email sending, as in this example. Or you may want to enable them in
 
 or to enhance the code, *e.g.* adding some mimetypes used in your `coldoc` s
 
-.. code:: shell
+.. code:: Python
 
 	  import mimetypes
 	  # https://bugs.freedesktop.org/show_bug.cgi?id=5455
