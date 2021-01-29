@@ -19,15 +19,21 @@ fi
 
 
 
+if git branch | grep -q  master-$date ; then
+    echo branch  master-$date exists
+else
+    git branch master-$date $version
+fi
 
-git branch master-$date $version
-
-git branch patched-$date $version
-
-git checkout patched-$date
-
-git am  ../patches/*
+if git branch | grep -q patched-$date ; then
+    echo branch  patched-$date exists
+    git checkout patched-$date
+else
+    git branch patched-$date $version
+    git checkout patched-$date
+    git am  ../patches/*
+fi
 
 echo now you may issue the command:
-echo "cd $b ; pip3 install --upgrade  ."
+echo "cd $b/plastex ; python3 setup.py install"
 
