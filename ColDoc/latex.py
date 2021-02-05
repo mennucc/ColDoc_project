@@ -378,7 +378,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         open(fake_abs_name+'.tex','w').write(f_html)
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
-        parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'))
+        parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'), save_abs_name+'_plastex.paux')
         ColDoc.utils.dict_save_or_del(retcodes, 'plastex'+lang_+':'+access, rh)
         try:
             ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
@@ -404,13 +404,36 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         coldoc.save()
     return ret
 
-def parse_plastex_html(blobs_dir, html_dir):
+def parse_plastex_paux(blobs_dir, paux):
+    if isinstance(paux,str):
+        if not os.path.isabs(paux):
+            paux = osjoin(blobs_dir, paux)
+        paux = open(paux,'rb')
+    a = pickle.load(paux)
+    a = a['HTML5']
+    D = {}
+    for n in a:
+        try:
+            if n.startswith('UUID:'):
+                uuid = n[5:]
+                url = a[n]['url']
+                if '#' in url:
+                    S,name = url.split('#')
+                    D[uuid] = (S, name)
+                else:
+                    logger.warning('strange url %r for %r', a[n],n)
+        except:
+            logger.exception('vv')
+    return D
+
+
+def parse_plastex_html(blobs_dir, html_dir, paux):
     try:
         from bs4 import BeautifulSoup
     except ImportError:
         logger.error('Please install BeautifulSoup4: pip3 install BeautifulSoup4')
         return
-    D = {}
+    D = parse_plastex_paux(blobs_dir, paux)
     P = ColDoc.config.ColDoc_url_placeholder
     for S in os.listdir(html_dir):
         if S.endswith('html'):
