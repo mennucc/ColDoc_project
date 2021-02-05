@@ -1,0 +1,71 @@
+From ade68d8dbca483ec63b2cfbc401ba913ca892eea Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Fri, 5 Feb 2021 20:46:00 +0100
+Subject: [PATCH] correct hypertarget, do not clash with label
+
+---
+ plasTeX/Packages/hyperref.py             | 6 +++++-
+ plasTeX/Renderers/DocBook/docbook.zpts   | 2 +-
+ plasTeX/Renderers/HTML5/hyperref.jinja2s | 2 +-
+ plasTeX/Renderers/XHTML/hyperref.zpts    | 2 +-
+ 4 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/plasTeX/Packages/hyperref.py b/plasTeX/Packages/hyperref.py
+index 65107dc..13fdd74 100644
+--- a/plasTeX/Packages/hyperref.py
++++ b/plasTeX/Packages/hyperref.py
+@@ -85,7 +85,11 @@ class hyperlink(Command):
+ 
+ class hypertarget(Command):
+     counter = 'hypertarget'  # so we can link to it
+-    args = 'label:id self'
++    args = 'hypertarget:str self'
++    def invoke(self, tex):
++        self.parse(tex)
++        target = self.attributes['hypertarget']
++        self.ownerDocument.context.label(target)
+ 
+ class hypertargetname(Command):
+     """ Dummy class for hypertarget macro """
+diff --git a/plasTeX/Renderers/DocBook/docbook.zpts b/plasTeX/Renderers/DocBook/docbook.zpts
+index 16749f2..c8028e6 100644
+--- a/plasTeX/Renderers/DocBook/docbook.zpts
++++ b/plasTeX/Renderers/DocBook/docbook.zpts
+@@ -142,7 +142,7 @@ type:xml
+ <link tal:attributes="linkend string:${self/idref/label/url}" tal:content="self"></link>
+ 
+ name: hypertarget
+-<anchor tal:attributes="name self/id" />
++<anchor tal:attributes="name self/hypertarget" />
+ 
+ name: phantomsection
+ <anchor tal:attributes="name self/id" />
+diff --git a/plasTeX/Renderers/HTML5/hyperref.jinja2s b/plasTeX/Renderers/HTML5/hyperref.jinja2s
+index 1bf35b6..ae842a5 100644
+--- a/plasTeX/Renderers/HTML5/hyperref.jinja2s
++++ b/plasTeX/Renderers/HTML5/hyperref.jinja2s
+@@ -22,7 +22,7 @@ name: hyperlink
+ <a href="{{ obj.idref.label.url }}" >{{ obj }}</a>
+ 
+ name: hypertarget
+-<a name="{{ obj.id }}" >{{ obj }}</a>
++<a name="{{ obj.attributes.hypertarget }}" >{{ obj }}</a>
+ 
+ name: phantomsection
+ <a name="{{ obj.id }}"></a>
+diff --git a/plasTeX/Renderers/XHTML/hyperref.zpts b/plasTeX/Renderers/XHTML/hyperref.zpts
+index e8919f5..8dbbbd5 100644
+--- a/plasTeX/Renderers/XHTML/hyperref.zpts
++++ b/plasTeX/Renderers/XHTML/hyperref.zpts
+@@ -25,7 +25,7 @@ name: hyperlink
+ <a tal:attributes="href string:${self/idref/label/url}" tal:content="self">text</a>
+ 
+ name: hypertarget
+-<a tal:attributes="name self/id" tal:content="self">text</a>
++<a tal:attributes="name self/hypertarget" tal:content="self">text</a>
+ 
+ name: phantomsection
+ <a tal:attributes="name self/id"></a>
+-- 
+2.17.1
+
