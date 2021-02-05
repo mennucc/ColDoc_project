@@ -18,7 +18,15 @@ code was downloaded.
 
 Note that ColDoc needs Python3 ; you may wish to set up a virtualenv, so that Python3 is the default Python.
 
-ColDoc has some prerequisites: Djago (version 2 or 3), plastex (a patched version, see below) 
+ColDoc has some prerequisites: Djago (version 2 or 3), plastex (a patched version, see below).
+
+To install them (but for plastex) you may use
+
+.. code:: shell
+
+	  # pip3 install django  BeautifulSoup4 django-guardian django-allauth django-background-tasks
+
+(only the first two are strictly needed, the others can be used to activate advanced features, as explained below)
 
 Installing plasTex
 ------------------
@@ -27,8 +35,7 @@ Installing `plastex` is somewhat complex, since ColDoc needs a patched version.
 
 The script `plastex/prepare.sh` can download and patch plastex for you
 
-Install it, using `pip3 install .` inside the directory `plastex/plastex`.
-(Do not forget the dot at the end of `pip3 install .` ).
+Install it, using `python3 setup.py install` inside the directory `plastex/plastex`.
 
 
 Local variables
