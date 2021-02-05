@@ -8,7 +8,10 @@
 
 %%% you should not alter these
 \ifdefined\uuid\else\ifdefined\href%
-\newcommand{\uuid}[1]{\hypertarget{UUID:#1}{\href{\uuidbaseurl#1}{\uuidformatter{#1}}}\label{UUID:#1}}%
+\newcommand{\uuid}[1]{\ifplastex\else\hypertarget{UUID:#1}{\relax}\fi%
+\label{UUID:#1}%
+\href{\uuidbaseurl#1}{\uuidformatter{#1}}%
+}%
 \else%
 \newcommand{\uuid}[1]{\uuidformatter{#1}\label{UUID:#1}}%
 \fi\fi%
