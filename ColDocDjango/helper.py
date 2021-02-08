@@ -172,16 +172,14 @@ def create_fake_users(COLDOC_SITE_ROOT):
         transaction_content_type = ContentType.objects.get_for_model(Transaction)
         for U in  'foobar', :
             user = UsMo.objects.filter(username=U).get()
-            print('*** adding permissions to user %r: "operate", "view_wallet" and "view_transaction"' % (U,))
-            permission = Permission.objects.get(content_type = wallet_content_type,
-                                                codename='operate')
-            user.user_permissions.add(permission)
-            permission = Permission.objects.get(content_type = wallet_content_type,
-                                                codename='view_wallet')
-            user.user_permissions.add(permission)
-            permission = Permission.objects.get(content_type = transaction_content_type,
-                                                codename='view_transaction')
-            user.user_permissions.add(permission)
+            Per = (wallet_content_type, "operate"), (wallet_content_type , "view_wallet") , (transaction_content_type, "view_transaction")
+            print('*** adding permissions to user %r: %s' % (U,Per))
+            for ct, pn in Per:
+                permission = Permission.objects.get(content_type = ct,
+                                                    codename=pn)
+                user.user_permissions.add(permission)
+                permission.save()
+                user.save()
     #
     print('*** creating superuser "napoleon" password "adrian"')
     try:
