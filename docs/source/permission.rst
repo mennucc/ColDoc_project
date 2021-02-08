@@ -1,5 +1,5 @@
 Permissions
-==============
+===========
 
 (See in ColDocDjango/users.py for more details).
 
@@ -8,6 +8,7 @@ There is a list of permissions for each UUID. Currently it is:
 
 Permissions are associated to the UUID of the blob,
 so they are the same for all languages and/or content types.
+(Internally, they are associated to the `DMetadata` class).
 
 Permissions for a specific coldoc
 ---------------------------------
@@ -16,13 +17,13 @@ For each permission above of the form `aaaa_bbbb` and any `coldoc` with nickname
 `aaaa_bbbb_on_blob_inside_cccc`, that is specific for that coldoc.
 
 - An user that has permission  `aaaa_bbbb` automatically has permission
-  `aaaa_bbbb_on_blob_inside_cccc` for any coldoc.
+  `aaaa_bbbb_on_blob_inside_cccc` for any UUID in any coldoc.
 
 - An user that has permission  `aaaa_bbbb_on_blob_inside_cccc` automatically has permission
-  `aaaa_bbbb` for the coldoc with nickname `cccc`.
+  `aaaa_bbbb` for any UUID in the coldoc with nickname `cccc`.
 
-Permissions for an UUID
------------------------
+Special users
+-------------
 
 An author of a blob has all the above permissions for that blob.
 
@@ -30,6 +31,9 @@ An anonymous user (an user that accesses the portal and is not
 authenticated) has very limited permissions: s/he has the `view_view`
 permission only if the coldoc has the `anonymous_can_view` flag set to
 True, and the blob the UUID `access` state is `open` or `public`.
+
+Meaning of permissions, and rules
+---------------------------------
 
 This is the Permissions meaning and rule for each `UUID`.
 
@@ -62,6 +66,17 @@ This is the Permissions meaning and rule for each `UUID`.
    Note that the `download` url also requires `view_view` permission.
 
 - `view_log` : permission to  view logs created by `LaTeX` `and plastex`
+
+Local permissions
+-----------------
+
+The `ColDoc` portal uses the `django-guardian` library, so that
+a specific permission can be given to an user for only one object.
+
+Note that if the user has a certain permission for the whole coldoc,
+than it has that permission for any object in that coldoc.
+This only holds for permissions listed above (those associated to the `DMetadata` class,
+that start with `UUID.`).
 
 Access to protected content in the whole document
 -------------------------------------------------

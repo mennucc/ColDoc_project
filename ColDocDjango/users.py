@@ -80,9 +80,14 @@ def user_has_perm(user, perm, coldoc, blob, object_):
         obj = blob
     else:
         obj = object_
+    #
     if user.has_perm(perm, obj):
         ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,perm,coldoc,blob,obj)
         # takes care of superuser
+        return True
+    #
+    if obj is not None and perm.startswith('UUID.')  and user.has_perm(perm):
+        logger.debug("Granting %r to %s, false on %r but true globally", perm, user.username, obj)
         return True
     #
     if object_ is not None and object_ != blob:
@@ -97,6 +102,11 @@ def user_has_perm(user, perm, coldoc, blob, object_):
         n = name_of_permission_for_blob(coldoc.nickname, perm[5:])
         if user.has_perm('UUID.'+n, obj):
             return True
+        #
+        if obj is not None and user.has_perm('UUID.'+n):
+            logger.debug("Granting %r to %s, false on %r but true on coldoc %r", perm, user.username, obj, coldoc)
+            return True
+        #        
         if blob is not None: 
             if blob.author.filter(username=user.username).exists():
                 #allow complete access to authors
