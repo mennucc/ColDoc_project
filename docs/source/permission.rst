@@ -78,6 +78,19 @@ than it has that permission for any object in that coldoc.
 This only holds for permissions listed above (those associated to the `DMetadata` class,
 that start with `UUID.`).
 
+Buying local permissions
+------------------------
+
+There is a provision so that an user can buy certain permissions
+using `eulercoins`. For this, the library `django-wallet` must be installed
+(a special version, available on demand); then a function `PRICE_FOR_PERMISSION`
+must be defined in the `settings` file (an example is in the `settings_suggested.py` file):
+given a `user`, a `blob` (an instance of `DMetadata`) and a  `permission`, the
+function will decide if the user can buy that permission for that object, and the price.
+
+Note that an user must have `operate` permissions on `wallet` objects to buy something.
+
+
 Access to protected content in the whole document
 -------------------------------------------------
 
