@@ -161,8 +161,8 @@ def create_fake_users(COLDOC_SITE_ROOT):
         E=_build_fake_email(U)
         try:
             UsMo.objects.create_user(U,email=E,password=P).save()
-        except IntegrityError:
-            pass
+        except IntegrityError as e:
+            logger.debug("Already exists? %r",e)
         except Exception as e:
             print('Cannot create user %r : %r' %(U,e))
     #
