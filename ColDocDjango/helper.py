@@ -156,7 +156,7 @@ def create_fake_users(COLDOC_SITE_ROOT):
     from django.conf import settings
     import django.contrib.auth as A
     UsMo = A.get_user_model()
-    for U,P in ('foobar', 'barfoo'), ('jsmith',"123456"), ('ed_itor','345678'):
+    for U,P in ('foobar', 'barfoo'), ('jsmith',"123456"), ('ed_itor','345678'), ('reviewer','marvel'):
         print('*** creating user %r password %r' % (U,P))
         E=_build_fake_email(U)
         try:
@@ -165,6 +165,19 @@ def create_fake_users(COLDOC_SITE_ROOT):
             logger.debug("Already exists? %r",e)
         except Exception as e:
             print('Cannot create user %r : %r' %(U,e))
+    #
+    from ColDocDjango.UUID.models import DMetadata
+    for U in  'reviewer', :
+        user = UsMo.objects.filter(username=U).get()
+        Per = "view_view", "view_blob" , "download"
+        print('*** adding permissions to user %r: %r' % (U,Per))
+        metadata_content_type = ContentType.objects.get_for_model(DMetadata)
+        for pn in Per:
+            permission = Permission.objects.get(content_type = metadata_content_type,
+                                                codename=pn)
+            user.user_permissions.add(permission)
+            permission.save()
+            user.save()
     #
     if settings.USE_WALLET:
         from django_pursed.wallet.models import Wallet, Transaction
