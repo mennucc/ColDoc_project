@@ -1,6 +1,7 @@
 import itertools, sys, os, io, copy, logging, shelve, unicodedata
 import re, pathlib, subprocess, datetime, json
 import tempfile, shutil, json, hashlib, importlib
+import traceback, contextlib
 import os.path
 from os.path import join as osjoin
 
@@ -740,18 +741,34 @@ def plastex_main(argv):
 
     run(filename, config)
 
-def plastex_invoke(cwd_, stdout_ , argv_):
+def plastex_invoke(cwd_, stdout_ , argv_, logfile):
     "invoke plastex with given args.  TODO cache some stuff"
     cwdO = os.getcwd()
     os.chdir(cwd_)
-    # TODO stdout_ is ignored
+    #
+    assert isinstance(stdout_, str)
+    open(stdout_,'w').write('start at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
+    #
+    exception = None
     try:
-        plastex_main(argv_)
+        with contextlib.redirect_stdout(open(stdout_,'a')):
+            plastex_main(argv_)
     except Exception as msg:
-        logger.exception(msg)
-        return 1
+        logger.exception('There was an exception running %r internally.', argv_)
+        exception = sys.exc_info()
+    if exception:
+        F = open(stdout_,'a')
+        F.write('—' * 80 + '\n')
+        F.write('There was an exception running %r internally\n' % argv_)
+        traceback.print_exception(*exception, file = F)
+        F.close()
+        L = open(logfile,'a')
+        L.write('—' * 80 + '\n')
+        L.write('There was an exception running %r internally\n' % argv_)
+        traceback.print_exception(*exception, file = L)
+        L.close()
     os.chdir(cwdO)
-    return 0
+    return 0 if (exception is None) else 1
 
 ############################
 
