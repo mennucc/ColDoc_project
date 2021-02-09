@@ -118,7 +118,7 @@ def _build_blobeditform_data(NICK, UUID,
             N['file_md5'] = file_md5
         if N['BlobEditTextarea'] != file:
             msgs.append(( messages.INFO,
-                          'Your saved changes are yet uncommitted' ))
+                          'Your saved changes are yet uncompiled' ))
         D.update(N)
     blobeditform = BlobEditForm(initial=D)
     blobeditform.fields['split_environment'].choices = choices
@@ -155,7 +155,7 @@ def postedit(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    assert 1 == ( 'commit' in request.POST ) + ( 'save' in request.POST ) + ( 'save_no_reload' in request.POST )
+    assert 1 == ( 'compile' in request.POST ) + ( 'save' in request.POST ) + ( 'save_no_reload' in request.POST )
     #
     form=BlobEditForm(request.POST)
     #
@@ -202,8 +202,8 @@ def postedit(request, NICK, UUID):
         raise SuspiciousOperation("Permission denied (add_blob)")
     #
     real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
-    if file_md5 != real_file_md5 and 'commit' in request.POST:
-        a = "The file was changed on disk: commit aborted"
+    if file_md5 != real_file_md5 and 'compile' in request.POST:
+        a = "The file was changed on disk: compile aborted"
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     #
