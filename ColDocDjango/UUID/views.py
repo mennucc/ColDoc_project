@@ -99,13 +99,16 @@ def common_checks(request, NICK, UUID, accept_anon=False):
 
 
 def _build_blobeditform_data(NICK, UUID,
-                             filename,
+                             user, filename,
                              ext, lang,
                              choices, can_add_blob,
                              msgs):
     file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     file = open(filename).read()
-    a = filename[:-4]+'_editstate.json'
+    #
+    user_id = str(user.id)
+    a = filename[:-4] + '_' + user_id + '_editstate.json'
+    #
     D = {'BlobEditTextarea':  file,
          'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,
          'file_md5' : file_md5,
@@ -212,7 +215,8 @@ def postedit(request, NICK, UUID):
     blobcontent = re.sub("\r\n", '\n', blobcontent)
     form.cleaned_data['BlobEditTextarea'] = blobcontent
     # save state of edit form
-    file_editstate = filename[:-4] + '_editstate.json'
+    user_id = str(request.user.id)
+    file_editstate = filename[:-4] + '_' + user_id + '_editstate.json'
     json.dump(form.cleaned_data, open(file_editstate,'w'))
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
@@ -808,7 +812,7 @@ def index(request, NICK, UUID):
             choices = teh.list_allowed_choices(metadata.environ)
             can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
             msgs = []
-            blobeditform = _build_blobeditform_data(NICK, UUID, filename,
+            blobeditform = _build_blobeditform_data(NICK, UUID, request.user, filename,
                                                     ext, lang, choices, can_add_blob, msgs)
             for l, m in msgs:
                 messages.add_message(request, l, m)
