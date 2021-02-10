@@ -3,7 +3,7 @@
 set -e
 
 version=de519aa9d1c6ba14573eaa318f462503b032ac61
-date=2021-01-31
+date=2021-02-10
 
 b="$(dirname $( realpath $0 ))"
 cd "$b"

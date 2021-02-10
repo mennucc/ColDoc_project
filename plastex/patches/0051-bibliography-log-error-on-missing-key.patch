@@ -1,0 +1,30 @@
+From 820933068932ee1f209630fc55b07137a59b2331 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Sun, 7 Feb 2021 22:21:10 +0100
+Subject: [PATCH 51/52] bibliography log error on missing key
+
+---
+ plasTeX/Base/LaTeX/Bibliography.py | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/plasTeX/Base/LaTeX/Bibliography.py b/plasTeX/Base/LaTeX/Bibliography.py
+index 374c10f..8bc8d69 100644
+--- a/plasTeX/Base/LaTeX/Bibliography.py
++++ b/plasTeX/Base/LaTeX/Bibliography.py
+@@ -75,7 +75,12 @@ class thebibliography(List):
+             doc = self.ownerDocument
+             res = doc.createDocumentFragment()
+             bibcites = doc.userdata.getPath('bibliography/bibcites', {})
+-            res.extend(bibcites.get(self.attributes['key']))
++            k = self.attributes['key']
++            e = bibcites.get(k)
++            if e is None:
++                log.error('Bibcite key %r not found', k)
++            else:
++                res.extend(e)
+             return res
+ 
+     def digest(self, tokens):
+-- 
+2.17.1
+

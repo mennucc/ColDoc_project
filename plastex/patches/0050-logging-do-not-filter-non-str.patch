@@ -1,0 +1,25 @@
+From 92fbb406d137bfecf4d2b94651f0f40c61abe813 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Sun, 7 Feb 2021 22:20:33 +0100
+Subject: [PATCH 50/52] logging do not filter non str
+
+---
+ plasTeX/Logging.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plasTeX/Logging.py b/plasTeX/Logging.py
+index 75db419..1640541 100644
+--- a/plasTeX/Logging.py
++++ b/plasTeX/Logging.py
+@@ -166,7 +166,7 @@ def fileLogging(fname):
+ 
+     """
+     def dotfilter(record):
+-        if record.msg.strip() != '.':
++        if not isinstance(record.msg, str) or record.msg.strip() != '.':
+             return True
+     logfilter = Filter()
+     logfilter.filter = dotfilter
+-- 
+2.17.1
+

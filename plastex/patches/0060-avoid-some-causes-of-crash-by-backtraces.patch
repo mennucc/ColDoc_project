@@ -1,0 +1,40 @@
+From 1472d1da7cab0fd31784040b148e5930b689da30 Mon Sep 17 00:00:00 2001
+From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
+Date: Sun, 7 Feb 2021 22:21:41 +0100
+Subject: [PATCH 60/61] avoid some causes of crash by backtraces
+
+---
+ plasTeX/Base/LaTeX/Bibliography.py | 2 +-
+ plasTeX/DOM/__init__.py            | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/plasTeX/Base/LaTeX/Bibliography.py b/plasTeX/Base/LaTeX/Bibliography.py
+index 8bc8d69..56b2574 100644
+--- a/plasTeX/Base/LaTeX/Bibliography.py
++++ b/plasTeX/Base/LaTeX/Bibliography.py
+@@ -29,7 +29,7 @@ class bibliography(chapter):
+             with open(filename, encoding=encoding) as f:
+                 tex.input(f.read())
+         except OSError as msg:
+-            log.warning(msg)
++            log.warning('OSError %r when looking for bbl for %r ', msg, tex.jobname)
+ 
+ class bibliographystyle(Command):
+     args = 'style'
+diff --git a/plasTeX/DOM/__init__.py b/plasTeX/DOM/__init__.py
+index 562cbe2..7066252 100644
+--- a/plasTeX/DOM/__init__.py
++++ b/plasTeX/DOM/__init__.py
+@@ -983,6 +983,9 @@ class Node(object):
+ 
+     def extend(self, other, setParent=True):
+         """ self += other """
++        if other is None:
++            print('WHY NONE HERE')
++            return self
+         for item in other:
+             self.append(item, setParent=setParent)
+         return self
+-- 
+2.17.1
+
