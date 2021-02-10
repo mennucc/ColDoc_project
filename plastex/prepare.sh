@@ -31,7 +31,7 @@ if git branch | grep -q patched-$date ; then
 else
     git branch patched-$date $version
     git checkout patched-$date
-    git am  ../patches/*
+    git am  ../patches/*patch
 fi
 
 echo now you may issue the command:
