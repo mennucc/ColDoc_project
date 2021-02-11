@@ -756,17 +756,18 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
     except Exception as msg:
         logger.exception('There was an exception running %r internally.', argv_)
         exception = sys.exc_info()
+    F = open(stdout_,'a')
     if exception:
-        F = open(stdout_,'a')
         F.write('—' * 80 + '\n')
         F.write('There was an exception running %r internally\n' % argv_)
         traceback.print_exception(*exception, file = F)
-        F.close()
         L = open(logfile,'a')
         L.write('—' * 80 + '\n')
         L.write('There was an exception running %r internally\n' % argv_)
         traceback.print_exception(*exception, file = L)
         L.close()
+    F.write('end at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
+    F.close()
     os.chdir(cwdO)
     return 0 if (exception is None) else 1
 
