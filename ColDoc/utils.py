@@ -750,6 +750,16 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
     open(stdout_,'w').write('start at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
     #
     exception = None
+    if True:
+        stdout_d = open(stdout_,'a')
+        p = subprocess.Popen(['plastex']+argv_, cwd=cwd_, stdin=open(os.devnull),
+                             stdout=stdout_d, stderr=subprocess.STDOUT)
+        p.wait()
+        stdout_d.write('end at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
+        os.chdir(cwdO)
+        return p.returncode
+    # unfortunately this code is unstable, it crashes on long runs
+    # (probably the plastex library uses too much memory on repeated calls)
     try:
         with contextlib.redirect_stdout(open(stdout_,'a')):
             plastex_main(argv_)
