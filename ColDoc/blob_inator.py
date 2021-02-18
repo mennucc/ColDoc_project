@@ -292,7 +292,7 @@ class named_stream(io.StringIO):
         filename = osjoin(self._basepath, self._filename)
         if True: #len(self.getvalue()) > 0:
             self.flush()
-            logger.info("writeout file %r  " % (self._filename,))
+            logger.debug("writeout file %r  " % (self._filename,))
             z = self._open(filename ,'w')
             if write_UUID and self.uuid:
                 z.write("\\uuid{%s}%%\n" % (self.uuid,))
@@ -998,7 +998,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         #out = obj.invoke(tex) mangles everything
                         #if out is not None:
                         #    obj = out
-                        logger.info( 'will split \\begin{%r}' % (name,) )
+                        logger.debug( 'will split \\begin{%r}' % (name,) )
                         if shift_eol:
                             t=next(itertokens)
                             while str(t) in ('\n',' '):
