@@ -34,6 +34,8 @@ else
     git am  ../patches/*patch
 fi
 
-echo now you may issue the command:
+echo
+echo
+echo Now you may issue the command:
 echo "cd $b/plastex ; python3 setup.py install"
 
