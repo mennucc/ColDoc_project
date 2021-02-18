@@ -4,12 +4,6 @@
 
 \documentclass[a4paper]{article}
 
-%% If you want to compile this document by itself
-%% you need to give define conditionals; so
-%% please uncomment what follows:
-
-%\usepackage{coldoc_ifs}
-
 %%%%%%%%% early packages that for some reason must be loaded before
 
 %% `unicode-math` will change some definitions in `amssymb`
@@ -27,19 +21,16 @@
 \newif\ifplastex\plastexfalse
 %
 %%%%%%%%% use conditionals to load some engine-specific packages
-\iftutex
+\ifplastex
+  % code for plastex
+  \newcommand\mathbbm[1]{{\mathbb{#1}}}
+\else\iftutex
   % code for xetex or luatex
   \input{preamble_xelatex}
 \else
- % code for latex or plastex
- \ifplastex
-   % code for plastex
-   \newcommand\mathbbm[1]{{\mathbb{#1}}}
- \else
  % code for (pdf)latex
    \input{preamble_pdflatex}
- \fi
-\fi
+\fi\fi
 %%%%%%%%% following are general definitions
 
 \input{preamble_definitions}
@@ -64,9 +55,9 @@ The introduction
   \iftutex Using \texttt{XeTeX} or \texttt{LuaTeX} \fi ;
   \ifplastex Using \texttt{plasTeX} \fi .
 
-  \ifColDocPublic Public \else Private \fi
-  version, compiled
-  \ifColDocOneUUID only this UUID \else as a whole \fi
+  %% this works only inside the portal
+  %\ifColDocPublic Public \else Private \fi version, compiled
+  %\ifColDocOneUUID only this UUID \else as a whole \fi.
 \end{abstract}
 
 Stress test  \texttt{plasTeX} embedding \texttt{HTML}
