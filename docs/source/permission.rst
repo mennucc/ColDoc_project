@@ -4,7 +4,7 @@ Permissions
 (See in ColDocDjango/users.py for more details).
 
 There is a list of permissions for each UUID. Currently it is:
- 'view_view','view_log','view_blob','change_blob','download','commit','view_dmetadata','change_dmetadata'
+'view_view', 'view_log', 'view_blob', 'change_blob', 'download', 'commit', 'view_dmetadata', 'change_dmetadata'
 
 Permissions are associated to the UUID of the blob,
 so they are the same for all languages and/or content types.
@@ -110,6 +110,7 @@ LaTeX macros
 
 In the coldoc metadata there are three keys: `latex_macros_private`,  `latex_macros_public`
 and  `latex_macros_uuid`.
+These contain LaTeX macros.
 
 When compiling the `private whole document` the  `latex_macros_private` is automatically insert just after
 the `documentclass` ; the  `latex_macros_public` when compiling  `public whole document`;
@@ -117,11 +118,26 @@ the `latex_macros_uuid` when compiling one single blob in one UUID
 
 The defaults are:
 
--  `latex_macros_private` defaults to `\newif\ifColDocPublic\ColDocPublicfalse \newif\ifColDocOneUUID\ColDocOneUUIDfalse`
+- `latex_macros_private` defaults to
 
--  `latex_macros_public` defaults to `\newif\ifColDocPublic\ColDocPublictrue  \newif\ifColDocOneUUID\ColDocOneUUIDfalse`
+  .. code:: tex
+	    
+	    \newif\ifColDocPublic\ColDocPublicfalse
+	    \newif\ifColDocOneUUID\ColDocOneUUIDfalse
 
--  `latex_macros_uuid` defaults to `\newif\ifColDocPublic\ColDocPublicfalse  \newif\ifColDocOneUUID\ColDocOneUUIDtrue`
+- `latex_macros_public` defaults to
+
+  .. code:: tex
+	    
+	    \newif\ifColDocPublic\ColDocPublictrue
+	    \newif\ifColDocOneUUID\ColDocOneUUIDfalse
+
+- `latex_macros_uuid` defaults to
+
+  .. code:: tex
+
+	    \newif\ifColDocPublic\ColDocPublicfalse
+	    \newif\ifColDocOneUUID\ColDocOneUUIDtrue
 
 Note that `\ifColDocPublicfalse` is used when compiling each single blob by itself: this makes sense since in this case
 the web interface will make sure that only authorized users can access the content.

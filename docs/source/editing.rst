@@ -10,7 +10,7 @@ From command line,
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  add_blob
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  add_blob
 
 
 
@@ -19,7 +19,7 @@ then the django database will be desyncronized regarding metadata: run
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py   --coldoc-nick NICK reparse_all
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py   --coldoc-nick NICK reparse_all
 
 Moreover from time to time you will need to recreate the PDF and HTML representations.
 
@@ -27,26 +27,26 @@ Use
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py   --coldoc-nick NICK main_private
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py   --coldoc-nick NICK main_private
 
 to recreate the complete HTML PDF (visible only to editors);
 use
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py   --coldoc-nick NICK main_public
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py   --coldoc-nick NICK main_public
 
 to recreate the public HTML PDF (visible only to everybody); use
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py   --coldoc-nick NICK tree
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py   --coldoc-nick NICK tree
 
 to recreate the HTML PDF for each blob (this is useful if you edited many blobs in the filesystem); use
 
 .. code:: shell
 
-	  # python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py   --coldoc-nick NICK all
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py   --coldoc-nick NICK all
 
 to run all of the above.
 

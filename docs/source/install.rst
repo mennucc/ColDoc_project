@@ -8,23 +8,36 @@ Download the latest code from GitHub
 
 .. code:: shell
 
-	  # cd /home/.../.../somewhere
-	  # git clone ...
-	  # cd ColDoc
-	  # export COLDOC_SRC_ROOT=`pwd`
+	  cd /home/.../.../somewhere
+	  git clone ...
+	  cd ColDocProject
+	  export COLDOC_SRC_ROOT=`pwd`
 
-the last command sets the envirnmental variable COLDOC_SRC_ROOT to the directory where the
-code was downloaded.
+the last command sets the environmental variable `COLDOC_SRC_ROOT` to the directory where the
+code was downloaded. This is fundamental in the following.
+In this section, we will assume that the `CWD` (current working directory) is `COLDOC_SRC_ROOT`.
 
-Note that ColDoc needs Python3 ; you may wish to set up a virtualenv, so that Python3 is the default Python.
+venv
+----
 
-ColDoc has some prerequisites: Djago (version 2 or 3), plastex (a patched version, see below).
+Note that ColDoc needs `Python3` ; you may want to set up a virtualenv, so that Python3 is the default Python.
+
+.. code:: shell
+	  
+	  python3 -m venv venv
+	  source venv/bin/activate
+
+Prerequisites
+-------------
+
+ColDoc has some prerequisites: `Django` (version 2 or 3),
+`plasTex` (a patched version, see below), and others, as explained later.
 
 To install them (but for plastex) you may use
 
 .. code:: shell
 
-	  # pip3 install django  BeautifulSoup4 django-guardian django-allauth django-background-tasks
+	  pip3 install django  BeautifulSoup4 django-guardian django-allauth django-background-tasks
 
 (only the first two are strictly needed, the others can be used to activate advanced features, as explained below)
 
@@ -33,50 +46,9 @@ Installing plasTex
 
 Installing `plastex` is somewhat complex, since ColDoc needs a patched version.
 
-The script `plastex/prepare.sh` can download and patch plastex for you
-
-Install it, using `python3 setup.py install` inside the directory `plastex/plastex`.
-
-
-Local variables
----------------
-
-
-Settings for a deployed site are read from three files:
-
-- the general file `${COLDOC_SRC_ROOT}/settings.py` in the ColDoc code
-
-- `ColDocDjango.settings_local.py` if it exists
-
--  `${COLDOC_SITE_ROOT}/settings.py` from the `COLDOC_SITE_ROOT` directory where the
-   web site is deployed.
-
-
-To better test the code,
-you may want to create a file `ColDocDjango.settings_local.py` to setup some variables
-to enable email sending, as in this example. Or you may want to enable them in 
-`${COLDOC_SITE_ROOT}/settings.py` .
-
-.. code:: shell
-
-	  MAIL_HOST = "smtp.server"
-	  EMAIL_PORT = "587"
-	  EMAIL_HOST_USER = "username"
-	  EMAIL_HOST_PASSWORD = "password"
-	  EMAIL_USE_TLS = True
-	  DEFAULT_FROM_EMAIL = "Helpdesk <helpdesk@that_email>"
-
-or to enhance the code, *e.g.* adding some mimetypes used in your `coldoc` s
-
-.. code:: Python
-
-	  import mimetypes
-	  # https://bugs.freedesktop.org/show_bug.cgi?id=5455
-	  for j in ('.gplt','.gnuplot'):
-	      mimetypes.add_type('application/x-gnuplot',j)
-
-
-See in `ColDocDjango.settings_suggested.py` for more examples.
+The script `plastex/prepare.sh` can download and patch plastex for you: the patched
+version is then available in  `plastex/plastex`.
+So you can install it, using `python3 setup.py install` inside the directory `plastex/plastex`.
 
 
 Fix PdfLaTeX
@@ -89,7 +61,7 @@ To solve this problem, you should
 edit the file `/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg` and change
 `%C  0x0000` to `%C  0x0010`.
 
-You may use the patch `${COLDOC_SRC_ROOT}/patch/texmf.patch` for this.
+You may use the patch `patch/texmf.patch` for this.
 
 
 Note that this file is not marked as a `configuration file` in Debian/Ubuntu,
@@ -107,7 +79,9 @@ Alternatively, you may add
 
 .. code:: TeX
 
+	  \ifplastex\else
 	  \special{dvipdfmx:config C 0x0010}
 	  \special{xdvipdfmx:config C 0x0010}
+	  \fi
 
 to the preamble of all LaTeX documents.

@@ -1,6 +1,6 @@
-======
-ColDoc
-======
+==============
+ColDoc Project
+==============
 
 There are two main frameworks currently used to present information (in particular,
 related to scientific fields).
@@ -32,6 +32,72 @@ The code is open source, it is available, please write to coldoc.staff@sns.it fo
 
 It is implemented using the Python language.
 
+Features
+========
+
+Code, portal, document
+----------------------
+
+This project is structured to keep separation between
+the *code*, the *portal*, and the *data*.
+
+Foremost, we install the *code* following the instructions in the
+:doc:`install section<install>`.
+
+Then, we *deploy* the structure for a *portal* following the instructions in the
+:doc:`deploy section<deploy>`.
+
+Eventually, we add one or more *documents* in the *portal*.
+See
+:doc:`section <blobify>`
+on how to prepare a document for its splitting and uploading into a *portal*.
+
+(You may also deploy multiple *portals* using the same *code*).
+
+Access management
+-----------------
+
+Access to the whole document, or parts whereof, can be tuned.
+
+See the
+:doc:`section on permissions <permission>`
+for details.
+
+
+UUID and blobs
+--------------
+
+When a `LaTeX` document is inserted into a *portal*, it is *blobified*: it
+is divided in many small files, called *blobs*,
+each identified by an `UUID` (an unique identifier).
+
+The purpose is twofold:
+
+- each blob can be viewed conveniently by itself: the portal
+  will compile an HTML representation of it, that is easily
+  accessible (it also well adapts to mobile viewers),
+  as well as a compact PDF representation (using the *standalone* class).
+
+- The UUID is a permanent identifier for that content:
+  even if other material is added before that part of LaTeX,
+  the UUID associated to it will not change (contrary to
+  ordinary references in LaTeX); UUIDs can also be used
+  to reference from *outside* of the document, using appropriate
+  web URLs.
+
+Note that an UUID can reference to different versions of the same object:
+
+- for images, there may be different formats available;
+
+- for text, different languages may be available.
+
+Moreover, the portal will compile the whole document, as PDF and as HTML.
+The whole document contains UUID markers, of the form `[XXX]`,
+that can be used to jump to the web page of that UUID; vice-versa in the web page
+of the UUID there are links to view that UUID in the context
+of the whole document.
+
+
 Documentation
 =============
 
@@ -48,39 +114,44 @@ To install it:
 
 .. code:: shell
 
-	  # pip3 install sphinx
+	  pip3 install sphinx
 
 
 or, if you prefer, in Debian-based systems (like Ubuntu):
 
 .. code:: shell
 
-	  # sudo apt install python3-sphinx
+	  sudo apt install python3-sphinx
 
 Then
 
 .. code:: shell
 
-	  # cd docs
-	  # make html
+	  cd docs
+	  make html
 
 or any other format that you wish. Then start browsing by
 
 .. code:: shell
 
-	  # firefox docs/html/index.html
+	  firefox docs/build/html/index.html
 
 Quick start
 ===========
 
-If you're just getting started,
-here's how we recommend you read the docs:
+If just want to see the code in action:
+install the code and the prerequisite libraries
+as explained in the
+:doc:`install section<install>`;
+then follow commands in the
+:doc:`test section<test>`
+to create a test portal.
 
-* First, read ``docs/source/install.rst`` for instructions on installing ColDoc.
+EDB portal
+==========
 
-* If you want to set up an actual deployment server, read
-  ``docs/source/deploy.rst`` for instructions.
-
+This software is used to run the portal https://coldoc.sns.it
+that serves a document containing math exercises (nicknamed *EDB*)
 
 Getting help
 ============

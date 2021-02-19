@@ -35,7 +35,8 @@ already present as default into `blob_inator`.
 - `main_file` is the main blob, the root of the tree
 
 - `preamble` is the preamble, that is the part between `\\documentclass` and `\\begin{document}` ;
-  this blob is splitted if the argument `--split-preamble` is passed to `blob_inator`
+  this blob is always splitted, unless he argument `--dont-split-preamble` is passed to `blob_inator`
+  (but this may break some parts of the portal).
 
 - `input` or `include` are used for blobs that contain text from a LaTeX file that
   was include using `\\input` or `\\include`
