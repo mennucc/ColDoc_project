@@ -28,7 +28,8 @@ A ColDoc tries to get the best of two publishing frameworks.
 Code
 ====
 
-The code is open source, it is available, please write to coldoc.staff@sns.it for details.
+The code is open source, it is available at
+https://github.com/mennucc/ColDoc_project
 
 It is implemented using the Python language.
 

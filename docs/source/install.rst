@@ -9,7 +9,7 @@ Download the latest code from GitHub
 .. code:: shell
 
 	  cd /home/.../.../somewhere
-	  git clone ...
+	  git clone https://github.com/mennucc/ColDoc_project
 	  cd ColDoc_project
 	  export COLDOC_SRC_ROOT=`pwd`
 
