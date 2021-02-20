@@ -43,14 +43,14 @@ This project is structured to keep separation between
 the *code*, the *portal*, and the *data*.
 
 Foremost, we install the *code* following the instructions in the
-`install section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/install.html>`_
+`"install" section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/install.html>`_
 
 Then, we *deploy* the structure for a *portal* following the instructions in the
-`deploy section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/deploy.html>`_
+`"deploy" section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/deploy.html>`_
 
 Eventually, we add one or more *documents* in the *portal*.
 See
-`blobify section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/blobify.html>`_
+`"blobify" section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/blobify.html>`_
 on how to prepare a document for its splitting and uploading into a *portal*.
 
 (You may also deploy multiple *portals* using the same *code*).
@@ -61,7 +61,7 @@ Access management
 Access to the whole document, or parts whereof, can be tuned.
 
 See the
-:doc:`section on permissions <permission>`
+`"permission" section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/permission.html>`_
 for details.
 
 
@@ -116,9 +116,9 @@ Quick start
 If just want to see the code in action:
 install the code and the prerequisite libraries
 as explained in the
-:doc:`install section<install>`;
+`"install" section <https://mennucc.github.io/ColDoc_project/build/html/install.html>`_
 then follow commands in the
-:doc:`test section<test>`
+`"test" section <https://mennucc.github.io/ColDoc_project/build/html/test.html>`_
 to create a test portal.
 
 EDB portal
