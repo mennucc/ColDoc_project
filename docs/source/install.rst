@@ -10,7 +10,7 @@ Download the latest code from GitHub
 
 	  cd /home/.../.../somewhere
 	  git clone ...
-	  cd ColDocProject
+	  cd ColDoc_project
 	  export COLDOC_SRC_ROOT=`pwd`
 
 the last command sets the environmental variable `COLDOC_SRC_ROOT` to the directory where the
