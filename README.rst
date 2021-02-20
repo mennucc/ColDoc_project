@@ -43,14 +43,14 @@ This project is structured to keep separation between
 the *code*, the *portal*, and the *data*.
 
 Foremost, we install the *code* following the instructions in the
-:doc:`install section<install>`.
+`install section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/install.html>`_
 
 Then, we *deploy* the structure for a *portal* following the instructions in the
-:doc:`deploy section<deploy>`.
+`deploy section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/deploy.html>`_
 
 Eventually, we add one or more *documents* in the *portal*.
 See
-:doc:`section <blobify>`
+`blobify section of the documentation <https://mennucc.github.io/ColDoc_project/build/html/blobify.html>`_
 on how to prepare a document for its splitting and uploading into a *portal*.
 
 (You may also deploy multiple *portals* using the same *code*).
@@ -107,35 +107,8 @@ All documentation is in the "``docs``" directory.
 The documentation is in RST format, so it is mostly standard text:
 you can read it in the files inside `docs/source`.
 
-Compile
--------
-
-To compile the documentation, you will need the `sphinx` toolset.
-To install it:
-
-.. code:: shell
-
-	  pip3 install sphinx
-
-
-or, if you prefer, in Debian-based systems (like Ubuntu):
-
-.. code:: shell
-
-	  sudo apt install python3-sphinx
-
-Then
-
-.. code:: shell
-
-	  cd docs
-	  make html
-
-or any other format that you wish. Then start browsing by
-
-.. code:: shell
-
-	  firefox docs/build/html/index.html
+A precompiled version is available at
+https://mennucc.github.io/ColDoc_project/build/html/index.html
 
 Quick start
 ===========
