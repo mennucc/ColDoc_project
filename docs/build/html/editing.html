@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+
+<html lang="en it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editing &#8212; ColDoc 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Blobify" href="blobify.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="editing">
+<h1>Editing<a class="headerlink" href="#editing" title="Permalink to this headline">¶</a></h1>
+<p>There are many tools to operate on the coldoc; most have a <cite>command line</cite> and a <cite>web</cite> interface as well.</p>
+<p>Command line tools have many options (not documented here), see respective <cite>--help</cite>.</p>
+<p>One useful operation is to add new nodes to the tree of blobs.
+From command line,</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py  add_blob
+</pre></div>
+</div>
+<p>If you edit the blobs directly in the filesystem, and not using the web interface,
+then the django database will be desyncronized regarding metadata: run</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py   --coldoc-nick NICK reparse_all
+</pre></div>
+</div>
+<p>Moreover from time to time you will need to recreate the PDF and HTML representations.</p>
+<p>Use</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py   --coldoc-nick NICK main_private
+</pre></div>
+</div>
+<p>to recreate the complete HTML PDF (visible only to editors);
+use</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py   --coldoc-nick NICK main_public
+</pre></div>
+</div>
+<p>to recreate the public HTML PDF (visible only to everybody); use</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py   --coldoc-nick NICK tree
+</pre></div>
+</div>
+<p>to recreate the HTML PDF for each blob (this is useful if you edited many blobs in the filesystem); use</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py   --coldoc-nick NICK all
+</pre></div>
+</div>
+<p>to run all of the above.</p>
+<p>Note that when you edit a blob using the web interface, it is automatically reparsed
+and HTML and PDF are recomputed; but the <cite>private</cite> and <cite>public</cite> complete documents are not recompiled
+automatically, you have to either use the command above or the button in the web interface
+(visible only to editors).</p>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Editing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="blobify.html" title="previous chapter">Blobify</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Andrea C. G. Mennucci.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/editing.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

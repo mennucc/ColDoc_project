@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+
+<html lang="en it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metadata &#8212; ColDoc 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Permissions" href="permission.html" />
+    <link rel="prev" title="Blob and UUID" href="blob.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="metadata">
+<h1>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h1>
+<p>Here we explain all metadata that may be associated to blobs, and their meaning.</p>
+<p>As explained in the previous section, the metadata is associated to the UUID
+(and not to the specific blob, as specified by language and file type)</p>
+<div class="section" id="environment">
+<h2>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h2>
+<p>Before proceeding, though, we clarify what we mean by <cite>environment</cite>.</p>
+<p><cite>LaTeX</cite> uses environments to delimit text elements, as in this example</p>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>Theorem<span class="nb">}</span>
+  The hypothesis implies the thesis.
+<span class="k">\end</span><span class="nb">{</span>Theorem<span class="nb">}</span>
+</pre></div>
+</div>
+<p>Internally <cite>ColDoc</cite> identifies such environment as <cite>E_Theorem</cite> . The prefix <cite>E_</cite> helps identifying
+environments, and avoiding name collisions.</p>
+<p>By passing the option <cite>--split-environment environment</cite> to <cite>blob_inator</cite>, you may specify
+which environments to split.</p>
+<p>For example, <cite>E_document</cite> is the part between <cite>\begin{document}</cite> and <cite>\end{document}</cite>;
+note that  this blob is always splitted since the option <cite>--split-environment document</cite> is
+already present as default into <cite>blob_inator</cite>.</p>
+<p><cite>ColDoc</cite> uses other <cite>environments</cite> :</p>
+<ul class="simple">
+<li><p><cite>main_file</cite> is the main blob, the root of the tree</p></li>
+<li><p><cite>preamble</cite> is the preamble, that is the part between <cite>\documentclass</cite> and <cite>\begin{document}</cite> ;
+this blob is always splitted, unless he argument <cite>--dont-split-preamble</cite> is passed to <cite>blob_inator</cite>
+(but this may break some parts of the portal).</p></li>
+<li><p><cite>input</cite> or <cite>include</cite> are used for blobs that contain text from a LaTeX file that
+was include using <cite>\input</cite> or <cite>\include</cite></p></li>
+<li><p><cite>input_preamble</cite> is used for blobs that contain code from a LaTeX file that
+was include using <cite>\input</cite> while inside the preamble</p></li>
+<li><p><cite>usepackage</cite> is used for blobs that contain packages; these are copied
+if found in the same directory of the main file</p></li>
+<li><p><cite>bibliography</cite> is used for blobs that contain bibliography,
+as specified by the <cite>\bibliography</cite> command</p></li>
+<li><p><cite>section</cite> is used for sections</p></li>
+<li><p><cite>paragraph</cite> is used for long paragraphs of text (as specified by the <cite>--split-paragraph</cite> option)</p></li>
+<li><dl class="simple">
+<dt><cite>graphic_file</cite> is used for blobs containing images (usually inserted using <cite>\includegraphics</cite></dt><dd><p>or other commands specified with the option <cite>--split-graphic</cite> of <cite>blob_inator</cite>)</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="metadata-key-list">
+<h2>Metadata key list<a class="headerlink" href="#metadata-key-list" title="Permalink to this headline">¶</a></h2>
+<p>This is the list of all keys in the metadata storage, and the meaning of their values.
+Note that a key may be repeated multiple times.</p>
+<p>These keys are <cite>static</cite> : they are instantiated when
+the blob is first added to the tree (e.g. by using <cite>blob_inator</cite>),
+but are not changed when the blob content is subsequently edited.</p>
+<ul>
+<li><p><cite>coldoc</cite> , the nickname of the ColDoc that this blob is part of</p></li>
+<li><p><cite>environ</cite> , the value is the environ that contained this blob . See the previous section
+for details.</p></li>
+<li><p><cite>optarg</cite> , the optional argument of the environment, as in this example.</p>
+<div class="highlight-tex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>Theorem<span class="nb">}</span>[Foobar&#39;s theorem]
+  The hypothesis implies the thesis.
+<span class="k">\end</span><span class="nb">{</span>Theorem<span class="nb">}</span>
+</pre></div>
+</div>
+<p>where the <cite>optarg</cite> would be equal to <cite>Foobar's theorem</cite>.</p>
+</li>
+<li><p><cite>lang</cite> , the languages available for this blob; more than one language may be available.</p></li>
+<li><p><cite>extension</cite> , the extentions available  for this blob; more than one extension may be available,
+for example a graphical file may be available a <cite>.jpeg</cite> and <cite>.svg</cite>. For blobs containined
+LaTeX, only <cite>.tex</cite> is allowed.</p></li>
+<li><p><cite>author</cite> the list of people that contributed to this blob (this does not distinguish
+if somebody contributed only to a certain language version).</p></li>
+<li><dl class="simple">
+<dt><cite>original_filename</cite> , the filename whose content was copied in this</dt><dd><p>blob (and children of this blob) by <cite>blob_inator</cite>; the extension of
+the filename (if any) is stripped; the path is not absolute, but is
+relative to the directory where the main LaTeX file was located.</p>
+</dd>
+</dl>
+</li>
+<li><p><cite>uuid</cite> , the UUID of this blob</p></li>
+<li><p><cite>parent_uuid</cite> , the UUID of the parent of this blob; all blob have one, but for the
+blob with <cite>environ=main_file</cite></p></li>
+<li><p><cite>child_uuid</cite> , the UUID of the children of this blob; there may be none, one, or more than one</p></li>
+<li><p><cite>access</cite> can be <cite>open</cite> , <cite>public</cite> or <cite>private</cite> . See the section on permissions.</p></li>
+<li><p><cite>creation_date</cite></p></li>
+<li><p><cite>modification_date</cite> ; this is updated when the blob content is edited
+(this does not distinguish which language version was edited).</p></li>
+<li><dl class="simple">
+<dt><cite>latex_date</cite> ; this is updated when the view (html and pdf) of this blob was last compiled</dt><dd><p>(this does not distinguish which language version was edited - the system
+automatically recompiles the language last edited).</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>These keys are derived from the content of the blob.  Any direct
+change to this database would be lost as soon as the blob is changed.
+(In Django, they are stored in a SQL database for convenience; this
+database is called <cite>ExtraMetadata</cite>.)</p>
+<ul>
+<li><p><cite>M_</cite> followed by a <cite>name</cite> that was provided as <cite>--metadata-command name</cite> . E.g. if
+<cite>blob_inator</cite> was invoked with the command</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>blob_inator --metadata-command label --split-environment Theorem
+</pre></div>
+</div>
+<p>to parse this input</p>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>Theorem<span class="nb">}</span><span class="k">\label</span><span class="nb">{</span>tautol<span class="nb">}</span>
+  The hypothesis implies the thesis.
+<span class="k">\end</span><span class="nb">{</span>Theorem<span class="nb">}</span>
+</pre></div>
+</div>
+<p>then the metadata for that blob would contain <cite>environ=E_Theorem</cite> and <cite>M_label={tautol}</cite></p>
+</li>
+<li><p><cite>S_</cite> followed by an environment and then followed by <cite>_M_name</cite> ; this is used by metadata
+extracted from environments that are deeper in the tree than the current blob,
+but that are not splitted in a child blob. As in this example:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>blob_inator --metadata-command label --split-environment Theorem
+</pre></div>
+</div>
+<p>to parse this input</p>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>Theorem<span class="nb">}</span><span class="k">\label</span><span class="nb">{</span>tautol<span class="nb">}</span>
+  The hypothesis implies the thesis.
+  <span class="k">\begin</span><span class="nb">{</span>equation<span class="nb">}</span><span class="k">\label</span><span class="nb">{</span>eq:forall<span class="nb">}</span>
+    <span class="k">\forall</span> x
+  <span class="k">\end</span><span class="nb">{</span>equation<span class="nb">}</span>
+<span class="k">\end</span><span class="nb">{</span>Theorem<span class="nb">}</span>
+</pre></div>
+</div>
+<p>then a blob will contain this Theorem, and its metadata would contain
+<cite>M_label={tautol}</cite> and <cite>S_E_equation_M_label={eq:forall}</cite></p>
+</li>
+</ul>
+</div>
+<div class="section" id="metadata-in-source-code">
+<h2>Metadata in source code<a class="headerlink" href="#metadata-in-source-code" title="Permalink to this headline">¶</a></h2>
+<p>Metadata is represented and operated on by a Python Class.</p>
+<p>The class interface is described as the base class <cite>MetadataBase</cite> in <cite>ColDoc.classes</cite></p>
+<p>This interface is implemented in the <cite>FMetadata</cite> class, that stores
+metadata in a file (this is independent of Django); and <cite>DMetadata</cite>, that
+stores metadata in the Django databases.</p>
+<p>To write code that works with both implementations, it is important to
+use the <cite>get</cite> method, that always returns a list of values
+(even for properties that are known to be single valued).</p>
+<p>The keys <cite>coldoc</cite>, <cite>uuid</cite>, <cite>environ</cite> are known to be single valued,
+and for convenience there is a Python <cite>property</cite> that returns the
+single value (or <cite>None</cite>).</p>
+<p>Note that in <cite>DMetadata</cite> some objects are not strings:</p>
+<ul class="simple">
+<li><p><cite>author</cite> is a <cite>models.ManyToManyField</cite> on the internal <cite>User</cite> class</p></li>
+<li><p><cite>coldoc</cite> is a <cite>models.ForeignKey</cite> on the <cite>DColDoc</cite> model.</p></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Metadata</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#environment">Environment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-key-list">Metadata key list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#metadata-in-source-code">Metadata in source code</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="blob.html" title="previous chapter">Blob and UUID</a></li>
+      <li>Next: <a href="permission.html" title="next chapter">Permissions</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Andrea C. G. Mennucci.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/metadata.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

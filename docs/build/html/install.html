@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+
+<html lang="en it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Installing &#8212; ColDoc 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Testing" href="test.html" />
+    <link rel="prev" title="ColDoc Project" href="README.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="installing">
+<h1>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h1>
+<p>The following instructions are for people running Debian/Ubuntu, and the <cite>bash</cite> shell.
+Other operating system may need some adjustments.</p>
+<p>Download the latest code from GitHub</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /home/.../.../somewhere
+git clone https://github.com/mennucc/ColDoc_project
+<span class="nb">cd</span> ColDoc_project
+<span class="nb">export</span> <span class="nv">COLDOC_SRC_ROOT</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>
+</pre></div>
+</div>
+<p>the last command sets the environmental variable <cite>COLDOC_SRC_ROOT</cite> to the directory where the
+code was downloaded. This is fundamental in the following.
+In this section, we will assume that the <cite>CWD</cite> (current working directory) is <cite>COLDOC_SRC_ROOT</cite>.</p>
+<div class="section" id="venv">
+<h2>venv<a class="headerlink" href="#venv" title="Permalink to this headline">¶</a></h2>
+<p>Note that ColDoc needs <cite>Python3</cite> ; you may want to set up a virtualenv, so that Python3 is the default Python.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 -m venv venv
+<span class="nb">source</span> venv/bin/activate
+</pre></div>
+</div>
+</div>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>ColDoc has some prerequisites: <cite>Django</cite> (version 2 or 3),
+<cite>plasTex</cite> (a patched version, see below), and others, as explained later.</p>
+<p>To install them (but for plastex) you may use</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3 install django  BeautifulSoup4 django-guardian django-allauth django-background-tasks
+</pre></div>
+</div>
+<p>(only the first two are strictly needed, the others can be used to activate advanced features, as explained below)</p>
+</div>
+<div class="section" id="installing-plastex">
+<h2>Installing plasTex<a class="headerlink" href="#installing-plastex" title="Permalink to this headline">¶</a></h2>
+<p>Installing <cite>plastex</cite> is somewhat complex, since ColDoc needs a patched version.</p>
+<p>The script <cite>plastex/prepare.sh</cite> can download and patch plastex for you: the patched
+version is then available in  <cite>plastex/plastex</cite>.
+So you can install it, using <cite>python3 setup.py install</cite> inside the directory <cite>plastex/plastex</cite>.</p>
+</div>
+<div class="section" id="fix-pdflatex">
+<h2>Fix PdfLaTeX<a class="headerlink" href="#fix-pdflatex" title="Permalink to this headline">¶</a></h2>
+<p>Some TeX/LaTeX versions, by default, mangle the tags in the output PDF; then
+the cross-referencing machinery in ColDoc will not work.</p>
+<p>To solve this problem, you should
+edit the file <cite>/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg</cite> and change
+<cite>%C  0x0000</cite> to <cite>%C  0x0010</cite>.</p>
+<p>You may use the patch <cite>patch/texmf.patch</cite> for this.</p>
+<p>Note that this file is not marked as a <cite>configuration file</cite> in Debian/Ubuntu,
+so it would be overwritten if the package <cite>texlive-base</cite> is upgraded; to avoid this
+problem, you may want to run (as <cite>root</cite> user)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>dpkg-divert --add --rename /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
+cp -a /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg.distrib  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
+patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/patch/texmf.patch
+</pre></div>
+</div>
+<p>Alternatively, you may add</p>
+<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\ifplastex\else</span>
+<span class="k">\special</span><span class="nb">{</span>dvipdfmx:config C 0x0010<span class="nb">}</span>
+<span class="k">\special</span><span class="nb">{</span>xdvipdfmx:config C 0x0010<span class="nb">}</span>
+<span class="k">\fi</span>
+</pre></div>
+</div>
+<p>to the preamble of all LaTeX documents.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#venv">venv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-plastex">Installing plasTex</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fix-pdflatex">Fix PdfLaTeX</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="README.html" title="previous chapter">ColDoc Project</a></li>
+      <li>Next: <a href="test.html" title="next chapter">Testing</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Andrea C. G. Mennucci.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/install.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

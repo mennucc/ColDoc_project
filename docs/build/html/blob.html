@@ -1,0 +1,189 @@
+
+<!DOCTYPE html>
+
+<html lang="en it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blob and UUID &#8212; ColDoc 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Metadata" href="metadata.html" />
+    <link rel="prev" title="Deploying" href="deploy.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="blob-and-uuid">
+<h1>Blob and UUID<a class="headerlink" href="#blob-and-uuid" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="tree-of-uuids">
+<h2>Tree of UUIDs<a class="headerlink" href="#tree-of-uuids" title="Permalink to this headline">¶</a></h2>
+<p>Any content in ColDoc is identified by an UUID, an unique identifier.</p>
+<p>Each UUID has associated to it a list of metadata
+(see next section).</p>
+<p>The ColDoc is a tree of UUIDs, connected by a parent-children
+relationship.</p>
+<p>There is a special UUID called <cite>root_uuid</cite> usually 001. It is the root
+of the tree.  (The <cite>root_uuid</cite> may be changed, it is stored as field
+<cite>root_uuid</cite> in the <cite>DColDoc</cite> model, but this is untested and may break the portal.)</p>
+</div>
+<div class="section" id="relationship-between-blobs-and-uuid">
+<h2>Relationship between blobs and UUID<a class="headerlink" href="#relationship-between-blobs-and-uuid" title="Permalink to this headline">¶</a></h2>
+<p>Any blob is identified by an UUID.</p>
+<p>Vice versa, an UUID may refer to many blobs that have the
+same semantic content but are available in</p>
+<ul class="simple">
+<li><p>different langages (English, Italian..) and/or</p></li>
+<li><p>different  content type (LaTeX, HTML, PDF, JPEG ...).</p></li>
+</ul>
+<p>All these are blobs that are referred by the same UUID.</p>
+<p>The list of languages is stored in the metadata <cite>lang</cite> , the list
+of content types is stored in <cite>extension</cite> (as filename extensions).
+(See next section).</p>
+<p>The author can enter in the ColDoc system translations of
+a LaTeX blob in different languages; and can upload
+the same picture/graphic in different formats.
+(But this is still mostly TODO).</p>
+<p>Currently the code is designed in this way:</p>
+<ul class="simple">
+<li><p>if the blob contains LaTeX then the only extension is <cite>.tex</cite> and
+there may be multiple languages;</p></li>
+<li><p>if the blob contains a LaTeX package then the only extension is <cite>.sty</cite> and
+the list of languages is empty;</p></li>
+<li><p>if the blob contains a LaTeX bibliography then the only extension is <cite>.bib</cite> and
+the list of languages is empty;</p></li>
+<li><p>all other cases are graphical blobs: the list of
+extensions explains all available content type; the list of
+languages is empty.  (TODO it may be useful to have a graphical file
+available in different languages)</p></li>
+</ul>
+</div>
+<div class="section" id="blobs-and-views">
+<h2>Blobs and views<a class="headerlink" href="#blobs-and-views" title="Permalink to this headline">¶</a></h2>
+<p>The ColDoc portal also will convert the <cite>blobs</cite> into <cite>views</cite>:
+for each UUID (but not the <cite>root_uuid</cite>) that contains LaTeX,
+it will convert LaTeX to PDF and HTML; (TODO it
+may also convert images to different formats).
+This <cite>view</cite> contains only the material of that blob.</p>
+<p>The ColDoc portal also will convert the entire document tree in
+a <cite>main</cite> view, available in PDF and HTML.
+The <cite>main</cite> view is internally associated to the <cite>root_uuid</cite>.</p>
+<p>There are two versions of the <cite>main</cite> view.</p>
+<ul class="simple">
+<li><p>a version containing all the material, visible to <cite>editors</cite>;
+this <cite>main</cite> view is stored in the directory
+<cite>blobs/UUID/0/0/1</cite> of the root uuid;</p></li>
+<li><p>a reduced version, containing only the <cite>public</cite> and <cite>open</cite> parts;
+this is visible to anybody. (See the section on permissions).
+This reduced version view is stored in the directory
+<cite>anon/UUID/0/0/1</cite>.</p></li>
+</ul>
+<p>For graphical content, there is no much difference between <cite>blobs</cite>
+and <cite>views</cite>, so an user that has <cite>view_view</cite> access will
+be able to view the blobs.
+(The precise definition of <cite>graphical content</cite> is encoded in
+<cite>ColDoc.utils.is_image_blob</cite>)</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Blob and UUID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tree-of-uuids">Tree of UUIDs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#relationship-between-blobs-and-uuid">Relationship between blobs and UUID</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#blobs-and-views">Blobs and views</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="deploy.html" title="previous chapter">Deploying</a></li>
+      <li>Next: <a href="metadata.html" title="next chapter">Metadata</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Andrea C. G. Mennucci.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/blob.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

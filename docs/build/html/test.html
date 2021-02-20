@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+
+<html lang="en it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Testing &#8212; ColDoc 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Deploying" href="deploy.html" />
+    <link rel="prev" title="Installing" href="install.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="testing">
+<h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
+<p>To test the code, you may use the tests in the <cite>test</cite> directory (go there and type <cite>make</cite> to see a list).</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nb">test</span>
+make
+</pre></div>
+</div>
+<p>For example the commands</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nb">test</span>
+make clean
+make django_deploy
+make django_paper
+make django_tasks <span class="p">&amp;</span>
+make django_run <span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>will <em>blobify</em> the test document from  <cite>${COLDOC_SRC_ROOT}/test/paper/paper.tex</cite>
+and create a coldoc called <cite>paper</cite>; then it will start all needed processes.</p>
+<p>The data for the coldoc <cite>paper</cite> will be stored in <cite>${COLDOC_SRC_ROOT}/test/tmp/test_site/coldocs/paper/blobs</cite>
+so you can open the main file
+<cite>${COLDOC_SRC_ROOT}/test/tmp/test_site/coldocs/paper/blobs/main.tex</cite>
+with an editor, or compile it with <cite>pdflatex</cite> ; otherwise you can access
+the web portal at <cite>http://localhost:8000</cite>.
+and edit it thru the web interface.
+(Usernames and passwords for interacting with the test web server are printed when
+issuing <cite>make django_deploy</cite> )
+Note that if you edit the latex files on disk, then
+you will need to issue some commands to keep web interface
+in sync: see the section on
+<a class="reference internal" href="editing.html"><span class="doc">editing</span></a></p>
+<div class="section" id="blobify">
+<h2>Blobify<a class="headerlink" href="#blobify" title="Permalink to this headline">¶</a></h2>
+<p>Or you may want to <em>blobify</em> a document without using the Django web interface, just to see what it looks like.
+Create a temporary directory</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">tmpdir</span><span class="o">=</span><span class="k">$(</span>mktemp  -d<span class="k">)</span>
+</pre></div>
+</div>
+<p>Then <em>blobify</em> the example document from the source into the temporary directory</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDoc/blob_inator.py --coldoc-nick<span class="o">=</span><span class="nb">test</span> --blobs-dir<span class="o">=</span><span class="si">${</span><span class="nv">tmpdir</span><span class="si">}</span> --ZS  --SAT  <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/latex/latex_test.tex
+</pre></div>
+</div>
+<p>Then open the main blob with an editor</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>editor <span class="si">${</span><span class="nv">tmpdir</span><span class="si">}</span>/main.tex
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#blobify">Blobify</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="install.html" title="previous chapter">Installing</a></li>
+      <li>Next: <a href="deploy.html" title="next chapter">Deploying</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Andrea C. G. Mennucci.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/test.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

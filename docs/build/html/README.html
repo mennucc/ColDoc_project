@@ -1,0 +1,260 @@
+
+<!DOCTYPE html>
+
+<html lang="en it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ColDoc Project &#8212; ColDoc 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installing" href="install.html" />
+    <link rel="prev" title="Welcome to ColDoc&#39;s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="coldoc-project">
+<h1>ColDoc Project<a class="headerlink" href="#coldoc-project" title="Permalink to this headline">¶</a></h1>
+<p>There are two main frameworks currently used to present information (in particular,
+related to scientific fields).</p>
+<ul class="simple">
+<li><p>A document redacted with the standard <cite>LaTeX</cite> / <cite>PDF</cite> toolbox.</p>
+<ul>
+<li><p><em>Pros:</em> these documents are state-of-the-art quality.</p></li>
+<li><p><em>Cons:</em> the final user has no way of interacting with a PDF document
+(other than sending an e-mail to the original authors)</p></li>
+</ul>
+</li>
+<li><p>The <em>Web 2.0</em> way  (think of:
+<a class="reference external" href="https://www.wikipedia.org/">Wikipedia</a>
+or
+<a class="reference external" href="https://en.wikipedia.org/wiki/Stack_Exchange">Stack Exchange</a>
+).</p>
+<ul>
+<li><p><em>Pros:</em>    in those frameworks, content is continuously developed and augmented by users.</p></li>
+<li><p><em>Cons:</em>  the end result, though, is fragmented, and cannot (in general) be presented as an unified document.</p></li>
+</ul>
+</li>
+</ul>
+<p>A ColDoc tries to get the best of two publishing frameworks.</p>
+<div class="section" id="code">
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
+<p>The code is open source, it is available at
+<a class="reference external" href="https://github.com/mennucc/ColDoc_project">https://github.com/mennucc/ColDoc_project</a></p>
+<p>It is implemented using the Python language.</p>
+</div>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="code-portal-document">
+<h3>Code, portal, document<a class="headerlink" href="#code-portal-document" title="Permalink to this headline">¶</a></h3>
+<p>This project is structured to keep separation between
+the <em>code</em>, the <em>portal</em>, and the <em>data</em>.</p>
+<p>Foremost, we install the <em>code</em> following the instructions in the
+<a class="reference internal" href="install.html"><span class="doc">install section</span></a>.</p>
+<p>Then, we <em>deploy</em> the structure for a <em>portal</em> following the instructions in the
+<a class="reference internal" href="deploy.html"><span class="doc">deploy section</span></a>.</p>
+<p>Eventually, we add one or more <em>documents</em> in the <em>portal</em>.
+See
+<a class="reference internal" href="blobify.html"><span class="doc">section</span></a>
+on how to prepare a document for its splitting and uploading into a <em>portal</em>.</p>
+<p>(You may also deploy multiple <em>portals</em> using the same <em>code</em>).</p>
+</div>
+<div class="section" id="access-management">
+<h3>Access management<a class="headerlink" href="#access-management" title="Permalink to this headline">¶</a></h3>
+<p>Access to the whole document, or parts whereof, can be tuned.</p>
+<p>See the
+<a class="reference internal" href="permission.html"><span class="doc">section on permissions</span></a>
+for details.</p>
+</div>
+<div class="section" id="uuid-and-blobs">
+<h3>UUID and blobs<a class="headerlink" href="#uuid-and-blobs" title="Permalink to this headline">¶</a></h3>
+<p>When a <cite>LaTeX</cite> document is inserted into a <em>portal</em>, it is <em>blobified</em>: it
+is divided in many small files, called <em>blobs</em>,
+each identified by an <cite>UUID</cite> (an unique identifier).</p>
+<p>The purpose is twofold:</p>
+<ul class="simple">
+<li><p>each blob can be viewed conveniently by itself: the portal
+will compile an HTML representation of it, that is easily
+accessible (it also well adapts to mobile viewers),
+as well as a compact PDF representation (using the <em>standalone</em> class).</p></li>
+<li><p>The UUID is a permanent identifier for that content:
+even if other material is added before that part of LaTeX,
+the UUID associated to it will not change (contrary to
+ordinary references in LaTeX); UUIDs can also be used
+to reference from <em>outside</em> of the document, using appropriate
+web URLs.</p></li>
+</ul>
+<p>Note that an UUID can reference to different versions of the same object:</p>
+<ul class="simple">
+<li><p>for images, there may be different formats available;</p></li>
+<li><p>for text, different languages may be available.</p></li>
+</ul>
+<p>Moreover, the portal will compile the whole document, as PDF and as HTML.
+The whole document contains UUID markers, of the form <cite>[XXX]</cite>,
+that can be used to jump to the web page of that UUID; vice-versa in the web page
+of the UUID there are links to view that UUID in the context
+of the whole document.</p>
+</div>
+</div>
+<div class="section" id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<p>All documentation is in the &quot;<code class="docutils literal notranslate"><span class="pre">docs</span></code>&quot; directory.</p>
+<p>The documentation is in RST format, so it is mostly standard text:
+you can read it in the files inside <cite>docs/source</cite>.</p>
+<div class="section" id="compile">
+<h3>Compile<a class="headerlink" href="#compile" title="Permalink to this headline">¶</a></h3>
+<p>To compile the documentation, you will need the <cite>sphinx</cite> toolset.
+To install it:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3 install sphinx
+</pre></div>
+</div>
+<p>or, if you prefer, in Debian-based systems (like Ubuntu):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt install python3-sphinx
+</pre></div>
+</div>
+<p>Then</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs
+make html
+</pre></div>
+</div>
+<p>or any other format that you wish. Then start browsing by</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>firefox docs/build/html/index.html
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="quick-start">
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<p>If just want to see the code in action:
+install the code and the prerequisite libraries
+as explained in the
+<a class="reference internal" href="install.html"><span class="doc">install section</span></a>;
+then follow commands in the
+<a class="reference internal" href="test.html"><span class="doc">test section</span></a>
+to create a test portal.</p>
+</div>
+<div class="section" id="edb-portal">
+<h2>EDB portal<a class="headerlink" href="#edb-portal" title="Permalink to this headline">¶</a></h2>
+<p>This software is used to run the portal <a class="reference external" href="https://coldoc.sns.it">https://coldoc.sns.it</a>
+that serves a document containing math exercises (nicknamed <em>EDB</em>)</p>
+</div>
+<div class="section" id="getting-help">
+<h2>Getting help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h2>
+<p>To get more help:</p>
+<p><a class="reference external" href="mailto:coldoc&#46;staff&#37;&#52;&#48;sns&#46;it">coldoc<span>&#46;</span>staff<span>&#64;</span>sns<span>&#46;</span>it</a></p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ColDoc Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#code">Code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#code-portal-document">Code, portal, document</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#access-management">Access management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uuid-and-blobs">UUID and blobs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compile">Compile</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edb-portal">EDB portal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting help</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to ColDoc's documentation!</a></li>
+      <li>Next: <a href="install.html" title="next chapter">Installing</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Andrea C. G. Mennucci.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,14 @@
+Comments
+==============
+
+The `django-comments-xtd` can be integrated in ColDoc.
+
+If you wish to use social authentication, you may set `use_comments` to True
+in ${COLDOC_SITE_ROOT}/config.ini and install `django-comments-xtd`
+
+**Note that once you set `use_comments` to True, you cannot change it back to `False`.**
+If you are unsatisfied, or at any time when you wish to disable
+comments (even temporarily) you can set `COMMENTS_ENABLE=False` in the local settings file.
+
+
+`See docs for more details <https://django-comments-xtd.readthedocs.io/en/latest/tutorial.html>`_
