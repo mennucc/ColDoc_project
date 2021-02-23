@@ -15,6 +15,7 @@ from django.core import serializers
 from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.utils.html import escape
 from django.templatetags.static import static
+from django.core.mail import EmailMessage
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 
@@ -32,6 +33,7 @@ else:
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango
 from ColDoc.utils import slug_re, slugp_re, is_image_blob
+from ColDocDjango.utils import get_email_for_user
 
 
 from .models import DMetadata, DColDoc
@@ -243,10 +245,14 @@ def postedit(request, NICK, UUID):
         if a:
             messages.add_message(request,messages.WARNING, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
+    # diff
+    file_lines_before = open(filename).readlines()
     # write new content
     open(filename,'w').write(blobcontent)
     metadata.blob_modification_time_update()
     metadata.save()
+    #
+    all_messages = []
     #
     from ColDoc.latex import environments_we_wont_latex
     from ColDoc.utils import reparse_blob
@@ -263,6 +269,7 @@ def postedit(request, NICK, UUID):
         else:
             add_extension = []
             messages.add_message(request,messages.WARNING,addmessage)
+        all_messages.append(addmessage)
         if  '.tex' in add_extension:
             addfilename, adduuid, addmetadata, addlang, addext = \
                 ColDoc.utils.choose_blob(uuid=addnew_uuid, blobs_dir = blobs_dir,
@@ -270,29 +277,64 @@ def postedit(request, NICK, UUID):
                                          metadata_class=DMetadata, coldoc=NICK)
             # parse it for metadata
             def warn(msg):
+                all_messages.append('Metadata change in new blob: '+msg)
                 messages.add_message(request,messages.INFO,'In new blob: '+msg)
             reparse_blob(addfilename, addmetadata, blobs_dir, warn)
             # compile it
             if split_environment_ not in environments_we_wont_latex:
                 rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, addmetadata)
                 if rh and rp:
-                    messages.add_message(request,messages.INFO,'Compilation of new blob succeded')
+                    a = 'Compilation of new blob succeded'
+                    messages.add_message(request,messages.INFO,a)
                 else:
-                    messages.add_message(request,messages.WARNING,'Compilation of new blob failed')
+                    a = 'Compilation of new blob failed'
+                    messages.add_message(request,messages.WARNING,a)
+                all_messages.append(a)
     #
     # parse it to refresh metadata (after splitting)
     def warn(msg):
+        all_messages.append('Metadata change in blob: '+msg)
         messages.add_message(request,messages.INFO,msg)
     reparse_blob(filename, metadata, blobs_dir, warn)
     #
     if ext_ == '.tex'  and metadata.environ not in environments_we_wont_latex:
         rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, metadata)
         if rh and rp:
-            messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
+            a = 'Compilation of LaTeX succeded'
+            messages.add_message(request,messages.INFO,a)
         else:
-            messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
+            a = 'Compilation of LaTeX failed'
+            messages.add_message(request,messages.WARNING,a)
+        all_messages.append(a)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
+    #
+    email_to = [ ]
+    for au in metadata.author.all():
+        a = get_email_for_user(au)
+        if a is not None:
+            email_to.append(a)
+    if not email_to:
+        logger.warning('No author has a validated email %r', metadata)
+    else:
+        a = "User '%s' changed %s - %s" % (request.user , metadata.coldoc.nickname, metadata.uuid)
+        r = get_email_for_user(request.user)
+        if r is not None: r = [r]
+        E = EmailMessage(subject = a,
+                         from_email = settings.DEFAULT_FROM_EMAIL,
+                         to= email_to,
+                         reply_to = r)
+        E.body = '\n'.join(all_messages)
+        H = difflib.HtmlDiff()
+        file_lines_after = open(filename).readlines()
+        blobdiff = H.make_file(file_lines_before,
+                               file_lines_after,
+                               'Orig','New', True)
+        E.attach(filename='diff.html', content=blobdiff , mimetype='text/html')
+        try:
+            E.send()
+        except:
+            logger.exception('email failed')
     # re-save form data, to account for possible splitting
     form.cleaned_data['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
     form.cleaned_data['BlobEditTextarea'] = open(filename).read()
