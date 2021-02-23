@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json, hashlib
+import os, sys, mimetypes, http, copy, json, hashlib, difflib
 from os.path import join as osjoin
 
 import logging
@@ -15,12 +15,10 @@ from django.core import serializers
 from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.utils.html import escape
 from django.templatetags.static import static
-
-from ColDoc.utils import slug_re, slugp_re, is_image_blob
-
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango
+from ColDoc.utils import slug_re, slugp_re, is_image_blob
 
 
 from .models import DMetadata, DColDoc
@@ -221,7 +219,6 @@ def postedit(request, NICK, UUID):
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
     if 'save_no_reload' in request.POST:
-        import difflib
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.split('\n'),
@@ -816,7 +813,6 @@ def index(request, NICK, UUID):
                                                     ext, lang, choices, can_add_blob, msgs)
             for l, m in msgs:
                 messages.add_message(request, l, m)
-            import difflib
             H = difflib.HtmlDiff()
             blobdiff = H.make_table(file.split('\n'),
                                     blobeditform.initial['BlobEditTextarea'].split('\n'),
