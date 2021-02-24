@@ -78,9 +78,9 @@ class BlobEditForm(forms.Form):
     file_md5 = forms.CharField(widget=forms.HiddenInput())
     selection_start = forms.CharField(widget=forms.HiddenInput(),initial=-1)
     selection_end = forms.CharField(widget=forms.HiddenInput(),initial=-1)
-    split_selection = forms.BooleanField(label='Split',required = False,
+    split_selection = forms.BooleanField(label='Insert a child',required = False,
                                          widget = forms.CheckboxInput(attrs = {'onclick' : "hide_and_show();", }),
-                                         help_text="Split selected text so that it becomes a new blob")
+                                         help_text="Insert a child at cursor (if a piece of text is selected, it will be moved into the child)")
     split_environment = forms.ChoiceField(label="environment",
                                           help_text="environment for newly created blob")
     split_add_beginend = forms.BooleanField(label='Add begin/end',required = False,help_text="add a begin{}..end{} around the splitted ")
