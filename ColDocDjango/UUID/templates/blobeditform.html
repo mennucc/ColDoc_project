@@ -19,10 +19,12 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
         <input type="submit" class="btn btn-primary"
          data-toggle="tooltip" title="Save changes, update PDF and HTML"
          onclick="update_editform(); if ( check_primary_tab() ) { blob_polling =0 ; view_polling =0 ; return true; } else {return false;}" id="id_blobeditform_compile" name="compile" value="Compile">
-        <input type="submit" class="btn btn-primary" 
+      {% if perms.UUID.change_blob %}
+         <input type="submit" class="btn btn-primary" 
          data-toggle="tooltip" title="Save changes so far, update diff"
          onclick="blob_save_no_reload(); return false;"
          id="id_blobeditform_save_no_reload" name="save" value="Save">
+      {% endif %}
 </form>
 <script>
 $('#id_BlobEditTextarea').on('input propertychange change keyup paste', update_blobedit_timestamp );

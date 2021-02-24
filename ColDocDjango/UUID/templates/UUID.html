@@ -122,11 +122,12 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
     {% if ext %}<li>Selected extension {{ ext }} {% endif %}
     </ul>
     {% if blobcontenttype == 'text' %}
-     {% if perms.UUID.change_blob %}
+     {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
      {{ blobeditform.media }}
       <div id="id_blobeditform_div" class="border border-info p-1 m-1">
        {% include "blobeditform.html" %}
       </div>
+      {% if perms.UUID.change_blob %}
       <h3>Diff</h3>
         <style type="text/css">
         table.diff {font-family:Courier; border:medium;}
@@ -140,6 +141,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
       <div id="id_blob_diff" class="border border-info p-1 m-1">
       <pre>{{blobdiff | safe}}</pre>
       </div>
+      {% endif %}
      {% else %}
        <div class="border border-info"><code>{{ escapedfile | safe }}</code></div>
      {% endif %}

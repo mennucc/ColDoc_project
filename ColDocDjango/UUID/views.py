@@ -65,7 +65,7 @@ class BlobEditForm(forms.Form):
     class Media:
         js = ('UUID/js/blobeditform.js',)
     htmlid = "id_form_blobeditform"
-    BlobEditTextarea=forms.CharField(label='Blob content',
+    BlobEditTextarea=forms.CharField(label='Blob content',required = False,
                                      widget=forms.Textarea(attrs={'class': 'form-text w-100'}),
                                      help_text='Edit the blob content')
     BlobEditComment=forms.CharField(label='Comment',required = False,
@@ -115,7 +115,8 @@ def common_checks(request, NICK, UUID, accept_anon=False):
 def _build_blobeditform_data(NICK, UUID,
                              user, filename,
                              ext, lang,
-                             choices, can_add_blob,
+                             choices,
+                             can_add_blob, can_change_blob,
                              msgs):
     file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     file = open(filename).read()
@@ -139,6 +140,9 @@ def _build_blobeditform_data(NICK, UUID,
         D.update(N)
     blobeditform = BlobEditForm(initial=D)
     blobeditform.fields['split_environment'].choices = choices
+    if not can_change_blob:
+        blobeditform.fields['BlobEditTextarea'].widget.attrs['readonly'] = True
+        blobeditform.fields['BlobEditTextarea'].widget.attrs['disabled'] = True
     if not can_add_blob:
         blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
         blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
@@ -208,11 +212,13 @@ def postedit(request, NICK, UUID):
                                  metadata_class=DMetadata, coldoc=NICK)
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
-    if not request.user.has_perm('UUID.change_blob'):
+    can_change_blob = request.user.has_perm('UUID.change_blob')
+    can_add_blob = request.user.has_perm('ColDocApp.add_blob')
+    if not can_change_blob and not can_add_blob:
         logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation("Permission denied")
     #
-    if split_selection_ and not request.user.has_perm('ColDocApp.add_blob'):
+    if split_selection_ and not can_add_blob:
         logger.error('Hacking attempt %r',request.META)
         #messages.add_message(request,messages.WARNING,'No permission to split selection')
         #split_selection_ = False
@@ -229,9 +235,10 @@ def postedit(request, NICK, UUID):
     blobcontent = re.sub("\r\n", '\n', blobcontent)
     form.cleaned_data['BlobEditTextarea'] = blobcontent
     # save state of edit form
-    user_id = str(request.user.id)
-    file_editstate = filename[:-4] + '_' + user_id + '_editstate.json'
-    json.dump(form.cleaned_data, open(file_editstate,'w'))
+    if can_change_blob:
+        user_id = str(request.user.id)
+        file_editstate = filename[:-4] + '_' + user_id + '_editstate.json'
+        json.dump(form.cleaned_data, open(file_editstate,'w'))
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
     if 'save_no_reload' in request.POST:
@@ -248,9 +255,12 @@ def postedit(request, NICK, UUID):
     # diff
     file_lines_before = open(filename).readlines()
     # write new content
-    open(filename,'w').write(blobcontent)
-    metadata.blob_modification_time_update()
-    metadata.save()
+    if can_change_blob:
+        open(filename,'w').write(blobcontent)
+        metadata.blob_modification_time_update()
+        metadata.save()
+    else:
+        pass # may want to check that form was not changed...
     #
     all_messages = []
     #
@@ -336,12 +346,13 @@ def postedit(request, NICK, UUID):
         except:
             logger.exception('email failed')
     # re-save form data, to account for possible splitting
-    form.cleaned_data['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
-    form.cleaned_data['BlobEditTextarea'] = open(filename).read()
-    form.cleaned_data['split_selection'] = False
-    if split_selection_:
-        form.cleaned_data['selection_end'] = str(selection_start_)
-    json.dump(form.cleaned_data, open(file_editstate,'w'))
+    if can_change_blob:
+        form.cleaned_data['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
+        form.cleaned_data['BlobEditTextarea'] = open(filename).read()
+        form.cleaned_data['split_selection'] = False
+        if split_selection_:
+            form.cleaned_data['selection_end'] = str(selection_start_)
+        json.dump(form.cleaned_data, open(file_editstate,'w'))
     #
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
@@ -861,12 +872,14 @@ def index(request, NICK, UUID):
     if not request.user.has_perm('UUID.view_blob'):
         file = '[access denied]'
     elif  blobcontenttype == 'text' :
-        if request.user.has_perm('UUID.change_blob'):
-            choices = teh.list_allowed_choices(metadata.environ)
-            can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
+        choices = teh.list_allowed_choices(metadata.environ)
+        can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
+        can_change_blob = request.user.has_perm('UUID.change_blob')
+        blobeditform = None
+        if  can_add_blob or can_change_blob:
             msgs = []
             blobeditform = _build_blobeditform_data(NICK, UUID, request.user, filename,
-                                                    ext, lang, choices, can_add_blob, msgs)
+                                                    ext, lang, choices, can_add_blob, can_change_blob, msgs)
             for l, m in msgs:
                 messages.add_message(request, l, m)
             H = difflib.HtmlDiff()
