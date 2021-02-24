@@ -138,6 +138,15 @@ MIDDLEWARE = [
     'ColDocDjango.middleware.RemoteUserMiddleware',
 ]
 
+USE_SELECT2 = False
+try:
+    import django_select2
+    INSTALLED_APPS.append('django_select2')
+    USE_SELECT2 = True
+except ImportError:
+    logger.error('Please install `django-select2`')
+
+
 ROOT_URLCONF = 'ColDocDjango.urls'
 
 TEMPLATES = [

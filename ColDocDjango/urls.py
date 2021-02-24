@@ -39,6 +39,11 @@ if settings.USE_WALLET:
         path('wallet/', include('django_pursed.wallet.urls')),
         ]
 
+if settings.USE_SELECT2:
+    urlpatterns += [
+        path('select2/', include('django_select2.urls')),
+        ]
+
 if settings.USE_ALLAUTH:
     urlpatterns += [
         path('accounts/', include('allauth.urls')),

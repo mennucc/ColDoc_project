@@ -159,7 +159,9 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
       <h3>Editable metadata</h3>
       <form action="{% url 'UUID:postmetadataedit' NICK=NICK UUID=UUID %}" id="{{ metadataform.htmlid }}" method="post" class="w-100">
       {% csrf_token %}{{ metadataform.non_field_errors }}
+                {{ metadataform.media.css }}
        <table class="w-100">{{ metadataform }}</table>
+          {{ metadataform.media.js }}
          <input type="submit" class="btn btn-primary" onclick="return check_primary_tab();" value="Submit">
       </form>
      </div>

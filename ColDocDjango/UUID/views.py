@@ -17,6 +17,19 @@ from django.utils.html import escape
 from django.templatetags.static import static
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
+
+if settings.USE_SELECT2 :
+    from django_select2 import forms as s2forms
+
+    class AuthorWidget(s2forms.ModelSelect2MultipleWidget):
+        search_fields = [
+            "username__icontains",
+            "email__icontains",
+        ]
+else:
+    AuthorWidget = django.forms.SelectMultiple
+
+
 import ColDoc.utils, ColDoc.latex, ColDocDjango
 from ColDoc.utils import slug_re, slugp_re, is_image_blob
 
@@ -32,6 +45,7 @@ class MetadataForm(forms.ModelForm):
         model = DMetadata
         fields = ['author', 'access', 'environ','optarg','latex_documentclass_choice']
         widgets = {
+                    "author": AuthorWidget,
                     'environ': django.forms.Select(choices=[('invalid','invalid')])
                   }
     # record these values from submitter
