@@ -297,12 +297,9 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     #
     #from ColDocDjango.users import user_has_perm
     user.associate_coldoc_blob_for_has_perm(parent_metadata.coldoc, parent_metadata)
-    if not user.has_perm('UUID.change_blob',parent_metadata):
-        logger.error("Permission denied (change_blob)")
-        return False, "Permission denied (change_blob)", None
-    if not user.has_perm('UUID.change_dmetadata',parent_metadata):
-        logger.error("Permission denied (change_dmetadata)")
-        return False, "Permission denied (change_dmetadata)", None
+    if not user.has_perm('UUID.view_blob',parent_metadata):
+        logger.error("Permission denied (view_blob)")
+        return False, "Permission denied (view_blob)", None
     try:
         parent_metadata.author.get(id=user.id)
     except ObjectDoesNotExist :

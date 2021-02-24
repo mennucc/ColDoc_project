@@ -1,5 +1,5 @@
-Permissions
-===========
+UUID Permissions
+================
 
 (See in ColDocDjango/users.py for more details).
 
@@ -173,3 +173,20 @@ for each and any user.
 
 
 
+ColDoc Permissions
+==================
+
+(See in ColDocDjango/users.py for more details).
+
+There is a list of permissions for each ColDoc. Currently it is:
+'add_blob', 'delete_blob', 'commit', 'view_dcoldoc', 'change_dcoldoc'
+
+Meaning of permissions, and rules
+---------------------------------
+
+This is the Permissions meaning and rule for some of the above.
+
+- `add_blob` : if an user has permission `add_blob` for the whole ColDoc,
+   and has permission `view_blob` for a specific UUID, then s/he can add a
+   children UUID to that UUID. Moreover the author of a blob can
+   always add children to that blob.
