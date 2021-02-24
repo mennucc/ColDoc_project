@@ -206,6 +206,8 @@ def create_fake_users(COLDOC_SITE_ROOT):
 def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, lang, selection_start = None, selection_end = None, add_beginend = True):
     " returns (success, message, new_uuid)"
     #
+    from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+    #
     from ColDoc.utils import slug_re
     assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
     assert ((isinstance(lang,str) and slug_re.match(lang)) or lang is None), lang
@@ -256,7 +258,6 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
             return False, a, None
     #
     if isinstance(user,str):
-        from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
         import django.contrib.auth as A
         M = A.get_user_model()
         try:
@@ -306,8 +307,8 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         parent_metadata.author.get(id=user.id)
     except ObjectDoesNotExist :
         logger.debug("User %r is not an author of %r",user,parent_uuid)
-        if  not user.has_perm('ColDoc.add_blob'):
-            a=("Permission denied (add_blob) and %r is not an author of %r"%(user,parent_uuid))
+        if  not user.has_perm('ColDocApp.add_blob'):
+            a=("Permission denied (add_blob) and %s is not an author of %s " %(user, parent_uuid))
             logger.error(a)
             return False, a, None
     else:
