@@ -203,4 +203,4 @@ For each coldoc `cccc` two groups are created, one named
 `coldoc_cccc_group_authors` and one `coldoc_cccc_group_editors`;
 `coldoc_cccc_group_authors` has all `UUID` permissions for that
 coldoc; `coldoc_cccc_group_editors` has all `ColDocApp` permissions
-for that coldoc.
+for that coldoc, and also `UUID.view_view`, `UUID.view_log`.

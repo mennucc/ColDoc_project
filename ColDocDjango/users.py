@@ -62,10 +62,11 @@ def add_permissions_for_coldoc(nickname):
             gr = Group()
             gr.name = n
             gr.save()
-        for l,p in P:
-            p = P[(l,p)]
-            if (n_ == 'editors' and l == 'c') or  (n_ == 'authors' and l == 'b'):
-                logger.debug(" n %r l %r p %r ", n, l, p)
+        for l,p_ in P:
+            p = P[(l,p_)]
+            if (n_ == 'editors' and (l == 'c' or p_ in ('view_view', 'view_log'))) \
+               or  (n_ == 'authors' and l == 'b'):
+                logger.debug(" n %r l %r p_ %r p %r ", n, l, p_, p)
                 gr.permissions.add(p)
         gr.save()
 
