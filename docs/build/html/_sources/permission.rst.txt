@@ -1,5 +1,5 @@
-Permissions
-===========
+UUID Permissions
+================
 
 (See in ColDocDjango/users.py for more details).
 
@@ -9,6 +9,8 @@ There is a list of permissions for each UUID. Currently it is:
 Permissions are associated to the UUID of the blob,
 so they are the same for all languages and/or content types.
 (Internally, they are associated to the `DMetadata` class).
+
+Inside Django, the complete name of such permissions is of the form `UUID.name`.
 
 Permissions for a specific coldoc
 ---------------------------------
@@ -173,3 +175,32 @@ for each and any user.
 
 
 
+ColDoc Permissions
+==================
+
+(See in ColDocDjango/users.py for more details).
+
+There is a list of permissions for each ColDoc. Currently it is:
+'add_blob', 'delete_blob', 'commit', 'view_dcoldoc', 'change_dcoldoc'
+
+Inside Django, the complete name of such permissions is of the form `ColDocApp.name`.
+
+Meaning of permissions, and rules
+---------------------------------
+
+This is the Permissions meaning and rule for some of the above.
+
+- `add_blob` : if an user has permission `add_blob` for the whole ColDoc,
+   and has permission `view_blob` for a specific UUID, then s/he can add a
+   children UUID to that UUID. Moreover the author of a blob can
+   always add children to that blob (unless `author_can_add_blob`
+   flag is turned off in the ColDoc settings).
+
+Groups
+======
+
+For each coldoc `cccc` two groups are created, one named
+`coldoc_cccc_group_authors` and one `coldoc_cccc_group_editors`;
+`coldoc_cccc_group_authors` has all `UUID` permissions for that
+coldoc; `coldoc_cccc_group_editors` has all `ColDocApp` permissions
+for that coldoc, and also `UUID.view_view`, `UUID.view_log`.

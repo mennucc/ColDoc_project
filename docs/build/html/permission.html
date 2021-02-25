@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Permissions &#8212; ColDoc 0.1 documentation</title>
+    <title>UUID Permissions &#8212; ColDoc 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -33,14 +33,15 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="permissions">
-<h1>Permissions<a class="headerlink" href="#permissions" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="uuid-permissions">
+<h1>UUID Permissions<a class="headerlink" href="#uuid-permissions" title="Permalink to this headline">¶</a></h1>
 <p>(See in ColDocDjango/users.py for more details).</p>
 <p>There is a list of permissions for each UUID. Currently it is:
 'view_view', 'view_log', 'view_blob', 'change_blob', 'download', 'commit', 'view_dmetadata', 'change_dmetadata'</p>
 <p>Permissions are associated to the UUID of the blob,
 so they are the same for all languages and/or content types.
 (Internally, they are associated to the <cite>DMetadata</cite> class).</p>
+<p>Inside Django, the complete name of such permissions is of the form <cite>UUID.name</cite>.</p>
 <div class="section" id="permissions-for-a-specific-coldoc">
 <h2>Permissions for a specific coldoc<a class="headerlink" href="#permissions-for-a-specific-coldoc" title="Permalink to this headline">¶</a></h2>
 <p>For each permission above of the form <cite>aaaa_bbbb</cite> and any <cite>coldoc</cite> with nickname <cite>cccc</cite> there is also a permission
@@ -182,6 +183,35 @@ not sensible to generate different whole document representations
 for each and any user.</p>
 </div>
 </div>
+<div class="section" id="coldoc-permissions">
+<h1>ColDoc Permissions<a class="headerlink" href="#coldoc-permissions" title="Permalink to this headline">¶</a></h1>
+<p>(See in ColDocDjango/users.py for more details).</p>
+<p>There is a list of permissions for each ColDoc. Currently it is:
+'add_blob', 'delete_blob', 'commit', 'view_dcoldoc', 'change_dcoldoc'</p>
+<p>Inside Django, the complete name of such permissions is of the form <cite>ColDocApp.name</cite>.</p>
+<div class="section" id="id1">
+<h2>Meaning of permissions, and rules<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>This is the Permissions meaning and rule for some of the above.</p>
+<ul>
+<li><dl>
+<dt><cite>add_blob</cite><span class="classifier">if an user has permission <cite>add_blob</cite> for the whole ColDoc,</span></dt><dd><p>and has permission <cite>view_blob</cite> for a specific UUID, then s/he can add a
+children UUID to that UUID. Moreover the author of a blob can
+always add children to that blob (unless <cite>author_can_add_blob</cite>
+flag is turned off in the ColDoc settings).</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="groups">
+<h1>Groups<a class="headerlink" href="#groups" title="Permalink to this headline">¶</a></h1>
+<p>For each coldoc <cite>cccc</cite> two groups are created, one named
+<cite>coldoc_cccc_group_authors</cite> and one <cite>coldoc_cccc_group_editors</cite>;
+<cite>coldoc_cccc_group_authors</cite> has all <cite>UUID</cite> permissions for that
+coldoc; <cite>coldoc_cccc_group_editors</cite> has all <cite>ColDocApp</cite> permissions
+for that coldoc, and also <cite>UUID.view_view</cite>, <cite>UUID.view_log</cite>.</p>
+</div>
 
 
           </div>
@@ -207,7 +237,7 @@ for each and any user.</p>
 <li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Permissions</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">UUID Permissions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#permissions-for-a-specific-coldoc">Permissions for a specific coldoc</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#special-users">Special users</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#meaning-of-permissions-and-rules">Meaning of permissions, and rules</a></li>
@@ -218,6 +248,11 @@ for each and any user.</p>
 <li class="toctree-l2"><a class="reference internal" href="#accessing-the-whole-document">Accessing the whole document</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#coldoc-permissions">ColDoc Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Meaning of permissions, and rules</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#groups">Groups</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 </ul>

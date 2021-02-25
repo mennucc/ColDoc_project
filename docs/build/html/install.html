@@ -60,7 +60,7 @@ In this section, we will assume that the <cite>CWD</cite> (current working direc
 <p>ColDoc has some prerequisites: <cite>Django</cite> (version 2 or 3),
 <cite>plasTex</cite> (a patched version, see below), and others, as explained later.</p>
 <p>To install them (but for plastex) you may use</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3 install django  BeautifulSoup4 django-guardian django-allauth django-background-tasks
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3 install django  BeautifulSoup4 django-guardian django-allauth django-background-tasks django-select2
 </pre></div>
 </div>
 <p>(only the first two are strictly needed, the others can be used to activate advanced features, as explained below)</p>
@@ -129,7 +129,9 @@ patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg <span class="si">${</
 <li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">UUID Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#coldoc-permissions">ColDoc Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#groups">Groups</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 </ul>
