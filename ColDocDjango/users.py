@@ -54,8 +54,8 @@ def add_permissions_for_coldoc(nickname):
                             content_type=content_type,)
             permission.save()
         P[('b',p)] = permission
-    for n in groups_for_coldoc:
-        n = name_of_group_for_coldoc(nickname,n)
+    for n_ in groups_for_coldoc:
+        n = name_of_group_for_coldoc(nickname, n_)
         try:
             gr = Group.objects.get(name = n)
         except Group.DoesNotExist :
@@ -64,7 +64,8 @@ def add_permissions_for_coldoc(nickname):
             gr.save()
         for l,p in P:
             p = P[(l,p)]
-            if n == 'editors' or l == 'b':
+            if (n_ == 'editors' and l == 'c') or  (n_ == 'authors' and l == 'b'):
+                logger.debug(" n %r l %r p %r ", n, l, p)
                 gr.permissions.add(p)
         gr.save()
 

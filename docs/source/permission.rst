@@ -194,3 +194,12 @@ This is the Permissions meaning and rule for some of the above.
    and has permission `view_blob` for a specific UUID, then s/he can add a
    children UUID to that UUID. Moreover the author of a blob can
    always add children to that blob.
+
+Groups
+======
+
+For each coldoc `cccc` two groups are created, one named
+`coldoc_cccc_group_authors` and one `coldoc_cccc_group_editors`;
+`coldoc_cccc_group_authors` has all `UUID` permissions for that
+coldoc; `coldoc_cccc_group_editors` has all `ColDocApp` permissions
+for that coldoc.
