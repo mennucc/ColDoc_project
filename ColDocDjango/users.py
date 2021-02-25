@@ -118,15 +118,8 @@ def user_has_perm(user, perm, coldoc, blob, object_):
                 return True
             elif s == 'public' and perm in ('UUID.view_view',):
                 return True
-        # editor access to the whole document and to logs
-        if  perm in ('UUID.view_view', 'UUID.view_log' ) and \
-            coldoc.editor.filter(username=user.username).exists() :
-            return True
         return False
     if perm.startswith('ColDocApp.') and perm[10:] in permissions_for_coldoc:
-        #allow complete access to editors
-        if coldoc.editor.filter(username=user.username).exists():
-            return True
         n = 'ColDocApp.' + name_of_permission_for_coldoc(coldoc.nickname, perm[10:])
         if user.has_perm(n, obj):
             ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,n,coldoc,blob,obj)
