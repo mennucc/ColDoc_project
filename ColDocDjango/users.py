@@ -189,8 +189,9 @@ class ColDocUser(AbstractUser, BaseColDocUser):
     def is_editor(self):
         if self._coldoc is None:
             return False
-        from ColDocDjango.ColDocApp.models import DColDoc
-        return self._coldoc.editor.filter(username=self.username).exists()
+        n = name_of_group_for_coldoc(self._coldoc.nickname, 'editors')
+        gr = Group.objects.get(name = n)
+        return gr.user_set.filter(id=self.id).exists()
     #
     @property
     def is_author(self):
