@@ -144,13 +144,18 @@ to specify where the ColDoc site is located.
         r =  BI.main(args, metadata_class=blob_models.DMetadata, coldoc=coldoc)
         coldoc.save()
         #
-        for ed in args.editor:
-            if isinstance(ed,str):
-                ed = users.ColDocUser.objects.get(username=ed)
-            coldoc.editor.add(ed)
-        #
     #
     with transaction.atomic():
         users.add_permissions_for_coldoc(coldoc.nickname)
+    #
+    from django.contrib.auth.models import Group
+    with transaction.atomic():
+        n = users.name_of_group_for_coldoc(coldoc.nickname, 'editors')
+        gr = Group.objects.get(name = n)
+        for ed in args.editor:
+            if isinstance(ed,str):
+                ed = users.ColDocUser.objects.get(username=ed)
+            gr.user_set.add(ed)
+        gr.save()
     #
     sys.exit(r)
