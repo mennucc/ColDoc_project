@@ -127,7 +127,10 @@ class DColDoc(models.Model):
                                 max_length=10,  db_index = True, primary_key=True)
     #
     title = models.CharField(max_length=2000, blank=True)
-    editor = models.ManyToManyField(AUTH_USER_MODEL)
+    #
+    ## this is obsolete. Editors are those users that are members of group coldoc_`nickname`_group_editors
+    #editor = models.ManyToManyField(AUTH_USER_MODEL)
+    #
     abstract = models.TextField(max_length=10000, blank=True)
     #
     publication_time = models.DateTimeField('time first published', default=DT.now)
