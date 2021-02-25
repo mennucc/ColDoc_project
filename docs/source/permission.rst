@@ -193,7 +193,8 @@ This is the Permissions meaning and rule for some of the above.
 - `add_blob` : if an user has permission `add_blob` for the whole ColDoc,
    and has permission `view_blob` for a specific UUID, then s/he can add a
    children UUID to that UUID. Moreover the author of a blob can
-   always add children to that blob.
+   always add children to that blob (unless `author_can_add_blob`
+   flag is turned off in the ColDoc settings).
 
 Groups
 ======
