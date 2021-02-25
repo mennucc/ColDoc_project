@@ -10,6 +10,8 @@ Permissions are associated to the UUID of the blob,
 so they are the same for all languages and/or content types.
 (Internally, they are associated to the `DMetadata` class).
 
+Inside Django, the complete name of such permissions is of the form `UUID.name`.
+
 Permissions for a specific coldoc
 ---------------------------------
 
@@ -180,6 +182,8 @@ ColDoc Permissions
 
 There is a list of permissions for each ColDoc. Currently it is:
 'add_blob', 'delete_blob', 'commit', 'view_dcoldoc', 'change_dcoldoc'
+
+Inside Django, the complete name of such permissions is of the form `ColDocApp.name`.
 
 Meaning of permissions, and rules
 ---------------------------------
