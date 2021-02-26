@@ -170,6 +170,26 @@ def md5(request, NICK, UUID, FILE):
     return JsonResponse({'file_md5':real_file_md5, 'file_mtime': real_file_mtime})
 
 
+def _interested_emails(coldoc,metadata):
+    # add email of authors of this blob
+    email_to = [ ]
+    for au in metadata.author.all():
+        a = get_email_for_user(au)
+        if a is not None and a not in email_to:
+            email_to.append(a)
+    # add emails of editors
+    try:
+        n = ColDocDjango.users.name_of_group_for_coldoc(coldoc.nickname, 'editors')
+        gr = Group.objects.get(name = n)
+        for ed in gr.user_set.all():
+            a = get_email_for_user(ed)
+            if a is not None  and a not in email_to:
+                email_to.append(a)
+    except:
+        logger.exception('While adding emails of editors for coldoc %r',coldoc.nickname)
+    return email_to
+
+
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
@@ -318,22 +338,7 @@ def postedit(request, NICK, UUID):
         all_messages.append(a)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
-    # add email of authors of this blob
-    email_to = [ ]
-    for au in metadata.author.all():
-        a = get_email_for_user(au)
-        if a is not None and a not in email_to:
-            email_to.append(a)
-    # add emails of editors
-    try:
-        n = ColDocDjango.users.name_of_group_for_coldoc(coldoc.nickname, 'editors')
-        gr = Group.objects.get(name = n)
-        for ed in gr.user_set.all():
-            a = get_email_for_user(ed)
-            if a is not None  and a not in email_to:
-                email_to.append(a)
-    except:
-        logger.exception('While adding emails of editors for coldoc %r',coldoc.nickname)
+    email_to = _interested_emails(coldoc,metadata)
     #
     if not email_to:
         logger.warning('No author has a validated email %r', metadata)
