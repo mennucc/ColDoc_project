@@ -17,7 +17,7 @@ from django.utils.html import escape
 from django.templatetags.static import static
 from django.core.mail import EmailMessage
 from django.views.decorators.clickjacking import xframe_options_sameorigin
-
+from django.contrib.auth.models import Group
 
 if settings.USE_SELECT2 :
     from django_select2 import forms as s2forms
@@ -31,7 +31,7 @@ else:
     AuthorWidget = django.forms.SelectMultiple
 
 
-import ColDoc.utils, ColDoc.latex, ColDocDjango
+import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
 from ColDoc.utils import slug_re, slugp_re, is_image_blob
 from ColDocDjango.utils import get_email_for_user
 
@@ -318,12 +318,23 @@ def postedit(request, NICK, UUID):
         all_messages.append(a)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
-    #
+    # add email of authors of this blob
     email_to = [ ]
     for au in metadata.author.all():
         a = get_email_for_user(au)
-        if a is not None:
+        if a is not None and a not in email_to:
             email_to.append(a)
+    # add emails of editors
+    try:
+        n = ColDocDjango.users.name_of_group_for_coldoc(coldoc.nickname, 'editors')
+        gr = Group.objects.get(name = n)
+        for ed in gr.user_set.all():
+            a = get_email_for_user(ed)
+            if a is not None  and a not in email_to:
+                email_to.append(a)
+    except:
+        logger.exception('While adding emails of editors for coldoc %r',coldoc.nickname)
+    #
     if not email_to:
         logger.warning('No author has a validated email %r', metadata)
     else:
