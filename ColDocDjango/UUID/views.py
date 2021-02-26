@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json, hashlib, difflib
+import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess
 from os.path import join as osjoin
 
 import logging
@@ -15,7 +15,7 @@ from django.core import serializers
 from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.utils.html import escape
 from django.templatetags.static import static
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives, send_mail
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib.auth.models import Group
 
@@ -390,6 +390,10 @@ def postmetadataedit(request, NICK, UUID):
         logger.error('Hacking attempt',request.META)
         raise SuspiciousOperation("Permission denied")
     #
+    baF = metadata.backup_filename()
+    before = open(baF).readlines()
+    shutil.copy(baF, baF+'~~')
+    #
     form=MetadataForm(request.POST, instance=metadata)
     #
     j = metadata.get('parent_uuid')
@@ -428,6 +432,30 @@ def postmetadataedit(request, NICK, UUID):
             messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
+    #
+    email_to = _interested_emails(coldoc,metadata)
+    if not email_to:
+        logger.warning('No author has a validated email %r', metadata)
+    else:
+        a = "User '%s' changed metadata in %s - %s" % (request.user , metadata.coldoc.nickname, metadata.uuid)
+        r = get_email_for_user(request.user)
+        P = subprocess.run(['diff', '-u', baF+'~~', baF, ], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                           check=False, universal_newlines=True )
+        message = P.stdout
+        after = open(metadata.backup_filename()).readlines()
+        H = difflib.HtmlDiff()
+        html_message = H.make_file(before, after, 'Orig','New', True)
+        if r is not None: r = [r]
+        E = EmailMultiAlternatives(subject = a, 
+                         from_email = settings.DEFAULT_FROM_EMAIL,
+                         to= email_to, reply_to = r)
+        E.attach_alternative(message, 'text/plain')
+        E.attach_alternative(html_message, 'text/html')
+        try:
+            E.send()
+        except:
+            logger.exception('email failed')
+    #
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID})  + '?lang=%s&ext=%s'%(lang_,ext_))
 
 def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
