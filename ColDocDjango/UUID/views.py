@@ -32,7 +32,7 @@ else:
 
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
-from ColDoc.utils import slug_re, slugp_re, is_image_blob
+from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text
 from ColDocDjango.utils import get_email_for_user
 
 
@@ -275,6 +275,9 @@ def postedit(request, NICK, UUID):
     # diff
     file_lines_before = open(filename).readlines()
     shutil.copy(filename, filename+'~~')
+    #
+    uuid_as_html = '<a href="%s">%s</a>' %(
+        request.build_absolute_uri(django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':uuid})), uuid)
     # write new content
     if can_change_blob:
         open(filename,'w').write(blobcontent)
@@ -282,7 +285,7 @@ def postedit(request, NICK, UUID):
         metadata.save()
     else:
         pass # may want to check that form was not changed...
-    #
+    # TODO we should have two copies, for html and for text form of each message
     all_messages = []
     #
     from ColDoc.latex import environments_we_wont_latex
@@ -294,6 +297,11 @@ def postedit(request, NICK, UUID):
             add_blob(logger, request.user, settings.COLDOC_SITE_ROOT, nick_, uuid_, 
                  split_environment_, lang_, selection_start_ , selection_end_, split_add_beginend_)
         if addsuccess:
+            new_uuid_as_html = '<a href="%s">%s</a>' %(
+                request.build_absolute_uri(django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':addnew_uuid})),
+                addnew_uuid)
+            addmessage = ("Created blob with UUID %s, please edit %s to properly input it (a stub \\input was inserted for your convenience)"%
+                          (uuid_as_html, new_uuid_as_html))
             messages.add_message(request,messages.INFO,addmessage)
             addmetadata = DMetadata.load_by_uuid(uuid=addnew_uuid,coldoc=coldoc)
             add_extension = addmetadata.get('extension')
@@ -359,12 +367,17 @@ def postedit(request, NICK, UUID):
                                'Orig','New', True)
         try:
             j  = blobdiff.index('<body>') + 6
-            blobdiff = blobdiff[:j] + '<ul><li>' + '\n<li>'.join(all_messages) + '</ul>\n<h1>File differences</h1>\n' + blobdiff[j:]
+            blobdiff = blobdiff[:j] + '<ul><li>' + '\n<li>'.join(all_messages) + \
+                '</ul>\n<h1>File differences for ' + uuid_as_html + '</h1>\n' + blobdiff[j:]
         except:
             logger.exception('While preparing ')
         else:
             E.attach_alternative(blobdiff, 'text/html')
         # text version
+        try:
+            all_messages = map(html2text, all_messages)
+        except:
+            logger.exception('While preparing ')
         P = subprocess.run(['diff', '-u', filename + '~~', filename, ], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                            check=False, universal_newlines=True )
         message = '*) ' +  '\n*) '.join(all_messages) + '\n\n*** File differences ***\n\n' +  P.stdout
