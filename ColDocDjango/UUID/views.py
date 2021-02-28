@@ -274,6 +274,7 @@ def postedit(request, NICK, UUID):
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     # diff
     file_lines_before = open(filename).readlines()
+    shutil.copy(filename, filename+'~~')
     # write new content
     if can_change_blob:
         open(filename,'w').write(blobcontent)
@@ -346,17 +347,29 @@ def postedit(request, NICK, UUID):
         a = "User '%s' changed %s - %s" % (request.user , metadata.coldoc.nickname, metadata.uuid)
         r = get_email_for_user(request.user)
         if r is not None: r = [r]
-        E = EmailMessage(subject = a,
+        E = EmailMultiAlternatives(subject = a,
                          from_email = settings.DEFAULT_FROM_EMAIL,
                          to= email_to,
                          reply_to = r)
-        E.body = '\n'.join(all_messages)
+        # html version
         H = difflib.HtmlDiff()
         file_lines_after = open(filename).readlines()
         blobdiff = H.make_file(file_lines_before,
                                file_lines_after,
                                'Orig','New', True)
-        E.attach(filename='diff.html', content=blobdiff , mimetype='text/html')
+        try:
+            j  = blobdiff.index('<body>') + 6
+            blobdiff = blobdiff[:j] + '<ul><li>' + '\n<li>'.join(all_messages) + '</ul>\n<h1>File differences</h1>\n' + blobdiff[j:]
+        except:
+            logger.exception('While preparing ')
+        else:
+            E.attach_alternative(blobdiff, 'text/html')
+        # text version
+        P = subprocess.run(['diff', '-u', filename + '~~', filename, ], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                           check=False, universal_newlines=True )
+        message = '*) ' +  '\n*) '.join(all_messages) + '\n\n*** File differences ***\n\n' +  P.stdout
+        E.attach_alternative(message, 'text/plain')
+        # send it
         try:
             E.send()
         except:
