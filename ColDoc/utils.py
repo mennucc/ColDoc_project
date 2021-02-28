@@ -4,6 +4,7 @@ import tempfile, shutil, json, hashlib, importlib
 import traceback, contextlib
 import os.path
 from os.path import join as osjoin
+from bs4 import BeautifulSoup
 
 import plasTeX
 
@@ -50,6 +51,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'hash_tree',
             'replace_with_hash_symlink',
             'parent_cmd_env_child',
+            'html2text',
             )
 
 class ColDocException(Exception):
@@ -1313,6 +1315,14 @@ def replace_with_hash_symlink(base_dir, src_dir , dedup_dir , obj):
         os.unlink(S)
         os_rel_symlink(D, S, base_dir, target_is_directory=False)
     return dedup
+
+
+
+def html2text(some_html_string):
+    " https://stackoverflow.com/a/39899612/5058564 "
+    #return '\n'.join(BeautifulSoup(some_html_string, "html.parser").findAll(text=True))
+    return ' '.join(BeautifulSoup(some_html_string, "html.parser").stripped_strings)
+
 
 ############################
 if __name__ == '__main__':
