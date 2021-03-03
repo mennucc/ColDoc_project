@@ -960,7 +960,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                             input_it(r)
                         in_preamble = False
                         if ColDoc_write_UUID:
-                            #stack.topstream.write(r'\usepackage{ColDocUUID}')
+                            stack.topstream.write('\n\\usepackage{ColDocUUID}% added by blob_inator\n')
                             a = osjoin(blobs_dir,'ColDocUUID.sty')
                             if not os.path.exists(a):
                                 os.symlink(osjoin(COLDOC_SRC_ROOT,'tex','ColDocUUID.sty'), a)
