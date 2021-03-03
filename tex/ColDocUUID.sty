@@ -2,19 +2,48 @@
 
 %%% you may customize the formatting of the UUID marker
 \ifdefined\uuidformatter\else
-\newcommand{\uuidformatter}[1]{{\texttt{[#1]}}}%
+\newcommand{\uuidformatter}[1]{{\texttt{\scriptsize[#1]}}}%
 \fi
 
+%%%
+\@ifundefined{ifstandalone}{%
+    \expandafter\newif\csname ifstandalone\endcsname
+    \standalonefalse
+}{}
 
 %%% you should not alter these
-\ifdefined\uuid\else\ifdefined\href%
-\newcommand{\uuid}[1]{\ifplastex\else\hypertarget{UUID:#1}{\relax}\fi%
-\label{UUID:#1}%
-\href{\uuidbaseurl#1}{\uuidformatter{#1}}%
-}%
-\else%
-\newcommand{\uuid}[1]{\uuidformatter{#1}\label{UUID:#1}}%
-\fi\fi%
+\ifdefined\ColDocmarginpar\else
+\ifplastex
+\newcommand\ColDocmarginpar[1]{#1}
+\else
+\ifstandalone
+\newcommand\ColDocmarginpar[1]{#1}
+\else
+\newcommand\ColDocmarginpar[1]{\ifinner{#1}\else\leavevmode\marginpar{#1}\fi}
+\fi\fi\fi
+
+\ifdefined\uuidtarget\else
+\ifplastex% due to an internal error, \hypertarget messes up all references
+\newcommand{\uuidtarget}[1]{\label{UUID:#1}}
+\else
+\ifdefined\hypertarget
+\newcommand{\uuidtarget}[1]{\label{UUID:#1}\hypertarget{UUID:#1}{}}
+\else
+\newcommand{\uuidtarget}[1]{\label{UUID:#1}}
+\fi\fi\fi
+%\show\uuidtarget
+
+%%% you should not alter these
+\ifdefined\uuidmarker\else\ifdefined\href
+\newcommand{\uuidmarker}[1]{\ColDocmarginpar{\protect\href{\uuidbaseurl#1}{\uuidformatter{#1}}}}
+\else
+\newcommand{\uuidmarker}[1]{\ColDocmarginpar{\uuidformatter{#1}}}
+\fi\fi
+%\show\uuidmarker
+
+\ifdefined\uuid\else
+\newcommand{\uuid}[1]{\uuidmarker{#1}\uuidtarget{#1}}
+\fi
 
 \ifdefined\uuidplaceholder\else\ifdefined\href%
 \newcommand{\uuidplaceholder}[2]{\href{\uuidbaseurl#1}{\uuidformatter{#2}}}%
