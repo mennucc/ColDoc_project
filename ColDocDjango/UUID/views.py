@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess
+import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re
 from os.path import join as osjoin
 
 import logging
@@ -35,10 +35,16 @@ import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
 from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text
 from ColDocDjango.utils import get_email_for_user
 
+from ColDoc.blob_inator import _rewrite_section, _parse_obj
+from ColDoc import TokenizerPassThru
 
 from .models import DMetadata, DColDoc
 
 from .shop import buy_permission, can_buy_permission
+
+import plasTeX.Tokenizer
+from plasTeX.TeX import TeX
+from plasTeX.Packages import graphicx
 
 ##############################################################
 
@@ -65,6 +71,11 @@ class BlobEditForm(forms.Form):
     class Media:
         js = ('UUID/js/blobeditform.js',)
     htmlid = "id_form_blobeditform"
+    # remembers first line of sections, or \uuid when present
+    prologue = forms.CharField(widget=forms.HiddenInput(),required = False)
+    # the real blobcontent
+    blobcontent = forms.CharField(widget=forms.HiddenInput(),required = False)
+    # what the user can edit
     BlobEditTextarea=forms.CharField(label='Blob content',required = False,
                                      widget=forms.Textarea(attrs={'class': 'form-text w-100'}),
                                      help_text='Edit the blob content')
@@ -112,19 +123,61 @@ def common_checks(request, NICK, UUID, accept_anon=False):
     return coldoc, coldoc_dir, blobs_dir
 
 
+def __extract_prologue(blobcontent, uuid, env, optarg):
+    prologue = ''
+    blobeditdata = blobcontent
+    try:
+        if isinstance(optarg , str):
+            if not optarg:
+                optarg = []
+            else:
+                optarg = json.loads(optarg)
+    except:
+        logger.exception('While parsing optarg %r', optarg)
+        optarg = []
+    if (env == 'section' or blobcontent.startswith('\\section')):
+        try:
+            j = blobcontent.index('\n')
+            prologue = blobcontent[:j]
+            if optarg:
+                blobeditdata = '\\section' + ''.join(optarg) +  '%\n' + blobcontent[j+1:]
+            else:
+                logger.error('Blob %r does not have optarg for section',uuid)
+        except:
+            logger.exception('Could not normalize section blob %r', uuid)
+            prologue = '%'
+    elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
+        if not blobcontent.startswith('\\uuid'):
+            logger.error('Blob %r does not start with \\uuid',uuid)
+            prologue = '\\uuid{%s}%%' % (uuid,)
+        else:
+            try:
+                j = blobcontent.index('\n')
+                prologue = blobcontent[:j]
+                blobeditdata = blobcontent[j+1:]
+            except:
+                logger.exception('Could not remove uuid line from blob %r',UUID)
+                prologue = '%'
+    return prologue, blobeditdata 
+
 def _build_blobeditform_data(NICK, UUID,
+                             env,  optarg,
                              user, filename,
                              ext, lang,
                              choices,
                              can_add_blob, can_change_blob,
                              msgs):
     file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
-    file = open(filename).read()
+    blobcontent = open(filename).read()
+    # the first line contains the \uuid command or the \section{}\uuid{}
+    prologue, blobeditdata = __extract_prologue(blobcontent, UUID, env, optarg)
     #
     user_id = str(user.id)
     a = filename[:-4] + '_' + user_id + '_editstate.json'
     #
-    D = {'BlobEditTextarea':  file,
+    D = {'BlobEditTextarea':  blobeditdata,
+         'prologue' : prologue,
+         'blobcontent' : blobcontent,
          'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,
          'file_md5' : file_md5,
          }
@@ -134,7 +187,7 @@ def _build_blobeditform_data(NICK, UUID,
             msgs.append(( messages.WARNING,
                          'File was changed on disk: check the diff' ))
             N['file_md5'] = file_md5
-        if N['BlobEditTextarea'] != file:
+        if N['blobcontent'] != blobcontent:
             msgs.append(( messages.INFO,
                           'Your saved changes are yet uncompiled' ))
         D.update(N)
@@ -190,6 +243,47 @@ def _interested_emails(coldoc,metadata):
     return email_to
 
 
+def   _put_back_prologue(prologue, blobeditarea, env, uuid):
+    sources = None
+    weird_prologue = False
+    if (env == 'section' or prologue.startswith('\\section') or blobeditarea.startswith('\\section') ):
+        # try to parse \\section
+        try:
+            # give it some context
+            thetex = TeX()
+            thetex.ownerDocument.context.loadPackage(thetex, 'article.cls', {})
+            thetex.input(copy.copy(blobeditarea),  Tokenizer=TokenizerPassThru.TokenizerPassThru)
+            #
+            j = blobeditarea.index('\n')
+            firstline = blobeditarea[:j]
+            blobeditarea = blobeditarea[j+1:]
+            if '\\section' not in firstline:
+                weird_prologue = 'The first line should contain \\section{...} and only this.'
+            #
+            itertokens = thetex.itertokens()
+            while True:
+                tok = next(itertokens)
+                if isinstance(tok, plasTeX.Tokenizer.EscapeSequence) and str(tok.macroName) == 'section':
+                    obj = graphicx.includegraphics()
+                    src, sources, attributes = _parse_obj(obj, thetex)
+                    if any([ ('\n' in s) for s in sources]):
+                        weird_prologue = 'Keep the\\section{...} command in the first line, and only this command.'
+                    ignoreme, newfirstline = _rewrite_section(sources, uuid)
+                    prologue = newfirstline + '%'
+                    break
+                else:
+                    weird_prologue = 'The first line should contain \\section{...} and only this.'
+                    logger.warning('When parsing for \\section, ignoring %r', tok)
+        except:
+            logger.exception('While parsing \\section')
+        blobcontent = prologue + '\n' + blobeditarea
+    elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
+        blobcontent = '\\uuid{%s}%%\n' % (uuid,)   + blobeditarea
+    else:
+        blobcontent = blobeditarea
+    return blobcontent, sources , weird_prologue
+
+
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
@@ -212,7 +306,10 @@ def postedit(request, NICK, UUID):
         if 'save_no_reload'  in request.POST:
             return JsonResponse({"message":a})
         return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
-    blobcontent = form.cleaned_data['BlobEditTextarea']
+    prologue = form.cleaned_data['prologue']
+    # convert to UNIX line ending 
+    blobcontent  = re.sub("\r\n", '\n',  form.cleaned_data['blobcontent'] )
+    blobeditarea = re.sub("\r\n", '\n',  form.cleaned_data['BlobEditTextarea'] )
     uuid_ = form.cleaned_data['UUID']
     nick_ = form.cleaned_data['NICK']
     lang_ = form.cleaned_data['lang']
@@ -230,6 +327,7 @@ def postedit(request, NICK, UUID):
                                  metadata = metadata,
                                  ext = ext_, lang = lang_, 
                                  metadata_class=DMetadata, coldoc=NICK)
+    env = metadata.environ
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     can_change_blob = request.user.has_perm('UUID.change_blob')
@@ -249,11 +347,12 @@ def postedit(request, NICK, UUID):
         a = "The file was changed on disk: compile aborted"
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
+    # put back prologue in place
+    blobcontent, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
+    form.cleaned_data['blobcontent'] = blobcontent
     #
-    # convert to UNIX line ending 
-    import re
-    blobcontent = re.sub("\r\n", '\n', blobcontent)
-    form.cleaned_data['BlobEditTextarea'] = blobcontent
+    if weird_prologue:
+        logger.warning(' in %r %s', UUID, weird_prologue)
     # save state of edit form
     if can_change_blob:
         user_id = str(request.user.id)
@@ -266,7 +365,11 @@ def postedit(request, NICK, UUID):
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.split('\n'),
                                 'Orig','New', True)
+        if weird_prologue:
+            a += '\n' + weird_prologue
         return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5})
+    if weird_prologue:
+        messages.add_message(request,messages.WARNING, weird_prologue)
     if 'save'  in request.POST:
         messages.add_message(request,messages.INFO,'Saved')
         if a:
@@ -282,6 +385,8 @@ def postedit(request, NICK, UUID):
     if can_change_blob:
         open(filename,'w').write(blobcontent)
         metadata.blob_modification_time_update()
+        if sources is not None:
+            metadata.optarg = json.dumps(sources)
         metadata.save()
     else:
         pass # may want to check that form was not changed...
@@ -390,7 +495,7 @@ def postedit(request, NICK, UUID):
     # re-save form data, to account for possible splitting
     if can_change_blob:
         form.cleaned_data['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
-        form.cleaned_data['BlobEditTextarea'] = open(filename).read()
+        form.cleaned_data['blobcontent'] = open(filename).read()
         form.cleaned_data['split_selection'] = False
         if split_selection_:
             form.cleaned_data['selection_end'] = str(selection_start_)
@@ -948,13 +1053,13 @@ def index(request, NICK, UUID):
         blobeditform = None
         if  can_add_blob or can_change_blob:
             msgs = []
-            blobeditform = _build_blobeditform_data(NICK, UUID, request.user, filename,
+            blobeditform = _build_blobeditform_data(NICK, UUID, env, metadata.optarg, request.user, filename,
                                                     ext, lang, choices, can_add_blob, can_change_blob, msgs)
             for l, m in msgs:
                 messages.add_message(request, l, m)
             H = difflib.HtmlDiff()
             blobdiff = H.make_table(file.split('\n'),
-                                    blobeditform.initial['BlobEditTextarea'].split('\n'),
+                                    blobeditform.initial['blobcontent'].split('\n'),
                                     'Orig','New', True)
     #
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
