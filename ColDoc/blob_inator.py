@@ -709,10 +709,14 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     # so we imitate it, iterating over obj.arguments:
                     thetex.currentInput[0].pass_comments = False
                     argSource = ''
+                    sources = []
                     for spec in '*','[]',None:
                         output, source = thetex.readArgumentAndSource(spec=spec) #parentNode=obj,name=arg.name,**arg.options)
                         #logger.debug(' spec %r output %r source %r ' % (spec,output,source) )
+                        sources.append(source)
                         argSource += source
+                    if sources[0] and sources[1]:
+                        logger.warning('\\section %s is not good LaTeX', argSource)
                     thetex.currentInput[0].pass_comments = True
                     name = source[1:-1]
                     n = new_section_nr(blobs_dir = blobs_dir)
@@ -738,6 +742,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     stack.topstream.write('\\section'+argSource)
                     if stack.topstream.uuid and cmdargs.add_UUID:
                         stack.topstream.write("\\uuid{%s}" % (stack.topstream.uuid,))
+                    stack.topstream.add_metadata('optarg', json.dumps(sources) )
                 elif cmdargs.split_all_theorems and macroname == 'newtheorem':
                     obj = amsthm.newtheorem()
                     thetex.currentInput[0].pass_comments = False
@@ -829,10 +834,16 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 elif macroname  in ('bibliography','usepackage'):
                     parse_biblio_usepackage(macroname,stack.topstream)
                 elif not in_preamble and macroname in cmdargs.split_graphic :
+                    sources = []
                     if macroname == "includegraphics":
                         obj = graphicx.includegraphics()
                         thetex.currentInput[0].pass_comments = False
-                        a = obj.parse(thetex)
+                        for arg in obj.arguments:
+                            output, source = thetex.readArgumentAndSource(parentNode=obj, name=arg.name, **arg.options)
+                            obj.argSource += source
+                            sources.append(source)
+                            obj.attributes[arg.name] = output
+                        a = obj.attributes
                         thetex.currentInput[0].pass_comments = True
                         inputfile = a['file']
                         src = obj.source
@@ -846,6 +857,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         for spec in '*','[]',None:
                             _, s = thetex.readArgumentAndSource(spec=spec)
                             src += s
+                            sources.append(s)
                             if spec:
                                 cmd += s
                             else:
@@ -902,6 +914,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         fm.add('original_filename', inputfile)
                         fm.add('original_command', src)
                         fm.add('environ','graphic_file')
+                        fm.add('optarg', json.dumps(sources))
                         fm.add('parent_uuid', stack.topstream.uuid)
                         # will load the same extension, if specified
                         stack.topstream.write(cmd+'{'+fo+ei+'}')
@@ -939,6 +952,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         if source:
                             stack.topstream.write(source)
                         stack.push(named_stream(e,parent=stack.topstream))
+                        stack.topstream.add_metadata('optarg', json.dumps([source]))
                         del r
                     else:
                         stack.topstream.write('\\item')
@@ -1012,11 +1026,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         if env_inside:
                             stack.topstream.write((r'\begin{%s}' % name) +source)
                         if source:
-                            assert source[0] == '[' and source[-1] == ']'
-                            stack.topstream.add_metadata('optarg',source[1:-1])
+                            if not ( source[0] == '[' and source[-1] == ']' ):
+                                logger.warning('\begin{%s} has strange optional %r' , name, source)
+                            stack.topstream.add_metadata('optarg', json.dumps([source]))
                     elif name in cmdargs.split_list :
                         logger.debug( ' will split items out of \\begin{%r}' % (name,) )
                         t = next(itertokens)
+                        s = ''
                         while t is not None:
                             if isinstance(t, TokenizerPassThru.Comment):
                                 stack.topstream.write('%'+t.source)
@@ -1035,6 +1051,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                                 logger.debug('passing %r inside %r' % (t.source,name) )
                                 t = next(itertokens)
                         stack.push(named_stream('E_'+name,parent=stack.topstream))
+                        stack.topstream.add_metadata('optarg', json.dumps([s]))
                     else:
                         logger.debug( ' will not split \\begin{%r}' % (name,) )
                         stack.push('E_'+name)
