@@ -828,7 +828,7 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, c
             elif  E == '.tex':
                 # mask content, preserve tree
                 F = open(t,'w')
-                F.write('\\uuid{%s}'%uuid)
+                F.write('\\uuidplaceholder{%s}{%s}'% (uuid,uuid))
                 for u in metadata.get('child_uuid'):
                     # We include all LaTeX children, to keep tree connectivity
                     sub_uuid_, sub_uuid_dir, sub_metadata = resolve_uuid(uuid=u, uuid_dir=None,
