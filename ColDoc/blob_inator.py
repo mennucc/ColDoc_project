@@ -521,6 +521,28 @@ class EnvStreamStack(object):
         logger.debug(repr(self))
         return O
 
+def _parse_obj(obj, thetex):
+    obj = graphicx.includegraphics()
+    sources = []
+    thetex.currentInput[0].pass_comments = False
+    for arg in obj.arguments:
+        output, source = thetex.readArgumentAndSource(parentNode=obj, name=arg.name, **arg.options)
+        obj.argSource += source
+        sources.append(source)
+        obj.attributes[arg.name] = output
+    thetex.currentInput[0].pass_comments = True
+    return obj.source, sources, obj.attributes
+
+def _rewrite_section(sources, uuid):
+    sources = copy.copy(sources)
+    if not sources[1] and not sources[0]:
+        sources[1] = '[' + sources[2][1:-1] + ']'
+    if  '\\uuidmarker' not in sources[2]:
+        sources[2] = sources[2][:-1] + ("\\protect\\uuidmarker{%s}}" % (uuid,))
+    src = '\\section' + ''.join(sources) + ("\\uuidtarget{%s}" %  (uuid,))
+    return sources, src
+
+
 def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc):
     use_plastex_parse = True
     blobs_dir=cmdargs.blobs_dir
@@ -743,12 +765,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         logger.error('\\section arguments are weird : %r',argSource)
                     stack.topstream.add_metadata('optarg', json.dumps(sources) )
                     if stack.topstream.uuid and cmdargs.add_UUID :
-                        if not sources[1] and not sources[0]:
-                            sources[1] = '[' + sources[2][1:-1] + ']'
-                            argSource = ''.join(sources)
-                        stack.topstream.write('\\section'+argSource[:-1])
-                        stack.topstream.write("\\protect\\uuidmarker{%s}}\\uuidtarget{%s}%%\n" %
-                                              (stack.topstream.uuid,stack.topstream.uuid,))
+                        sources, src = _rewrite_section(sources, stack.topstream.uuid)
+                        stack.topstream.write(src + '%\n')
                     else:
                         stack.topstream.write('\\section'+argSource)
                 elif cmdargs.split_all_theorems and macroname == 'newtheorem':
@@ -845,19 +863,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     sources = []
                     if macroname == "includegraphics":
                         obj = graphicx.includegraphics()
-                        thetex.currentInput[0].pass_comments = False
-                        for arg in obj.arguments:
-                            output, source = thetex.readArgumentAndSource(parentNode=obj, name=arg.name, **arg.options)
-                            obj.argSource += source
-                            sources.append(source)
-                            obj.attributes[arg.name] = output
-                        a = obj.attributes
-                        thetex.currentInput[0].pass_comments = True
-                        inputfile = a['file']
-                        src = obj.source
+                        src, sources, attributes = _parse_obj(obj, thetex)
+                        inputfile = attributes['file']
                         j = src.index('{')
                         cmd = src[:j]
-                        del obj, a
+                        del j, attributes
                     else:
                         logger.warning('FIXME, should improve parsing of %r',macroname)
                         cmd = src = '\\' + macroname
