@@ -739,10 +739,18 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         stack.push(named_stream('section', parent=stack.topstream))
                     stack.topstream.symlink_dir = f
                     stack.topstream.add_metadata('section',argSource, braces=False)
-                    stack.topstream.write('\\section'+argSource)
-                    if stack.topstream.uuid and cmdargs.add_UUID:
-                        stack.topstream.write("\\uuid{%s}" % (stack.topstream.uuid,))
+                    if argSource[-1] != '}':
+                        logger.error('\\section arguments are weird : %r',argSource)
                     stack.topstream.add_metadata('optarg', json.dumps(sources) )
+                    if stack.topstream.uuid and cmdargs.add_UUID :
+                        if not sources[1] and not sources[0]:
+                            sources[1] = '[' + sources[2][1:-1] + ']'
+                            argSource = ''.join(sources)
+                        stack.topstream.write('\\section'+argSource[:-1])
+                        stack.topstream.write("\\protect\\uuidmarker{%s}}\\uuidtarget{%s}%%\n" %
+                                              (stack.topstream.uuid,stack.topstream.uuid,))
+                    else:
+                        stack.topstream.write('\\section'+argSource)
                 elif cmdargs.split_all_theorems and macroname == 'newtheorem':
                     obj = amsthm.newtheorem()
                     thetex.currentInput[0].pass_comments = False
