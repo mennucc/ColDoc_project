@@ -187,7 +187,7 @@ def _build_blobeditform_data(NICK, UUID,
             msgs.append(( messages.WARNING,
                          'File was changed on disk: check the diff' ))
             N['file_md5'] = file_md5
-        if N['blobcontent'] != blobcontent:
+        elif N['blobcontent'] != blobcontent:
             msgs.append(( messages.INFO,
                           'Your saved changes are yet uncompiled' ))
         D.update(N)
