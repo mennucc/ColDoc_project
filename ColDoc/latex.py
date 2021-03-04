@@ -261,6 +261,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     main_file.write(plastex_template % D)
     main_file.close()
     rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
+    # paux is quite large and it will not be used after this line
+    os.unlink(save_abs_name+'_plastex.paux')
     # TODO there is a fundamental mistake here. This function may be called to
     # update the PDF/HTML view of only one language. This timestamp
     # does not record which language was updated. We should have different timestamps
@@ -379,6 +381,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
         parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'), save_abs_name+'_plastex.paux')
+        # paux is quite large and it will not be used after this line
+        os.unlink(save_abs_name+'_plastex.paux')
         ColDoc.utils.dict_save_or_del(retcodes, 'plastex'+lang_+':'+access, rh)
         try:
             ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
@@ -506,15 +510,15 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     if d :
         logger.warning("The argument of `plastex` is not in the blobs directory: %r", F)
     #
-    n =  osjoin(blobs_dir,save_name+'_paux')
-    if not os.path.isdir(n):    os.mkdir(n)
     #
     argv = ['-d',save_name+'_html',"--renderer=HTML5", '--theme-css', plastex_theme]
     if not levels :
         argv += [ '--split-level','0']
     if tok is False or (environ[:2] == 'E_' and tok == 'auto'):
         argv.append( '--no-display-toc' )
-    # do not use ['--paux-dirs',save_name+'_paux'] until we understand what it does
+    #n =  osjoin(blobs_dir,save_name+'_paux')
+    #if not os.path.isdir(n):    os.mkdir(n)
+    ## do not use ['--paux-dirs',save_name+'_paux'] until we understand what it does
     argv += ['--log',F]
     stdout_ = osjoin(blobs_dir,save_name+'_plastex.stdout')
     ret = ColDoc.utils.plastex_invoke(cwd_ =  blobs_dir ,
