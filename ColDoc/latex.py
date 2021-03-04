@@ -419,9 +419,9 @@ def parse_plastex_paux(blobs_dir, paux):
                 url = a[n]['url']
                 if '#' in url:
                     S,name = url.split('#')
-                    D[uuid] = (S, name)
+                    D[uuid] = (S, '#' + name)
                 else:
-                    logger.warning('strange url %r for %r', a[n],n)
+                    D[uuid] = (url, '')
         except:
             logger.exception('vv')
     return D
@@ -451,7 +451,7 @@ def parse_plastex_html(blobs_dir, html_dir, paux):
                 if h and h.startswith(P):
                     uuid = h[len(P):]
                     if uuid not in D and name:
-                        D[uuid] = (S,name)
+                        D[uuid] = (S, '#' + name)
     pickle.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.pickle'),'wb'))
     json.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.json'),'w'),indent=1)
 

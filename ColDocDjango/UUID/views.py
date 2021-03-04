@@ -952,7 +952,7 @@ def index(request, NICK, UUID):
         section, anchor = ColDoc.latex.get_specific_html_for_UUID(global_blobs_dir,UUID)
         htmlUUIDurl = django.urls.reverse('ColDoc:html', kwargs={'NICK':NICK,}) +\
              section +\
-            '?lang=%s&ext=%s#%s'%(lang, ext, anchor)
+            '?lang=%s&ext=%s%s'%(lang, ext, anchor)
     else: pdfUUIDurl = htmlUUIDurl = ''
     #
     view_md5 = ''
