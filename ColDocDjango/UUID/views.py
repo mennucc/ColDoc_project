@@ -246,6 +246,8 @@ def _interested_emails(coldoc,metadata):
 def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     sources = None
     weird_prologue = False
+    newprologue = ''
+    firstline  = ''
     if (env == 'section' or prologue.startswith('\\section') or blobeditarea.startswith('\\section') ):
         # try to parse \\section
         try:
@@ -269,19 +271,21 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
                     if any([ ('\n' in s) for s in sources]):
                         weird_prologue = 'Keep the\\section{...} command in the first line, and only this command.'
                     ignoreme, newfirstline = _rewrite_section(sources, uuid)
-                    prologue = newfirstline + '%'
+                    newprologue = newfirstline + '%\n'
                     break
                 else:
                     weird_prologue = 'The first line should contain \\section{...} and only this.'
                     logger.warning('When parsing for \\section, ignoring %r', tok)
         except:
             logger.exception('While parsing \\section')
-        blobcontent = prologue + '\n' + blobeditarea
+        blobcontent = newprologue + blobeditarea
     elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
-        blobcontent = '\\uuid{%s}%%\n' % (uuid,)   + blobeditarea
+        newprologue = '\\uuid{%s}%%\n' % (uuid,)
+        blobcontent = newprologue + blobeditarea
     else:
         blobcontent = blobeditarea
-    return blobcontent, sources , weird_prologue
+    displacement = len(newprologue) - len(firstline)
+    return blobcontent, newprologue, displacement, sources , weird_prologue
 
 
 def postedit(request, NICK, UUID):
@@ -348,8 +352,10 @@ def postedit(request, NICK, UUID):
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     # put back prologue in place
-    blobcontent, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
+    blobcontent, newprologue, displacement, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
     form.cleaned_data['blobcontent'] = blobcontent
+    selection_start_  = max(selection_start_ + displacement, 0)
+    selection_end_    = max(selection_end_ + displacement, selection_end_)
     #
     if weird_prologue:
         logger.warning(' in %r %s', UUID, weird_prologue)
