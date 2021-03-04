@@ -21,7 +21,7 @@ Command help:
        all of the above
 """
 
-import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json
+import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm
 
 from os.path import join as osjoin
 
@@ -456,19 +456,23 @@ def parse_plastex_html(blobs_dir, html_dir, paux):
                     uuid = h[len(P):]
                     if uuid not in D and name:
                         D[uuid] = (S, '#' + name)
-    pickle.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.pickle'),'wb'))
+    #pickle.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.pickle'),'wb'))
+    db = dbm.open(osjoin(blobs_dir,'.UUID_html_mapping.dbm'),'c')
+    for k,v in D.items():
+        db[k] = json.dumps(v)
+    db.close()
     json.dump(D,open(osjoin(blobs_dir,'.UUID_html_mapping.json'),'w'),indent=1)
 
 
 def get_specific_html_for_UUID(blobs_dir,UUID):
     try:
-        D = pickle.load(open(osjoin(blobs_dir, '.UUID_html_mapping.pickle'),'rb'))
-        return D[UUID]
+        db = dbm.open(osjoin(blobs_dir,'.UUID_html_mapping.dbm'))
+        return json.loads(db[UUID])
     except KeyError:
         logger.info('Cannot resolve uuid=%r in %r',UUID,blobs_dir)
         return '',''
     except:
-        logger.exception('Argh')
+        logger.exception('Cannot resolve uuid=%r in %r',UUID,blobs_dir)
         return '',''
 
 def dedup_html(src, options):
