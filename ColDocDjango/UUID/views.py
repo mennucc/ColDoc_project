@@ -500,12 +500,13 @@ def postedit(request, NICK, UUID):
             logger.exception('email failed')
     # re-save form data, to account for possible splitting
     if can_change_blob:
-        form.cleaned_data['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
-        form.cleaned_data['blobcontent'] = open(filename).read()
-        form.cleaned_data['split_selection'] = False
-        if split_selection_:
-            form.cleaned_data['selection_end'] = str(selection_start_)
-        json.dump(form.cleaned_data, open(file_editstate,'w'))
+        D = {}
+        D['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
+        D['blobcontent'] = open(filename).read()
+        D['split_selection'] = False
+        D['selection_start'] = str(selection_start_)
+        D['selection_end'] = str(selection_start_)
+        json.dump(D, open(file_editstate,'w'))
     #
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
