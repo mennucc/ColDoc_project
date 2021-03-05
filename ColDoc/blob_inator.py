@@ -772,6 +772,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     if add_child:
                         stack.push(named_stream('section', parent=stack.topstream))
                         stack.topstream.poppable = 'section'
+                    else:
+                        stack.topstream.add_metadata('environ','section')
                     stack.topstream.symlink_dir = f
                     stack.topstream.add_metadata('section',argSource, braces=False)
                     if argSource[-1] != '}':
