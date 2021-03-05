@@ -108,6 +108,9 @@ class named_stream(io.StringIO):
         self._environ = environ
         self._extension = extension
         self._lang = lang
+        ## flag if this is a section-like blob, that we must pop when meeting another one
+        ## it is either 'False' or a string in ColDoc_environments_sectioning
+        self.poppable = False
         # prepare internal stuff
         self._was_written = False
         self._uuid = None
@@ -617,9 +620,19 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
             else:
                 r = stack.pop_stream().writeout()
                 input_it(r)
-    def pop_section():
+    def pop_section(arg):
         # do not destroy stack, stack.pop_str()
-        if stack.topstream.environ == 'section':
+        if not stack.topstream.poppable:
+            return
+        if arg is not True:
+            try:
+                i = ColDoc_environments_sectioning.index(arg)
+                j = ColDoc_environments_sectioning.index(stack.topstream.poppable)
+                arg =  (i <= j )
+            except:
+                logger.exception('while deciding the order of sectionings %r %r', arg, stack.topstream.poppable)
+                return
+        if arg:
             r = stack.pop_stream().writeout()
             input_it(r)
         # do not destroy stack, stack.pop_str()
@@ -731,7 +744,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         stack.push(named_stream('preamble', parent=stack.topstream))
                 elif cmdargs.split_sections and macroname == 'section':
                     pop_paragraph()
-                    pop_section()
+                    pop_section('section')
                     obj = Base.section()
                     thetex.currentInput[0].pass_comments = False
                     argSource, sources, attributes = _parse_obj(obj, thetex)
@@ -754,9 +767,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                             logger.warning("cannot zip section %r , parent blob %r has length %d (try to remove cruft before \\section)" %\
                                            (name,stack.topstream,len(stack.topstream)))
                         else:
+                            logger.info("will zip section %r inside environment %r" % (name,stack.topenv))
                             add_child = False
                     if add_child:
                         stack.push(named_stream('section', parent=stack.topstream))
+                        stack.topstream.poppable = 'section'
                     stack.topstream.symlink_dir = f
                     stack.topstream.add_metadata('section',argSource, braces=False)
                     if argSource[-1] != '}':
@@ -767,6 +782,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         stack.topstream.write(src + '%\n')
                     else:
                         stack.topstream.write('\\section'+argSource)
+                elif macroname in ColDoc_environments_sectioning:
+                    pop_paragraph()
+                    pop_section(macroname)
+                    stack.topstream.write(tok.source)
                 elif cmdargs.split_all_theorems and macroname == 'newtheorem':
                     obj = amsthm.newtheorem()
                     thetex.currentInput[0].pass_comments = False
@@ -837,7 +856,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     del inputfile, inputfileext
                 elif macroname == specialblobinatorEOFcommand:
                     pop_paragraph()
-                    pop_section()
+                    pop_section(True)
                     # pops the output when it ends
                     z = stack.pop()
                     r = z.writeout()
@@ -1081,7 +1100,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                             # this produces weird outline; but just in case..
                             logger.warning(' a \\section was embedded in \\begin{%s}...\\end{%s}' %\
                                            (name,name))
-                        pop_section()
+                        pop_section(True)
                     if in_preamble:
                         logger.info( ' ignore \\end{%r} in preamble' % (name,) )
                         stack.topstream.write(r'\end{%s}' % name)
@@ -1092,7 +1111,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         out = obj.invoke(thetex)
                         if out is not None:
                             obj = out
-                        pop_section()
+                        pop_section(True)
                         if stack.topenv != 'E_'+name:
                             log_mismatch(stack.topenv,name)
                             # go on, hope for the best
@@ -1180,7 +1199,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
             else:
                 stack.topstream.write(str(tok))
         pop_paragraph()
-        pop_section()
+        pop_section(True)
         # main
         M = stack.pop(checknonempty=False)
         if isinstance(M,named_stream) and M.environ == 'main_file':
