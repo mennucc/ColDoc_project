@@ -304,7 +304,10 @@ def postedit(request, NICK, UUID):
     from ColDoc.utils import tree_environ_helper
     teh = tree_environ_helper(blobs_dir = blobs_dir)
     ## https://docs.djangoproject.com/en/dev/topics/forms/
-    form.fields['split_environment'].choices = teh.list_allowed_choices(env)
+    a = teh.list_allowed_choices(env)
+    form.fields['split_environment'].choices = a
+    if not a:
+        form.fields['split_environment'].required = False
     #
     if not form.is_valid():
         a = "Invalid form: "+repr(form.errors)
