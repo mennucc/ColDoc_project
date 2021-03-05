@@ -1,0 +1,132 @@
+% !TeX TS-program = pdflatex
+% !TeX encoding = UTF-8
+% !TeX spellcheck = en_US
+
+\documentclass[a4paper]{book}
+
+%%%%%%%%% early packages that for some reason must be loaded before
+
+%% `unicode-math` will change some definitions in `amssymb`
+\usepackage{amssymb}
+
+%% some older versions of `hyperref` clash with `iftex`
+\usepackage{hyperref}
+
+%%%%%%%%%% prepare conditionals
+% http://ctan.mirror.garr.it/mirrors/CTAN/macros/latex/contrib/iftex/iftex.pdf
+% you need a recent version
+\usepackage{iftex}
+
+%define this conditional; plasTeX will override it and set it to `true`
+\newif\ifplastex\plastexfalse
+%
+%%%%%%%%% use conditionals to load some engine-specific packages
+\ifplastex
+  % code for plastex
+  \newcommand\mathbbm[1]{{\mathbb{#1}}}
+\else\iftutex
+  % code for xetex or luatex
+  \input{preamble_xelatex}
+\else
+ % code for (pdf)latex
+   \input{preamble_pdflatex}
+\fi\fi
+%%%%%%%%% following are general definitions
+
+\input{preamble_definitions}
+
+
+\begin{document}
+\author{J. Smith
+\emph{et al}
+}
+\title{That book}
+
+\maketitle
+
+\part{first part}
+
+\chapter{My chapter}
+
+\section*{Introduction}
+The introduction
+
+\begin{Rem}
+  This simple \LaTeX\ tests some features
+  of \texttt{plasTeX} and \texttt{ColDoc}.
+
+  \ifetex Using  \TeX \fi ;
+  \ifxetex Using \texttt{XeTeX} \fi ;
+  \ifluatex Using \texttt{LuaTeX} \fi ;
+  \iftutex Using \texttt{XeTeX} or \texttt{LuaTeX} \fi ;
+  \ifplastex Using \texttt{plasTeX} \fi .
+
+  %% this works only inside the portal
+  %\ifColDocPublic Public \else Private \fi version, compiled
+  %\ifColDocOneUUID only this UUID \else as a whole \fi.
+\end{Rem}
+
+Stress test  \texttt{plasTeX} embedding \texttt{HTML}
+\begin{verbatim}
+<a href="http://www.debian.org">Debian</a>
+\end{verbatim}
+\[ \hbox{<a href="http://www.debian.org">Debian</a>} \]
+
+BBM test for bold ``1''
+\[f={\mathbbm{1}}_A\]
+
+\begin{buyablecontent}
+  This content is reserved but it may be bought
+\end{buyablecontent}
+
+\begin{privateremark}
+  This is a private remark that only the author will see
+\end{privateremark}
+
+\include{sec1}
+
+\include{sec2}
+
+\section{third}
+
+\begin{description}
+  % a nasty comment
+\item[one] 1
+\item[two] 2 %due
+\item[three] 3
+\end{description}
+
+other parts of this section
+\part{second part}
+
+some second part words
+
+\section*{Table of contents}
+\tableofcontents
+
+\bibliographystyle{plain}
+\bibliography{subdir/book}
+
+\begin{thebibliography}{9}
+\bibitem{latexcompanion}
+Michel Goossens, Frank Mittelbach, and Alexander Samarin. 
+\textit{The \LaTeX\ Companion}. 
+Addison-Wesley, Reading, Massachusetts, 1993.
+
+\bibitem{einstein} 
+Albert Einstein. 
+\textit{Zur Elektrodynamik bewegter Korper}. (German) 
+[\textit{On the electrodynamics of moving bodies}]. 
+Annalen der Physik, 322(10):891–921, 1905.
+
+\bibitem{knuthwebsite} 
+Knuth: Computers and Typesetting,
+\\ \url{http://www-cs-faculty.stanford.edu/~uno/abcde.html}
+\end{thebibliography}
+
+\end{document}
+  
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:
