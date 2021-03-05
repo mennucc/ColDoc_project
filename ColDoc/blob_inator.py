@@ -1113,7 +1113,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         out = obj.invoke(thetex)
                         if out is not None:
                             obj = out
-                        pop_section(True)
+                        #WHY pop_section(True)
                         if stack.topenv != 'E_'+name:
                             log_mismatch(stack.topenv,name)
                             # go on, hope for the best
