@@ -522,7 +522,6 @@ class EnvStreamStack(object):
         return O
 
 def _parse_obj(obj, thetex):
-    obj = graphicx.includegraphics()
     sources = []
     thetex.currentInput[0].pass_comments = False
     for arg in obj.arguments:
