@@ -254,7 +254,7 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
         try:
             # give it some context
             thetex = TeX()
-            thetex.ownerDocument.context.loadPackage(thetex, 'article.cls', {})
+            #thetex.ownerDocument.context.loadPackage(thetex, 'article.cls', {})
             thetex.input(copy.copy(blobeditarea),  Tokenizer=TokenizerPassThru.TokenizerPassThru)
             #
             j = blobeditarea.index('\n')
