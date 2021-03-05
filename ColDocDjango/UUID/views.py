@@ -248,7 +248,8 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     weird_prologue = False
     newprologue = ''
     firstline  = ''
-    if (env == 'section' or prologue.startswith('\\section') or blobeditarea.startswith('\\section') ):
+    if (env in ColDoc.config.ColDoc_environments_sectioning or \
+        prologue.startswith('\\' + env) or blobeditarea.startswith('\\' + env) ):
         # try to parse \\section
         try:
             # give it some context
@@ -259,23 +260,23 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
             j = blobeditarea.index('\n')
             firstline = blobeditarea[:j]
             blobeditarea = blobeditarea[j+1:]
-            if '\\section' not in firstline:
-                weird_prologue = 'The first line should contain \\section{...} and only this.'
+            if ('\\'+env) not in firstline:
+                weird_prologue = 'The first line should contain \\%s{...} and only this.' % (env,)
             #
             itertokens = thetex.itertokens()
             while True:
                 tok = next(itertokens)
-                if isinstance(tok, plasTeX.Tokenizer.EscapeSequence) and str(tok.macroName) == 'section':
+                if isinstance(tok, plasTeX.Tokenizer.EscapeSequence) and str(tok.macroName) == env:
                     obj = graphicx.includegraphics()
                     src, sources, attributes = _parse_obj(obj, thetex)
                     if any([ ('\n' in s) for s in sources]):
-                        weird_prologue = 'Keep the\\section{...} command in the first line, and only this command.'
-                    ignoreme, newfirstline = _rewrite_section(sources, uuid)
+                        weird_prologue = 'Keep the\\%s{...} command in the first line, and only this command.' % (env,)
+                    ignoreme, newfirstline = _rewrite_section(sources, uuid, env)
                     newprologue = newfirstline + '%\n'
                     break
                 else:
-                    weird_prologue = 'The first line should contain \\section{...} and only this.'
-                    logger.warning('When parsing for \\section, ignoring %r', tok)
+                    weird_prologue = 'The first line should contain \\%s{...} and only this.' % (env,)
+                    logger.warning('When parsing for \\%s, ignoring %r', env , tok)
         except:
             logger.exception('While parsing \\section')
         blobcontent = newprologue + blobeditarea
