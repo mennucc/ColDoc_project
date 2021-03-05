@@ -114,7 +114,7 @@ django_book: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	test  -f $(COLDOC_SITE_ROOT)/config.ini
 	if  ./django_tester.py --coldoc-nick=book isthere ; then  ./django_tester.py --coldoc-nick=book delete ; fi
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/book/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/book ; fi
-	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=book  --ZS --SP --SE=figure --SL=description  --editor=ed_itor --author=jsmith --private-environment=privateremark  --private-environment=buyablecontent --SAT   book/book.tex
+	../ColDocDjango/blob_inator.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=book  --ZS --SP --SE=figure --SL=description  --editor=ed_itor --author=jdoe --private-environment=privateremark  --private-environment=buyablecontent --SAT   book/book.tex
 	./django_tester.py --coldoc-nick=book  isthere
 	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=book --url-UUID="http://localhost:8000/UUID/book/" all
 

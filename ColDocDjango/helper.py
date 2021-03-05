@@ -156,7 +156,7 @@ def create_fake_users(COLDOC_SITE_ROOT):
     from django.conf import settings
     import django.contrib.auth as A
     UsMo = A.get_user_model()
-    for U,P in ('foobar', 'barfoo'), ('jsmith',"123456"), ('ed_itor','345678'), ('reviewer','marvel'):
+    for U,P in ('foobar', 'barfoo'), ('jsmith',"123456"), ('jdoe',"345678"), ('ed_itor','345678'), ('reviewer','marvel'):
         print('*** creating user %r password %r' % (U,P))
         E=_build_fake_email(U)
         try:
