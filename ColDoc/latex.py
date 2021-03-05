@@ -517,7 +517,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     #
     argv = ['-d',save_name+'_html',"--renderer=HTML5", '--theme-css', plastex_theme]
     if not levels :
-        argv += [ '--split-level','0']
+        argv += [ '--split-level', '-3']
     if tok is False or (environ[:2] == 'E_' and tok == 'auto'):
         argv.append( '--no-display-toc' )
     #n =  osjoin(blobs_dir,save_name+'_paux')
