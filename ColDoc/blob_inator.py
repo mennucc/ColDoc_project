@@ -532,13 +532,13 @@ def _parse_obj(obj, thetex):
     thetex.currentInput[0].pass_comments = True
     return obj.source, sources, obj.attributes
 
-def _rewrite_section(sources, uuid):
+def _rewrite_section(sources, uuid, environ='section'):
     sources = copy.copy(sources)
     if not sources[1] and not sources[0]:
         sources[1] = '[' + sources[2][1:-1] + ']'
     if  '\\uuidmarker' not in sources[2]:
         sources[2] = sources[2][:-1] + ("\\protect\\uuidmarker{%s}}" % (uuid,))
-    src = '\\section' + ''.join(sources) + ("\\uuidtarget{%s}" %  (uuid,))
+    src = '\\' + environ + ''.join(sources) + ("\\uuidtarget{%s}" %  (uuid,))
     return sources, src
 
 
