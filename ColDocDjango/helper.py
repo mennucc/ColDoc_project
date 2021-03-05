@@ -345,6 +345,15 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     parent_file = open(parent_abs_filename).read()
     if selection_start is not None and selection_end != selection_start:
         placeholder = parent_file[selection_start:selection_end]
+    if environ in CC.ColDoc_environments_sectioning:
+        from ColDoc.blob_inator import _rewrite_section
+        sources = ['','','{placeholder}']
+        _, src = _rewrite_section(sources, new_uuid, environ)
+        placeholder = src + '\n' + placeholder
+        child_metadata.add('optarg', json.dumps(sources))
+        child_metadata.save()
+    else:
+        placeholder = ("\\uuid{%s}%%\n" % (new_uuid,)) + placeholder
     with open(parent_abs_filename,'w') as f:
         if selection_start is None :
             f.write(parent_file)
@@ -373,7 +382,6 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         shutil.copy(osjoin(os.environ['COLDOC_SRC_ROOT'],'ColDocDjango/assets/placeholder.png'),osjoin(blobs_dir,filename))
     else:
         with open(osjoin(blobs_dir,filename),'w') as f:
-            f.write("\\uuid{%s}%%\n" % (new_uuid,))
             f.write(placeholder+'\n')
     #
     # write  the metadata (including, a a text copy in filesytem)
