@@ -235,12 +235,20 @@ class named_stream(io.StringIO):
         assert isinstance(E,str)
         assert E
         assert braces in (True,False,None)
+        if T == 'uuid':
+            logger.error('In %r cannot change uuid from %r to %r', self, self._uuid, E)
+            return
         E = E.translate({10:32})
         if braces is False or \
            ( E[0] == '{' and E[-1] == '}' and braces is None ):
             self._metadata.add(T, E)
         else:
             self._metadata.add(T, '{'+E+'}')
+        if T in ('environ','lang','extension'):
+            a = getattr(self,'_'+T,None)
+            if a != E:
+                logger.debug('In %r, %r  changed from %r to %r', self, T, a, E)
+                setattr(self, '_'+T, E)
     #
     def rstrip(self):
         """ returns the internal buffer, but splitting the final lines of the buffer,
