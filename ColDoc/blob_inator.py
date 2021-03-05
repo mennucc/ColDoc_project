@@ -724,22 +724,13 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 elif cmdargs.split_sections and macroname == 'section':
                     pop_paragraph()
                     pop_section()
-                    #obj = Base.section()
-                    #obj.parse(thetex)
-                    # the above fails, we are not providing the full context to it
-                    # so we imitate it, iterating over obj.arguments:
+                    obj = Base.section()
                     thetex.currentInput[0].pass_comments = False
-                    argSource = ''
-                    sources = []
-                    for spec in '*','[]',None:
-                        output, source = thetex.readArgumentAndSource(spec=spec) #parentNode=obj,name=arg.name,**arg.options)
-                        #logger.debug(' spec %r output %r source %r ' % (spec,output,source) )
-                        sources.append(source)
-                        argSource += source
+                    argSource, sources, attributes = _parse_obj(obj, thetex)
+                    thetex.currentInput[0].pass_comments = True
                     if sources[0] and sources[1]:
                         logger.warning('\\section %s is not good LaTeX', argSource)
-                    thetex.currentInput[0].pass_comments = True
-                    name = source[1:-1]
+                    name = sources[-1][1:-1]
                     n = new_section_nr(blobs_dir = blobs_dir)
                     u = int_to_uuid(n)
                     f = 'SEC/%s_%s' % (u , slugify(name) )
