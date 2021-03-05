@@ -216,7 +216,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         ltclsch = ltclsch[0] if ltclsch else 'auto'
         ltcls = options.get('documentclass')
         if ltclsch == 'auto':
-            if env in ('section','E_document'):
+            if env in  ColDoc.config.ColDoc_environments_sectioning or  env == 'E_document':
                 ltclsch = 'main'
             else:
                 ltclsch = 'standalone'
