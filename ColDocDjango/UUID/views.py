@@ -135,14 +135,14 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
     except:
         logger.exception('While parsing optarg %r', optarg)
         optarg = []
-    if (env == 'section' or blobcontent.startswith('\\section')):
+    if (env in ColDoc.config.ColDoc_environments_sectioning or blobcontent.startswith('\\'+env)):
         try:
             j = blobcontent.index('\n')
             prologue = blobcontent[:j]
             if optarg:
-                blobeditdata = '\\section' + ''.join(optarg) +  '%\n' + blobcontent[j+1:]
+                blobeditdata = '\\' + env + ''.join(optarg) +  '%\n' + blobcontent[j+1:]
             else:
-                logger.error('Blob %r does not have optarg for section',uuid)
+                logger.error('Blob %r does not have optarg for %s',uuid, env)
         except:
             logger.exception('Could not normalize section blob %r', uuid)
             prologue = '%'
