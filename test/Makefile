@@ -75,6 +75,7 @@ django_help:
 	@echo "Use 'make target' with target being:"
 	@echo " django_deploy : to create a test portal in $(COLDOC_SITE_ROOT) "
 	@echo " django_paper  : to add paper/paper.tex to that portal"
+	@echo " django_book   : to add book/book.tex to that portal"
 	@echo " django_latextest : to add latex/latex_test.tex to that portal (a stress test)"
 	@echo " django_run    : to run a local server to test django portal "
 	@echo " django_tasks  : to run the server for background tasks"
