@@ -93,9 +93,10 @@ class named_stream(io.StringIO):
     _metadata_class = MetadataBase # <- this must be overridden
     _private = []
     _authors = []
+    _language = ColDoc_lang
     #
     def __init__(self, environ ,
-                lang = ColDoc_lang, extension = '.tex',
+                lang = None, extension = '.tex',
                 early_UUID = ColDoc_early_UUID,
                 parentUUID = None, parent = None,
                 basepath=None, coldoc = None,
@@ -111,7 +112,7 @@ class named_stream(io.StringIO):
         assert (environ[:2] == 'E_' or environ in ColDoc_environments), 'Unknown environ %r'%environ
         self._environ = environ
         self._extension = extension
-        self._lang = lang
+        self._lang = lang = lang if lang is not None else self._language
         ## flag if this is a section-like blob, that we must pop when meeting another one
         ## it is either 'False' or a string in ColDoc_environments_sectioning
         self.poppable = False
@@ -579,6 +580,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     named_stream._default_coldoc = coldoc
     named_stream._authors = cmdargs.author
     named_stream._private = cmdargs.private_environment
+    named_stream._language = cmdargs.language
     #
     # map to avoid duplicating the same input on two different blobs;
     # each key is converted to an absolute path relative to `blobs_dir`;
