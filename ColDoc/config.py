@@ -9,7 +9,7 @@ ColDoc_as_blobs  = None
 # relative to ColDoc_as_blobs
 ColDoc_variables = 'variables'
 
-ColDoc_lang = 'it_IT'
+ColDoc_lang = 'eng'
 
 # assign an UUID early to blobs, so that each blob can refer to the parent blob
 # caveat: if the blob is renamed before saving, that UUID will be unused
