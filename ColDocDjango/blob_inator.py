@@ -12,6 +12,10 @@ import os, sys, argparse, functools
 import os.path
 from os.path import join as osjoin
 
+try:
+    import pycountry
+except:
+    pycountry = None
 
 if __name__ == '__main__':
     for j in ('','.'):
@@ -60,6 +64,8 @@ if __name__ == '__main__':
                         help='directory where the ColDoc Django site was deployed')
     parser.add_argument('--editor',action='append',default=[],\
                         help='editor for this coldoc')
+    parser.add_argument('--language','--lang',type=str,required=True,\
+                        help='language of this document (use ISO_639-3 code)')
     BI.add_arguments_to_parser(parser)
     args = parser.parse_args()
     BI.parse_EDB(args)

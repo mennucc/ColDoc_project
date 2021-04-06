@@ -36,7 +36,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-
+try:
+    import pycountry
+except:
+    logger.warning('Please install `pycountry` ')
+    pycountry = None
 
 ############## ColDoc stuff
 
@@ -1290,7 +1294,24 @@ def main(args, metadata_class, coldoc = None):
         os.mkdir(args.blobs_dir)
     assert os.path.isdir(args.blobs_dir), ' not a dir %r' % args.blobs_dir
     assert os.path.isfile(args.input_file)
-
+    #
+    if pycountry and args.language is not None:
+        l = args.language
+        if len(l) == 2:
+            L = pycountry.languages.get(alpha_2=l) 
+        if len(l) == 3:
+            L = pycountry.languages.get(alpha_3=l)
+        else:
+            print('Use a 2 or 3 letter code for the language, not %r',l)
+            sys.exit(2)
+        if L is None:
+            print('--language %r is not a recognized language code',l)
+            print(' Please use ISO_639-3 codes, see https://en.wikipedia.org/wiki/ISO_639-3')
+            sys.exit(2)
+        # normalize to alpha_3
+        args.language = l = L.alpha_3
+        logger.info('Selected language: %s (%s)',l, L.name)
+    #
     mytex = TeX()
     mydocument = mytex.ownerDocument
     mycontext = mydocument.context
@@ -1370,6 +1391,8 @@ if __name__ == '__main__':
                         required=(ColDoc_as_blobs is None))
     parser.add_argument('--coldoc-nick',type=str,\
                         help='nickname for the new coldoc document') # not required
+    parser.add_argument('--language','--lang',type=str,\
+                        help='language of this document (use ISO_639-3 code)')
     add_arguments_to_parser(parser)
     args = parser.parse_args()
     parse_EDB(args)
