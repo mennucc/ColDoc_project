@@ -31,7 +31,20 @@ Code
 The code is open source, it is available at
 https://github.com/mennucc/ColDoc_project
 
-It is implemented using the Python language.
+The code uses Django, that is implemented using the Python language;
+it also uses some JavaScript snippets for interactive features.
+
+Authors
+-------
+
+This software is Copyright 2019-21
+`Andrea C. G. Mennucci <https://www.sns.it/it/mennucci-andrea-carlo-giuseppe>`_
+
+License
+-------
+
+See file `LICENSE.txt` in the code distribution
+
 
 Features
 ========
