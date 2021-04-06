@@ -627,7 +627,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     def pop_section(arg):
         # do not destroy stack, stack.pop_str()
         if not stack.topstream.poppable:
-            return
+            return False
         if arg is not True:
             try:
                 i = ColDoc_environments_sectioning.index(arg)
@@ -635,11 +635,16 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 arg =  (i <= j )
             except:
                 logger.exception('while deciding the order of sectionings %r %r', arg, stack.topstream.poppable)
-                return
+                return False
         if arg:
             r = stack.pop_stream().writeout()
             input_it(r)
+        return arg
         # do not destroy stack, stack.pop_str()
+    #
+    def pop_sections(arg):
+        while pop_section(arg): pass
+    #
     def log_mismatch(beg,end):
         if beg[:2] == 'E_':
             beg = '\\begin{' + beg[2:] + '}'
@@ -748,7 +753,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         stack.push(named_stream('preamble', parent=stack.topstream))
                 elif cmdargs.split_sections and macroname == 'section':
                     pop_paragraph()
-                    pop_section('section')
+                    pop_sections('section')
                     obj = Base.section()
                     thetex.currentInput[0].pass_comments = False
                     argSource, sources, attributes = _parse_obj(obj, thetex)
@@ -790,7 +795,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         stack.topstream.write('\\section'+argSource)
                 elif macroname in ColDoc_environments_sectioning:
                     pop_paragraph()
-                    pop_section(macroname)
+                    pop_sections(macroname)
                     stack.topstream.write(tok.source)
                 elif cmdargs.split_all_theorems and macroname == 'newtheorem':
                     obj = amsthm.newtheorem()
@@ -862,7 +867,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     del inputfile, inputfileext
                 elif macroname == specialblobinatorEOFcommand:
                     pop_paragraph()
-                    pop_section(True)
+                    pop_sections(True)
                     # pops the output when it ends
                     z = stack.pop()
                     r = z.writeout()
@@ -1205,7 +1210,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
             else:
                 stack.topstream.write(str(tok))
         pop_paragraph()
-        pop_section(True)
+        pop_sections(True)
         # main
         M = stack.pop(checknonempty=False)
         if isinstance(M,named_stream) and M.environ == 'main_file':
