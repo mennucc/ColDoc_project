@@ -628,7 +628,7 @@ def main(argv):
     if 'add_blob' in sys.argv or  'reparse_all' in sys.argv or 'check_tree' in sys.argv or 'list_authors' in sys.argv:
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
-        parser.add_argument('--lang',type=str,\
+        parser.add_argument('--lang','--language',type=str,\
                             help='language of  newly created blob')
     if 'reparse_all' in sys.argv:
         parser.add_argument('--no-act',action='store_true',\
