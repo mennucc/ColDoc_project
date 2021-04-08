@@ -235,6 +235,7 @@ MEDIA_ROOT = config.get('django','media_root')
 
 STATICFILES_DIRS = [
     config.get('django','static_local'),
+    config.get('django','dedup_root'),
 ]
 
 # since PlasTeX produces many static files that are repeated in each blob HTML version, they are copied here 
