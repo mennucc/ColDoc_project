@@ -190,7 +190,7 @@ python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span c
 </div>
 <p>(The list of users and passwords will be printed on terminal)</p>
 <p>We insert the test LaTeX document in the portal. Note that <cite>jsmith</cite> is the author of all blobs, and will have special access rights; similarly <cite>ed_itor</cite> is the editor, and will have access to some administrative information in the coldoc main page.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/blob_inator.py --coldoc-nick<span class="o">=</span><span class="nb">test</span> --ZS --editor<span class="o">=</span>ed_itor --author<span class="o">=</span>jsmith  --SP --SAT    <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/paper/paper.tex
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/blob_inator.py --coldoc-nick<span class="o">=</span><span class="nb">test</span> --lang<span class="o">=</span>eng --ZS --editor<span class="o">=</span>ed_itor --author<span class="o">=</span>jsmith  --SP --SAT    <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/paper/paper.tex
 </pre></div>
 </div>
 <p>Then you should generate all PDF and HTML associated to the test paper</p>
@@ -209,7 +209,13 @@ python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span c
 <p>otherwise Apache will not be able to access it. Then set up Apache as follows:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo cp <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>/apache2.conf /etc/apache2/sites-available/test_site.conf
 sudo a2ensite test_site
+sudo a2enmod wsgi
 sudo systemctl reload apache2
+</pre></div>
+</div>
+<p>To enjoy advanced caching capabilities you may also</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo a2enmod expires
+sudo a2enmod headers
 </pre></div>
 </div>
 </div>
@@ -221,7 +227,13 @@ firefox http://localhost:8000/
 </pre></div>
 </div>
 <p>Note that in this case <em>django</em> will not serve the static files, unless you set <em>debug</em> to <em>True</em> in
-<cite>${COLDOC_SITE_ROOT}/config.ini</cite>.</p>
+<cite>${COLDOC_SITE_ROOT}/config.ini</cite>
+; and you may need to change</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">dedup_root</span> <span class="o">=</span> %<span class="o">(</span>site_root<span class="o">)</span>s/static_local/dedup
+<span class="nv">dedup_url</span> <span class="o">=</span> /static/dedup
+</pre></div>
+</div>
+<p>in that file.</p>
 </div>
 <div class="section" id="final-remarks">
 <h2>Final remarks<a class="headerlink" href="#final-remarks" title="Permalink to this headline">¶</a></h2>
@@ -276,7 +288,9 @@ as follows</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permission.html">Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">UUID Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#coldoc-permissions">ColDoc Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#groups">Groups</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 </ul>

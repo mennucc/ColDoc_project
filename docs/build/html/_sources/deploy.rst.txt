@@ -213,7 +213,7 @@ We insert the test LaTeX document in the portal. Note that `jsmith` is the autho
 
 .. code:: shell
 
-	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/blob_inator.py --coldoc-nick=test --ZS --editor=ed_itor --author=jsmith  --SP --SAT    ${COLDOC_SRC_ROOT}/test/paper/paper.tex
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/blob_inator.py --coldoc-nick=test --lang=eng --ZS --editor=ed_itor --author=jsmith  --SP --SAT    ${COLDOC_SRC_ROOT}/test/paper/paper.tex
 
 Then you should generate all PDF and HTML associated to the test paper
 
@@ -241,7 +241,15 @@ otherwise Apache will not be able to access it. Then set up Apache as follows:
 
 	  sudo cp ${COLDOC_SITE_ROOT}/apache2.conf /etc/apache2/sites-available/test_site.conf
 	  sudo a2ensite test_site
+	  sudo a2enmod wsgi
 	  sudo systemctl reload apache2
+
+To enjoy advanced caching capabilities you may also
+
+.. code:: shell
+
+	  sudo a2enmod expires
+	  sudo a2enmod headers
 
 Serve without Apache
 --------------------
@@ -255,7 +263,15 @@ Start the simplest Django server and access the portal
 
 
 Note that in this case *django* will not serve the static files, unless you set *debug* to *True* in
-`${COLDOC_SITE_ROOT}/config.ini`.
+`${COLDOC_SITE_ROOT}/config.ini`
+; and you may need to change 
+
+.. code:: shell
+
+	  dedup_root = %(site_root)s/static_local/dedup
+	  dedup_url = /static/dedup
+
+in that file.
 
 Final remarks
 -------------
