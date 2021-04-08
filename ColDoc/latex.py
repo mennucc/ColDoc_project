@@ -559,7 +559,19 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
         return False
     #
     replacements = dedup_html(osjoin(blobs_dir, save_name+'_html'), options)
-    # TODO should replace urls in html following; but currently there are none
+    # replace urls in html to point to dedup-ed stuff
+    for f in os.listdir(osjoin(blobs_dir, save_name+'_html')):
+        f = osjoin(blobs_dir, save_name+'_html', f)
+        if f[-5:]=='.html':
+            L = O = open(f).read()
+            # ok, regular expressions may be cooler
+            for p in  'href="' , 'src="' :
+                for e in '"', '#':
+                    for o,r in replacements:
+                        L = L.replace(p+o+e , p+r+e)
+            if L != O:
+                os.rename(f,f+'~')
+                open(f,'w').write(L)
     #
     if strip_head:
         for f in os.listdir(osjoin(blobs_dir, save_name+'_html')):
