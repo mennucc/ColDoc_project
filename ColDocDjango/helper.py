@@ -95,10 +95,10 @@ def deploy(target):
     F.close()
     #
     newconfig = config.get_config(target)
-    for j in ( 'coldocs' , ):
+    for j in ( 'coldocs' , 'www' , ):
         os.mkdir(osjoin(target,j))
     # create 'media', , 'static_local', 'static_root':
-    for j in 'media_root', 'template_dirs', 'static_root', 'static_local':
+    for j in 'media_root', 'template_dirs', 'static_root', 'static_local', 'dedup_root':
         a = newconfig['django'][j]
         os.makedirs(a)
     a = newconfig.get('django','sqlite_database')
