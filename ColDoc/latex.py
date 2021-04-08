@@ -482,10 +482,18 @@ def dedup_html(src, options):
     if dedup_root is not None:
         coldoc_site_root = options['coldoc_site_root']
         for k in 'js', 'styles', 'symbol-defs.svg' :
-            if os.path.exists(osjoin(src,k)):
+            k_ = osjoin(src,k)
+            if os.path.exists(k_):
                 dedup = ColDoc.utils.replace_with_hash_symlink(coldoc_site_root, src, dedup_root, k)
-                if dedup:
-                    replacements.append( (k,dedup) )
+                if os.path.isfile(k_):
+                    replacements.append( (k, dedup_url + '/' + dedup) )
+                elif os.path.isdir(k_):
+                    for dirpath, dirnames, filenames in os.walk(k_):
+                        for f in filenames:
+                            a = osjoin(dirpath,f)
+                            o = a[(len(src)+1):]
+                            r = a[(len(src)+len(k)+2):]
+                            replacements.append( ( o, (dedup_url + '/' + dedup + '/' + r) ) )
     return replacements
 
 def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
