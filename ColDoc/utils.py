@@ -1300,7 +1300,7 @@ def replace_with_hash_symlink(base_dir, src_dir , dedup_dir , obj):
         return b
     # check if known
     dig = hash_tree(S)
-    dedup = obj + '…' + dig
+    dedup = obj + '--' + dig
     D = osjoin(dedup_dir_abs, dedup)
     if os.path.isdir(S):
         if not os.path.exists(D):
