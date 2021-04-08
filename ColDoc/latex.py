@@ -522,8 +522,10 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     if d :
         logger.warning("The argument of `plastex` is not in the blobs directory: %r", F)
     #
+    a,b = os.path.split(save_abs_name+'_html')
+    save_name_tmp = tempfile.mkdtemp(dir=a,prefix=b)
     #
-    argv = ['-d',save_name+'_html',"--renderer=HTML5", '--theme-css', plastex_theme]
+    argv = ['-d',save_name_tmp,"--renderer=HTML5", '--theme-css', plastex_theme]
     if not levels :
         argv += [ '--split-level', '-3']
     if tok is False or (environ[:2] == 'E_' and tok == 'auto'):
@@ -537,6 +539,9 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                          stdout_  = stdout_,
                          argv_ = argv,
                          logfile = fake_name+'.log')
+    if os.path.exists(save_abs_name+'_html') :
+        shutil.rmtree(save_abs_name+'_html')
+    os.rename(save_name_tmp, save_abs_name+'_html')
     extensions = '.log','.paux','.tex','.bbl'
     if ret :
         logger.warning('Failed: cd %r ; plastex %s',blobs_dir,' '.join(argv))
