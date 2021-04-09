@@ -8,6 +8,14 @@ splits the input into blobs
 
 default_metadata = [ 'label', 'uuid', 'index', 'author', 'date',
                                     'title', 'ref', 'eqref', 'pageref', 'cite' ]
+
+# these keys are parameters used when first calling blob_inator
+# that are then shadowed (prepending 'orig_') when saving 
+# the file , since these parameters may change in time
+# and/or are they are then stored inside Django
+blob_inator_orig_keys = ('input_file', 'author', 'editor', 'language', 'verbose',\
+        'latex_engine', 'cwd', "coldoc_nick", 'coldoc_site_root', "blobs_dir")
+
 ############## system modules
 
 import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json, pathlib
@@ -1376,8 +1384,15 @@ def main(args, metadata_class, coldoc = None):
         logger.info("end of file")
     # save again, with all theorems found with the option --SAT
     f = osjoin(args.blobs_dir, '.blob_inator-args.json')
+    # shadow some keys, so that they do not interfere
+    # with later changes (in command line or in Django database)
+    D = copy.copy(args.__dict__)
+    for k in blob_inator_orig_keys:
+        if k in D:
+            D['orig_'+k] = D.pop(k)
+    #
     with open(f, 'w') as a:
-        json.dump(args.__dict__, a, indent=2)
+        json.dump(D, a, indent=2)
     return 0
 
 def parse_EDB(args):

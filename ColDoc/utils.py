@@ -28,6 +28,7 @@ if __name__ == '__main__':
 import logging
 logger = logging.getLogger(__name__)
 
+import ColDoc.blob_inator
 from ColDoc.config import *
 from ColDoc.classes import MetadataBase
 
@@ -95,6 +96,9 @@ def get_blobinator_args(blobs_dir):
     assert os.path.exists(f), ("File of blob_inator args does not exit: %r\n"%(f,))
     with open(f) as a:
         blobinator_args = json.load(a)
+    # these would interfere with proper settings
+    for k in ColDoc.blob_inator.blob_inator_orig_keys:
+        blobinator_args.pop(k, False)
     assert isinstance(blobinator_args,dict)
     return blobinator_args
 
