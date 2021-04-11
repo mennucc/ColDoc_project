@@ -412,7 +412,11 @@ def parse_plastex_paux(blobs_dir, paux):
     if isinstance(paux,str):
         if not os.path.isabs(paux):
             paux = osjoin(blobs_dir, paux)
-        paux = open(paux,'rb')
+        try:
+            paux = open(paux,'rb')
+        except OSError as e:
+            logger.error('Cannot open %r : %r',paux,e)
+            return {}
     a = pickle.load(paux)
     a = a['HTML5']
     D = {}
