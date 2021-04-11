@@ -44,11 +44,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-try:
-    import pycountry
-except:
-    logger.warning('Please install `pycountry` ')
-    pycountry = None
 
 ############## ColDoc stuff
 
@@ -1309,6 +1304,12 @@ def main(args, metadata_class, coldoc = None):
         os.mkdir(args.blobs_dir)
     assert os.path.isdir(args.blobs_dir), ' not a dir %r' % args.blobs_dir
     assert os.path.isfile(args.input_file)
+    #
+    try:
+        import pycountry
+    except:
+        logger.warning('Please install `pycountry` ')
+        pycountry = None
     #
     if pycountry and args.language is not None:
         l = args.language
