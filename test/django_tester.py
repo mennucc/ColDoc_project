@@ -35,7 +35,7 @@ if __name__ == '__main__':
 import logging
 logger = logging.getLogger(__name__)
 
-if __name__ == '__main__':
+def main(argv):
     COLDOC_SITE_ROOT =  osjoin(COLDOC_SRC_ROOT,'test','tmp','test_site')
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT',COLDOC_SITE_ROOT)
     if not os.path.isdir(COLDOC_SITE_ROOT):
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     parser.add_argument('--coldoc-site-root',type=str,\
                         help='root of the coldoc portal', default=COLDOC_SITE_ROOT,
                         required=(COLDOC_SITE_ROOT is None))
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     COLDOC_SITE_ROOT = args.coldoc_site_root
     assert os.path.isdir(COLDOC_SITE_ROOT), COLDOC_SITE_ROOT
     #
@@ -64,7 +64,6 @@ if __name__ == '__main__':
         logger.warning('mismatch --blobs-dir = %r is not the expected %r', args.blobs_dir , a)
     #
     options = {}
-    
     #
     #os.environ.setdefault('DJANGO_SETTINGS_MODULE', osjoin(COLDOC_SRC_ROOT,'ColDocDjango','settings.py'))
     os.environ['DJANGO_SETTINGS_MODULE'] = 'ColDocDjango.settings'
@@ -80,15 +79,18 @@ if __name__ == '__main__':
     #
     if args.command == 'isthere':
         print('yes' if len(matches) == 1 else 'no')
-        sys.exit(0 if len(matches) == 1 else 13)
+        return (0 if len(matches) == 1 else 13)
     if args.command == 'delete':
         if len(matches) == 0 :
             raise ValueError("No such ColDoc %r." % (args.coldoc_nick,) )
         coldoc = matches[0]
         print('Deleting %r'%(coldoc,))
         coldoc.delete()
-        sys.exit(0)
+        return (0)
     else:
         print(__doc__)
-        sys.exit(1)
+        return (1)
 
+
+if __name__ == '__main__':
+    sys.exit( main(sys.argv[1:]) )
