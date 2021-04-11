@@ -37,9 +37,9 @@ logger = logging.getLogger(__name__)
 
 if __name__ == '__main__':
     COLDOC_SITE_ROOT =  osjoin(COLDOC_SRC_ROOT,'test','tmp','test_site')
-    if not os.path.isdir(COLDOC_SRC_ROOT):
-        COLDOC_SRC_ROOT = None
-    COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT',COLDOC_SRC_ROOT)
+    COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT',COLDOC_SITE_ROOT)
+    if not os.path.isdir(COLDOC_SITE_ROOT):
+        COLDOC_SITE_ROOT = None
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('command', help='specific command')
@@ -52,15 +52,16 @@ if __name__ == '__main__':
                         help='root of the coldoc portal', default=COLDOC_SITE_ROOT,
                         required=(COLDOC_SITE_ROOT is None))
     args = parser.parse_args()
-    COLDOC_SRC_ROOT = args.coldoc_site_root
-    assert os.path.isdir(COLDOC_SRC_ROOT), COLDOC_SRC_ROOT
+    COLDOC_SITE_ROOT = args.coldoc_site_root
+    assert os.path.isdir(COLDOC_SITE_ROOT), COLDOC_SITE_ROOT
     #
+    a = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs')
     if args.blobs_dir is None:
-        args.blobs_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs')
+        args.blobs_dir = a
     else:
         assert os.path.isdir(args.blobs_dir) , args.blobs_dir
-    if args.blobs_dir != osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs'):
-        logger.warning('mismatch %r is not %r', args.blobs_dir , (COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs'))
+    if args.blobs_dir != a:
+        logger.warning('mismatch --blobs-dir = %r is not the expected %r', args.blobs_dir , a)
     #
     options = {}
     
