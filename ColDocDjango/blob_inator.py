@@ -152,7 +152,7 @@ to specify where the ColDoc site is located.
         #
     #
     with transaction.atomic():
-        users.add_permissions_for_coldoc(coldoc.nickname)
+        users.add_permissions_for_coldoc(args.coldoc_nick)
     #
     from django.contrib.auth.models import Group
     with transaction.atomic():
