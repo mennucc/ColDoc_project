@@ -1,18 +1,27 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html lang="en it">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en it">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Deploying &#8212; ColDoc 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Blob and UUID" href="blob.html" />
@@ -20,17 +29,15 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="deploying">
@@ -55,16 +62,16 @@ environmental variable.</p>
 <div class="section" id="serving-with-apache">
 <h2>Serving with Apache<a class="headerlink" href="#serving-with-apache" title="Permalink to this headline">¶</a></h2>
 <p>To serve the portal using Apache2 in Debian or Ubuntu, you may install the packages</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt install apache2 libapache2-mod-wsgi-py3
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">apache2</span> <span class="n">libapache2</span><span class="o">-</span><span class="n">mod</span><span class="o">-</span><span class="n">wsgi</span><span class="o">-</span><span class="n">py3</span>
 </pre></div>
 </div>
 <p>It is advisable to put the portal under <cite>/var/www</cite>
 (or otherwise, you should edit <cite>/etc/apache2/apache2.conf</cite>
 otherwise <cite>apache</cite> will not serve your content).
 Here is an example shell code:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span>/var/www/test_site
-sudo mkdir <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
-sudo chown owner.group <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>export COLDOC_SITE_ROOT=/var/www/test_site
+sudo mkdir ${COLDOC_SITE_ROOT}
+sudo chown owner.group ${COLDOC_SITE_ROOT}
 </pre></div>
 </div>
 <p>where <cite>owner.group</cite> is who is performing the install.</p>
@@ -76,8 +83,8 @@ sudo chown owner.group <span class="si">${</span><span class="nv">COLDOC_SITE_RO
 ) then
 you may setup the test site anywhere, let's say <cite>/home/.../test_site</cite> . Make
 sure that this directory is empty, and set its name in an environ variable as follows.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span>/home/.../test_site
-mkdir <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>export COLDOC_SITE_ROOT=/home/.../test_site
+mkdir ${COLDOC_SITE_ROOT}
 </pre></div>
 </div>
 </div>
@@ -87,7 +94,7 @@ mkdir <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span cl
 if you are sure that the current working directory of the shell is the directory
 where the ColDoc source code is located.</p>
 <p>This command will create the structure for the new ColDoc portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py  deploy
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy
 </pre></div>
 </div>
 <p>In particular it will deploy the <em>config file</em> for the new document as
@@ -104,11 +111,11 @@ only the most important ones).</p>
 <p>At startup, Django reads a <cite>settings.py</cite> file. In this case,
 settings for a deployed site are read from three files:</p>
 <ul class="simple">
-<li><p>the general file <cite>${COLDOC_SRC_ROOT}/ColDocDjango/settings.py</cite> in the ColDoc code</p></li>
-<li><p><cite>${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py</cite> if it exists</p></li>
-<li><dl class="simple">
-<dt><cite>${COLDOC_SITE_ROOT}/settings.py</cite> from the <cite>COLDOC_SITE_ROOT</cite> directory where the</dt><dd><p>web site is deployed.</p>
-</dd>
+<li>the general file <cite>${COLDOC_SRC_ROOT}/ColDocDjango/settings.py</cite> in the ColDoc code</li>
+<li><cite>${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py</cite> if it exists</li>
+<li><dl class="first docutils">
+<dt><cite>${COLDOC_SITE_ROOT}/settings.py</cite> from the <cite>COLDOC_SITE_ROOT</cite> directory where the</dt>
+<dd>web site is deployed.</dd>
 </dl>
 </li>
 </ul>
@@ -117,16 +124,16 @@ settings for a deployed site are read from three files:</p>
 you may want to create a file <cite>${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py</cite>
 to setup some variables to enable email sending, as in this example.
 Or you may want to enable them in <cite>${COLDOC_SITE_ROOT}/settings.py</cite> for your specific site.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">MAIL_HOST</span> <span class="o">=</span> <span class="s2">&quot;smtp.server&quot;</span>
-<span class="nv">EMAIL_PORT</span> <span class="o">=</span> <span class="s2">&quot;587&quot;</span>
-<span class="nv">EMAIL_HOST_USER</span> <span class="o">=</span> <span class="s2">&quot;username&quot;</span>
-<span class="nv">EMAIL_HOST_PASSWORD</span> <span class="o">=</span> <span class="s2">&quot;password&quot;</span>
-<span class="nv">EMAIL_USE_TLS</span> <span class="o">=</span> True
-<span class="nv">DEFAULT_FROM_EMAIL</span> <span class="o">=</span> <span class="s2">&quot;Helpdesk &lt;helpdesk@that_email&gt;&quot;</span>
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">MAIL_HOST</span> <span class="o">=</span> <span class="s2">&quot;smtp.server&quot;</span>
+<span class="n">EMAIL_PORT</span> <span class="o">=</span> <span class="s2">&quot;587&quot;</span>
+<span class="n">EMAIL_HOST_USER</span> <span class="o">=</span> <span class="s2">&quot;username&quot;</span>
+<span class="n">EMAIL_HOST_PASSWORD</span> <span class="o">=</span> <span class="s2">&quot;password&quot;</span>
+<span class="n">EMAIL_USE_TLS</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">DEFAULT_FROM_EMAIL</span> <span class="o">=</span> <span class="s2">&quot;Helpdesk &lt;helpdesk@that_email&gt;&quot;</span>
 </pre></div>
 </div>
 <p>or to enhance the code, <em>e.g.</em> adding some mimetypes used in your <cite>coldoc</cite> s</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mimetypes</span>
+<div class="code Python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mimetypes</span>
 <span class="c1"># https://bugs.freedesktop.org/show_bug.cgi?id=5455</span>
 <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;.gplt&#39;</span><span class="p">,</span><span class="s1">&#39;.gnuplot&#39;</span><span class="p">):</span>
     <span class="n">mimetypes</span><span class="o">.</span><span class="n">add_type</span><span class="p">(</span><span class="s1">&#39;application/x-gnuplot&#39;</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
@@ -141,7 +148,7 @@ in <cite>${COLDOC_SITE_ROOT}/config.ini</cite> and install <cite>django-allauth<
 <p><strong>Note that once you set `use_allauth` to True, you cannot change it back to `False`.</strong></p>
 <p>In particular, you may add stanzas for <cite>django-allauth</cite> in ${COLDOC_SITE_ROOT}/settings.py
 such as providers and configs, something like</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">INSTALLED_APPS</span> <span class="o">+=</span> <span class="p">[</span>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="n">INSTALLED_APPS</span> <span class="o">+=</span> <span class="p">[</span>
         <span class="s1">&#39;allauth.socialaccount.providers.google&#39;</span><span class="p">]</span>
 <span class="n">SOCIALACCOUNT_PROVIDERS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;google&#39;</span><span class="p">:</span> <span class="p">{</span>
@@ -167,8 +174,8 @@ a <cite>social application</cite> in the database, that contains all credentials
 <h2>Late adding of social auth<a class="headerlink" href="#late-adding-of-social-auth" title="Permalink to this headline">¶</a></h2>
 <p>If you did not turn <cite>social authentication</cite> on at first, you may turn it on later,
 by following the above instructions; and then you have to run</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py migrate
-python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py collectstatic
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
+python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
 </pre></div>
 </div>
 <p>to update the databases.</p>
@@ -176,8 +183,8 @@ python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span c
 <div class="section" id="initalize">
 <h2>Initalize<a class="headerlink" href="#initalize" title="Permalink to this headline">¶</a></h2>
 <p>Then initialize <cite>django</cite> for your deployed site</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py migrate
-python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py collectstatic
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
+python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
 </pre></div>
 </div>
 </div>
@@ -185,17 +192,17 @@ python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span c
 <h2>Add test material<a class="headerlink" href="#add-test-material" title="Permalink to this headline">¶</a></h2>
 <p>To test the portal we may populate it with the test LaTeX document.</p>
 <p>Before we create some fake users, to be able to interact with the portal.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py  create_fake_users
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  create_fake_users
 </pre></div>
 </div>
 <p>(The list of users and passwords will be printed on terminal)</p>
 <p>We insert the test LaTeX document in the portal. Note that <cite>jsmith</cite> is the author of all blobs, and will have special access rights; similarly <cite>ed_itor</cite> is the editor, and will have access to some administrative information in the coldoc main page.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/blob_inator.py --coldoc-nick<span class="o">=</span><span class="nb">test</span> --lang<span class="o">=</span>eng --ZS --editor<span class="o">=</span>ed_itor --author<span class="o">=</span>jsmith  --SP --SAT    <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/paper/paper.tex
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>python3 ${COLDOC_SRC_ROOT}/ColDocDjango/blob_inator.py --coldoc-nick=test --lang=eng --ZS --editor=ed_itor --author=jsmith  --SP --SAT    ${COLDOC_SRC_ROOT}/test/paper/paper.tex
 </pre></div>
 </div>
 <p>Then you should generate all PDF and HTML associated to the test paper</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">COLDOC_URL</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000/UUID/test/&quot;</span>
-python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py --coldoc-nick<span class="o">=</span><span class="nb">test</span> --url-UUID<span class="o">=</span><span class="si">${</span><span class="nv">COLDOC_URL</span><span class="si">}</span>  all
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>COLDOC_URL=&quot;http://localhost:8000/UUID/test/&quot;
+python3 ${COLDOC_SRC_ROOT}/ColDocDjango/latex.py --coldoc-nick=test --url-UUID=${COLDOC_URL}  all
 </pre></div>
 </div>
 <p>(The command line option <cite>--url-UUID</cite> is needed so that the hyperlinks inside the PDF version will point to the correct URL)</p>
@@ -203,34 +210,34 @@ python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span c
 <div class="section" id="activate-the-apache-portal">
 <h2>Activate the Apache portal<a class="headerlink" href="#activate-the-apache-portal" title="Permalink to this headline">¶</a></h2>
 <p>If you are preparing the web site to be served by Apache2, you should</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo chown -R www-data:www-data <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>sudo chown -R www-data:www-data ${COLDOC_SITE_ROOT}
 </pre></div>
 </div>
 <p>otherwise Apache will not be able to access it. Then set up Apache as follows:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo cp <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>/apache2.conf /etc/apache2/sites-available/test_site.conf
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>sudo cp ${COLDOC_SITE_ROOT}/apache2.conf /etc/apache2/sites-available/test_site.conf
 sudo a2ensite test_site
 sudo a2enmod wsgi
 sudo systemctl reload apache2
 </pre></div>
 </div>
 <p>To enjoy advanced caching capabilities you may also</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo a2enmod expires
-sudo a2enmod headers
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">a2enmod</span> <span class="n">expires</span>
+<span class="n">sudo</span> <span class="n">a2enmod</span> <span class="n">headers</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="serve-without-apache">
 <h2>Serve without Apache<a class="headerlink" href="#serve-without-apache" title="Permalink to this headline">¶</a></h2>
 <p>Start the simplest Django server and access the portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py  runserver <span class="m">8000</span>
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py  runserver 8000
 firefox http://localhost:8000/
 </pre></div>
 </div>
 <p>Note that in this case <em>django</em> will not serve the static files, unless you set <em>debug</em> to <em>True</em> in
 <cite>${COLDOC_SITE_ROOT}/config.ini</cite>
 ; and you may need to change</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">dedup_root</span> <span class="o">=</span> %<span class="o">(</span>site_root<span class="o">)</span>s/static_local/dedup
-<span class="nv">dedup_url</span> <span class="o">=</span> /static/dedup
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">dedup_root</span> <span class="o">=</span> <span class="o">%</span><span class="p">(</span><span class="n">site_root</span><span class="p">)</span><span class="n">s</span><span class="o">/</span><span class="n">static_local</span><span class="o">/</span><span class="n">dedup</span>
+<span class="n">dedup_url</span> <span class="o">=</span> <span class="o">/</span><span class="n">static</span><span class="o">/</span><span class="n">dedup</span>
 </pre></div>
 </div>
 <p>in that file.</p>
@@ -244,7 +251,7 @@ in the portal to a different user, let's say <cite>coldoc_data</cite>:
 in this case you need to tell Apache about this change,
 by adding the <cite>user</cite> and <cite>group</cite> directives in the line starting as <cite>WSGIDaemonProcess</cite>,
 as follows</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>WSGIDaemonProcess coldoc.group python-home<span class="o">=</span>/...virtualenv.... python-path<span class="o">=</span><span class="si">${</span><span class="nv">coldoc_src_root</span><span class="si">}</span>  <span class="nv">locale</span><span class="o">=</span>en_US.UTF-8  <span class="nv">lang</span><span class="o">=</span>en_US.UTF-8 <span class="nv">user</span><span class="o">=</span>coldoc_data <span class="nv">group</span><span class="o">=</span>coldoc_data
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>WSGIDaemonProcess coldoc.group python-home=/...virtualenv.... python-path=${coldoc_src_root}  locale=en_US.UTF-8  lang=en_US.UTF-8 user=coldoc_data group=coldoc_data
 </pre></div>
 </div>
 <p>This may improve security.</p>
@@ -253,48 +260,27 @@ as follows</p>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">ColDoc</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Deploying</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#serving-with-apache">Serving with Apache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#serving-without-apache">Serving without Apache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#deploying-the-skeleton">Deploying the skeleton</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#local-variables">Local variables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#social-auth">Social auth</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#late-adding-of-social-auth">Late adding of social auth</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#initalize">Initalize</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#add-test-material">Add test material</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#activate-the-apache-portal">Activate the Apache portal</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#serve-without-apache">Serve without Apache</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#final-remarks">Final remarks</a></li>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Deploying</a><ul>
+<li><a class="reference internal" href="#serving-with-apache">Serving with Apache</a></li>
+<li><a class="reference internal" href="#serving-without-apache">Serving without Apache</a></li>
+<li><a class="reference internal" href="#deploying-the-skeleton">Deploying the skeleton</a></li>
+<li><a class="reference internal" href="#local-variables">Local variables</a></li>
+<li><a class="reference internal" href="#social-auth">Social auth</a></li>
+<li><a class="reference internal" href="#late-adding-of-social-auth">Late adding of social auth</a></li>
+<li><a class="reference internal" href="#initalize">Initalize</a></li>
+<li><a class="reference internal" href="#add-test-material">Add test material</a></li>
+<li><a class="reference internal" href="#activate-the-apache-portal">Activate the Apache portal</a></li>
+<li><a class="reference internal" href="#serve-without-apache">Serve without Apache</a></li>
+<li><a class="reference internal" href="#final-remarks">Final remarks</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permission.html">UUID Permissions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permission.html#coldoc-permissions">ColDoc Permissions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permission.html#groups">Groups</a></li>
-<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
-<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -304,24 +290,23 @@ as follows</p>
   </ul></li>
 </ul>
 </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/deploy.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
+  <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -330,8 +315,8 @@ as follows</p>
       &copy;2019, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
       <a href="_sources/deploy.rst.txt"

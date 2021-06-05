@@ -1,18 +1,27 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<html lang="en it">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en it">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Blobify &#8212; ColDoc 0.1 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Editing" href="editing.html" />
@@ -20,17 +29,15 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
-  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head><body>
+  </head>
+  <body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="blobify">
@@ -44,20 +51,20 @@ changes have to be made.</p>
 <p>Following are instructions, and you may also
 want to see in the directory <cite>test/paper</cite> for a complete working example.</p>
 <p>In your LaTeX document, you should set the language as</p>
-<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\usepackage</span><span class="na">[english]</span><span class="nb">{</span>babel<span class="nb">}</span>
+<div class="code TeX highlight-default"><div class="highlight"><pre><span></span>\<span class="n">usepackage</span><span class="p">[</span><span class="n">english</span><span class="p">]{</span><span class="n">babel</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>and not as</p>
-<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\documentclass</span><span class="na">[english]</span><span class="nb">{</span>article<span class="nb">}</span>
+<div class="code TeX highlight-default"><div class="highlight"><pre><span></span>\<span class="n">documentclass</span><span class="p">[</span><span class="n">english</span><span class="p">]{</span><span class="n">article</span><span class="p">}</span>
 </pre></div>
 </div>
 <p>Then, right after the <cite>documentclass</cite> statement, add</p>
-<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\newif\ifplastex\plastexfalse</span>
-<span class="k">\ifplastex</span>
-<span class="k">\newif\ifstandalone\relax\standalonefalse\relax</span>
-<span class="k">\else</span>
-<span class="k">\usepackage</span><span class="nb">{</span>standalone<span class="nb">}</span>
-<span class="k">\fi</span>
+<div class="code TeX highlight-default"><div class="highlight"><pre><span></span>\<span class="n">newif</span>\<span class="n">ifplastex</span>\<span class="n">plastexfalse</span>
+\<span class="n">ifplastex</span>
+\<span class="n">newif</span>\<span class="n">ifstandalone</span>\<span class="n">relax</span>\<span class="n">standalonefalse</span>\<span class="n">relax</span>
+\<span class="k">else</span>
+\<span class="n">usepackage</span><span class="p">{</span><span class="n">standalone</span><span class="p">}</span>
+\<span class="n">fi</span>
 </pre></div>
 </div>
 <p>This will load the package <cite>standalone</cite> only when compiling
@@ -69,32 +76,32 @@ a PDF in standalone mode.</p>
 <p>Then wrap all code that
 is not compatible with plastex (code that sets fonts etc etc)
 as follows</p>
-<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\ifplastex\else</span>
- <span class="c">% set fonts ...</span>
-<span class="k">\fi</span>
+<div class="code TeX highlight-default"><div class="highlight"><pre><span></span>\<span class="n">ifplastex</span>\<span class="k">else</span>
+ <span class="o">%</span> <span class="nb">set</span> <span class="n">fonts</span> <span class="o">...</span>
+\<span class="n">fi</span>
 </pre></div>
 </div>
 <p>Also, you will have to replace some packages that do not
 work well with <cite>plastex</cite>, as in this example</p>
-<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\ifplastex</span>
-<span class="c">% plastex does not know of these</span>
-<span class="k">\def\eqref</span><span class="nb">{</span><span class="k">\ref</span><span class="nb">}</span>
-<span class="k">\fi</span>
-<span class="c">%</span>
-<span class="k">\ifplastex</span>
-<span class="c">% https://github.com/mathjax/MathJax/issues/1081</span>
-<span class="k">\def\sfrac</span><span class="nb">{</span><span class="k">\frac</span><span class="nb">}</span>
-<span class="k">\else</span>
-<span class="k">\usepackage</span><span class="nb">{</span>xfrac<span class="nb">}</span>
-<span class="k">\fi</span>
-<span class="c">%</span>
-<span class="k">\ifplastex</span>
-<span class="c">% plastex does not know varioref</span>
-<span class="k">\def\vref</span><span class="nb">{</span><span class="k">\ref</span><span class="nb">}</span>
-<span class="k">\def\vpageref</span><span class="nb">{</span><span class="k">\pageref</span><span class="nb">}</span>
-<span class="k">\else</span>
-<span class="k">\usepackage</span><span class="nb">{</span>varioref<span class="nb">}</span>
-<span class="k">\fi</span>
+<div class="code TeX highlight-default"><div class="highlight"><pre><span></span>\<span class="n">ifplastex</span>
+<span class="o">%</span> <span class="n">plastex</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">know</span> <span class="n">of</span> <span class="n">these</span>
+\<span class="n">def</span>\<span class="n">eqref</span><span class="p">{</span>\<span class="n">ref</span><span class="p">}</span>
+\<span class="n">fi</span>
+<span class="o">%</span>
+\<span class="n">ifplastex</span>
+<span class="o">%</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">mathjax</span><span class="o">/</span><span class="n">MathJax</span><span class="o">/</span><span class="n">issues</span><span class="o">/</span><span class="mi">1081</span>
+\<span class="n">def</span>\<span class="n">sfrac</span><span class="p">{</span>\<span class="n">frac</span><span class="p">}</span>
+\<span class="k">else</span>
+\<span class="n">usepackage</span><span class="p">{</span><span class="n">xfrac</span><span class="p">}</span>
+\<span class="n">fi</span>
+<span class="o">%</span>
+\<span class="n">ifplastex</span>
+<span class="o">%</span> <span class="n">plastex</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">know</span> <span class="n">varioref</span>
+\<span class="n">def</span>\<span class="n">vref</span><span class="p">{</span>\<span class="n">ref</span><span class="p">}</span>
+\<span class="n">def</span>\<span class="n">vpageref</span><span class="p">{</span>\<span class="n">pageref</span><span class="p">}</span>
+\<span class="k">else</span>
+\<span class="n">usepackage</span><span class="p">{</span><span class="n">varioref</span><span class="p">}</span>
+\<span class="n">fi</span>
 </pre></div>
 </div>
 <p><a class="reference external" href="http://plastex.sourceforge.net/plastex/sect0008.html">See plastex docs for details</a></p>
@@ -104,11 +111,11 @@ work well with <cite>plastex</cite>, as in this example</p>
 <p>You should also wrap all the code that modifies
 page geometry so that it is ignored in standalone mode,
 as in this example:</p>
-<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\ifplastex\else\ifstandalone\else</span>
-<span class="k">\usepackage</span><span class="na">[margin=18ex,headheight=16pt]</span><span class="nb">{</span>geometry<span class="nb">}</span>
-<span class="k">\usepackage</span><span class="nb">{</span>fancyhdr<span class="nb">}</span>
-<span class="k">\pagestyle</span><span class="nb">{</span>fancy<span class="nb">}</span>
-<span class="k">\fi\fi</span>
+<div class="code TeX highlight-default"><div class="highlight"><pre><span></span>\<span class="n">ifplastex</span>\<span class="k">else</span>\<span class="n">ifstandalone</span>\<span class="k">else</span>
+\<span class="n">usepackage</span><span class="p">[</span><span class="n">margin</span><span class="o">=</span><span class="mi">18</span><span class="n">ex</span><span class="p">,</span><span class="n">headheight</span><span class="o">=</span><span class="mi">16</span><span class="n">pt</span><span class="p">]{</span><span class="n">geometry</span><span class="p">}</span>
+\<span class="n">usepackage</span><span class="p">{</span><span class="n">fancyhdr</span><span class="p">}</span>
+\<span class="n">pagestyle</span><span class="p">{</span><span class="n">fancy</span><span class="p">}</span>
+\<span class="n">fi</span>\<span class="n">fi</span>
 </pre></div>
 </div>
 <p><a class="reference external" href="https://ctan.org/pkg/standalone">See standalone docs for details</a></p>
@@ -123,18 +130,18 @@ version of the <cite>iftex</cite> package from
 <a class="reference external" href="https://www.ctan.org/pkg/iftex">https://www.ctan.org/pkg/iftex</a></p>
 <p>Then add a snippet in the document preamble
 as follows:</p>
-<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\usepackage</span><span class="nb">{</span>iftex<span class="nb">}</span>
-<span class="c">%%%%%%%%% use conditionals to load some engine-specific packages</span>
-<span class="k">\ifplastex</span>
- <span class="c">% code for plastex</span>
- <span class="k">\newcommand\mathbbm</span><span class="na">[1]</span><span class="nb">{{</span><span class="k">\mathbb</span><span class="nb">{</span>#1<span class="nb">}}}</span>
-<span class="k">\else\iftutex</span>
-<span class="c">% code for xetex or luatex</span>
-  <span class="k">\input</span><span class="nb">{</span>preamble<span class="nb">_</span>xelatex<span class="nb">}</span>
-<span class="k">\else</span>
- <span class="c">% code for standard (pdf)latex</span>
-   <span class="k">\input</span><span class="nb">{</span>preamble<span class="nb">_</span>pdflatex<span class="nb">}</span>
-<span class="k">\fi\fi</span>
+<div class="code TeX highlight-default"><div class="highlight"><pre><span></span>\<span class="n">usepackage</span><span class="p">{</span><span class="n">iftex</span><span class="p">}</span>
+<span class="o">%%%%%%%%%</span> <span class="n">use</span> <span class="n">conditionals</span> <span class="n">to</span> <span class="n">load</span> <span class="n">some</span> <span class="n">engine</span><span class="o">-</span><span class="n">specific</span> <span class="n">packages</span>
+\<span class="n">ifplastex</span>
+ <span class="o">%</span> <span class="n">code</span> <span class="k">for</span> <span class="n">plastex</span>
+ \<span class="n">newcommand</span>\<span class="n">mathbbm</span><span class="p">[</span><span class="mi">1</span><span class="p">]{{</span>\<span class="n">mathbb</span><span class="p">{</span><span class="c1">#1}}}</span>
+\<span class="k">else</span>\<span class="n">iftutex</span>
+<span class="o">%</span> <span class="n">code</span> <span class="k">for</span> <span class="n">xetex</span> <span class="ow">or</span> <span class="n">luatex</span>
+  \<span class="nb">input</span><span class="p">{</span><span class="n">preamble_xelatex</span><span class="p">}</span>
+\<span class="k">else</span>
+ <span class="o">%</span> <span class="n">code</span> <span class="k">for</span> <span class="n">standard</span> <span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="n">latex</span>
+   \<span class="nb">input</span><span class="p">{</span><span class="n">preamble_pdflatex</span><span class="p">}</span>
+\<span class="n">fi</span>\<span class="n">fi</span>
 </pre></div>
 </div>
 <p>Then put in the file <cite>preamble_xelatex.tex</cite> all
@@ -146,10 +153,10 @@ and similarly in <cite>preamble_pdflatex.tex</cite> for <cite>pdflatex</cite>.</
 <p>You should also move all your favorite customizations
 in a file <cite>preamble_definitions.tex</cite></p>
 <ul class="simple">
-<li><p>loading of packages such as <cite>amsthm</cite>, <cite>amsmath</cite></p></li>
-<li><p>definitions for theorems and such</p></li>
-<li><p>personal macros</p></li>
-<li><p>...etc...</p></li>
+<li>loading of packages such as <cite>amsthm</cite>, <cite>amsmath</cite></li>
+<li>definitions for theorems and such</li>
+<li>personal macros</li>
+<li>...etc...</li>
 </ul>
 <p>There is a provision in the <em>portal</em> so
 that users may download the LaTeX of a single UUID:
@@ -157,11 +164,11 @@ the portal will add enough LaTeX code so that
 it will be possible to compile that UUID;
 so it will add to the bundle</p>
 <ul class="simple">
-<li><p><cite>preamble_pdflatex.tex</cite> or <cite>preamble_xelatex.tex</cite>,
-for document-related definition;</p></li>
-<li><p>that file  <cite>preamble_definitions.tex</cite>
+<li><cite>preamble_pdflatex.tex</cite> or <cite>preamble_xelatex.tex</cite>,
+for document-related definition;</li>
+<li>that file  <cite>preamble_definitions.tex</cite>
 so that the user will have
-a copy of all the needed macros and definitions,</p></li>
+a copy of all the needed macros and definitions,</li>
 </ul>
 <p>to be able to compile that blob.</p>
 </div>
@@ -169,7 +176,7 @@ a copy of all the needed macros and definitions,</p></li>
 <h2>Check it all<a class="headerlink" href="#check-it-all" title="Permalink to this headline">¶</a></h2>
 <p>Check that the document compiles fine to HTML
 by invoking PlasTeX on your document using</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>plastex -d output_html document.tex
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">plastex</span> <span class="o">-</span><span class="n">d</span> <span class="n">output_html</span> <span class="n">document</span><span class="o">.</span><span class="n">tex</span>
 </pre></div>
 </div>
 <p>(it is recommended that you use the <cite>plastex</cite>
@@ -178,33 +185,33 @@ version that was installed
 <p>And check that it still compiles fine with
 standard <cite>pdflatex</cite></p>
 <p>Then try to import in a test portal. Setup the test portal as follows</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/tmp/test_site
-<span class="nb">cd</span>  <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>
-make -C <span class="nb">test</span> clean
-make -C <span class="nb">test</span> django_deploy
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>export COLDOC_SITE_ROOT=${COLDOC_SRC_ROOT}/test/tmp/test_site
+cd  ${COLDOC_SRC_ROOT}
+make -C test clean
+make -C test django_deploy
 </pre></div>
 </div>
 <p>Then try to import your document in the portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ColDocDjango/blob_inator.py --coldoc-site-root <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span> --coldoc-nick<span class="o">=</span>testdoc --ZS --SAT  --split-sections --editor<span class="o">=</span>ed_itor --author<span class="o">=</span>jsmith  yourdir/yourdocument.tex
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>ColDocDjango/blob_inator.py --coldoc-site-root ${COLDOC_SITE_ROOT} --coldoc-nick=testdoc --ZS --SAT  --split-sections --editor=ed_itor --author=jsmith  yourdir/yourdocument.tex
 </pre></div>
 </div>
 <p>note that:</p>
 <ul class="simple">
-<li><p>if your document best compiles with a specific engine,
+<li>if your document best compiles with a specific engine,
 use the  <cite>--latex-engine</cite> option of  <cite>blob_inator.py</cite>
-to specify which;</p></li>
-<li><p>if you use non-standard commands to display images,
+to specify which;</li>
+<li>if you use non-standard commands to display images,
 add them to the  command line options for <cite>blob_inator.py</cite>
 as  <cite>--split-graphic mypicturecommand</cite>.
 (Warning: it is assumed that <cite>mypicturecommand</cite> uses
-the same syntax of <cite>includegraphics</cite>).</p></li>
+the same syntax of <cite>includegraphics</cite>).</li>
 </ul>
 <p>Then check if the document can be compiled</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ColDocDjango/latex.py --coldoc-site-root <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span> --coldoc-nick<span class="o">=</span>testdoc --url-UUID<span class="o">=</span><span class="s2">&quot;http://localhost:8000/UUID/testdoc/&quot;</span> all
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>ColDocDjango/latex.py --coldoc-site-root ${COLDOC_SITE_ROOT} --coldoc-nick=testdoc --url-UUID=&quot;http://localhost:8000/UUID/testdoc/&quot; all
 </pre></div>
 </div>
 <p>and eventually run the test portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make -C <span class="nb">test</span> django_run <span class="p">&amp;</span>
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">C</span> <span class="n">test</span> <span class="n">django_run</span> <span class="o">&amp;</span>
 </pre></div>
 </div>
 <p>and access the web portal at <cite>http://localhost:8000</cite>.</p>
@@ -214,15 +221,15 @@ the same syntax of <cite>includegraphics</cite>).</p></li>
 <p>Check in particular that images were imported correctly.</p>
 <p>If you are not satisfied, or if something fails:</p>
 <ul class="simple">
-<li><p>tweak your document,</p></li>
-<li><p>try different command line options for <cite>blob_inator.py</cite></p></li>
+<li>tweak your document,</li>
+<li>try different command line options for <cite>blob_inator.py</cite></li>
 </ul>
 <p>If the result  is satisfactory enough, that is,
 if only small changes are needed,
 you can also change the document <em>inside the portal</em>
 by editing the files inside <cite>${COLDOC_SITE_ROOT}/coldocs/testdoc/blobs/</cite>.
 Note that the data structure can be compiled from the command line, using</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>/coldocs/testdoc/blobs/
+<div class="code shell highlight-default"><div class="highlight"><pre><span></span>cd ${COLDOC_SITE_ROOT}/coldocs/testdoc/blobs/
 pdflatex main.tex
 plastex -d main_html main.tex
 </pre></div>
@@ -232,42 +239,21 @@ plastex -d main_html main.tex
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">ColDoc</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
-<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
-<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
-<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permission.html">UUID Permissions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permission.html#coldoc-permissions">ColDoc Permissions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="permission.html#groups">Groups</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Blobify</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#plastex-tweaks">Plastex tweaks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#standalone-tweaks">Standalone tweaks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#multiple-latex-format">Multiple LaTeX format</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#downloading-and-compiling-single-uuids">Downloading, and compiling single UUIDs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#check-it-all">Check it all</a></li>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Blobify</a><ul>
+<li><a class="reference internal" href="#plastex-tweaks">Plastex tweaks</a></li>
+<li><a class="reference internal" href="#standalone-tweaks">Standalone tweaks</a></li>
+<li><a class="reference internal" href="#multiple-latex-format">Multiple LaTeX format</a></li>
+<li><a class="reference internal" href="#downloading-and-compiling-single-uuids">Downloading, and compiling single UUIDs</a></li>
+<li><a class="reference internal" href="#check-it-all">Check it all</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -277,24 +263,23 @@ plastex -d main_html main.tex
   </ul></li>
 </ul>
 </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/blobify.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
+  <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
-    </div>
 </div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -303,8 +288,8 @@ plastex -d main_html main.tex
       &copy;2019, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
       
       |
       <a href="_sources/blobify.rst.txt"

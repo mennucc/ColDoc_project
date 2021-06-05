@@ -264,7 +264,7 @@ Start the simplest Django server and access the portal
 
 Note that in this case *django* will not serve the static files, unless you set *debug* to *True* in
 `${COLDOC_SITE_ROOT}/config.ini`
-; and you may need to change 
+; and you may need to change
 
 .. code:: shell
 
