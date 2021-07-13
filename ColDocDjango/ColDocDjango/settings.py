@@ -33,7 +33,9 @@ COLDOC_SITE_CONFIG = config = get_config()
 COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
