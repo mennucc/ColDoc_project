@@ -79,6 +79,8 @@ USE_WALLET = config['django'].getboolean('use_wallet')
 # Application definition
 
 INSTALLED_APPS = [
+    'ColDocApp.apps.ColdocappConfig',
+    'UUID.apps.UuidConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -88,8 +90,6 @@ INSTALLED_APPS = [
     #https://docs.djangoproject.com/en/3.0/howto/static-files/
     'django.contrib.staticfiles',
     'guardian',
-    'ColDocDjango.ColDocApp',
-    'ColDocDjango.UUID',
 ]
 
 if USE_ALLAUTH:
