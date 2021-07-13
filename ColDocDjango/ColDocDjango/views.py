@@ -24,7 +24,7 @@ UsMo = get_user_model()
 from ColDoc.utils import slug_re, slugp_re
 from ColDocDjango.utils import get_email_for_user
 
-from ColDocDjango.ColDocApp.models import DColDoc
+from ColDocApp.models import DColDoc
 
 def main_page(request):
     c = {'DColDocs':DColDoc.objects.all()} #default_context_for(request)

@@ -15,7 +15,7 @@ from django.templatetags.static import static
 from django.conf import settings
 AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 
-from ColDocDjango.ColDocApp.models import DColDoc, UUID_Field
+from ColDocApp.models import DColDoc, UUID_Field
 
 
 from ColDoc import classes, utils as coldoc_utils

@@ -167,7 +167,7 @@ def create_fake_users(COLDOC_SITE_ROOT):
         except Exception as e:
             print('Cannot create user %r : %r' %(U,e))
     #
-    from ColDocDjango.UUID.models import DMetadata
+    from UUID.models import DMetadata
     for U in  'reviewer', :
         user = UsMo.objects.filter(username=U).get()
         Per = "view_view", "view_blob" , "download"
@@ -270,8 +270,8 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         logger.debug("Resolved user as %r",user)
     #
     from ColDoc import utils
-    import ColDocDjango.ColDocApp.models as coldocapp_models
-    import ColDocDjango.UUID.models as  blob_models
+    import ColDocApp.models as coldocapp_models
+    import UUID.models as  blob_models
     metadata_class=blob_models.DMetadata
     #
     #try:
@@ -412,13 +412,13 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
     #
     blobinator_args = get_blobinator_args(blobs_dir)
     #
-    from ColDocDjango.ColDocApp.models import DColDoc
+    from ColDocApp.models import DColDoc
     coldoc = list(DColDoc.objects.filter(nickname = coldoc_nick))
     coldoc = coldoc[0]
     #if not coldoc:
     #    return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     from ColDoc.utils import reparse_blob, choose_blob
-    from ColDocDjango.UUID.models import DMetadata
+    from UUID.models import DMetadata
     for metadata in DMetadata.objects.filter(coldoc = coldoc, extension='.tex\n'):
         for avail_lang in metadata.get('lang'):
             try:
@@ -437,7 +437,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     #
     from functools import partial
     from ColDoc.utils import recurse_tree
-    from ColDocDjango.UUID.models import DMetadata
+    from UUID.models import DMetadata
     #
     from ColDoc.utils import slug_re
     assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
@@ -451,13 +451,13 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     from ColDoc.utils import tree_environ_helper
     teh = tree_environ_helper(blobs_dir=blobs_dir)
     #
-    from ColDocDjango.ColDocApp.models import DColDoc
+    from ColDocApp.models import DColDoc
     coldoc = DColDoc.objects.get(nickname = coldoc_nick)
     #
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc) 
     #
-    from ColDocDjango.UUID.models import DMetadata
+    from UUID.models import DMetadata
     #
     seen = set()
     available = set()
@@ -573,11 +573,11 @@ def list_authors(warn, COLDOC_SITE_ROOT, coldoc_nick, as_django_user = True):
     #
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     #
-    from ColDocDjango.ColDocApp.models import DColDoc
+    from ColDocApp.models import DColDoc
     coldoc = list(DColDoc.objects.filter(nickname = coldoc_nick))
     coldoc = coldoc[0]
     #
-    from ColDocDjango.UUID.models import DMetadata
+    from UUID.models import DMetadata
     #
     authors = {}
     #

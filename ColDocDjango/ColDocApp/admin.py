@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.conf import settings
 from .models import DColDoc
-from ColDocDjango.UUID.models import UUID_Tree_Edge
+from UUID.models import UUID_Tree_Edge
 
 class UUID_Tree_Edge_Admin(admin.TabularInline):
     model = UUID_Tree_Edge

@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 
 from ColDoc import transform
 
-from ColDocDjango.UUID.models import ExtraMetadata
+from UUID.models import ExtraMetadata
 
 class squash_helper_ref(transform.squash_input_uuid):
     "convert refs"

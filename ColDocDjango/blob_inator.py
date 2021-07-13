@@ -96,8 +96,8 @@ to specify where the ColDoc site is located.
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     #
     django.setup()
-    import ColDocDjango.ColDocApp.models as coldocapp_models
-    import ColDocDjango.UUID.models as  blob_models
+    import ColDocApp.models as coldocapp_models
+    import UUID.models as  blob_models
     from ColDocDjango import users
     #
     ## check that usernames are ColDocUser

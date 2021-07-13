@@ -62,8 +62,8 @@ def main(argv):
     django.setup()
     from django.conf import settings as django_settings
     #
-    import ColDocDjango.ColDocApp.models as coldocapp_models
-    import ColDocDjango.UUID.models as  blob_models
+    import ColDocApp.models as coldocapp_models
+    import UUID.models as  blob_models
     from ColDocDjango.transform import squash_helper_ref
     from ColDoc.latex import prepare_options_for_latex
     #

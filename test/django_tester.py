@@ -70,8 +70,8 @@ def main(argv):
     os.environ['DJANGO_SETTINGS_MODULE'] = 'ColDocDjango.settings'
     import django
     django.setup()
-    import ColDocDjango.ColDocApp.models as coldocapp_models
-    import ColDocDjango.UUID.models as  blob_models
+    import ColDocApp.models as coldocapp_models
+    import UUID.models as  blob_models
     #
     matches = list(coldocapp_models.DColDoc.objects.filter(nickname = args.coldoc_nick))
     if len(matches) > 1 :

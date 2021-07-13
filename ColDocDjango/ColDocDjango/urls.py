@@ -30,8 +30,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 urlpatterns = [
     path('robots.txt', ColDocDjango.views.robots_page),
     path('admin/', admin.site.urls),
-    path('UUID/', include('ColDocDjango.UUID.urls')),
-    path('CD/', include('ColDocDjango.ColDocApp.urls')),
+    path('UUID/', include('UUID.urls')),
+    path('CD/', include('ColDocApp.urls')),
     ]
 
 if settings.USE_WALLET:
