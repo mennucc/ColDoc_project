@@ -44,9 +44,10 @@ if __name__ == '__main__':
     a = os.path.dirname(a)
     a = os.path.dirname(a)
     assert os.path.isdir(a), a
+    COLDOC_SRC_ROOT=a
+    a = osjoin(a, 'ColDocDjango')
     if a not in sys.path:
         sys.path.insert(0, a)
-    COLDOC_SRC_ROOT=a
     os.environ['COLDOC_SRC_ROOT'] = COLDOC_SRC_ROOT
     del a
     #

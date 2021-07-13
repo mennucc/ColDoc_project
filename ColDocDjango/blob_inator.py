@@ -26,10 +26,11 @@ if __name__ == '__main__':
     a = os.path.realpath(sys.argv[0])
     a = os.path.dirname(a)
     a = os.path.dirname(a)
+    COLDOC_SRC_ROOT=a
+    a = osjoin(a, 'ColDocDjango')
     assert os.path.isdir(a), a
     if a not in sys.path:
         sys.path.insert(0, a)
-    COLDOC_SRC_ROOT=a
     del a
     #
     from ColDoc import loggin

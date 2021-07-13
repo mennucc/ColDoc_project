@@ -6,8 +6,6 @@ import os, copy, sys
 def main():
     argv = copy.copy(sys.argv)
     #
-    COLDOC_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    sys.path.insert(0, COLDOC_DIR)
     #
     if '--coldoc-site-root' in argv:
         j = argv.index('--coldoc-site-root')
@@ -65,8 +63,6 @@ if __name__ == '__main__':
     a = os.path.dirname(a)
     a = os.path.dirname(a)
     assert os.path.isdir(a), a
-    if a not in sys.path:
-        sys.path.insert(0, a)
     COLDOC_SRC_ROOT=a
     del a
     if 'COLDOC_SRC_ROOT' in os.environ and COLDOC_SRC_ROOT != os.environ['COLDOC_SRC_ROOT']:
