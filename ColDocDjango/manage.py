@@ -66,7 +66,7 @@ if __name__ == '__main__':
     COLDOC_SRC_ROOT=a
     del a
     if 'COLDOC_SRC_ROOT' in os.environ and COLDOC_SRC_ROOT != os.environ['COLDOC_SRC_ROOT']:
-        logger.error('Substituting environment COLDOC_SRC_ROOT=% with %r',os.environ('COLDOC_SRC_ROOT'))
+        logger.error('*** Substituting environment COLDOC_SRC_ROOT=%r with %r',os.environ['COLDOC_SRC_ROOT'], COLDOC_SRC_ROOT)
     os.environ['COLDOC_SRC_ROOT'] = COLDOC_SRC_ROOT
     #
     #
