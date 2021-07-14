@@ -108,7 +108,7 @@ def deploy(target):
         if not os.path.isdir(a):
             os.makedirs(a)
     #
-    a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','wsgi.py')
+    a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','ColDocDjango','wsgi.py')
     b = osjoin(target, 'wsgi.py')
     os.symlink(a, b)
     #
