@@ -927,7 +927,8 @@ def index(request, NICK, UUID):
         ret = can_buy_permission(request.user, metadata, 'view_view')
         if isinstance(ret,(int,float)):
             encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'view_view', ret, request=request)
-            buy_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
+            ## long links do not work in Apache
+            # buy_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
             buy_form = PurchaseEncodedForm(initial={'encoded':encoded_contract})
             buy_label  = 'Buy for %s' % (ret,)
             buy_tooltip  = 'Buy permission to view this blob for %s' % (ret,)
@@ -947,7 +948,8 @@ def index(request, NICK, UUID):
         if isinstance(ret,(int,float)):
             a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + ('?lang=%s&ext=%s'%(lang,ext)) + '#tools'
             encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'download', ret, request=request, redirect_fails=a, redirect_ok=a)
-            buy_download_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
+            ## long links do not work in Apache
+            # buy_download_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
             buy_download_form = PurchaseEncodedForm(initial={'encoded':encoded_contract})
             buy_download_label  = 'Buy for %s :' % (ret,)
             buy_download_tooltip  = 'Buy permission to download this blob for %s' % (ret,)
