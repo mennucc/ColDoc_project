@@ -302,7 +302,7 @@ def check_tree(request, NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     c = DColDoc.objects.filter(nickname = NICK).get()
     try:
-        from ColDocDjango.helper import check_tree
+        from helper import check_tree
         problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
         if problems:
             s = '<h3>Problems in tree of blobs</h3><ul>'
