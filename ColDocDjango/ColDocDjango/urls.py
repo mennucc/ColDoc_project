@@ -36,7 +36,7 @@ urlpatterns = [
 
 if settings.USE_WALLET:
     urlpatterns += [
-        path('wallet/', include('django_pursed.wallet.urls')),
+        path('wallet/', include('wallet.urls')),
         ]
 
 if settings.USE_SELECT2:

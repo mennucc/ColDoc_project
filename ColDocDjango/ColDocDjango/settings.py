@@ -106,7 +106,7 @@ if USE_BACKGROUND_TASKS:
     INSTALLED_APPS += ['background_task',]
 
 if USE_WALLET:
-    INSTALLED_APPS += [ 'django_pursed.wallet', ]
+    INSTALLED_APPS += [ 'wallet', ]
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`

@@ -24,7 +24,7 @@ from ColDocDjango.users import ColDocUser
 _inlines_ = []
 
 if settings.USE_WALLET:
-    from django_pursed.wallet.models import Wallet, Transaction
+    from wallet.models import Wallet, Transaction
     class InlineWallet(admin.TabularInline):
         model = Wallet
         extra = 0

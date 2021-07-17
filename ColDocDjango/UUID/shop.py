@@ -16,12 +16,12 @@ else:
     from guardian.models import UserObjectPermission
 
 try:
-    import django_pursed
+    import wallet
 except ImportError:
-    django_pursed = None
+    wallet = None
     StopPurchase = Exception
 else:
-    from django_pursed.wallet.errors import StopPurchase
+    from wallet.errors import StopPurchase
 
 class BuyPermission(object):
     def __init__(self, perm, user, obj):

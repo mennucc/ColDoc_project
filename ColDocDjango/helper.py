@@ -63,6 +63,11 @@ try:
 except ImportError:
     django_pursed = None
 
+try:
+    import wallet
+except ImportError:
+    wallet = None
+
 
 def deploy(target):
     from ColDocDjango import config
@@ -181,7 +186,7 @@ def create_fake_users(COLDOC_SITE_ROOT):
             user.save()
     #
     if settings.USE_WALLET:
-        from django_pursed.wallet.models import Wallet, Transaction
+        from wallet.models import Wallet, Transaction
         wallet_content_type = ContentType.objects.get_for_model(Wallet)
         transaction_content_type = ContentType.objects.get_for_model(Transaction)
         for U in  'foobar', :
@@ -711,7 +716,7 @@ does not contain the file `config.ini`
         return True
     elif django_pursed is not None:
         from django_pursed.helper import main_call
-        from django_pursed.wallet import utils
+        from wallet import utils
         ret = main_call(utils, argv, args)
         if ret is not None:
             return ret
