@@ -43,8 +43,12 @@ from ColDoc import TokenizerPassThru
 
 from .models import DMetadata, DColDoc
 
-from .shop import buy_permission, can_buy_permission
+from .shop import encoded_contract_to_buy_permission, can_buy_permission
 
+##############################################################
+
+class PurchaseEncodedForm(forms.Form):
+    encoded = forms.CharField(widget=forms.HiddenInput())
 
 ##############################################################
 
@@ -922,7 +926,8 @@ def index(request, NICK, UUID):
         buy_link = buy_label = buy_tooltip = None
         ret = can_buy_permission(request.user, metadata, 'view_view')
         if isinstance(ret,(int,float)):
-            buy_link = buy_permission(request.user, metadata, 'view_view', ret, request=request)
+            encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'view_view', ret, request=request)
+            buy_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
             buy_label  = 'Buy for %s' % (ret,)
             buy_tooltip  = 'Buy permission to view this blob for %s' % (ret,)
         else:
@@ -940,7 +945,8 @@ def index(request, NICK, UUID):
         ret = can_buy_permission(request.user, metadata, 'download')
         if isinstance(ret,(int,float)):
             a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + ('?lang=%s&ext=%s'%(lang,ext)) + '#tools'
-            buy_download_link = buy_permission(request.user, metadata, 'download', ret, request=request, redirect_fails=a, redirect_ok=a)
+            encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'download', ret, request=request, redirect_fails=a, redirect_ok=a)
+            buy_download_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
             buy_download_label  = 'Buy for %s :' % (ret,)
             buy_download_tooltip  = 'Buy permission to download this blob for %s' % (ret,)
         else:
@@ -1188,7 +1194,9 @@ def download(request, NICK, UUID):
         e_f = None
         ret = can_buy_permission(request.user, metadata, 'download')
         if isinstance(ret,(int,float)):
-            return redirect(buy_permission(request.user, metadata, 'download', ret, request=request))
+            encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'download', ret, request=request)
+            a = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
+            return redirect(a)
         else:
             logger.debug('Cannot buy, '+str(ret))
     elif request.user.has_perm('UUID.view_blob') and (download_as == 'blob'):

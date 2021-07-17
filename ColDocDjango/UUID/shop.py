@@ -68,7 +68,7 @@ def can_buy_permission(user, blob, permission ):
         return '[Internal error when computing price]'
 
 
-def buy_permission(user, blob, permission, amount, request=None, redirect_ok = None, redirect_fails = None, ):
+def encoded_contract_to_buy_permission(user, blob, permission, amount, request=None, redirect_ok = None, redirect_fails = None, ):
     "returns the URL to but this permission"
     NICK = blob.coldoc.nickname
     UUID = blob.uuid
@@ -80,8 +80,8 @@ def buy_permission(user, blob, permission, amount, request=None, redirect_ok = N
         else:
             redirect_ok = redirect_fails
     #
-    assert django_pursed is not None
-    from django_pursed.wallet.utils import encode_purchase, encode_buying_function
+    assert wallet is not None, "Please install django_pursed"
+    from wallet.utils import encode_purchase, encode_buying_function
     description = "buy the permission %r for uuid=%r coldoc=%r" % (permission, UUID, NICK)
     x = BuyPermission(permission, user, blob)
     #
@@ -102,6 +102,6 @@ def buy_permission(user, blob, permission, amount, request=None, redirect_ok = N
     #
     pickled_function = encode_buying_function(x)
     encoded = encode_purchase(amount, description, pickled_function, redirect_ok, redirect_fails)
-    return django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded})
+    return encoded
 
 
