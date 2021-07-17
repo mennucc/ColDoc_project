@@ -923,11 +923,12 @@ def index(request, NICK, UUID):
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     if not request.user.has_perm('UUID.view_view', metadata):
         #
-        buy_link = buy_label = buy_tooltip = None
+        buy_link = buy_label = buy_tooltip = buy_form = None
         ret = can_buy_permission(request.user, metadata, 'view_view')
         if isinstance(ret,(int,float)):
             encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'view_view', ret, request=request)
             buy_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
+            buy_form = PurchaseEncodedForm(initial={'encoded':encoded_contract})
             buy_label  = 'Buy for %s' % (ret,)
             buy_tooltip  = 'Buy permission to view this blob for %s' % (ret,)
         else:
@@ -940,13 +941,14 @@ def index(request, NICK, UUID):
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return render(request, 'UUID.html', locals() )
     #
-    buy_download_link = buy_download_label = buy_download_tooltip = None
+    buy_download_link = buy_download_label = buy_download_tooltip = buy_download_form = None
     if not request.user.has_perm('UUID.download'):
         ret = can_buy_permission(request.user, metadata, 'download')
         if isinstance(ret,(int,float)):
             a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + ('?lang=%s&ext=%s'%(lang,ext)) + '#tools'
             encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'download', ret, request=request, redirect_fails=a, redirect_ok=a)
             buy_download_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
+            buy_download_form = PurchaseEncodedForm(initial={'encoded':encoded_contract})
             buy_download_label  = 'Buy for %s :' % (ret,)
             buy_download_tooltip  = 'Buy permission to download this blob for %s' % (ret,)
         else:

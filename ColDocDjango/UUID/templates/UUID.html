@@ -39,6 +39,15 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
             data-toggle="tooltip" title="{{ buy_tooltip }}">{{ buy_label }}</a>
  {% endif %}
 
+ {% if buy_form %}
+ <form action="{% url 'wallet:authorize_purchase_encoded_post' %}" method="post" class="btn btn-outline-primary">
+    {% csrf_token %}
+    {{ buy_form.as_table }}
+    <input type="submit"  data-toggle="tooltip" title="{{ buy_tooltip }}" value="{{ buy_label }}"  class="btn">
+ </form>
+ {% endif %}
+
+
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
  {% if perms.UUID.view_view %}
@@ -220,6 +229,13 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
    <h2>Download</h2>
     {% if buy_download_link %} <a href="{{ buy_download_link | safe }}" class="btn btn-outline-primary"
             data-toggle="tooltip" title="{{ buy_download_tooltip }}">{{ buy_download_label }}</a>
+    {% endif %}
+    {% if buy_download_form %}
+      <form action="{% url 'wallet:authorize_purchase_encoded_post' %}" method="post" class="btn btn-outline-primary">
+        {% csrf_token %}
+        {{ buy_download_form.as_table }}
+        <input type="submit"  data-toggle="tooltip" title="{{ buy_download_tooltip }}" value="{{ buy_download_label }}"  class="btn">
+      </form>
     {% endif %}
    <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ lang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm p-2"
