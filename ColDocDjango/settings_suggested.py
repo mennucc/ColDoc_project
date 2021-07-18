@@ -31,11 +31,13 @@ def PRICE_FOR_PERMISSION(user, blob, permission ):
     " returns a `str`  explain why the user cannot but the permission, otherwise a `float` or `int`, the cost of the purchase"
     envs = blob.get('environ')
     env = envs[0] if envs else ''
-    print(permission)
     if permission == 'download' and user.has_perm('UUID.view_view') and ('preamble' not in env):
         # in this example, an user with `operate` on wallet can by `download` of anything that is not `preamble`
+        print('price for permission %r is 20' % permission)
         return 20
     elif env in  ('E_buyablecontent') and permission == 'view_view':
+        print('price for permission %r is 100' % permission)
         return 100
     else:
+        print('cannot buy permission %r ' % permission)
         return 'User %r cannot buy permission %r for blob %r' % (user, permission, blob)
