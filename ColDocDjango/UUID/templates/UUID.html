@@ -225,7 +225,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
  
  
   <div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
-  {% if buy_download_link or perms.UUID.download %}
+  {% if buy_download_link or buy_download_form or perms.UUID.download %}
    <h2>Download</h2>
     {% if buy_download_link %} <a href="{{ buy_download_link | safe }}" class="btn btn-outline-primary"
             data-toggle="tooltip" title="{{ buy_download_tooltip }}">{{ buy_download_label }}</a>
