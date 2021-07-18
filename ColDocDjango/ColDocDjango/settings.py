@@ -272,12 +272,12 @@ def PRICE_FOR_PERMISSION(user, blob, permission ):
 ######################### include settings_local
 
 try:
-    from ColDocDjango.settings_local import *
+    from settings_local import *
     logger.debug('loaded settings_local')
 except ImportError:
     pass
 except:
-    logger.warning("Error importing ColDocDjango.settings_local")
+    logger.exception("Error importing `settings_local`")
 
 ######################### include settings for deployed site
 
