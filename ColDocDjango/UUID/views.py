@@ -1264,10 +1264,17 @@ def download(request, NICK, UUID):
         if 'split_list' in options and env in options['split_list']:
             options['begin'] += r'\item'
     #
-    s = osjoin(os.environ['COLDOC_SRC_ROOT'],'tex/ColDocUUID.sty')
-    s = open(s).read()
-    preambles = [ ('ColDocUUID.sty', '\\usepackage{ColDocUUID}', s) ]
-    preamble = '%%%%%%%%%%%%%%%% ColDocUUID.sty\n' + s 
+    preambles = []
+    preamble = ''
+    #
+    s = osjoin(os.path.dirname(settings.BASE_DIR), 'tex/ColDocUUID.sty')
+    try:
+        s = open(s).read()
+        preambles.append( ('ColDocUUID.sty', '\\usepackage{ColDocUUID}', s) )
+        preamble += '%%%%%%%%%%%%%%%% ColDocUUID.sty\n' + s
+    except:
+        preamble += '%%%%%%%%%%%%%%%% internal error ColDocUUID.sty missing\n'
+        logger.exception('While adding %r', s)
     for a in ("preamble_definitions", "preamble_" + engine, ):
         m = None
         try:
