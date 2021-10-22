@@ -411,7 +411,7 @@ def postedit(request, NICK, UUID):
     from ColDoc.utils import reparse_blob
     #
     if split_selection_:
-        from ColDocDjango.helper import add_blob
+        from helper import add_blob
         addsuccess, addmessage, addnew_uuid = \
             add_blob(logger, request.user, settings.COLDOC_SITE_ROOT, nick_, uuid_, 
                  split_environment_, lang_, selection_start_ , selection_end_, split_add_beginend_)
