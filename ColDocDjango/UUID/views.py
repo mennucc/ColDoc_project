@@ -69,14 +69,20 @@ class MetadataForm(forms.ModelForm):
 
 
 
+# show prologue in web UI, to ease debugging
+__debug_view_prologue__ = False
 
 
 class BlobEditForm(forms.Form):
     class Media:
         js = ('UUID/js/blobeditform.js',)
     htmlid = "id_form_blobeditform"
-    # remembers first line of sections, or \uuid when present
-    prologue = forms.CharField(widget=forms.HiddenInput(),required = False)
+    ## remembers first line of sections, or \uuid when present
+    prologue = forms.CharField(widget = forms.TextInput(attrs={'class': 'form-text w-75'}) \
+                               if __debug_view_prologue__ else \
+                               forms.HiddenInput(),
+                               required = False, label='Prologue',
+                               help_text='First line of text file, automatically generated')
     # the real blobcontent
     blobcontent = forms.CharField(widget=forms.HiddenInput(),required = False)
     # what the user can edit
@@ -197,6 +203,11 @@ def _build_blobeditform_data(NICK, UUID,
         D.update(N)
     blobeditform = BlobEditForm(initial=D)
     blobeditform.fields['split_environment'].choices = choices
+    #
+    if __debug_view_prologue__:
+        blobeditform.fields['prologue'].widget.attrs['readonly'] = True
+        blobeditform.fields['prologue'].widget.attrs['disabled'] = True
+    #
     if not can_change_blob:
         blobeditform.fields['BlobEditTextarea'].widget.attrs['readonly'] = True
         blobeditform.fields['BlobEditTextarea'].widget.attrs['disabled'] = True
