@@ -298,7 +298,10 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
             output += '%' + str(tok)
         elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
             if not str(tok.macroName) == env:
-                output += '\\' + str(tok)
+                if str(tok).startswith('active::'):
+                    output += tok.source
+                else:
+                    output += '\\' + str(tok)
             elif not seen_one_sec_ :
                 obj = Base.section()
                 thetex.currentInput[0].pass_comments = False
@@ -311,9 +314,12 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
                 seen_one_sec_ = True
             else:
                 warn_dup_ = True
-                output += '\\' + str(tok)
+                if str(tok).startswith('active::'):
+                    output += tok.source
+                else:
+                    output += '\\' + str(tok)
         else:
-            output += str(tok)
+            output += tok.source
             if not seen_one_sec_ :
                 warn_notfirst_ = True
     if not seen_one_sec_ :
