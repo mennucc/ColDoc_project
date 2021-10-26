@@ -277,10 +277,6 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
             j = blobeditarea.index('\n')
             firstline = blobeditarea[:j]
             blobeditarea = blobeditarea[j+1:]
-            if ('\\'+env) not in firstline:
-                if not warned_only_:
-                    weird_prologue.append('The first line should contain \\%s{...} and only this.' % (env,))
-                    warned_only_ = True
             itertokens = thetex.itertokens()
             while True:
                 tok = next(itertokens)
