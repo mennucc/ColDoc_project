@@ -135,6 +135,7 @@ def common_checks(request, NICK, UUID, accept_anon=False):
 
 def __extract_prologue(blobcontent, uuid, env, optarg):
     prologue = ''
+    shortprologue = ''
     blobeditdata = blobcontent
     warnings = []
     try:
@@ -153,7 +154,8 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
                 j = blobcontent.index('\n')
                 prologue = blobcontent[:j]
                 if optarg:
-                    blobeditdata = '\\' + env + ''.join(optarg) +  '\n' + blobcontent[j+1:]
+                    shortprologue = '\\' + env + ''.join(optarg) 
+                    blobeditdata = shortprologue + '\n' + blobcontent[j+1:]
                 else:
                     warnings.append('Missing initial \\%s line' % env)
                     logger.error('Blob %r does not have optarg for %s',uuid, env)
@@ -163,7 +165,8 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
                 prologue = '%'
         else:
             if optarg:
-                blobeditdata = '\\' + env + ''.join(optarg) +  '%\n' + blobcontent
+                shortprologue = '\\' + env + ''.join(optarg) 
+                blobeditdata = shortprologue + '\n' + blobcontent
                 warnings.append('Added initial \\%s line' % env)
             else:
                 warnings.append('Missing initial \\%s line' % env)
@@ -180,7 +183,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
             except:
                 logger.exception('Could not remove uuid line from blob %r',UUID)
                 prologue = '%'
-    return prologue, blobeditdata, warnings
+    return shortprologue, prologue, blobeditdata, warnings
 
 def _build_blobeditform_data(NICK, UUID,
                              env,  optarg,
@@ -192,7 +195,7 @@ def _build_blobeditform_data(NICK, UUID,
     file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     blobcontent = open(filename).read()
     # the first line contains the \uuid command or the \section{}\uuid{}
-    prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, optarg)
+    shortprologue, prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, optarg)
     for wp in warnings:
         msgs.append(( messages.WARNING, wp))
     #
@@ -200,7 +203,7 @@ def _build_blobeditform_data(NICK, UUID,
     a = filename[:-4] + '_' + user_id + '_editstate.json'
     #
     D = {'BlobEditTextarea':  blobeditdata,
-         'prologue' : prologue,
+         'prologue' : json.dumps( (shortprologue, prologue) ),
          'blobcontent' : blobcontent,
          'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,
          'file_md5' : file_md5,
@@ -220,7 +223,6 @@ def _build_blobeditform_data(NICK, UUID,
     #
     if __debug_view_prologue__:
         blobeditform.fields['prologue'].widget.attrs['readonly'] = True
-        blobeditform.fields['prologue'].widget.attrs['disabled'] = True
     #
     if not can_change_blob:
         blobeditform.fields['BlobEditTextarea'].widget.attrs['readonly'] = True
@@ -325,7 +327,6 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     sources = None
     weird_prologue = []
     newprologue = ''
-    firstline  = ''
     if env in ColDoc.config.ColDoc_environments_sectioning :
         # try to parse \\section
         try:
@@ -338,8 +339,7 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     else:
         newprologue = '\\uuid{%s}%%\n' % (uuid,)
         blobcontent = newprologue + blobeditarea
-    displacement = len(newprologue) - len(firstline)
-    return blobcontent, newprologue, displacement, sources , weird_prologue
+    return blobcontent, newprologue, sources , weird_prologue
 
 
 def postedit(request, NICK, UUID):
@@ -409,10 +409,30 @@ def postedit(request, NICK, UUID):
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     # put back prologue in place
-    blobcontent, newprologue, displacement, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
+    blobcontent, newprologue, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
     form.cleaned_data['blobcontent'] = blobcontent
-    selection_start_  = max(selection_start_ + displacement, 0)
-    selection_end_    = max(selection_end_ + displacement, selection_end_)
+    # some checks
+    try:
+        a = json.loads(prologue)
+        shortprologue, prologue = a
+    except:
+        shortprologue = None
+        logger.exception('cannot json decode %r', prologue)
+        weird_prologue.append('Internal JSON error')
+    if split_selection_:
+        if shortprologue is None:
+            weird_prologue.append('Cannot split material when there are internal errors')
+            split_selection_ = False
+        elif weird_prologue:
+            weird_prologue.append('Cannot split material when there are header errors')
+            split_selection_ = False
+        elif shortprologue and not blobeditarea.startswith(shortprologue + '\n'):
+            weird_prologue.append('Sorry, cannot split material when the first line was changed')
+            split_selection_ = False
+        else:
+            displacement = len(prologue) - len(shortprologue)
+            selection_start_  = max(selection_start_ + displacement, 0)
+            selection_end_    = max(selection_end_ + displacement, selection_end_)
     #
     for wp in weird_prologue:
         logger.warning(' in %r %s', UUID, wp)
