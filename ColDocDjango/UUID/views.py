@@ -261,9 +261,10 @@ def _interested_emails(coldoc,metadata):
 
 def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     sources = None
-    weird_prologue = False
+    weird_prologue = []
     newprologue = ''
     firstline  = ''
+    warned_only_ = False    
     if (env in ColDoc.config.ColDoc_environments_sectioning or \
         prologue.startswith('\\' + env) or blobeditarea.startswith('\\' + env) ):
         # try to parse \\section
@@ -277,8 +278,9 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
             firstline = blobeditarea[:j]
             blobeditarea = blobeditarea[j+1:]
             if ('\\'+env) not in firstline:
-                weird_prologue = 'The first line should contain \\%s{...} and only this.' % (env,)
-            #
+                if not warned_only_:
+                    weird_prologue.append('The first line should contain \\%s{...} and only this.' % (env,))
+                    warned_only_ = True
             itertokens = thetex.itertokens()
             while True:
                 tok = next(itertokens)
@@ -288,15 +290,18 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
                     src, sources, attributes = _parse_obj(obj, thetex)
                     thetex.currentInput[0].pass_comments = True
                     if any([ ('\n' in s) for s in sources]):
-                        weird_prologue = 'Keep the\\%s{...} command in the first line, and only this command.' % (env,)
+                        weird_prologue.append('Keep the\\%s{...} command all in one line.' % (env,))
                     ignoreme, newfirstline = _rewrite_section(sources, uuid, env)
                     newprologue = newfirstline + '%\n'
                     break
                 else:
-                    weird_prologue = 'The first line should contain \\%s{...} and only this.' % (env,)
+                    if not warned_only_:
+                        weird_prologue.append('The first line should contain \\%s{...} and only this.' % (env,))
+                        warned_only_ = True
                     logger.warning('When parsing for \\%s, ignoring %r', env , tok)
         except:
             logger.exception('While parsing \\section')
+            weird_prologue.append('Internal error while parsing for \\%s{...}.' % (env,))
         blobcontent = newprologue + blobeditarea
     elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
         newprologue = '\\uuid{%s}%%\n' % (uuid,)
@@ -379,8 +384,8 @@ def postedit(request, NICK, UUID):
     selection_start_  = max(selection_start_ + displacement, 0)
     selection_end_    = max(selection_end_ + displacement, selection_end_)
     #
-    if weird_prologue:
-        logger.warning(' in %r %s', UUID, weird_prologue)
+    for wp in weird_prologue:
+        logger.warning(' in %r %s', UUID, wp)
     # save state of edit form
     if can_change_blob:
         user_id = str(request.user.id)
@@ -393,11 +398,11 @@ def postedit(request, NICK, UUID):
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.split('\n'),
                                 'Orig','New', True)
-        if weird_prologue:
-            a += '\n' + weird_prologue
+        for wp in weird_prologue:
+            a += '\n' + wp
         return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5})
-    if weird_prologue:
-        messages.add_message(request,messages.WARNING, weird_prologue)
+    for wp in  weird_prologue:
+        messages.add_message(request,messages.WARNING, wp)
     if 'save'  in request.POST:
         messages.add_message(request,messages.INFO,'Saved')
         if a:
