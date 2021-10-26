@@ -196,6 +196,8 @@ def _build_blobeditform_data(NICK, UUID,
     blobcontent = open(filename).read()
     # the first line contains the \uuid command or the \section{}\uuid{}
     shortprologue, prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, optarg)
+    if '\\uuid{' in blobeditdata:
+        warnings.append('(Why is there a  \\uuid  in this blob ?)')    
     for wp in warnings:
         msgs.append(( messages.WARNING, wp))
     #
