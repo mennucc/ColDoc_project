@@ -32,6 +32,7 @@ else:
 
 
 import plasTeX.Tokenizer
+import plasTeX.Base as Base
 from plasTeX.TeX import TeX
 from plasTeX.Packages import graphicx
 
@@ -282,8 +283,10 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
             while True:
                 tok = next(itertokens)
                 if isinstance(tok, plasTeX.Tokenizer.EscapeSequence) and str(tok.macroName) == env:
-                    obj = graphicx.includegraphics()
+                    obj = Base.section()
+                    thetex.currentInput[0].pass_comments = False
                     src, sources, attributes = _parse_obj(obj, thetex)
+                    thetex.currentInput[0].pass_comments = True
                     if any([ ('\n' in s) for s in sources]):
                         weird_prologue = 'Keep the\\%s{...} command in the first line, and only this command.' % (env,)
                     ignoreme, newfirstline = _rewrite_section(sources, uuid, env)
