@@ -69,7 +69,6 @@ class MetadataForm(forms.ModelForm):
 ###############################################################
 
 
-
 # show prologue in web UI, to ease debugging
 __debug_view_prologue__ = False
 
@@ -258,44 +257,48 @@ def _interested_emails(coldoc,metadata):
         logger.exception('While adding emails of editors for coldoc %r',coldoc.nickname)
     return email_to
 
+def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
+    newprologue = ''
+    warned_only_ = False    
+    # give it some context
+    thetex = TeX()
+    #thetex.ownerDocument.context.loadPackage(thetex, 'article.cls', {})
+    thetex.input(copy.copy(blobeditarea),  Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    itertokens = thetex.itertokens()
+    while True:    
+        tok = next(itertokens)
+        if isinstance(tok, plasTeX.Tokenizer.EscapeSequence) and str(tok.macroName) == env:
+            obj = Base.section()
+            thetex.currentInput[0].pass_comments = False
+            src, sources, attributes = _parse_obj(obj, thetex)
+            thetex.currentInput[0].pass_comments = True
+            if any([ ('\n' in s) for s in sources]):
+                weird_prologue.append('Keep the\\%s{...} command all in one line.' % (env,))
+                sources = list(map( lambda x : x.replace('\n',' '), sources ))
+            ignoreme, newfirstline = _rewrite_section(sources, uuid, env)
+            newprologue = newfirstline + '%\n'
+            break
+        else:
+            if not warned_only_:
+                weird_prologue.append('The first line should contain \\%s{...} and only this.' % (env,))
+                warned_only_ = True
+            logger.warning('When parsing for \\%s, ignoring %r', env , tok)
+    return newprologue
 
 def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     sources = None
     weird_prologue = []
     newprologue = ''
     firstline  = ''
-    warned_only_ = False    
     if (env in ColDoc.config.ColDoc_environments_sectioning or \
         prologue.startswith('\\' + env) or blobeditarea.startswith('\\' + env) ):
         # try to parse \\section
         try:
-            # give it some context
-            thetex = TeX()
-            #thetex.ownerDocument.context.loadPackage(thetex, 'article.cls', {})
-            thetex.input(copy.copy(blobeditarea),  Tokenizer=TokenizerPassThru.TokenizerPassThru)
             #
             j = blobeditarea.index('\n')
             firstline = blobeditarea[:j]
             blobeditarea = blobeditarea[j+1:]
-            itertokens = thetex.itertokens()
-            while True:
-                tok = next(itertokens)
-                if isinstance(tok, plasTeX.Tokenizer.EscapeSequence) and str(tok.macroName) == env:
-                    obj = Base.section()
-                    thetex.currentInput[0].pass_comments = False
-                    src, sources, attributes = _parse_obj(obj, thetex)
-                    thetex.currentInput[0].pass_comments = True
-                    if any([ ('\n' in s) for s in sources]):
-                        weird_prologue.append('Keep the\\%s{...} command all in one line.' % (env,))
-                        sources = list(map( lambda x : x.replace('\n',' '), sources ))
-                    ignoreme, newfirstline = _rewrite_section(sources, uuid, env)
-                    newprologue = newfirstline + '%\n'
-                    break
-                else:
-                    if not warned_only_:
-                        weird_prologue.append('The first line should contain \\%s{...} and only this.' % (env,))
-                        warned_only_ = True
-                    logger.warning('When parsing for \\%s, ignoring %r', env , tok)
+            newprologue = _parse_for_section(blobeditarea, env, uuid, weird_prologue)
         except:
             logger.exception('While parsing \\section')
             weird_prologue.append('Internal error while parsing for \\%s{...}.' % (env,))
