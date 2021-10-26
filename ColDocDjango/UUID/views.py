@@ -136,6 +136,7 @@ def common_checks(request, NICK, UUID, accept_anon=False):
 def __extract_prologue(blobcontent, uuid, env, optarg):
     prologue = ''
     blobeditdata = blobcontent
+    warnings = []
     try:
         if isinstance(optarg , str):
             if not optarg:
@@ -144,6 +145,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
                 optarg = json.loads(optarg)
     except:
         logger.exception('While parsing optarg %r', optarg)
+        warnings.append('Internal error when parsing optarg %r for  blob %r ' % (optarg,uuid))
         optarg = []
     if (env in ColDoc.config.ColDoc_environments_sectioning or blobcontent.startswith('\\'+env)):
         try:
@@ -151,6 +153,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
             prologue = blobcontent[:j]
             if optarg:
                 blobeditdata = '\\' + env + ''.join(optarg) +  '%\n' + blobcontent[j+1:]
+                warnings.append('Added initial \\%s line' % env)
             else:
                 logger.error('Blob %r does not have optarg for %s',uuid, env)
         except:
@@ -159,6 +162,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
     elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
         if not blobcontent.startswith('\\uuid'):
             logger.error('Blob %r does not start with \\uuid',uuid)
+            warnings.append('Missing initial, hidden, \\uuid line in blob %r' % (uuid,))
             prologue = '\\uuid{%s}%%' % (uuid,)
         else:
             try:
@@ -168,7 +172,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
             except:
                 logger.exception('Could not remove uuid line from blob %r',UUID)
                 prologue = '%'
-    return prologue, blobeditdata 
+    return prologue, blobeditdata, warnings
 
 def _build_blobeditform_data(NICK, UUID,
                              env,  optarg,
@@ -180,7 +184,9 @@ def _build_blobeditform_data(NICK, UUID,
     file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     blobcontent = open(filename).read()
     # the first line contains the \uuid command or the \section{}\uuid{}
-    prologue, blobeditdata = __extract_prologue(blobcontent, UUID, env, optarg)
+    prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, optarg)
+    for wp in warnings:
+        msgs.append(( messages.WARNING, wp))
     #
     user_id = str(user.id)
     a = filename[:-4] + '_' + user_id + '_editstate.json'
