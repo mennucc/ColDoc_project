@@ -147,18 +147,26 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
         logger.exception('While parsing optarg %r', optarg)
         warnings.append('Internal error when parsing optarg %r for  blob %r ' % (optarg,uuid))
         optarg = []
-    if (env in ColDoc.config.ColDoc_environments_sectioning or blobcontent.startswith('\\'+env)):
-        try:
-            j = blobcontent.index('\n')
-            prologue = blobcontent[:j]
+    if env in ColDoc.config.ColDoc_environments_sectioning:
+        if blobcontent.startswith('\\'+env):
+            try:
+                j = blobcontent.index('\n')
+                prologue = blobcontent[:j]
+                if optarg:
+                    blobeditdata = '\\' + env + ''.join(optarg) +  '\n' + blobcontent[j+1:]
+                else:
+                    warnings.append('Missing initial \\%s line' % env)
+                    logger.error('Blob %r does not have optarg for %s',uuid, env)
+            except:
+                warnings.append('Internal error when analyzing  blob %r ' % (uuid,))
+                logger.exception('Could not normalize section blob %r', uuid)
+                prologue = '%'
+        else:
             if optarg:
-                blobeditdata = '\\' + env + ''.join(optarg) +  '%\n' + blobcontent[j+1:]
+                blobeditdata = '\\' + env + ''.join(optarg) +  '%\n' + blobcontent
                 warnings.append('Added initial \\%s line' % env)
             else:
-                logger.error('Blob %r does not have optarg for %s',uuid, env)
-        except:
-            logger.exception('Could not normalize section blob %r', uuid)
-            prologue = '%'
+                warnings.append('Missing initial \\%s line' % env)
     elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
         if not blobcontent.startswith('\\uuid'):
             logger.error('Blob %r does not start with \\uuid',uuid)
@@ -308,6 +316,7 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
         weird_prologue.append('Please add a \\%s{...} command in first line.' % (env,))
     elif warn_notfirst_:
         weird_prologue.append('The command \\%s{...} was moved to first line.' % (env,))
+        newprologue += '%\n'
     if warn_dup_ :
         weird_prologue.append('The blob should contain only one occurrence of \\%s{...}.' % (env,))
     return newprologue, output, sources
