@@ -696,6 +696,10 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
         return squash_helper_ref(coldoc, *v, **k)
     options["squash_helper"] = foobar
     options['metadata_class'] = DMetadata
+    # used by the deduping mechanism
+    options['coldoc_site_root']  = settings.COLDOC_SITE_ROOT
+    options['dedup_root'] = settings.DEDUP_ROOT
+    options['dedup_url'] = settings.DEDUP_URL
     return options
 
 def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, metadata):
