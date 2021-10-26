@@ -259,55 +259,70 @@ def _interested_emails(coldoc,metadata):
 
 def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     newprologue = ''
-    warned_only_ = False    
+    output = ''
+    sources = None
+    warn_notfirst_ = False
+    warn_dup_ = False
+    seen_one_sec_ = False
     # give it some context
     thetex = TeX()
     #thetex.ownerDocument.context.loadPackage(thetex, 'article.cls', {})
     thetex.input(copy.copy(blobeditarea),  Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    thetex.currentInput[0].pass_comments = True
     itertokens = thetex.itertokens()
-    while True:    
-        tok = next(itertokens)
-        if isinstance(tok, plasTeX.Tokenizer.EscapeSequence) and str(tok.macroName) == env:
-            obj = Base.section()
-            thetex.currentInput[0].pass_comments = False
-            src, sources, attributes = _parse_obj(obj, thetex)
-            thetex.currentInput[0].pass_comments = True
-            if any([ ('\n' in s) for s in sources]):
-                weird_prologue.append('Keep the\\%s{...} command all in one line.' % (env,))
-                sources = list(map( lambda x : x.replace('\n',' '), sources ))
-            ignoreme, newfirstline = _rewrite_section(sources, uuid, env)
-            newprologue = newfirstline + '%\n'
+    while itertokens is not None:
+        try:
+            tok = next(itertokens)
+        except StopIteration:
+            itertokens = None
             break
+        if isinstance(tok, TokenizerPassThru.Comment):
+            output += '%' + str(tok)
+        elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
+            if not str(tok.macroName) == env:
+                output += '\\' + str(tok)
+            elif not seen_one_sec_ :
+                obj = Base.section()
+                thetex.currentInput[0].pass_comments = False
+                src, sources, attributes = _parse_obj(obj, thetex)
+                thetex.currentInput[0].pass_comments = True
+                if any([ ('\n' in s) for s in sources]):
+                    weird_prologue.append('Keep the\\%s{...} command all in one line.' % (env,))
+                    sources = list(map( lambda x : x.replace('\n',' '), sources ))
+                ignoreme, newprologue = _rewrite_section(sources, uuid, env)
+                seen_one_sec_ = True
+            else:
+                warn_dup_ = True
+                output += '\\' + str(tok)
         else:
-            if not warned_only_:
-                weird_prologue.append('The first line should contain \\%s{...} and only this.' % (env,))
-                warned_only_ = True
-            logger.warning('When parsing for \\%s, ignoring %r', env , tok)
-    return newprologue
+            output += str(tok)
+            if not seen_one_sec_ :
+                warn_notfirst_ = True
+    if not seen_one_sec_ :
+        weird_prologue.append('Please add a \\%s{...} command in first line.' % (env,))
+    elif warn_notfirst_:
+        weird_prologue.append('The command \\%s{...} was moved to first line.' % (env,))
+    if warn_dup_ :
+        weird_prologue.append('The blob should contain only one occurrence of \\%s{...}.' % (env,))
+    return newprologue, output, sources
 
 def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     sources = None
     weird_prologue = []
     newprologue = ''
     firstline  = ''
-    if (env in ColDoc.config.ColDoc_environments_sectioning or \
-        prologue.startswith('\\' + env) or blobeditarea.startswith('\\' + env) ):
+    if env in ColDoc.config.ColDoc_environments_sectioning :
         # try to parse \\section
         try:
             #
-            j = blobeditarea.index('\n')
-            firstline = blobeditarea[:j]
-            blobeditarea = blobeditarea[j+1:]
-            newprologue = _parse_for_section(blobeditarea, env, uuid, weird_prologue)
+            newprologue, blobeditarea, sources = _parse_for_section(blobeditarea, env, uuid, weird_prologue)
         except:
             logger.exception('While parsing \\section')
             weird_prologue.append('Internal error while parsing for \\%s{...}.' % (env,))
         blobcontent = newprologue + blobeditarea
-    elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
+    else:
         newprologue = '\\uuid{%s}%%\n' % (uuid,)
         blobcontent = newprologue + blobeditarea
-    else:
-        blobcontent = blobeditarea
     displacement = len(newprologue) - len(firstline)
     return blobcontent, newprologue, displacement, sources , weird_prologue
 
