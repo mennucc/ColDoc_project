@@ -291,6 +291,7 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
                     thetex.currentInput[0].pass_comments = True
                     if any([ ('\n' in s) for s in sources]):
                         weird_prologue.append('Keep the\\%s{...} command all in one line.' % (env,))
+                        sources = list(map( lambda x : x.replace('\n',' '), sources ))
                     ignoreme, newfirstline = _rewrite_section(sources, uuid, env)
                     newprologue = newfirstline + '%\n'
                     break
