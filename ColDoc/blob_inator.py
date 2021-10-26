@@ -795,7 +795,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     stack.topstream.add_metadata('optarg', json.dumps(sources) )
                     if stack.topstream.uuid and cmdargs.add_UUID :
                         sources, src = _rewrite_section(sources, stack.topstream.uuid)
-                        stack.topstream.write(src + '%\n')
+                        stack.topstream.write(src + '\n')
                     else:
                         stack.topstream.write('\\section'+argSource)
                 elif macroname in ColDoc_environments_sectioning:
