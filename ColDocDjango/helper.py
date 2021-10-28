@@ -525,13 +525,13 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
         else:
             M = all_metadata[uuid]
             if M.get('extension') == ['.tex']:
-                logger.warning('UUID %r does not have back_map',uuid)    
+                logger.warning('UUID %r does not have back_map',uuid)
     # check environ
     environments = {}
     for uuid in all_metadata :
         M = all_metadata[uuid]
         env = M.get('environ')
-        if len(env) != 1 :  
+        if len(env) != 1 :
             a = 'UUID %r environ %r' % (uuid, env)
             logger.error(a)
             problems.append(("WRONG environ", uuid, a))
