@@ -937,8 +937,9 @@ def index(request, NICK, UUID):
     q = request.GET
     ext = None
     if 'ext' in q:
-        assert slugp_re.match(q['ext'])
         ext = q['ext']
+        if not slugp_re.match(ext):
+            raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
     lang = None
     if 'lang' in q:
         lang = q['lang']
@@ -947,6 +948,7 @@ def index(request, NICK, UUID):
     for j in q:
         if j not in ('ext','lang'):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
+            logger.warning( 'Ignored query %r'%(j,) )
     #
     try:
         filename, uuid, metadata, lang, ext = \
@@ -1223,12 +1225,14 @@ def download(request, NICK, UUID):
     q = request.GET
     ext = None
     if 'ext' in q:
-        assert slugp_re.match(q['ext'])
         ext = q['ext']
+        if not slugp_re.match(ext):
+            raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
     lang = None
     if 'lang' in q:
         lang = q['lang']
-        assert lang=='' or slug_re.match(lang)
+        if not ( lang=='' or slug_re.match(lang) ):
+            raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
     #
     download_as = q.get('as',None)
     if download_as is None or download_as not in ('zip','single','email','blob'):
