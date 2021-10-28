@@ -262,7 +262,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     main_file.close()
     rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
     # paux is quite large and it will not be used after this line
-    os.unlink(save_abs_name+'_plastex.paux')
+    if os.path.isfile(save_abs_name+'_plastex.paux'):
+        os.unlink(save_abs_name+'_plastex.paux')
     # TODO there is a fundamental mistake here. This function may be called to
     # update the PDF/HTML view of only one language. This timestamp
     # does not record which language was updated. We should have different timestamps
