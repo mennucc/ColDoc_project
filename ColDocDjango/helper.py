@@ -478,13 +478,15 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     #
     def actor(teh, seen, available, warn, problems, uuid, branch, *v , **k):
         if uuid in branch:
-            warn("loop detected along branch %r",branch)
-            problems.append(("LOOP", uuid))
+            a = "loop detected along branch %r" %(branch+[uuid],)
+            warn(a)
+            problems.append(("LOOP", uuid, a))
         ret = True
         if uuid in seen:
             ret = False
-            warn("duplicate %r" % uuid)
-            problems.append(("DUPLICATE", uuid))
+            a = "duplicate node %r in tree" % (uuid,)
+            warn(a)
+            problems.append(("DUPLICATE", uuid, a))
         if uuid in available:
             available.discard(uuid)
         else:
@@ -496,7 +498,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             p = load_by_uuid(branch[-2])
             if not teh.child_is_allowed(c.environ, p.environ, c.get('extension')):
                 a = "The node %r %r cannot be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ)
-                problems.append(("WRONG_LINK", uuid))
+                problems.append(("WRONG_LINK", uuid,a))
                 warn(a)
                 ret = False
             #else:
@@ -512,7 +514,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
         a = ("Disconnected nodes %r"%available)
         warn(a)
         for j in available:
-            problems.append(('DISCONNECTED',j))
+            problems.append(('DISCONNECTED',j,a))
     # load back_maps
     from ColDoc.utils import uuid_to_dir, parent_cmd_env_child
     back_maps = {}
@@ -530,8 +532,9 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
         M = all_metadata[uuid]
         env = M.get('environ')
         if len(env) != 1 :  
-            logger.error('UUID %r environ %r', uuid, env)
-            problems.append(("WRONG environ", uuid))
+            a = 'UUID %r environ %r' % (uuid, env)
+            logger.error(a)
+            problems.append(("WRONG environ", uuid, a))
             continue
         environments[uuid] = env[0]
     # check protection
@@ -541,8 +544,9 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             env = environments.get(uuid)
             M = all_metadata[uuid]
             if (env[:2] == 'E_') and ( bool(env[2:] in private_environment) != bool( M.access == 'private')):
-                logger.warning('UUID %r environ %r access %r', uuid, env, M.access)
-                problems.append(('WRONG access',uuid))
+                a = 'UUID %r environ %r access %r' % (uuid, env, M.access)
+                logger.warning(a)
+                problems.append(('WRONG access', uuid, a))
     # check that the environment of the child corresponds to the LaTex \begin/\end used in the parent
     split_graphic = options.get("split_graphic",[])
     allowed_parenthood = options.get("allowed_parenthood",{})
@@ -560,9 +564,11 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             cmd, file, parent_uses_env = back_map[uuid]
             wrong = parent_cmd_env_child(parent_uses_env, cmd, child_env, split_graphic, allowed_parenthood)
             if wrong:
-                logger.warning('Parent %r includes child %r using cmd %r environ %r but child %r thinks it is environ %r',
-                               parent_uuid, uuid, cmd, parent_uses_env, uuid , child_env )
-                problems.append((('child env %r parent_env %r parent_cmd %r' %(child_env,parent_uses_env,cmd)),uuid))
+                #a = 'child env %r parent_env %r parent_cmd %r' %(child_env,parent_uses_env,cmd))
+                a = 'Parent %r includes child %r using cmd %r environ %r but child %r thinks it is environ %r' %\
+                    (parent_uuid, uuid, cmd, parent_uses_env, uuid , child_env)
+                logger.warning(a)
+                problems.append(('CMD_PARENT_CHILD',uuid,a))
     #
     return problems
 

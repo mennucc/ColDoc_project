@@ -306,7 +306,7 @@ def check_tree(request, NICK):
         problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
         if problems:
             s = '<h3>Problems in tree of blobs</h3><ul>'
-            for desc, uuid in problems:
+            for code, uuid, desc in problems:
                 url = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid})
                 s += ('<li><a href="%s">'%(url,)) + uuid + '</a> →' + desc + '</li>'
             s += '</ul>'
