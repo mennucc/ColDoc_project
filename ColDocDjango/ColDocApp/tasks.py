@@ -112,7 +112,7 @@ def reparse_all_sched(email_to, NICK):
     log_file = tempfile.NamedTemporaryFile('w', delete=False, suffix='.txt', prefix='reparse')
     def writelog(s):
         log_file.write(s+'\n')
-    from ColDocDjango.helper import reparse_all
+    from helper import reparse_all
     reparse_all(writelog, settings.COLDOC_SITE_ROOT, NICK)
     log_file.close()
     if email_to:

@@ -191,7 +191,7 @@ def reparse(request, NICK):
         if request.user.email:
             messages.add_message(request,messages.INFO,'Reparsing results will be sent to '+str(request.user.email))
     else:
-        from ColDocDjango.helper import reparse_all
+        from helper import reparse_all
         def writelog(s):
             messages.add_message(request,messages.INFO,s)
         reparse_all(writelog, settings.COLDOC_SITE_ROOT, NICK)
