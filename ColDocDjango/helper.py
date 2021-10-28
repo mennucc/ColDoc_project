@@ -21,7 +21,8 @@ This program does some actions that `manage` does not. Possible commands:
          reparse all blobs
     
     check_tree
-        check that tree is connected and has no loops
+        check that tree is connected and has no loops;
+        and consistency of metadata and LaTeX content
 
     list_authors
         ditto
@@ -569,7 +570,23 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
                     (parent_uuid, uuid, cmd, parent_uses_env, uuid , child_env)
                 logger.warning(a)
                 problems.append(('CMD_PARENT_CHILD',uuid,a))
-    #
+    # check that header is consistent
+    from ColDoc.config import ColDoc_environments_sectioning
+    for uuid in all_metadata :
+        M = all_metadata[uuid]
+        env = environments.get(uuid)
+        if env and env in ColDoc_environments_sectioning:
+            D = osjoin(blobs_dir, uuid_to_dir(uuid, blobs_dir))
+            try:
+                for j in os.listdir(D):
+                    if j.startswith('blob') and j.endswith('.tex'):
+                        l = open( osjoin(D,j) ).readline(32)
+                        if not l.startswith('\\'+ env):
+                            a = 'UUID %r file %r environ %r first line %r' % (uuid, j, env, l)
+                            logger.warning(a)
+                            problems.append(('WRONG_HEADER', uuid, a))
+            except:
+                logger.exception('while checking headers in %r', uuid)
     return problems
 
 
