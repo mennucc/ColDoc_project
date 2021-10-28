@@ -763,7 +763,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     # used only for `show` view
     if _view_ext is None:
         if 'ext' in q:
-            assert slugp_re.match(q['ext'])
+            if not slugp_re.match(q['ext']):
+                raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
             _view_ext = q['ext']
         else:
             return HttpResponse("must specify extension", status=http.HTTPStatus.NOT_FOUND)
@@ -789,7 +790,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     langs = []
     if 'lang' in q:
         l = q['lang']
-        assert l=='' or slug_re.match(l)
+        if not ( l=='' or slug_re.match(l) ):
+            raise SuspiciousOperation("Invalid lang %r in query." % (l,))
         langs = [l]
     download='download' in q
     #for j in q:
@@ -940,7 +942,8 @@ def index(request, NICK, UUID):
     lang = None
     if 'lang' in q:
         lang = q['lang']
-        assert lang=='' or slug_re.match(lang)
+        if not ( lang=='' or slug_re.match(lang) ):
+            raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
     for j in q:
         if j not in ('ext','lang'):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
