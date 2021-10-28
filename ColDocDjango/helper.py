@@ -479,7 +479,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     def actor(teh, seen, available, warn, problems, uuid, branch, *v , **k):
         if uuid in branch:
             warn("loop detected along branch %r",branch)
-            problems.append(("LOOP", branch + [uuid]))
+            problems.append(("LOOP", uuid))
         ret = True
         if uuid in seen:
             ret = False
@@ -496,7 +496,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             p = load_by_uuid(branch[-2])
             if not teh.child_is_allowed(c.environ, p.environ, c.get('extension')):
                 a = "The node %r %r cannot be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ)
-                problems.append(("WRONG_LINK", a))
+                problems.append(("WRONG_LINK", uuid))
                 warn(a)
                 ret = False
             #else:
