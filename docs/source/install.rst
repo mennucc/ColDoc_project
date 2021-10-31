@@ -61,7 +61,7 @@ To solve this problem, you should
 edit the file `/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg` and change
 `%C  0x0000` to `%C  0x0010`.
 
-You may use the patch `patch/texmf.patch` for this.
+You may use the patch `patches/texmf.patch` for this.
 
 
 Note that this file is not marked as a `configuration file` in Debian/Ubuntu,
@@ -72,7 +72,7 @@ problem, you may want to run (as `root` user)
 
 	  dpkg-divert --add --rename /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
 	  cp -a /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg.distrib  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
-	  patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg ${COLDOC_SRC_ROOT}/patch/texmf.patch
+	  patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg ${COLDOC_SRC_ROOT}/patches/texmf.patch
 
 
 Alternatively, you may add
