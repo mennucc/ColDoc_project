@@ -147,6 +147,10 @@ def latex(request, NICK):
     options['url_UUID'] = url
     options['coldoc'] = coldoc
     options['metadata_class'] = DMetadata
+    # used to dedup plastex stuff
+    options['coldoc_site_root']  = settings.COLDOC_SITE_ROOT
+    options['dedup_root'] = settings.DEDUP_ROOT
+    options['dedup_url'] = settings.DEDUP_URL
     # needed by `latex_tree`
     if typ_ == 'tree':
         import functools
