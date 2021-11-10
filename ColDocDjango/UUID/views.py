@@ -497,7 +497,7 @@ def postedit(request, NICK, UUID):
                 request.build_absolute_uri(django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':addnew_uuid})),
                 addnew_uuid)
             addmessage = ("Created blob with UUID %s, please edit %s to properly input it (a stub \\input was inserted for your convenience)"%
-                          (uuid_as_html, new_uuid_as_html))
+                          (new_uuid_as_html, uuid_as_html))
             messages.add_message(request,messages.INFO,addmessage)
             addmetadata = DMetadata.load_by_uuid(uuid=addnew_uuid,coldoc=coldoc)
             add_extension = addmetadata.get('extension')
