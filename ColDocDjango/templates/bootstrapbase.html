@@ -133,9 +133,9 @@
   </span>
   <span  class="container text-muted">
       Quality control
-       <a href="http://validator.w3.org/check?uri=referer" class="text-muted">HTML 4.0.1 strict</a>
+       <a href="https://validator.w3.org/nu/?doc={{ request.build_absolute_uri | urlencode }}" class="text-muted">HTML 4.0.1 strict</a>
        | 
-      <a href="http://jigsaw.w3.org/css-validator/check/referer" class="text-muted">CSS 2.1</a>
+      <a href="https://jigsaw.w3.org/css-validator/validator?uri={{ request.build_absolute_uri | urlencode }}" class="text-muted">CSS 2.1</a>
   </span>
    </footer>
 
