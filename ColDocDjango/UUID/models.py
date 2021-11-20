@@ -366,6 +366,10 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             #if ',' in j
             if j:
                 yield j
+    #
+    def __str__(self):
+        return 'DMetadata %s/%s (%d)' % (self.coldoc.nickname, self.uuid, self.id)
+
 
 class ExtraMetadata(models.Model):
     blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)
