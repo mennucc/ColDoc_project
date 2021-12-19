@@ -28,11 +28,11 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
  {% else %}<div class="btn btn-outline-light disabled">↓</div>{% endif %}
  {% if pdfUUIDurl %} <a href="{{ pdfUUIDurl | safe }}" class="btn btn-outline-primary"
             data-toggle="tooltip" title="View this blob inside the whole PDF">
-  <img src="{% static 'ColDoc/Adobe_PDF_goto_icon.svg' %}"  style="height: 14pt" ></a>
+  <img src="{% static 'ColDoc/Adobe_PDF_goto_icon.svg' %}"  style="height: 14pt" alt="view in whole PDF"></a>
  {% endif %}
 {% if htmlUUIDurl %} <a href="{{ htmlUUIDurl | safe }}" class="btn btn-outline-primary"
             data-toggle="tooltip" title="View this blob inside the whole HTML">
-  <img src="{% static 'ColDoc/HTML_goto_icon.svg' %}"  style="height: 14pt" ></a>
+  <img src="{% static 'ColDoc/HTML_goto_icon.svg' %}"  style="height: 14pt" alt="view in whole HTML"></a>
  {% endif %}
 
  {% if buy_link %} <a href="{{ buy_link | safe }}" class="btn btn-outline-primary"
