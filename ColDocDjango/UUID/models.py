@@ -82,7 +82,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             a.update(set(self.__single_valued))
             a.add('author')
             a.add('extrametadata')
-            b = set(a.name for a in self._meta.get_fields())
+            b = set(j.name for j in self._meta.get_fields())
             if a != b:
                 logger.warning('DMetadata fields unaliagned, a="documented" b="effective": a-b %r b-a %r'%( a.difference(b), b.difference(a) ))
     #
@@ -292,16 +292,16 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         else:
             ExtraMetadata.objects.filter(blob=self, key=key).delete()
     #
-    def delete(self,k,v):
+    def delete(self,key,value):
         "delete a key/value"
         if key in  self.__single_valued or key in self.__internal_multiple_valued_keys:
             raise NotImplementedError()
         if key == 'child_uuid':
-            UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid, child=v).delete()
+            UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid, child=value).delete()
         elif key == 'child_uuid': 
-            UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid, parent=v).delete()
+            UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid, parent=value).delete()
         else:
-            ExtraMetadata.objects.filter(blob=self, key=k, value=v).delete()
+            ExtraMetadata.objects.filter(blob=self, key=key, value=value).delete()
     #
     def get(self, key, default = None):
         """returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"""

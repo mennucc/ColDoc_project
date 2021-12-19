@@ -181,7 +181,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
                 prologue = blobcontent[:j]
                 blobeditdata = blobcontent[j+1:]
             except:
-                logger.exception('Could not remove uuid line from blob %r',UUID)
+                logger.exception('Could not remove uuid line from blob %r', uuid)
                 prologue = '%'
     return shortprologue, prologue, blobeditdata, warnings
 
@@ -765,9 +765,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     # used only for `show` view
     if _view_ext is None:
         if 'ext' in q:
-            if not slugp_re.match(q['ext']):
-                raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
             _view_ext = q['ext']
+            if not slugp_re.match(_view_ext):
+                raise SuspiciousOperation("Invalid ext %r in query." % (_view_ext,))
         else:
             return HttpResponse("must specify extension", status=http.HTTPStatus.NOT_FOUND)
     # used for main document logs
@@ -896,7 +896,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return response
     
     except FileNotFoundError:
-        logger.warning('FileNotFoundError user=%r coldoc=%r uuid=%r ext=%r lang=%r',request.user.username,NICK,UUID,ext,lang)
+        logger.warning('FileNotFoundError user=%r coldoc=%r uuid=%r ext=%r lang=%r',request.user.username,NICK,UUID,_view_ext,lang)
         return HttpResponse("Cannot find UUID %r with langs=%r , extension=%r." % (UUID,langs,_view_ext),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:

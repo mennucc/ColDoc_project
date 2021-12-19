@@ -939,7 +939,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         bi,ei=os.path.splitext(bi)
                         assert inputfile == osjoin(di,bi+ei)
                         if ei and not os.path.isfile(osjoin(input_basedir,inputfile)):
-                            logger.error(' while parsing %r, no  such file: %r' %(src,fi,))
+                            logger.error(' while parsing %r, no  such file: %r' %(src,inputfile,))
                         # find all interesting files
                         is_graph = False
                         exts = []

@@ -89,7 +89,7 @@ def send_email(request):
         return redirect(django.urls.reverse('index'))
     email_form = Email_Form(request.POST)
     if not email_form.is_valid():
-        return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
+        return HttpResponse("Invalid form: "+repr(email_form.errors),status=http.HTTPStatus.BAD_REQUEST)
     #
     email_to   = email_form.cleaned_data['email_to']
     email_from = email_form.cleaned_data['email_from']
