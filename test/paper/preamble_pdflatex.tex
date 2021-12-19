@@ -2,4 +2,6 @@
    \usepackage{amsfonts}
    \usepackage[utf8]{inputenc}
    \usepackage[english]{babel}
-   \usepackage{bbm}
+   \IfFileExists{bbm.sty}
+    {\usepackage{bbm}}
+    {\newcommand\mathbbm{\mathbb}}
