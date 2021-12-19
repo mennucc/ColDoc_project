@@ -8,9 +8,9 @@ logger = logging.getLogger(__name__)
 from django.utils import timezone as DT
 
 from django.db import models
-from django.core.validators  import RegexValidator
+#from django.core.validators  import RegexValidator
 from django.urls import reverse
-from django.templatetags.static import static
+#from django.templatetags.static import static
 
 from django.conf import settings
 AUTH_USER_MODEL = settings.AUTH_USER_MODEL

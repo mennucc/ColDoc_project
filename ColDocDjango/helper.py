@@ -137,7 +137,7 @@ def set_site(site_url = None):
 
 def _build_fake_email(e):
     from django.conf import settings
-    import email
+    #import email
     a = settings.DEFAULT_FROM_EMAIL
     if not a or '@' not in a:
         return e + '@test.local'

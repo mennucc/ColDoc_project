@@ -10,10 +10,10 @@ valid_user_re = UnicodeUsernameValidator().regex
 
 import django
 from django import forms
-from django.template.loader import render_to_string
-from django.core.exceptions import SuspiciousOperation
+#from django.template.loader import render_to_string
+#from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import get_object_or_404, render, redirect
-from django.conf import settings
+#from django.conf import settings
 from django.http import HttpResponse
 from django.contrib import messages
 from django import forms
@@ -21,7 +21,7 @@ from django.contrib.auth import get_user_model
 
 UsMo = get_user_model()
 
-from ColDoc.utils import slug_re, slugp_re
+#from ColDoc.utils import slug_re, slugp_re
 from ColDocDjango.utils import get_email_for_user
 
 from ColDocApp.models import DColDoc

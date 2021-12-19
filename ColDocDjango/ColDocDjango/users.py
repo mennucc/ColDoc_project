@@ -133,7 +133,7 @@ def user_has_perm(user, perm, coldoc, blob, object_):
 #####################################
 # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
 
-from django.conf import settings
+#from django.conf import settings
 
 from django.contrib.auth.models import AbstractUser
 
@@ -190,7 +190,7 @@ class ColDocUser(AbstractUser, BaseColDocUser):
     def is_author(self):
         if self._blob is None:
             return False
-        from ColDocApp.models import DColDoc
+        #from ColDocApp.models import DColDoc
         return self._blob.author.filter(username=self.username).exists()
     #
     def has_perm(self, perm, obj=None):

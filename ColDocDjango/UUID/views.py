@@ -11,7 +11,7 @@ from django.http import HttpResponse, JsonResponse, QueryDict
 from django.contrib import messages
 from django import forms
 from django.conf import settings
-from django.core import serializers
+#from django.core import serializers
 from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.utils.html import escape
 from django.templatetags.static import static
@@ -34,7 +34,7 @@ else:
 import plasTeX.Tokenizer
 import plasTeX.Base as Base
 from plasTeX.TeX import TeX
-from plasTeX.Packages import graphicx
+#from plasTeX.Packages import graphicx
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
 from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text
