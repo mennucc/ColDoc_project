@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from django.contrib.auth.validators import UnicodeUsernameValidator
-valid_user_re = UnicodeUsernameValidator().regex
+valid_user_re = re.compile(UnicodeUsernameValidator.regex)
 
 import django
 from django import forms
