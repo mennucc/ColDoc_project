@@ -59,17 +59,6 @@ from ColDoc.utils import ColDocException, get_blobinator_args
 import logging
 logger = logging.getLogger('helper')
 
-try:
-    import django_pursed
-except ImportError:
-    django_pursed = None
-
-try:
-    import wallet
-except ImportError:
-    wallet = None
-
-
 def deploy(target):
     from ColDocDjango import config
     if os.path.exists(target):
@@ -643,10 +632,6 @@ def send_test_email(email_to):
 
 def main(argv):
     doc = __doc__
-    if django_pursed is not None:
-        from django_pursed.helper import __doc__ as a
-        doc += '\n'.join(a.splitlines()[5:-1])
-    #
     parser = argparse.ArgumentParser(description=doc,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
@@ -670,10 +655,6 @@ def main(argv):
         parser.add_argument('--environ',type=str,required=True,\
                             help='environment of  newly created blob')
     parser.add_argument('command', help='specific command',nargs='+')
-    if django_pursed is not None:
-            from django_pursed.helper import parser_add_arguments
-            parser_add_arguments(parser, argv)
-    #
     args = parser.parse_args()
     #
     verbose = args.verbose
@@ -737,16 +718,6 @@ does not contain the file `config.ini`
         for a in authors:
             print(repr(a) + '→' + repr(authors[a]))
         return True
-    elif django_pursed is not None:
-        from django_pursed.helper import main_call
-        from wallet import utils
-        ret = main_call(utils, argv, args)
-        if ret is not None:
-            return ret
-        else:
-            sys.stderr.write("command not recognized : %r\n" % (argv,))
-            sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
-            return False
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
         sys.stderr.write(__doc__%{'arg0':sys.argv[0]})
