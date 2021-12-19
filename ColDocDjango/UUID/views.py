@@ -344,9 +344,11 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
             logger.exception('While parsing \\section')
             weird_prologue.append('Internal error while parsing for \\%s{...}.' % (env,))
         blobcontent = newprologue + blobeditarea
-    else:
+    elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
         newprologue = '\\uuid{%s}%%\n' % (uuid,)
         blobcontent = newprologue + blobeditarea
+    else:        
+        blobcontent = blobeditarea
     return blobcontent, newprologue, sources , weird_prologue
 
 
