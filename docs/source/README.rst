@@ -122,6 +122,15 @@ All documentation is in the "``docs``" directory.
 The documentation is in RST format, so it is mostly standard text:
 you can read it in the files inside `docs/source`.
 
+By using  `sphinx` toolset, the documentation
+can be compiled to other formats; an HTML version is already available,
+for your convenience: browse it by
+
+.. code:: shell
+
+	  firefox docs/build/html/index.html
+
+
 Compile
 -------
 
@@ -146,11 +155,8 @@ Then
 	  cd docs
 	  make html
 
-or any other format that you wish. Then start browsing by
+or any other format that you wish.
 
-.. code:: shell
-
-	  firefox docs/build/html/index.html
 
 Quick start
 ===========
