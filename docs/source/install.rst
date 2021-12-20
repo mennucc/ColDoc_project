@@ -50,6 +50,19 @@ The script `plastex/prepare.sh` can download and patch plastex for you: the patc
 version is then available in  `plastex/plastex`.
 So you can install it, using `python3 setup.py install` inside the directory `plastex/plastex`.
 
+Installing wallet
+-----------------
+
+The portal has an internal currency that can be used to buy permissions and downloads.
+To enable it, download the latest code from GitHub
+
+.. code:: shell
+
+	  cd /home/.../.../somewhereelse
+	  git clone https://github.com/mennucc/django-simplewallet
+	  ln -s -T $(pwd)/django-simplewallet/src/wallet ${COLDOC_SRC_ROOT}/ColDocDjango/wallet
+
+
 
 Fix PdfLaTeX
 ------------
