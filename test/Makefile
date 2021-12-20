@@ -85,6 +85,15 @@ django_help:
 $(COLDOC_SITE_ROOT)/.__deployed_timestamp:
 	test -d tmp || mkdir tmp
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT)  deploy
+	#### tweak config.ini
+	# change to DEBUG mode, and store dedup files inside the static tree, so they will be available in DEBUG mode
+	sed -i~~ 's!debug.*!debug = True!;s!dedup_root.*!dedup_root = %(site_root)s/static_local/dedup!;s!dedup_url.*!dedup_url = /static/dedup!' $(COLDOC_SITE_ROOT)/config.ini
+	mkdir $(COLDOC_SITE_ROOT)/static_local/dedup
+	# enable whitenoise
+	sed -i~~~ 's/whitenoise.*False/whitenoise = True/' $(COLDOC_SITE_ROOT)/config.ini
+	# enable wallet if properly symlinked
+	if test -f ../ColDocDjango/wallet/admin.py ; then 	sed -i~~~ 's/wallet.*False/wallet = True/' $(COLDOC_SITE_ROOT)/config.ini ; fi
+	####
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  makemigrations
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  migrate
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT)  set_site
@@ -92,9 +101,6 @@ $(COLDOC_SITE_ROOT)/.__deployed_timestamp:
 	../ColDocDjango/manage.py --coldoc-site-root $(COLDOC_SITE_ROOT)  collectstatic
 	## this seems useless
 	#	cd $(COLDOC_SITE_ROOT)/static_local &&  cp -a ../static_root/* . && ln -s ../static_root/CDdedup .
-	## change to DEBUG mode, and store dedup files inside the static tree, so they will be available in DEBUG mode
-	sed -i~~ 's!debug.*!debug = True!;s!dedup_root.*!dedup_root = %(site_root)s/static_local/dedup!;s!dedup_url.*!dedup_url = /static/dedup!' $(COLDOC_SITE_ROOT)/config.ini
-	sed -i~~~ 's/whitenoise.*False/whitenoise = True/' $(COLDOC_SITE_ROOT)/config.ini
 	../ColDocDjango/helper.py  --coldoc-site-root $(COLDOC_SITE_ROOT)  create_fake_users
 	touch $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 
