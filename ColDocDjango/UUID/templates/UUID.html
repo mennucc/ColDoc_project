@@ -103,7 +103,9 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
        {% for  u in MA %} {{ u }} ; {% endfor %}
       {% endwith %}
       {% with metadata.author.all as A %}
-       {% for  u in A %}  {{ u.pretty_user_name }} {% if u == A.last %} . {% else %} ; {% endif %} {% endfor %}
+       {% for  u in A %} 
+            <a href="{{ u.get_absolute_url }}">           {{ u.pretty_user_name }}            </a>   
+           {% if u == A.last %} . {% else %} ; {% endif %} {% endfor %}
       {% endwith %}
       </div>
       {% if latex_error_logs %}
