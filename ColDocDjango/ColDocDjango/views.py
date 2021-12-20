@@ -9,6 +9,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 valid_user_re = re.compile(UnicodeUsernameValidator.regex)
 
 import django
+from django.core import signing
 from django import forms
 #from django.template.loader import render_to_string
 #from django.core.exceptions import SuspiciousOperation
@@ -77,7 +78,7 @@ def user(request):
     to_email   = get_email_for_user(thatuser)
     #
     if from_email and to_email and request.user.id != thatuser.id :
-        email_form = Email_Form(initial={ 'email_to' : to_email , 'email_from' : from_email })
+        email_form = Email_Form(initial={ 'email_to' : signing.dumps(to_email) , 'email_from' : signing.dumps(from_email) })
     else:
         email_form = None
     return render(request, 'user.html', locals())
@@ -91,8 +92,8 @@ def send_email(request):
     if not email_form.is_valid():
         return HttpResponse("Invalid form: "+repr(email_form.errors),status=http.HTTPStatus.BAD_REQUEST)
     #
-    email_to   = email_form.cleaned_data['email_to']
-    email_from = email_form.cleaned_data['email_from']
+    email_to   = signing.loads(email_form.cleaned_data['email_to'])
+    email_from = signing.loads(email_form.cleaned_data['email_from'])
     a = get_email_for_user(request.user)
     if not email_from:
         return HttpResponse("No email for %r." % (request.user,), status=http.HTTPStatus.BAD_REQUEST)
