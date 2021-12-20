@@ -160,12 +160,6 @@ class BaseColDocUser():
     @property
     def is_author(self):
         return False
-    #
-    @property
-    def pretty_user_name(self):
-        if self.first_name or self.last_name:
-            return '"' + self.last_name + ' , ' + self.first_name + '"'
-        return self.username
 
 
 class ColDocUser(AbstractUser, BaseColDocUser):
@@ -185,6 +179,12 @@ class ColDocUser(AbstractUser, BaseColDocUser):
         n = name_of_group_for_coldoc(self._coldoc.nickname, 'editors')
         gr = Group.objects.get(name = n)
         return gr.user_set.filter(id=self.id).exists()
+    #
+    @property
+    def pretty_user_name(self):
+        if self.first_name or self.last_name:
+            return '"' + self.last_name + ' , ' + self.first_name + '"'
+        return self.username
     #
     @property
     def is_author(self):
