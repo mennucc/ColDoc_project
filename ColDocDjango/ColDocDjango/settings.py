@@ -75,6 +75,28 @@ if USE_BACKGROUND_TASKS:
 
 USE_WALLET = config['django'].getboolean('use_wallet')
 
+## This feature is not yet implemented
+RECAPTCHA_PUBLIC_KEY = None
+RECAPTCHA_PRIVATE_KEY = None
+USE_RECAPTCHA = config['django'].getboolean('use_recaptcha')
+if USE_RECAPTCHA:
+    try:
+        import django_recaptcha
+    except ImportError:
+        logger.error('Please install `django-recaptcha`')
+        USE_RECAPTCHA = False
+if USE_RECAPTCHA:
+    logger.warning('recaptcha is not yet implemented')
+
+##
+USE_SIMPLE_CAPTCHA = config['django'].getboolean('use_simple_captcha')
+if USE_SIMPLE_CAPTCHA:
+    try:
+        import captcha
+    except ImportError:
+        logger.error('Please install `django-simple-captcha`')
+        USE_SIMPLE_CAPTCHA = False
+
 
 # Application definition
 
@@ -104,9 +126,13 @@ if USE_ALLAUTH:
 
 if USE_BACKGROUND_TASKS:
     INSTALLED_APPS += ['background_task',]
+    
+if USE_RECAPTCHA or USE_SIMPLE_CAPTCHA:
+    INSTALLED_APPS += ['captcha', ]
 
 if USE_WALLET:
     INSTALLED_APPS += [ 'wallet', ]
+
 
 AUTHENTICATION_BACKENDS = [
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -299,4 +325,13 @@ else:
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+
+if (RECAPTCHA_PUBLIC_KEY is None or RECAPTCHA_PRIVATE_KEY is  None) and USE_RECAPTCHA:
+    logger.warning('USE_RECAPTCHA is True but RECAPTCHA_PUBLIC_KEY or RECAPTCHA_PRIVATE_KEY are not defined: disabled')
+    USE_RECAPTCHA = False
+
+if USE_SIMPLE_CAPTCHA and USE_RECAPTCHA:
+    logger.warning('SIMPLE_CAPTCHA and RECAPTCHA cannot be used at the same time, disabling one of the two')
+    USE_RECAPTCHA = bool(RECAPTCHA_PUBLIC_KEY)
 

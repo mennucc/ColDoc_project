@@ -9,6 +9,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 valid_user_re = re.compile(UnicodeUsernameValidator.regex)
 
 import django
+from django.conf import settings
 from django.core import signing
 from django import forms
 #from django.template.loader import render_to_string
@@ -41,7 +42,12 @@ Disallow: /admin/
 Disallow: /wallet/
 """, content_type="text/plain")
 
-
+if settings.USE_SIMPLE_CAPTCHA:
+    from captcha.fields import CaptchaField
+else:
+    def CaptchaField():
+        return forms.CharField(widget=forms.HiddenInput, required=False,)
+    
 
 class Email_Form(forms.Form):
     subject = forms.CharField(label='Subject',max_length=255, required=True,)
@@ -51,7 +57,7 @@ class Email_Form(forms.Form):
     )
     email_from = forms.CharField(widget=forms.HiddenInput, required=True,)
     email_to   = forms.CharField(widget=forms.HiddenInput, required=True,)
-
+    captcha = CaptchaField()
 
 
 def user(request):

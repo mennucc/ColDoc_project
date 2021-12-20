@@ -34,6 +34,11 @@ urlpatterns = [
     path('CD/', include('ColDocApp.urls')),
     ]
 
+if settings.USE_SIMPLE_CAPTCHA:
+    urlpatterns += [
+        path('captcha/', include('captcha.urls')),
+    ]
+
 if settings.USE_WALLET:
     urlpatterns += [
         path('wallet/', include('wallet.urls')),

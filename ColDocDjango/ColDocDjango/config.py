@@ -22,6 +22,10 @@ config.set(section, 'debug', 'True')
 config.set(section, 'secret_key', '')
 config.set(section, 'use_allauth', 'False')
 config.set(section, 'use_background_tasks', 'True')
+## this is not yet implemented
+config.set(section, 'use_recaptcha', 'False')
+
+config.set(section, 'use_simple_captcha', 'False')
 config.set(section, 'use_wallet', 'False')
 config.set(section, 'use_whitenoise', 'False')
 config.set(section, 'hostname', 'localhost')
