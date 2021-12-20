@@ -1,27 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en it">
+<html lang="en it">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Blob and UUID &#8212; ColDoc 0.1 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Metadata" href="metadata.html" />
@@ -29,15 +19,17 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="blob-and-uuid">
@@ -59,8 +51,8 @@ of the tree.  (The <cite>root_uuid</cite> may be changed, it is stored as field
 <p>Vice versa, an UUID may refer to many blobs that have the
 same semantic content but are available in</p>
 <ul class="simple">
-<li>different langages (English, Italian..) and/or</li>
-<li>different  content type (LaTeX, HTML, PDF, JPEG ...).</li>
+<li><p>different langages (English, Italian..) and/or</p></li>
+<li><p>different  content type (LaTeX, HTML, PDF, JPEG ...).</p></li>
 </ul>
 <p>All these are blobs that are referred by the same UUID.</p>
 <p>The list of languages is stored in the metadata <cite>lang</cite> , the list
@@ -72,16 +64,16 @@ the same picture/graphic in different formats.
 (But this is still mostly TODO).</p>
 <p>Currently the code is designed in this way:</p>
 <ul class="simple">
-<li>if the blob contains LaTeX then the only extension is <cite>.tex</cite> and
-there may be multiple languages;</li>
-<li>if the blob contains a LaTeX package then the only extension is <cite>.sty</cite> and
-the list of languages is empty;</li>
-<li>if the blob contains a LaTeX bibliography then the only extension is <cite>.bib</cite> and
-the list of languages is empty;</li>
-<li>all other cases are graphical blobs: the list of
+<li><p>if the blob contains LaTeX then the only extension is <cite>.tex</cite> and
+there may be multiple languages;</p></li>
+<li><p>if the blob contains a LaTeX package then the only extension is <cite>.sty</cite> and
+the list of languages is empty;</p></li>
+<li><p>if the blob contains a LaTeX bibliography then the only extension is <cite>.bib</cite> and
+the list of languages is empty;</p></li>
+<li><p>all other cases are graphical blobs: the list of
 extensions explains all available content type; the list of
 languages is empty.  (TODO it may be useful to have a graphical file
-available in different languages)</li>
+available in different languages)</p></li>
 </ul>
 </div>
 <div class="section" id="blobs-and-views">
@@ -96,13 +88,13 @@ a <cite>main</cite> view, available in PDF and HTML.
 The <cite>main</cite> view is internally associated to the <cite>root_uuid</cite>.</p>
 <p>There are two versions of the <cite>main</cite> view.</p>
 <ul class="simple">
-<li>a version containing all the material, visible to <cite>editors</cite>;
+<li><p>a version containing all the material, visible to <cite>editors</cite>;
 this <cite>main</cite> view is stored in the directory
-<cite>blobs/UUID/0/0/1</cite> of the root uuid;</li>
-<li>a reduced version, containing only the <cite>public</cite> and <cite>open</cite> parts;
+<cite>blobs/UUID/0/0/1</cite> of the root uuid;</p></li>
+<li><p>a reduced version, containing only the <cite>public</cite> and <cite>open</cite> parts;
 this is visible to anybody. (See the section on permissions).
 This reduced version view is stored in the directory
-<cite>anon/UUID/0/0/1</cite>.</li>
+<cite>anon/UUID/0/0/1</cite>.</p></li>
 </ul>
 <p>For graphical content, there is no much difference between <cite>blobs</cite>
 and <cite>views</cite>, so an user that has <cite>view_view</cite> access will
@@ -114,19 +106,41 @@ be able to view the blobs.
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Blob and UUID</a><ul>
-<li><a class="reference internal" href="#tree-of-uuids">Tree of UUIDs</a></li>
-<li><a class="reference internal" href="#relationship-between-blobs-and-uuid">Relationship between blobs and UUID</a></li>
-<li><a class="reference internal" href="#blobs-and-views">Blobs and views</a></li>
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Blob and UUID</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tree-of-uuids">Tree of UUIDs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#relationship-between-blobs-and-uuid">Relationship between blobs and UUID</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#blobs-and-views">Blobs and views</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">UUID Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#coldoc-permissions">ColDoc Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#groups">Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -136,23 +150,24 @@ be able to view the blobs.
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/blob.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -161,8 +176,8 @@ be able to view the blobs.
       &copy;2019, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/blob.rst.txt"

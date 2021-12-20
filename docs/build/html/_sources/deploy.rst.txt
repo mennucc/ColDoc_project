@@ -96,12 +96,11 @@ only the most important ones).
 At startup, Django reads a `settings.py` file. In this case,
 settings for a deployed site are read from three files:
 
-- the general file `${COLDOC_SRC_ROOT}/ColDocDjango/settings.py` in the ColDoc code
+- the general file `${COLDOC_SRC_ROOT}/ColDocDjango/ColDocDjango/settings.py` in the ColDoc code;
 
-- `${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py` if it exists
+- `${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py` if it exists;
 
-- `${COLDOC_SITE_ROOT}/settings.py` from the `COLDOC_SITE_ROOT` directory where the
-   web site is deployed.
+- `${COLDOC_SITE_ROOT}/settings.py` from the `COLDOC_SITE_ROOT` directory where the web site is deployed.
 
 Each one overrides the previous.
 

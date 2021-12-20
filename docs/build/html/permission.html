@@ -1,27 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en it">
+<html lang="en it">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UUID Permissions &#8212; ColDoc 0.1 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Blobify" href="blobify.html" />
@@ -29,15 +19,17 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="uuid-permissions">
@@ -54,10 +46,10 @@ so they are the same for all languages and/or content types.
 <p>For each permission above of the form <cite>aaaa_bbbb</cite> and any <cite>coldoc</cite> with nickname <cite>cccc</cite> there is also a permission
 <cite>aaaa_bbbb_on_blob_inside_cccc</cite>, that is specific for that coldoc.</p>
 <ul class="simple">
-<li>An user that has permission  <cite>aaaa_bbbb</cite> automatically has permission
-<cite>aaaa_bbbb_on_blob_inside_cccc</cite> for any UUID in any coldoc.</li>
-<li>An user that has permission  <cite>aaaa_bbbb_on_blob_inside_cccc</cite> automatically has permission
-<cite>aaaa_bbbb</cite> for any UUID in the coldoc with nickname <cite>cccc</cite>.</li>
+<li><p>An user that has permission  <cite>aaaa_bbbb</cite> automatically has permission
+<cite>aaaa_bbbb_on_blob_inside_cccc</cite> for any UUID in any coldoc.</p></li>
+<li><p>An user that has permission  <cite>aaaa_bbbb_on_blob_inside_cccc</cite> automatically has permission
+<cite>aaaa_bbbb</cite> for any UUID in the coldoc with nickname <cite>cccc</cite>.</p></li>
 </ul>
 </div>
 <div class="section" id="special-users">
@@ -74,37 +66,36 @@ True, and the blob the UUID <cite>access</cite> state is <cite>open</cite> or <c
 <p>(Recall that each UUID has an <cite>access</cite> metadata that can be
 <cite>open</cite> , <cite>public</cite> or <cite>private</cite>.)</p>
 <ul>
-<li><p class="first"><cite>view_view</cite> : permission to  view a a <cite>view</cite> (a representation of the blob, as a html or PDF).
+<li><p><cite>view_view</cite> : permission to  view a a <cite>view</cite> (a representation of the blob, as a html or PDF).
 If the UUID <cite>access</cite> state is</p>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt><cite>open</cite> or <cite>public</cite>, this is always granted to authenticated users; and</dt>
-<dd>granted to anonymous users if the property <cite>Anonymous can view</cite> is set in the coldoc settings
-(an editor can change it from the main web page for the coldoc)</dd>
+<li><dl class="simple">
+<dt><cite>open</cite> or <cite>public</cite>, this is always granted to authenticated users; and</dt><dd><p>granted to anonymous users if the property <cite>Anonymous can view</cite> is set in the coldoc settings
+(an editor can change it from the main web page for the coldoc)</p>
+</dd>
 </dl>
 </li>
-<li><cite>private</cite> , it is granted to the author or any user with <cite>view_view</cite> permission</li>
+<li><p><cite>private</cite> , it is granted to the author or any user with <cite>view_view</cite> permission</p></li>
 </ul>
 </li>
-<li><p class="first"><cite>view_blob</cite> : permission to  view real content of the blob.
+<li><p><cite>view_blob</cite> : permission to  view real content of the blob.
 If the UUID <cite>access</cite> state is</p>
 <ul class="simple">
-<li><cite>open</cite>  this is always granted to authenticated users.</li>
-<li><cite>private</cite> or <cite>public</cite> , it is granted to the author or any user with <cite>view_blob</cite> permission</li>
+<li><p><cite>open</cite>  this is always granted to authenticated users.</p></li>
+<li><p><cite>private</cite> or <cite>public</cite> , it is granted to the author or any user with <cite>view_blob</cite> permission</p></li>
 </ul>
 </li>
-<li><p class="first"><cite>download</cite> : permission to download the content of this blob in nice formatted ways.
+<li><p><cite>download</cite> : permission to download the content of this blob in nice formatted ways.
 If the UUID <cite>access</cite> state is</p>
 <ul class="simple">
-<li><cite>open</cite>  this is always granted to authenticated users.</li>
-<li><cite>private</cite> or <cite>public</cite> , it is granted to the author or any user with <cite>download</cite>.</li>
+<li><p><cite>open</cite>  this is always granted to authenticated users.</p></li>
+<li><p><cite>private</cite> or <cite>public</cite> , it is granted to the author or any user with <cite>download</cite>.</p></li>
 </ul>
 <blockquote>
 <div><p>Note that the <cite>download</cite> url also requires <cite>view_view</cite> permission.</p>
 </div></blockquote>
 </li>
-<li><p class="first"><cite>view_log</cite> : permission to  view logs created by <cite>LaTeX</cite> <cite>and plastex</cite></p>
-</li>
+<li><p><cite>view_log</cite> : permission to  view logs created by <cite>LaTeX</cite> <cite>and plastex</cite></p></li>
 </ul>
 </div>
 <div class="section" id="local-permissions">
@@ -147,21 +138,21 @@ the <cite>documentclass</cite> ; the  <cite>latex_macros_public</cite> when comp
 the <cite>latex_macros_uuid</cite> when compiling one single blob in one UUID</p>
 <p>The defaults are:</p>
 <ul>
-<li><p class="first"><cite>latex_macros_private</cite> defaults to</p>
-<div class="code tex highlight-default"><div class="highlight"><pre><span></span>\<span class="n">newif</span>\<span class="n">ifColDocPublic</span>\<span class="n">ColDocPublicfalse</span>
-\<span class="n">newif</span>\<span class="n">ifColDocOneUUID</span>\<span class="n">ColDocOneUUIDfalse</span>
+<li><p><cite>latex_macros_private</cite> defaults to</p>
+<div class="highlight-tex notranslate"><div class="highlight"><pre><span></span><span class="k">\newif\ifColDocPublic\ColDocPublicfalse</span>
+<span class="k">\newif\ifColDocOneUUID\ColDocOneUUIDfalse</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first"><cite>latex_macros_public</cite> defaults to</p>
-<div class="code tex highlight-default"><div class="highlight"><pre><span></span>\<span class="n">newif</span>\<span class="n">ifColDocPublic</span>\<span class="n">ColDocPublictrue</span>
-\<span class="n">newif</span>\<span class="n">ifColDocOneUUID</span>\<span class="n">ColDocOneUUIDfalse</span>
+<li><p><cite>latex_macros_public</cite> defaults to</p>
+<div class="highlight-tex notranslate"><div class="highlight"><pre><span></span><span class="k">\newif\ifColDocPublic\ColDocPublictrue</span>
+<span class="k">\newif\ifColDocOneUUID\ColDocOneUUIDfalse</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first"><cite>latex_macros_uuid</cite> defaults to</p>
-<div class="code tex highlight-default"><div class="highlight"><pre><span></span>\<span class="n">newif</span>\<span class="n">ifColDocPublic</span>\<span class="n">ColDocPublicfalse</span>
-\<span class="n">newif</span>\<span class="n">ifColDocOneUUID</span>\<span class="n">ColDocOneUUIDtrue</span>
+<li><p><cite>latex_macros_uuid</cite> defaults to</p>
+<div class="highlight-tex notranslate"><div class="highlight"><pre><span></span><span class="k">\newif\ifColDocPublic\ColDocPublicfalse</span>
+<span class="k">\newif\ifColDocOneUUID\ColDocOneUUIDtrue</span>
 </pre></div>
 </div>
 </li>
@@ -201,9 +192,8 @@ for each and any user.</p>
 <h2>Meaning of permissions, and rules<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>This is the Permissions meaning and rule for some of the above.</p>
 <ul>
-<li><dl class="first docutils">
-<dt><cite>add_blob</cite> <span class="classifier-delimiter">:</span> <span class="classifier">if an user has permission <cite>add_blob</cite> for the whole ColDoc,</span></dt>
-<dd><p class="first last">and has permission <cite>view_blob</cite> for a specific UUID, then s/he can add a
+<li><dl>
+<dt><cite>add_blob</cite><span class="classifier">if an user has permission <cite>add_blob</cite> for the whole ColDoc,</span></dt><dd><p>and has permission <cite>view_blob</cite> for a specific UUID, then s/he can add a
 children UUID to that UUID. Moreover the author of a blob can
 always add children to that blob (unless <cite>author_can_add_blob</cite>
 flag is turned off in the ColDoc settings).</p>
@@ -224,29 +214,49 @@ for that coldoc, and also <cite>UUID.view_view</cite>, <cite>UUID.view_log</cite
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">UUID Permissions</a><ul>
-<li><a class="reference internal" href="#permissions-for-a-specific-coldoc">Permissions for a specific coldoc</a></li>
-<li><a class="reference internal" href="#special-users">Special users</a></li>
-<li><a class="reference internal" href="#meaning-of-permissions-and-rules">Meaning of permissions, and rules</a></li>
-<li><a class="reference internal" href="#local-permissions">Local permissions</a></li>
-<li><a class="reference internal" href="#buying-local-permissions">Buying local permissions</a></li>
-<li><a class="reference internal" href="#access-to-protected-content-in-the-whole-document">Access to protected content in the whole document</a></li>
-<li><a class="reference internal" href="#latex-macros">LaTeX macros</a></li>
-<li><a class="reference internal" href="#accessing-the-whole-document">Accessing the whole document</a></li>
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">UUID Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#permissions-for-a-specific-coldoc">Permissions for a specific coldoc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#special-users">Special users</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#meaning-of-permissions-and-rules">Meaning of permissions, and rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#local-permissions">Local permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#buying-local-permissions">Buying local permissions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#access-to-protected-content-in-the-whole-document">Access to protected content in the whole document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#latex-macros">LaTeX macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accessing-the-whole-document">Accessing the whole document</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#coldoc-permissions">ColDoc Permissions</a><ul>
-<li><a class="reference internal" href="#id1">Meaning of permissions, and rules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#coldoc-permissions">ColDoc Permissions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Meaning of permissions, and rules</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#groups">Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#groups">Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -256,23 +266,24 @@ for that coldoc, and also <cite>UUID.view_view</cite>, <cite>UUID.view_log</cite
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/permission.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -281,8 +292,8 @@ for that coldoc, and also <cite>UUID.view_view</cite>, <cite>UUID.view_log</cite
       &copy;2019, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/permission.rst.txt"

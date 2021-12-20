@@ -1,27 +1,17 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en it">
+<html lang="en it">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ColDoc Project &#8212; ColDoc 0.1 documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.1',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installing" href="install.html" />
@@ -29,15 +19,17 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+  
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="coldoc-project">
@@ -45,19 +37,21 @@
 <p>There are two main frameworks currently used to present information (in particular,
 related to scientific fields).</p>
 <ul class="simple">
-<li>A document redacted with the standard <cite>LaTeX</cite> / <cite>PDF</cite> toolbox.<ul>
-<li><em>Pros:</em> these documents are state-of-the-art quality.</li>
-<li><em>Cons:</em> the final user has no way of interacting with a PDF document
-(other than sending an e-mail to the original authors)</li>
+<li><p>A document redacted with the standard <cite>LaTeX</cite> / <cite>PDF</cite> toolbox.</p>
+<ul>
+<li><p><em>Pros:</em> these documents are state-of-the-art quality.</p></li>
+<li><p><em>Cons:</em> the final user has no way of interacting with a PDF document
+(other than sending an e-mail to the original authors)</p></li>
 </ul>
 </li>
-<li>The <em>Web 2.0</em> way  (think of:
+<li><p>The <em>Web 2.0</em> way  (think of:
 <a class="reference external" href="https://www.wikipedia.org/">Wikipedia</a>
 or
 <a class="reference external" href="https://en.wikipedia.org/wiki/Stack_Exchange">Stack Exchange</a>
-).<ul>
-<li><em>Pros:</em>    in those frameworks, content is continuously developed and augmented by users.</li>
-<li><em>Cons:</em>  the end result, though, is fragmented, and cannot (in general) be presented as an unified document.</li>
+).</p>
+<ul>
+<li><p><em>Pros:</em>    in those frameworks, content is continuously developed and augmented by users.</p></li>
+<li><p><em>Cons:</em>  the end result, though, is fragmented, and cannot (in general) be presented as an unified document.</p></li>
 </ul>
 </li>
 </ul>
@@ -108,21 +102,21 @@ is divided in many small files, called <em>blobs</em>,
 each identified by an <cite>UUID</cite> (an unique identifier).</p>
 <p>The purpose is twofold:</p>
 <ul class="simple">
-<li>each blob can be viewed conveniently by itself: the portal
+<li><p>each blob can be viewed conveniently by itself: the portal
 will compile an HTML representation of it, that is easily
 accessible (it also well adapts to mobile viewers),
-as well as a compact PDF representation (using the <em>standalone</em> class).</li>
-<li>The UUID is a permanent identifier for that content:
+as well as a compact PDF representation (using the <em>standalone</em> class).</p></li>
+<li><p>The UUID is a permanent identifier for that content:
 even if other material is added before that part of LaTeX,
 the UUID associated to it will not change (contrary to
 ordinary references in LaTeX); UUIDs can also be used
 to reference from <em>outside</em> of the document, using appropriate
-web URLs.</li>
+web URLs.</p></li>
 </ul>
 <p>Note that an UUID can reference to different versions of the same object:</p>
 <ul class="simple">
-<li>for images, there may be different formats available;</li>
-<li>for text, different languages may be available.</li>
+<li><p>for images, there may be different formats available;</p></li>
+<li><p>for text, different languages may be available.</p></li>
 </ul>
 <p>Moreover, the portal will compile the whole document, as PDF and as HTML.
 The whole document contains UUID markers, of the form <cite>[XXX]</cite>,
@@ -133,29 +127,32 @@ of the whole document.</p>
 </div>
 <div class="section" id="documentation">
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
-<p>All documentation is in the &quot;<code class="docutils literal"><span class="pre">docs</span></code>&quot; directory.</p>
+<p>All documentation is in the &quot;<code class="docutils literal notranslate"><span class="pre">docs</span></code>&quot; directory.</p>
 <p>The documentation is in RST format, so it is mostly standard text:
 you can read it in the files inside <cite>docs/source</cite>.</p>
+<p>By using  <cite>sphinx</cite> toolset, the documentation
+can be compiled to other formats; an HTML version is already available,
+for your convenience: browse it by</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>firefox docs/build/html/index.html
+</pre></div>
+</div>
 <div class="section" id="compile">
 <h3>Compile<a class="headerlink" href="#compile" title="Permalink to this headline">¶</a></h3>
 <p>To compile the documentation, you will need the <cite>sphinx</cite> toolset.
 To install it:</p>
-<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">sphinx</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3 install sphinx
 </pre></div>
 </div>
 <p>or, if you prefer, in Debian-based systems (like Ubuntu):</p>
-<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span><span class="o">-</span><span class="n">sphinx</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt install python3-sphinx
 </pre></div>
 </div>
 <p>Then</p>
-<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span>
-<span class="n">make</span> <span class="n">html</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs
+make html
 </pre></div>
 </div>
-<p>or any other format that you wish. Then start browsing by</p>
-<div class="code shell highlight-default"><div class="highlight"><pre><span></span><span class="n">firefox</span> <span class="n">docs</span><span class="o">/</span><span class="n">build</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">index</span><span class="o">.</span><span class="n">html</span>
-</pre></div>
-</div>
+<p>or any other format that you wish.</p>
 </div>
 </div>
 <div class="section" id="quick-start">
@@ -182,34 +179,56 @@ that serves a document containing math exercises (nicknamed <em>EDB</em>)</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">ColDoc Project</a><ul>
-<li><a class="reference internal" href="#code">Code</a><ul>
-<li><a class="reference internal" href="#authors">Authors</a></li>
-<li><a class="reference internal" href="#license">License</a></li>
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ColDoc Project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#code">Code</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authors">Authors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#license">License</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#features">Features</a><ul>
-<li><a class="reference internal" href="#code-portal-document">Code, portal, document</a></li>
-<li><a class="reference internal" href="#access-management">Access management</a></li>
-<li><a class="reference internal" href="#uuid-and-blobs">UUID and blobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#features">Features</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#code-portal-document">Code, portal, document</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#access-management">Access management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#uuid-and-blobs">UUID and blobs</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#documentation">Documentation</a><ul>
-<li><a class="reference internal" href="#compile">Compile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#compile">Compile</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#quick-start">Quick start</a></li>
-<li><a class="reference internal" href="#edb-portal">EDB portal</a></li>
-<li><a class="reference internal" href="#getting-help">Getting help</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#edb-portal">EDB portal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting help</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">UUID Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#coldoc-permissions">ColDoc Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#groups">Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -219,23 +238,24 @@ that serves a document containing math exercises (nicknamed <em>EDB</em>)</p>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/README.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
     </form>
+    </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -244,8 +264,8 @@ that serves a document containing math exercises (nicknamed <em>EDB</em>)</p>
       &copy;2019, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.7</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/README.rst.txt"
