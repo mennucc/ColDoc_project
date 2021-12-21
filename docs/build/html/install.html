@@ -56,13 +56,14 @@ In this section, we will assume that the <cite>CWD</cite> (current working direc
 </div>
 <div class="section" id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
-<p>ColDoc has some prerequisites: <cite>Django</cite> (version 2 or 3),
+<p>ColDoc has some prerequisites: <cite>Django</cite> (version 2, 3 or 4),
 <cite>plasTex</cite> (a patched version, see below), and others, as explained later.</p>
 <p>To install them (but for plastex) you may use</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3 install django BeautifulSoup4 pycountry django-guardian django-allauth django-background-tasks django-select2
 </pre></div>
 </div>
 <p>(only the first three are strictly needed, the others can be used to activate advanced features, as explained below)</p>
+<p>Note that (as of 2021-12-21)  <cite>django-background-tasks</cite>  is incompatible with Django4 : install the version at <cite>https://github.com/mennucc/django-background-tasks</cite> .</p>
 </div>
 <div class="section" id="installing-plastex">
 <h2>Installing plasTex<a class="headerlink" href="#installing-plastex" title="Permalink to this headline">¶</a></h2>
