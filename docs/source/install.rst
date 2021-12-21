@@ -30,7 +30,7 @@ Note that ColDoc needs `Python3` ; you may want to set up a virtualenv, so that 
 Prerequisites
 -------------
 
-ColDoc has some prerequisites: `Django` (version 2 or 3),
+ColDoc has some prerequisites: `Django` (version 2, 3 or 4),
 `plasTex` (a patched version, see below), and others, as explained later.
 
 To install them (but for plastex) you may use
@@ -40,6 +40,8 @@ To install them (but for plastex) you may use
 	  pip3 install django BeautifulSoup4 pycountry django-guardian django-allauth django-background-tasks django-select2
 
 (only the first three are strictly needed, the others can be used to activate advanced features, as explained below)
+
+Note that (as of 2021-12-21)  `django-background-tasks`  is incompatible with Django4 : install the version at `https://github.com/mennucc/django-background-tasks` .
 
 Installing plasTex
 ------------------
