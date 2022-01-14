@@ -1154,7 +1154,7 @@ def index(request, NICK, UUID):
                 messages.add_message(request, messages.WARNING,"HTML preview not available")
                 html = '[NO HTML AVAILABLE]'
     else:
-        blobcontenttype = 'other'
+        blobcontenttype = 'image' if (ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
         file = html = escapedfile = ''
         # TODO
         #  a = ... see in `show()`

@@ -18,6 +18,10 @@ ColDoc_early_UUID = True
 # filename extensions that are presented as text
 ColDoc_show_as_text = ('.tex', '.sty', '.bbl', '.bib')
 
+# filename extensions that are accepted for images, in decreasing order of quality
+ColDoc_show_as_image = ('.svg', '.pdf', '.eps', '.png', '.jpeg', '.jpg')
+
+
 ## this regulates the way that `blob_inator` adds \uuid tags in blobs
 ##
 #- If `write_UUID` is `True`, the UUID will be written at the beginning of the blob,
