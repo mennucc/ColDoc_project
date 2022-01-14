@@ -73,6 +73,15 @@ class MetadataForm(forms.ModelForm):
 __debug_view_prologue__ = False
 
 
+class BlobUploadForm(forms.Form):
+    htmlid = "id_form_blobuploadform"
+    filename = forms.ImageField(#upload_to_tmp,
+                                help_text="File to upload  — will replace the blob's content")
+    UUID = forms.CharField(widget=forms.HiddenInput())
+    NICK = forms.CharField(widget=forms.HiddenInput())
+    ext  = forms.CharField(widget=forms.HiddenInput())
+    lang = forms.CharField(widget=forms.HiddenInput(),required = False)    
+    
 class BlobEditForm(forms.Form):
     class Media:
         js = ('UUID/js/blobeditform.js',)
@@ -350,6 +359,26 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     else:        
         blobcontent = blobeditarea
     return blobcontent, newprologue, sources , weird_prologue
+
+def postupload(request, NICK, UUID):
+    if request.method != 'POST' :
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    #
+    form=BlobUploadForm(request.POST, request.FILES)
+    #
+    if not form.is_valid():
+        a = "Invalid form: "+repr(form.errors)
+        return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
+    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+    env = metadata.environ
+    uuid_ = form.cleaned_data['UUID']
+    nick_ = form.cleaned_data['NICK']
+    lang_ = form.cleaned_data['lang']
+    ext_ = form.cleaned_data['ext']
+    assert UUID == uuid_ and NICK == nick_
+    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 
 def postedit(request, NICK, UUID):
@@ -1192,6 +1221,9 @@ def index(request, NICK, UUID):
     if '.tex' not in metadata.get('extension') or env in ColDoc.config.ColDoc_environments_locked:
         metadataform.fields['environ'].widget.attrs['readonly'] = True
         metadataform.fields['optarg'].widget.attrs['readonly'] = True
+    #
+    blobuploadform = BlobUploadForm(initial={'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang})
+    #
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
     return render(request, 'UUID.html', locals() )

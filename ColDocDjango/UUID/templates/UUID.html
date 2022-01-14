@@ -158,6 +158,14 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
      {% endif %}
     {% else %}
       (this is not text but {{ blobcontenttype }})
+      {% if perms.UUID.change_blob %}
+      <div class="w-100 border border-info mt-2">
+      <form enctype="multipart/form-data" method="post" action="{% url 'UUID:postupload' NICK=NICK UUID=UUID %}" id="{{ blobuploadform.htmlid }}"  class="w-100">
+      {% csrf_token %}{{ blobuploadform.non_field_errors }}
+       <table class="w-100">{{ blobuploadform }}</table>
+       <input type="submit" class="btn btn-primary"  data-toggle="tooltip" title="Upload new content" name="Upload" value="Upload">
+      </form></div>
+      {% endif %}
     {% endif %}
     </div>
   </div>
