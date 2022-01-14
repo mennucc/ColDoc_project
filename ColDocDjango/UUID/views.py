@@ -18,6 +18,7 @@ from django.templatetags.static import static
 from django.core.mail import EmailMessage, EmailMultiAlternatives, send_mail
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib.auth.models import Group
+from django.core.validators import FileExtensionValidator
 
 if settings.USE_SELECT2 :
     from django_select2 import forms as s2forms
@@ -75,12 +76,12 @@ __debug_view_prologue__ = False
 
 class BlobUploadForm(forms.Form):
     htmlid = "id_form_blobuploadform"
-    filename = forms.ImageField(#upload_to_tmp,
-                                help_text="File to upload  — will replace the blob's content")
+    file = forms.FileField(help_text="File to upload  — will replace the blob's content")
     UUID = forms.CharField(widget=forms.HiddenInput())
     NICK = forms.CharField(widget=forms.HiddenInput())
     ext  = forms.CharField(widget=forms.HiddenInput())
-    lang = forms.CharField(widget=forms.HiddenInput(),required = False)    
+    lang = forms.CharField(widget=forms.HiddenInput(),required = False)
+    mimetype = forms.CharField(widget=forms.HiddenInput(),required = False)    
     
 class BlobEditForm(forms.Form):
     class Media:
@@ -371,13 +372,34 @@ def postupload(request, NICK, UUID):
     if not form.is_valid():
         a = "Invalid form: "+repr(form.errors)
         return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
-    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+    uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
+                                                         blobs_dir = blobs_dir, coldoc = NICK,
+                                                         metadata_class=DMetadata)
+    #    
     env = metadata.environ
+    file_ = form.cleaned_data['file']
     uuid_ = form.cleaned_data['UUID']
     nick_ = form.cleaned_data['NICK']
     lang_ = form.cleaned_data['lang']
     ext_ = form.cleaned_data['ext']
+    type__ = form.cleaned_data['mimetype']
     assert UUID == uuid_ and NICK == nick_
+    #
+    l = ('_'+lang_) if lang_ else ''
+    dest = os.path.join(blobs_dir, uuid_dir, 'blob' + l + ext_)
+    #
+    try:
+        with open(dest + '~~', 'wb+') as destination:
+            for chunk in file_.chunks():
+                destination.write(chunk)
+        os.rename(dest + '~~', dest)
+    except:
+        logger.exception('failed %r',dest)
+        messages.add_message(request,messages.ERROR, 'File upload failed')
+    ## nope this uses the extension
+    #_type_ , _encod_ = mimetypes.guess_type(dest)
+    if file_.content_type != type__:
+        messages.add_message(request,messages.ERROR,   'File uploaded is %r instead of %r' % ( file_.content_type , type__) )
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 
@@ -1222,8 +1244,17 @@ def index(request, NICK, UUID):
         metadataform.fields['environ'].widget.attrs['readonly'] = True
         metadataform.fields['optarg'].widget.attrs['readonly'] = True
     #
-    blobuploadform = BlobUploadForm(initial={'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang})
-    #
+    mimetype = mimetypes.types_map.get(ext,'')
+    blobuploadform = BlobUploadForm(initial={'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,'mimetype':mimetype})
+    if mimetype:
+        blobuploadform.fields['file'].widget.attrs['accept'] = mimetype
+    else:
+        logger.warning('Extension %r is not in mimetypes.types_map', ext)
+    # FIXME this is ineffective
+    a = ('.jpg','.jpeg') if ( ext in ('.jpg','.jpeg') ) else (ext,)
+    v = FileExtensionValidator(allowed_extensions=a)
+    blobuploadform.fields['file'].validators.append(v)
+    #    
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
     return render(request, 'UUID.html', locals() )
