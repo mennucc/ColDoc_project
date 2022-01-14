@@ -32,6 +32,25 @@ COLDOC_SITE_CONFIG = config = get_config()
 
 COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
 
+COLDOC_SRC_ROOT = os.environ.get('COLDOC_SRC_ROOT')
+
+
+if COLDOC_SITE_ROOT is None:
+    logger.error('COLDOC_SITE_ROOT is undefined')
+elif not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini') ):
+    logger.error('COLDOC_SITE_ROOT does not contain `config.ini`: %r ', COLDOC_SITE_ROOT)
+
+if COLDOC_SRC_ROOT is None:
+    logger.error('COLDOC_SRC_ROOT is undefined')
+elif not os.path.isfile(os.path.join(COLDOC_SRC_ROOT,'ColDocDjango','manage.py') ):
+    logger.error('COLDOC_SRC_ROOT does not contain `ColDocDjango/manage.py`: %r ', COLDOC_SRC_ROOT)
+else:
+    a = os.path.join(COLDOC_SRC_ROOT,'ColDocDjango')
+    if a not in sys.path:    
+        sys.path.insert(0, a)
+
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 
 from pathlib import Path
