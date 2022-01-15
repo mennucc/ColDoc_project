@@ -118,6 +118,9 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 007  --user jsmith --p_lang eng --c_lang eng --environ E_privateremark add_blob
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 007  --user jsmith --p_lang eng --c_lang zxx --environ graphic_file add_blob
 	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID="http://localhost:8000/UUID/paper/" all
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --lang eng  reparse_all
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper check_tree
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper list_authors
 
 # load a book in the ColDoc portal
 django_book: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
