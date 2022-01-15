@@ -1,6 +1,11 @@
 import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re
 from os.path import join as osjoin
 
+try:
+    import pycountry
+except:
+    pycountry = None
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -1255,6 +1260,16 @@ def index(request, NICK, UUID):
     v = FileExtensionValidator(allowed_extensions=a)
     blobuploadform.fields['file'].validators.append(v)
     #    
+    languages = []
+    for val in  metadata.get('lang'):
+        if val not in ('mul','und') and val != lang:
+            link="/UUID/{nick}/{UUID}/?lang={val}".format(UUID=metadata.uuid,nick=coldoc.nickname,val=val)
+            if pycountry is not None:
+                L = pycountry.languages.get(alpha_3=val)
+                if L:
+                    val = L.name
+            languages.append((val, link))
+    #
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
     return render(request, 'UUID.html', locals() )
