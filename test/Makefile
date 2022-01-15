@@ -114,9 +114,9 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/paper/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/paper ; fi
 	../ColDocDjango/blob_inator.py --lang eng --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper  --ZS --SP --SE=figure --SL=description  --editor=ed_itor --author=jsmith --private-environment=privateremark  --private-environment=buyablecontent --SAT   paper/paper.tex
 	./django_tester.py isthere
-	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 007  --user jsmith --lang eng --environ E_description add_blob
-	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 007  --user jsmith --lang eng --environ E_privateremark add_blob
-	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 007  --user jsmith --lang eng --environ graphic_file add_blob
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 007  --user jsmith --p_lang eng --c_lang eng --environ E_description add_blob
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 007  --user jsmith --p_lang eng --c_lang eng --environ E_privateremark add_blob
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper --parent-uuid 007  --user jsmith --p_lang eng --c_lang zxx --environ graphic_file add_blob
 	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper --url-UUID="http://localhost:8000/UUID/paper/" all
 
 # load a book in the ColDoc portal

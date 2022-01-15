@@ -453,6 +453,11 @@ def postedit(request, NICK, UUID):
     split_add_beginend_ = form.cleaned_data['split_add_beginend']
     assert UUID == uuid_ and NICK == nick_
     #
+    if split_environment_ == 'graphic_file':
+        c_lang = 'zxx'
+    else:
+        c_lang = lang_
+    #
     filename, uuid, metadata, lang, ext = \
         ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
                                  metadata = metadata,
@@ -553,7 +558,7 @@ def postedit(request, NICK, UUID):
         from helper import add_blob
         addsuccess, addmessage, addnew_uuid = \
             add_blob(logger, request.user, settings.COLDOC_SITE_ROOT, nick_, uuid_, 
-                 split_environment_, lang_, selection_start_ , selection_end_, split_add_beginend_)
+                 split_environment_, lang_, c_lang, selection_start_ , selection_end_, split_add_beginend_)
         if addsuccess:
             new_uuid_as_html = '<a href="%s">%s</a>' %(
                 request.build_absolute_uri(django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':addnew_uuid})),

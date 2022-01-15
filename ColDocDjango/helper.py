@@ -199,14 +199,15 @@ def create_fake_users(COLDOC_SITE_ROOT):
         print('Cannot create user %r : %r' %(U,e))    
     return True 
 
-def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, lang, selection_start = None, selection_end = None, add_beginend = True):
+def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, p_lang, c_lang, selection_start = None, selection_end = None, add_beginend = True):
     " returns (success, message, new_uuid)"
     #
     from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
     #
     from ColDoc.utils import slug_re
     assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
-    assert ((isinstance(lang,str) and slug_re.match(lang)) or lang is None), lang
+    assert ((isinstance(p_lang,str) and slug_re.match(p_lang))), p_lang
+    assert ((isinstance(c_lang,str) and slug_re.match(c_lang))), c_lang
     assert isinstance(parent_uuid,str) and slug_re.match(parent_uuid), parent_uuid
     assert isinstance(environ,str), environ
     if isinstance(selection_end,int) and selection_end<0: selection_end = None
@@ -214,10 +215,8 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     #
     import ColDoc.config as CC
     #
-    if lang is None:
-        lang_ = ''
-    else:
-        lang_ = '_'+lang
+    p_lang_ = '_' + p_lang
+    c_lang_ = '_' + c_lang
     #
     if environ.startswith('E_'):
         extension = '.tex'
@@ -308,7 +307,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         logger.debug("User %r is an author of %r",user,parent_uuid)
     #
     # FIXME TODO maybe we should insert the "input" for all languages available?
-    parent_abs_filename = os.path.join(blobs_dir, parent_uuid_dir, 'blob' + lang_ + '.tex')
+    parent_abs_filename = os.path.join(blobs_dir, parent_uuid_dir, 'blob' + p_lang_ + '.tex')
     if not os.path.exists(parent_abs_filename):
         a="Parent does not exists %r"%parent_abs_filename
         logger.error(a)
@@ -318,7 +317,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     while not filename:
         new_uuid = utils.new_uuid(blobs_dir=blobs_dir)
         new_dir = utils.uuid_to_dir(new_uuid, blobs_dir=blobs_dir, create=True)
-        filename = osjoin(new_dir,'blob' + lang_ + extension)
+        filename = osjoin(new_dir,'blob' + c_lang_ + extension)
         if os.path.exists( osjoin(blobs_dir, filename) ):
             logger.error(' output exists %r, trying next UUID' % filename)
             filename = None
@@ -328,8 +327,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     if extension is not None:
         child_metadata.add('extension',extension)
     child_metadata.add('environ',environ)
-    if lang is not None:
-        child_metadata.add('lang',lang)
+    child_metadata.add('lang', c_lang)
     if environ[:2] == 'E_' and environ[2:] in blobinator_args['private_environment']:
         child_metadata.add('access', 'private')
     child_metadata.save()
@@ -642,7 +640,15 @@ def main(argv):
     if 'add_blob' in sys.argv or  'reparse_all' in sys.argv or 'check_tree' in sys.argv or 'list_authors' in sys.argv:
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
+    if 'reparse_all' in sys.argv or 'check_tree' in sys.argv:
         parser.add_argument('--lang','--language',type=str,\
+                            help='restrict operation to this language')
+    if 'add_blob' in sys.argv:
+        parser.add_argument('--p_lang','--parent-language',type=str,\
+                            required=True,
+                            help='language of the parent blob')
+        parser.add_argument('--c_lang','--child-language',type=str,\
+                            required=True,
                             help='language of  newly created blob')
     if 'reparse_all' in sys.argv:
         parser.add_argument('--no-act',action='store_true',\
@@ -692,7 +698,7 @@ does not contain the file `config.ini`
         return create_fake_users(COLDOC_SITE_ROOT)
     elif argv[0] == 'add_blob':
         ret = add_blob(logger, args.user, COLDOC_SITE_ROOT, args.coldoc_nick,
-                        args.parent_uuid, args.environ, args.lang )
+                        args.parent_uuid, args.environ, args.p_lang, args.c_lang )
         print(ret[1])
         return ret[0] #discard message
     #
