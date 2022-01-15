@@ -74,7 +74,7 @@ elif not os.path.isfile(os.path.join(COLDOC_SRC_ROOT,'ColDocDjango','manage.py')
 else:
     a = os.path.join(COLDOC_SRC_ROOT,'ColDocDjango')
     if a not in sys.path:
-        logger.warning('prepend %r to  sys.path',a)
+        logger.info('prepend %r to  sys.path',a)
         sys.path.insert(0, a)
 
 
