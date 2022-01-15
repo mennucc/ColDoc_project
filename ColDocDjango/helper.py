@@ -389,7 +389,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
 
 
 def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
-    " returns (success, message, new_uuid)"
+    " "
     #
     from ColDoc.utils import slug_re, get_blobinator_args
     assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
@@ -698,8 +698,9 @@ does not contain the file `config.ini`
     #
     elif argv[0] == 'reparse_all':
         def writelog(s):
-            sys.stdout.write(' '+ s + '\n')
-        ret = reparse_all(writelog, COLDOC_SITE_ROOT, args.coldoc_nick, args.lang, not args.no_act)
+            sys.stdout.write('>> '+ s + '\n')
+        reparse_all(writelog, COLDOC_SITE_ROOT, args.coldoc_nick, args.lang, not args.no_act)
+        return True
     #
     elif argv[0] == 'check_tree':
         problems = check_tree(logger.warning, COLDOC_SITE_ROOT, args.coldoc_nick)
