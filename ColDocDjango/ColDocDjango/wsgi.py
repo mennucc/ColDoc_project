@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 WSGI config for ColDoc project.
 
@@ -18,39 +19,65 @@ if False:
             sys.stderr.write('Warning: deleting %r from sys.path\n',j)
             del sys.path[sys.path.index(j)]
 
+COLDOC_SITE_ROOT = None
+COLDOC_SRC_ROOT = None
+
+def samefile(a,b):
+    try:
+        return os.path.samefile(a,b)
+    except:
+        return os.path.realpath(a) == os.path.realpath(b)
+
 
 if True:
     a = __file__
+    d = os.path.dirname(a)
+    # this is standard, but we do not want it
+    if  samefile(d, sys.path[0]):
+        logger.info('del %r from sys.path', d)
+        del sys.path[0]
+    #
     if os.path.islink(a):
-        d = os.path.dirname(a)
-        if 'COLDOC_SITE_ROOT' in os.environ and not os.path.samefile( os.environ['COLDOC_SITE_ROOT'] , d ):
+        COLDOC_SITE_ROOT = d
+        if 'COLDOC_SITE_ROOT' in os.environ and not samefile( os.environ['COLDOC_SITE_ROOT'] , d ):
             logger.error('Environment is COLDOC_SITE_ROOT=%r but wsgi script is in %r',
                          os.environ['COLDOC_SITE_ROOT'], d)
         else:
-            logger.info('COLDOC_SITE_ROOT=%r',d)
+            logger.info('setting COLDOC_SITE_ROOT=%r',d)
             os.environ['COLDOC_SITE_ROOT'] = d
+        #
         a = os.readlink(a)
         a = os.path.realpath(a)
         a = os.path.dirname(a)
-        sd = os.path.dirname(a)
-        if 'COLDOC_SRC_ROOT' in os.environ and not  os.path.samefile( os.environ['COLDOC_SRC_ROOT'], sd):
+        pa = os.path.dirname(a)
+        sd = COLDOC_SRC_ROOT = os.path.dirname(pa)
+        if 'COLDOC_SRC_ROOT' in os.environ and not samefile( os.environ['COLDOC_SRC_ROOT'], sd):
             logger.error('Environment is COLDOC_SRC_ROOT=%r but wsgi script links to %r',
                          os.environ['COLDOC_SRC_ROOT'], sd)
         else:
             os.environ['COLDOC_SRC_ROOT'] = sd
-            logger.info('COLDOC_SRC_ROOT=%r', sd)
-        if sd not in sys.path:
-            sys.path.insert(0, sd)
+            logger.info('setting COLDOC_SRC_ROOT=%r', sd)
     else:
         if 'COLDOC_SITE_ROOT' not in os.environ:
             logger.error('COLDOC_SITE_ROOT not known')
+        else:
+            COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
         if 'COLDOC_SRC_ROOT' not in os.environ:
             logger.error('COLDOC_SRC_ROOT not known')
         else:
-            sys.path.insert(0, os.environ['COLDOC_SRC_ROOT'])
+            COLDOC_SRC_ROOT = os.environ['COLDOC_SRC_ROOT']
 
-from django.core.wsgi import get_wsgi_application
+if COLDOC_SRC_ROOT is None:
+    logger.error('COLDOC_SRC_ROOT is undefined')
+elif not os.path.isfile(os.path.join(COLDOC_SRC_ROOT,'ColDocDjango','manage.py') ):
+    logger.error('COLDOC_SRC_ROOT does not contain `ColDocDjango/manage.py`: %r ', COLDOC_SRC_ROOT)
+else:
+    a = os.path.join(COLDOC_SRC_ROOT,'ColDocDjango')
+    if a not in sys.path:
+        logger.warning('prepend %r to  sys.path',a)
+        sys.path.insert(0, a)
+
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
-
+from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
