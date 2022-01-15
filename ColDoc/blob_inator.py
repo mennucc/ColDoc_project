@@ -176,6 +176,9 @@ class named_stream(io.StringIO):
     @property
     def lang(self):
         return self._lang
+    @lang.setter
+    def lang(self, lang):
+        self._lang = lang
     @property
     def environ(self):
         return self._environ
@@ -930,6 +933,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         m.add('parent_uuid',stack.topstream.uuid)
                         m.add('environ','graphic_file')
                         m.add('extension',os.path.splitext(inputfile)[1])
+                        m.lang = 'zxx'
                         m.save()
                         logger.warning("duplicate graphical input, copied once: %r", inputfile)
                         stack.topstream.write(cmd+'{'+O+'}')
@@ -967,6 +971,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         fm.add('environ','graphic_file')
                         fm.add('optarg', json.dumps(sources))
                         fm.add('parent_uuid', stack.topstream.uuid)
+                        fm.lang  = 'zxx'
                         # will load the same extension, if specified
                         stack.topstream.write(cmd+'{'+fo+ei+'}')
                         #
