@@ -77,6 +77,18 @@ else:
         logger.info('prepend %r to  sys.path',a)
         sys.path.insert(0, a)
 
+if   sys.base_prefix != sys.prefix:
+    # this triggers in virtualenvs
+    a = os.path.join(sys.prefix,'bin')
+    p = os.environ.get('PATH','')
+    l = p.split(os.pathsep)
+    if not p:
+        logger.error('System path is empty??')
+    else:
+        p = os.pathsep + p
+    if a not in l:
+        logger.info('prepend %r to path %r',a, p)
+        os.environ['PATH'] = a + p
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
 from django.core.wsgi import get_wsgi_application
