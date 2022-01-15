@@ -405,6 +405,10 @@ def postupload(request, NICK, UUID):
     #_type_ , _encod_ = mimetypes.guess_type(dest)
     if file_.content_type != type__:
         messages.add_message(request,messages.ERROR,   'File uploaded is %r instead of %r' % ( file_.content_type , type__) )
+    #
+    metadata.blob_modification_time_update()
+    metadata.save()
+    #
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 
