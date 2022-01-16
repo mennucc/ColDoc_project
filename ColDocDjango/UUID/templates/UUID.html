@@ -42,7 +42,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
  {% if buy_form %}
  <form action="{% url 'wallet:authorize_purchase_encoded_post' %}" method="post" class="btn btn-outline-primary">
     {% csrf_token %}
-    {{ buy_form.as_table }}
+    <table>{{ buy_form.as_table }}</table>
     <input type="submit"  data-toggle="tooltip" title="{{ buy_tooltip }}" value="{{ buy_label }}"  class="btn">
  </form>
  {% endif %}
@@ -251,7 +251,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
     {% if buy_download_form %}
       <form action="{% url 'wallet:authorize_purchase_encoded_post' %}" method="post" class="btn btn-outline-primary">
         {% csrf_token %}
-        {{ buy_download_form.as_table }}
+        <table>{{ buy_download_form.as_table }}</table>
         <input type="submit"  data-toggle="tooltip" title="{{ buy_download_tooltip }}" value="{{ buy_download_label }}"  class="btn">
       </form>
     {% endif %}
