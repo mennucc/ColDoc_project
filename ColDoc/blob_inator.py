@@ -1320,10 +1320,10 @@ def main(args, metadata_class, coldoc = None):
         l = args.language
         if len(l) == 2:
             L = pycountry.languages.get(alpha_2=l) 
-        if len(l) == 3:
+        elif len(l) == 3:
             L = pycountry.languages.get(alpha_3=l)
         else:
-            print('Use a 2 or 3 letter code for the language, not %r',l)
+            print('Use a 2 or 3 letter code for the language, not %r' % l)
             sys.exit(2)
         if L is None:
             print('--language %r is not a recognized language code',l)
