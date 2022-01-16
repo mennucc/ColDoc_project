@@ -1267,20 +1267,21 @@ def index(request, NICK, UUID):
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
     #
     can_change_metadata = request.user.has_perm('UUID.change_dmetadata')
-    metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':lang, })
-    metadataform.htmlid = "id_form_metadataform"
-    ## restrict to allowed choices
-    if parent_metadata is not None:
-        choices = teh.list_allowed_choices(parent_metadata.environ, metadata.get('extension'))
-    else:
-        choices = [('main_file','main_file')]
-    # useless
-    metadataform.fields['environ'].choices = choices
-    # useful
-    metadataform.fields['environ'].widget.choices = choices
-    if '.tex' not in metadata.get('extension') or env in ColDoc.config.ColDoc_environments_locked:
-        metadataform.fields['environ'].widget.attrs['readonly'] = True
-        metadataform.fields['optarg'].widget.attrs['readonly'] = True
+    if can_change_metadata:
+        metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':lang, })
+        metadataform.htmlid = "id_form_metadataform"
+        ## restrict to allowed choices
+        if parent_metadata is not None:
+            choices = teh.list_allowed_choices(parent_metadata.environ, metadata.get('extension'))
+        else:
+            choices = [('main_file','main_file')]
+        # useless
+        metadataform.fields['environ'].choices = choices
+        # useful
+        metadataform.fields['environ'].widget.choices = choices
+        if '.tex' not in metadata.get('extension') or env in ColDoc.config.ColDoc_environments_locked:
+            metadataform.fields['environ'].widget.attrs['readonly'] = True
+            metadataform.fields['optarg'].widget.attrs['readonly'] = True
     #
     mimetype = mimetypes.types_map.get(ext,'')
     initial_base = {'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,'mimetype':mimetype}
