@@ -392,7 +392,7 @@ def postupload(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    form=BlobUploadForm(request.POST, request.FILES)
+    form=BlobUploadForm(data=request.POST, files=request.FILES)
     #
     if not form.is_valid():
         a = "Invalid form: "+repr(form.errors)
@@ -1239,6 +1239,7 @@ def index(request, NICK, UUID):
     #
     blobdiff = ''
     # just to be safe
+    can_change_blob = request.user.has_perm('UUID.change_blob')
     if not request.user.has_perm('UUID.view_view', metadata):
         html = '[access denied]'
     if not request.user.has_perm('UUID.view_blob'):
@@ -1246,7 +1247,6 @@ def index(request, NICK, UUID):
     elif  blobcontenttype == 'text' :
         choices = teh.list_allowed_choices(metadata.environ)
         can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
-        can_change_blob = request.user.has_perm('UUID.change_blob')
         blobeditform = None
         if  can_add_blob or can_change_blob:
             msgs = []
@@ -1266,6 +1266,7 @@ def index(request, NICK, UUID):
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
     #
+    can_change_metadata = request.user.has_perm('UUID.change_dmetadata')
     metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':lang, })
     metadataform.htmlid = "id_form_metadataform"
     ## restrict to allowed choices
@@ -1282,7 +1283,8 @@ def index(request, NICK, UUID):
         metadataform.fields['optarg'].widget.attrs['readonly'] = True
     #
     mimetype = mimetypes.types_map.get(ext,'')
-    blobuploadform = BlobUploadForm(initial={'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,'mimetype':mimetype})
+    initial_base = {'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,'mimetype':mimetype}
+    blobuploadform = BlobUploadForm(initial=initial_base)
     if mimetype:
         blobuploadform.fields['file'].widget.attrs['accept'] = mimetype
     else:
@@ -1293,7 +1295,8 @@ def index(request, NICK, UUID):
     blobuploadform.fields['file'].validators.append(v)
     #    
     languages = []
-    for val in  metadata.get('lang'):
+    Blangs = metadata.get('lang')
+    for val in  Blangs:
         if val not in ('mul','und') and val != lang:
             link="/UUID/{nick}/{UUID}/?lang={val}".format(UUID=metadata.uuid,nick=coldoc.nickname,val=val)
             languages.append((iso3lang2word(val), link))
