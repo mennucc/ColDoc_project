@@ -225,8 +225,28 @@ def _build_blobeditform_data(NICK, UUID,
          'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,
          'file_md5' : file_md5,
          }
+    #
+    N = {}
     if os.path.isfile(a):
-        N=(json.load(open(a)))
+        m = None
+        # if the editstate is corrupt, ignore it
+        try:
+            N=(json.load(open(a)))
+            if N['ext'] != ext:
+                m = 'editstate ext %r != %r ' % (N['ext'],ext)
+            elif N['lang'] != lang:
+                m = 'editstate lang %r != %r ' % (N['lang'],lang)
+            elif N['UUID'] != UUID:
+                m = 'editstate uuid %r != %r ' % (N['UUID'],UUID)
+        except Exception as e:
+            logger.exception('while loading %r',a)
+            m = repr(e)
+        if m:
+            logger.warning(m)
+            msgs.append(( messages.WARNING, 
+                          'Editstate ignored: ' + m ))
+            N ={}
+    if N:
         if N['file_md5'] != file_md5:
             msgs.append(( messages.WARNING,
                          'File was changed on disk: check the diff' ))
