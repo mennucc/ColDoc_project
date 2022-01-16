@@ -52,6 +52,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'replace_with_hash_symlink',
             'parent_cmd_env_child',
             'html2text',
+            'iso3lang2word',
             )
 
 class ColDocException(Exception):
@@ -59,6 +60,20 @@ class ColDocException(Exception):
 
 class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
+
+#####################
+
+try:
+    import pycountry
+except ImportError:
+    pycountry = None
+    iso3lang2word = lambda x : x
+else:
+    def iso3lang2word(val):
+        L = pycountry.languages.get(alpha_3=val)
+        if L:
+            return( L.name)
+        return val
 
 #####################
 
