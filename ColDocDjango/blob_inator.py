@@ -149,6 +149,7 @@ to specify where the ColDoc site is located.
         coldoc.latex_engine = args.latex_engine
         coldoc.save()
         r =  BI.main(args, metadata_class=blob_models.DMetadata, coldoc=coldoc)
+        coldoc.languages = args.language + '\n'
         coldoc.save()
         #
     #

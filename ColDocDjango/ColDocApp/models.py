@@ -126,6 +126,8 @@ class DColDoc(models.Model):
                                 validators=[validate_coldoc_nickname],
                                 max_length=10,  db_index = True, primary_key=True)
     #
+    languages = models.TextField("languages supported (one ISO_639-3 three letter code per line)", max_length=200, blank=True)
+    #
     title = models.CharField(max_length=2000, blank=True)
     #
     ## this is obsolete. Editors are those users that are members of group coldoc_`nickname`_group_editors
