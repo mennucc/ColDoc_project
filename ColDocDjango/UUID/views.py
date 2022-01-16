@@ -678,6 +678,9 @@ def postedit(request, NICK, UUID):
         D['split_selection'] = False
         D['selection_start'] = str(selection_start_)
         D['selection_end'] = str(selection_start_)
+        D['lang'] = lang
+        D['UUID'] = uuid
+        D['ext'] = ext
         json.dump(D, open(file_editstate,'w'))
     #
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
