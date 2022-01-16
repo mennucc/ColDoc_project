@@ -74,6 +74,23 @@ class MetadataForm(forms.ModelForm):
 
 ###############################################################
 
+class LangForm(forms.Form):
+    UUID = forms.CharField(widget=forms.HiddenInput())
+    NICK = forms.CharField(widget=forms.HiddenInput())
+    ext  = forms.CharField(widget=forms.HiddenInput())
+    lang = forms.CharField(widget=forms.HiddenInput())
+
+    def __init__(self, *args, **kwargs):
+        choice_list = kwargs.pop('choice_list')
+        super(LangForm, self).__init__(*args, **kwargs)
+        self.fields['langchoice'] = forms.ChoiceField(choices=choice_list,
+                                                      label="Language",
+                                                      #help_text="Language choice"
+                                                      )
+
+    class Meta:
+        fields = ('langchoice', )
+
 
 # show prologue in web UI, to ease debugging
 __debug_view_prologue__ = False
@@ -385,6 +402,46 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     else:        
         blobcontent = blobeditarea
     return blobcontent, newprologue, sources , weird_prologue
+
+def postlang(request, NICK, UUID):
+    if request.method != 'POST' :
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    #
+    actions = ['add','relabel','delete']
+    prefix = request.POST.get('button')
+    if prefix not in actions:
+        raise SuspiciousOperation("Wrong action: %r"%prefix)
+    #
+    l = coldoc.languages.splitlines() + ['mul','zxx','und']
+    ll = [(a,a) for a in l]
+    form=LangForm(data=request.POST, prefix=prefix, choice_list=ll)
+    #
+    if not form.is_valid():
+        a = "Invalid form: "+repr(form.errors)
+        return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
+    #
+    uuid_ = form.cleaned_data['UUID']
+    nick_ = form.cleaned_data['NICK']
+    lang_ = form.cleaned_data['lang']
+    ext_ = form.cleaned_data['ext']
+    langchoice_ = form.cleaned_data['langchoice']
+    assert UUID == uuid_ and NICK == nick_
+    #
+    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+    request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
+    can_change_blob = request.user.has_perm('UUID.change_blob')
+    can_change_metadata = request.user.has_perm('UUID.change_dmetadata')
+    #can_add_blob = request.user.has_perm('ColDocApp.add_blob')
+    if not (can_change_metadata and can_change_blob):
+        logger.error('Hacking attempt %r',request.META)
+        raise SuspiciousOperation("Permission denied")
+    #
+    # TODO WRITE ME
+    messages.add_message(request,messages.ERROR, 'unimplemented %r %r'%(prefix,langchoice_))
+    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
+
 
 def postupload(request, NICK, UUID):
     if request.method != 'POST' :
@@ -1301,6 +1358,26 @@ def index(request, NICK, UUID):
         if val not in ('mul','und') and val != lang:
             link="/UUID/{nick}/{UUID}/?lang={val}".format(UUID=metadata.uuid,nick=coldoc.nickname,val=val)
             languages.append((iso3lang2word(val), link))
+    #
+    langforms = []
+    CDlangs = coldoc.languages.splitlines()
+    if can_change_metadata and can_change_blob:
+        m = [l for l in CDlangs if l not in Blangs ]
+        if m:
+            L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
+                         prefix = 'add', initial=initial_base)
+            langforms.append( (L,'add','add a language version') )
+        m = [l for l in Blangs]
+        if len(m) > 1:
+            L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
+                         prefix = 'delete', initial=initial_base)
+            langforms.append( (L,'delete','delete a language version') )
+        m = ['mul','zxx'] if (len(m) == 1 and 'mul' not in Blangs and 'zxx' not in Blangs) \
+            else   [l for l in CDlangs if (l != lang ) ]
+        if m:
+            L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
+                         prefix = 'relabel', initial=initial_base)
+            langforms.append( (L,'relabel','change the language of this blob') )
     #
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)

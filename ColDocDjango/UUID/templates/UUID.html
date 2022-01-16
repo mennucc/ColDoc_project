@@ -274,6 +274,22 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
    <span>
    {% endif %} {# its_something_we_would_latex #}
   {% endif %}   {# perms.UUID.download or buy_download_info #}
+  
+  
+  {% if  langforms and perms.UUID.change_dmetadata and perms.UUID.change_blob %}
+    <h2>Language tools</h2>
+    {% for form,label,tooltip in langforms %}
+      <!--<div class="border border-info mt-2">-->
+        <form action="{% url 'UUID:postlang' NICK=NICK UUID=UUID %}" method="post" class="border border-info mt-2">
+        {% csrf_token %}
+        <table>{{ form.as_table }}</table>
+        <input type="submit"  data-toggle="tooltip" title="{{ tooltip }}"
+        value="{{ label }}" name="button"  class="btn btn-primary">
+      </form>
+      <!--</div>-->
+     {% endfor %}
+   {% endif %}
+ 
   </div>
 
 </div>

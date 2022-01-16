@@ -15,6 +15,7 @@ urlpatterns = [
     #
     path('<str:NICK>/<str:UUID>/postedit/', views.postedit, name='postedit'),
     path('<str:NICK>/<str:UUID>/postupload/', views.postupload, name='postupload'),
+    path('<str:NICK>/<str:UUID>/postlang', views.postlang, name='postlang'),
     path('<str:NICK>/<str:UUID>/postmetadataedit/', views.postmetadataedit, name='postmetadataedit'),
     path('<str:NICK>/<str:UUID>/', views.index, name='index'),
     path('<str:NICK>/<str:UUID>/download', views.download, name='download'),
