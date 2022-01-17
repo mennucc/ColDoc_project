@@ -309,6 +309,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             logger.error('DMetadata.get default is not implemented, key=%r',key)
         if key in  self.__single_valued:
             return [getattr(self, key)]
+        elif key == 'lang' :
+            return self.get_languages()
         elif key in self.__internal_multiple_valued_keys:
             return self.__key_to_list(key)
         elif key == 'author':
@@ -319,6 +321,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             return UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid).values_list('child', flat=True)
         else:
             return ExtraMetadata.objects.filter(blob=self, key=key).values_list('value', flat=True)
+    #
+    def get_languages(self):
+        " return list of languages, correctly formatted"
+        L = self.lang.splitlines()
+        if any([ (len(z)!=3) for z in L]):
+            logger.warning('Malformed languages %r in %s', self.lang, self)
+        return [z for z in L if len(z) == 3]
     #
     def keys(self):
         "returns keys without repetitions"

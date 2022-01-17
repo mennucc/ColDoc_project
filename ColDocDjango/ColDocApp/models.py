@@ -128,6 +128,13 @@ class DColDoc(models.Model):
     #
     languages = models.TextField("languages supported (one ISO_639-3 three letter code per line)", max_length=200, blank=True)
     #
+    def get_languages(self):
+        " return list of languages, correctly formatted"
+        L = self.languages.splitlines()
+        if any([ (len(z)!=3) for z in L]):
+            logger.warning('Malformed languages %r in %s', self.languages, self)
+        return [z for z in L if len(z) == 3]
+    #
     title = models.CharField(max_length=2000, blank=True)
     #
     ## this is obsolete. Editors are those users that are members of group coldoc_`nickname`_group_editors
