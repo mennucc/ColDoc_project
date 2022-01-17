@@ -1118,6 +1118,7 @@ def index(request, NICK, UUID):
     #
     envs = metadata.get('environ')
     env = envs[0] if envs else None     
+    extensions = metadata.get('extension')
     #
     ###################################### navigation arrows
     #
@@ -1329,14 +1330,14 @@ def index(request, NICK, UUID):
         metadataform.htmlid = "id_form_metadataform"
         ## restrict to allowed choices
         if parent_metadata is not None:
-            choices = teh.list_allowed_choices(parent_metadata.environ, metadata.get('extension'))
+            choices = teh.list_allowed_choices(parent_metadata.environ, extensions)
         else:
             choices = [('main_file','main_file')]
         # useless
         metadataform.fields['environ'].choices = choices
         # useful
         metadataform.fields['environ'].widget.choices = choices
-        if '.tex' not in metadata.get('extension') or env in ColDoc.config.ColDoc_environments_locked:
+        if '.tex' not in extensions or env in ColDoc.config.ColDoc_environments_locked:
             metadataform.fields['environ'].widget.attrs['readonly'] = True
             metadataform.fields['optarg'].widget.attrs['readonly'] = True
     #
