@@ -414,7 +414,7 @@ def postlang(request, NICK, UUID):
     if prefix not in actions:
         raise SuspiciousOperation("Wrong action: %r"%prefix)
     #
-    l = coldoc.languages.splitlines() + ['mul','zxx','und']
+    l = coldoc.get_languages() + ['mul','zxx','und']
     ll = [(a,a) for a in l]
     form=LangForm(data=request.POST, prefix=prefix, choice_list=ll)
     #
@@ -974,7 +974,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         #   
         n = None
         isdir = False
-        langs += metadata.get('lang') + [None]
+        langs += metadata.get_languages() + [None]
         pref_ = prefix
         # access to logs
         if  prefix == 'log' :
@@ -1354,14 +1354,14 @@ def index(request, NICK, UUID):
     blobuploadform.fields['file'].validators.append(v)
     #    
     languages = []
-    Blangs = metadata.get('lang')
+    Blangs = metadata.get_languages()
     for val in  Blangs:
         if val not in ('mul','und') and val != lang:
             link="/UUID/{nick}/{UUID}/?lang={val}".format(UUID=metadata.uuid,nick=coldoc.nickname,val=val)
             languages.append((iso3lang2word(val), link))
     #
     langforms = []
-    CDlangs = coldoc.languages.splitlines()
+    CDlangs = coldoc.get_languages()
     if can_change_metadata and can_change_blob:
         m = [l for l in CDlangs if l not in Blangs ]
         if m:
