@@ -1362,19 +1362,24 @@ def index(request, NICK, UUID):
     #
     langforms = []
     CDlangs = coldoc.get_languages()
-    if can_change_metadata and can_change_blob:
+    # TODO only '.tex' is supported now
+    if can_change_metadata and can_change_blob and ext == '.tex':
+        # add
         m = [l for l in CDlangs if l not in Blangs ]
         if m:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'add', initial=initial_base)
             langforms.append( (L,'add','add a language version') )
+        # delete
         m = [l for l in Blangs]
         if len(m) > 1:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'delete', initial=initial_base)
             langforms.append( (L,'delete','delete a language version') )
-        m = ['mul','zxx'] if (len(m) == 1 and 'mul' not in Blangs and 'zxx' not in Blangs) \
-            else   [l for l in CDlangs if (l != lang ) ]
+        # relabel
+        m = [l for l in CDlangs if (l != lang and l not in Blangs) ]
+        if len(Blangs) == 1 and 'mul' not in Blangs and 'mul' != lang:
+            m = ['mul'] + m
         if m:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'relabel', initial=initial_base)
