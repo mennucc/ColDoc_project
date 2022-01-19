@@ -43,7 +43,7 @@ from plasTeX.TeX import TeX
 #from plasTeX.Packages import graphicx
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
-from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, iso3lang2word
+from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, iso3lang2word, uuid_to_dir
 from ColDocDjango.utils import get_email_for_user
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru
@@ -438,9 +438,71 @@ def postlang(request, NICK, UUID):
         logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation("Permission denied")
     #
-    # TODO WRITE ME
-    messages.add_message(request,messages.ERROR, 'unimplemented %r %r'%(prefix,langchoice_))
-    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
+    D = uuid_to_dir(UUID, blobs_dir)
+    D = osjoin(blobs_dir, D)
+    dst = osjoin(D,'blob_'+langchoice_+ext_)
+    src = osjoin(D,'blob_'+lang_+ext_)
+    #
+    redirectlang_ = langchoice_
+    #
+    if not os.path.exists(src):
+        messages.add_message(request,messages.WARNING,
+                             'A blob with language %r extension %r does not exist'%
+                             (iso3lang2word(lang_),ext_))
+        logger.warning('A blob with language %r extension %r does not exist' % (lang_,ext_))
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    if prefix == 'add' or prefix == 'relabel':
+        L = metadata.get_languages()
+        #
+        if langchoice_ not in L and prefix == 'add':
+            metadata.lang = '\n'.join(L + [langchoice_]) + '\n'
+            metadata.save()
+        #
+        if os.path.exists(dst):
+            messages.add_message(request,messages.WARNING,
+                                 'A blob with language %r extension %r already exists'%
+                                 (iso3lang2word(langchoice_),ext_))
+        else:
+            if prefix == 'relabel':
+                L[L.index(lang_)] = langchoice_
+                metadata.lang = '\n'.join(L) + '\n'
+                metadata.save()
+            #
+            if prefix == 'add' or langchoice_ == 'mul':
+                logger.warning('copy %r to %r',src,dst)
+                # TODO should convert 
+                shutil.copy2(src, dst)
+                messages.add_message(request,messages.INFO,
+                                     'A blob with language %r extension %r was created copying from %r.\nPlease translate it.'%
+                                     (iso3lang2word(langchoice_),ext_,iso3lang2word(lang_)))
+            else:
+                logger.warning('rename %r to %r',src,dst)
+                # TODO should convert
+                os.rename(src, dst)
+                if langchoice_ != 'mul':
+                    for j in os.listdir(D):
+                        if j[:4] in ('blob','view') and j[5:8] == lang_:
+                            h = j[:5] + langchoice_ + j[8:]
+                            dst = osjoin(D,h)
+                            src = osjoin(D,j)
+                            logger.warning('rename %r to %r',src,dst)
+                            os.rename(src, dst)
+    elif prefix == 'delete':
+        redirectlang_ = lang_
+        L = metadata.get_languages()
+        if langchoice_ in L:
+            del L[L.index(langchoice_)]
+            metadata.lang = '\n'.join(L)  + '\n'
+            metadata.save()
+        else:
+            logger.warning(' lang %r not in %r',langchoice_,L)
+    else:
+        messages.add_message(request,messages.ERROR, 'unimplemented %r %r'%(prefix,langchoice_))
+    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
+                    '?lang=%s&ext=%s'%(redirectlang_,ext_) )
+
+
 
 
 def postupload(request, NICK, UUID):
