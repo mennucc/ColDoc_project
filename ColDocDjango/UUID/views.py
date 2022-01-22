@@ -1415,12 +1415,12 @@ def index(request, NICK, UUID):
     v = FileExtensionValidator(allowed_extensions=a)
     blobuploadform.fields['file'].validators.append(v)
     #    
-    languages = []
+    other_view_languages = []
     Blangs = metadata.get_languages()
     for val in  Blangs:
         if val not in ('mul','und') and val != lang:
             link="/UUID/{nick}/{UUID}/?lang={val}".format(UUID=metadata.uuid,nick=coldoc.nickname,val=val)
-            languages.append((iso3lang2word(val), link))
+            other_view_languages.append((iso3lang2word(val), link))
     #
     langforms = []
     CDlangs = coldoc.get_languages()
