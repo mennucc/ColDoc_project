@@ -428,6 +428,8 @@ def postlang(request, NICK, UUID):
     ext_ = form.cleaned_data['ext']
     langchoice_ = form.cleaned_data['langchoice']
     assert UUID == uuid_ and NICK == nick_
+    assert len(lang_) == 3 and slug_re.match(lang_)
+    assert slugp_re.match(ext_)
     #
     metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
@@ -528,6 +530,8 @@ def postupload(request, NICK, UUID):
     ext_ = form.cleaned_data['ext']
     type__ = form.cleaned_data['mimetype']
     assert UUID == uuid_ and NICK == nick_
+    assert len(lang_) == 3 and slug_re.match(lang_)
+    assert slugp_re.match(ext_)
     #
     l = ('_'+lang_) if lang_ else ''
     dest = os.path.join(blobs_dir, uuid_dir, 'blob' + l + ext_)
@@ -591,6 +595,8 @@ def postedit(request, NICK, UUID):
     selection_end_ = int(form.cleaned_data['selection_end'])
     split_add_beginend_ = form.cleaned_data['split_add_beginend']
     assert UUID == uuid_ and NICK == nick_
+    assert len(lang_) == 3 and slug_re.match(lang_)
+    assert slugp_re.match(ext_)
     #
     if split_environment_ == 'graphic_file':
         c_lang = 'zxx'
@@ -845,6 +851,8 @@ def postmetadataedit(request, NICK, UUID):
     uuid_ = form.cleaned_data['uuid_']
     lang_ = form.cleaned_data['lang_']
     ext_ = form.cleaned_data['ext_']
+    assert len(lang_) == 3 and slug_re.match(lang_)
+    assert slugp_re.match(ext_)
     environ_ = form.cleaned_data['environ']
     if uuid != uuid_ :
         logger.error('Hacking attempt %r',request.META)
@@ -996,12 +1004,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     if not os.path.isdir(blobs_dir):
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     #
-    langs = []
-    if 'lang' in q:
-        l = q['lang']
-        if not ( l=='' or slug_re.match(l) ):
-            raise SuspiciousOperation("Invalid lang %r in query." % (l,))
-        langs = [l]
+    lang = q.get('lang')
+    if lang is not None and ( len(lang) != 3 or not slug_re.match(lang)):
+            raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
     download='download' in q
     #for j in q:
     #    if j not in ('ext','lang'):
@@ -1149,10 +1154,8 @@ def index(request, NICK, UUID):
         ext = q['ext']
         if not slugp_re.match(ext):
             raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
-    lang = None
-    if 'lang' in q:
-        lang = q['lang']
-        if not ( lang=='' or slug_re.match(lang) ):
+    lang = q.get('lang')
+    if lang is not None and ( len(lang) != 3 or not slug_re.match(lang) ):
             raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
     for j in q:
         if j not in ('ext','lang'):
@@ -1486,10 +1489,8 @@ def download(request, NICK, UUID):
         ext = q['ext']
         if not slugp_re.match(ext):
             raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
-    lang = None
-    if 'lang' in q:
-        lang = q['lang']
-        if not ( lang=='' or slug_re.match(lang) ):
+    lang = q.get('lang')
+    if lang is not None and (len(lang) != 3 or not slug_re.match(lang) ):
             raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
     #
     download_as = q.get('as',None)

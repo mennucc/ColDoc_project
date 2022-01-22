@@ -432,6 +432,7 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
     assert blobs_dir is not None
     assert metadata is not None or (uuid is not None and (metadata_class == FMetadata or coldoc is not None))
     assert isinstance(uuid,str) or uuid is None
+    assert lang is None or (len(lang) == 3 and slug_re.match(lang))
     #
     if metadata is None:
         m = metadata_class.load_by_uuid(uuid=uuid,coldoc=coldoc,basepath=blobs_dir)
