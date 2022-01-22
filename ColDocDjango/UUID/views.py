@@ -1551,6 +1551,7 @@ def download(request, NICK, UUID):
             logger.debug('Cannot buy, '+str(ret))
     elif request.user.has_perm('UUID.view_blob') and (download_as == 'blob'):
         e_f = filename
+        _content_type , _content_encoding = mimetypes.guess_type(filename)
     elif not request.user.has_perm('UUID.view_view'):
         a = 'Access denied to this content.'
         e_f = None
@@ -1558,7 +1559,7 @@ def download(request, NICK, UUID):
         e_f = osjoin( uuid_dir, 'squash'+_lang+'.tex')
     else:
         e_f = filename
-        _content_type , _content_encoding = mimetypes.guess_type(s)
+        _content_type , _content_encoding = mimetypes.guess_type(filename)
         if not is_image_blob(metadata, _content_type):
             a = 'Access denied to this content.'
             e_f = None
@@ -1576,7 +1577,7 @@ def download(request, NICK, UUID):
         messages.add_message(request, messages.WARNING, 'Cannot download (you have insufficient priviledges)')
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
-    content = open(os.path.join(blobs_dir, e_f)).read()
+    content = open(os.path.join(blobs_dir, e_f), 'rb').read()
     #
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : serving %r',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as, e_f)
