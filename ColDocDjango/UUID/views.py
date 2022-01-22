@@ -1556,8 +1556,13 @@ def download(request, NICK, UUID):
         a = 'Access denied to this content.'
         e_f = None
     elif ext == '.tex' :
+        # users with perm('UUID.download') and perm('UUID.view_view')
+        # but not perm('UUID.view_blob') : have access to the `squashed view`
         e_f = osjoin( uuid_dir, 'squash'+_lang+'.tex')
     else:
+        # for images, there is currently no difference between
+        #`viewing blob` or `viewing view`, so has_perm('UUID.view_view')
+        # is sufficient to view the image
         e_f = filename
         _content_type , _content_encoding = mimetypes.guess_type(filename)
         if not is_image_blob(metadata, _content_type):
