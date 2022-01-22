@@ -47,7 +47,7 @@ def main(argv):
     parser.add_argument('--verbose','-v',action='count',default=0)
     parser.add_argument('--blobs-dir',type=str,\
                         help='directory where the blob_ized output is saved')
-    parser.add_argument('--coldoc-nick',type=str,\
+    parser.add_argument('--coldoc-nick',type=str, required=True,\
                         help='nickname for the coldoc document', default='paper')
     parser.add_argument('--coldoc-site-root',type=str,\
                         help='root of the coldoc portal', default=COLDOC_SITE_ROOT,
