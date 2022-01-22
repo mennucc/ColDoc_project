@@ -1449,6 +1449,7 @@ def index(request, NICK, UUID):
     #
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
+    view_language = iso3lang2word(view_lang) #if ('mul' in Blangs) else ''
     return render(request, 'UUID.html', locals() )
 
 
