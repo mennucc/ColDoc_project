@@ -53,6 +53,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'parent_cmd_env_child',
             'html2text',
             'iso3lang2word',
+            'replace_language_in_inputs','strip_language_lines', 'gen_lang_coldoc', 'gen_lang_metadata',
             )
 
 class ColDocException(Exception):
@@ -1346,6 +1347,95 @@ def html2text(some_html_string):
     #return '\n'.join(BeautifulSoup(some_html_string, "html.parser").findAll(text=True))
     return ' '.join(BeautifulSoup(some_html_string, "html.parser").stripped_strings)
 
+################### replacements by regular expressions
+
+def replace_language_in_inputs(string,oldlang,newlang):
+    " if oldlang is None, replace all languages (but this is a bad idea)"
+    assert oldlang is None or len(oldlang) == 3 
+    assert len(newlang) == 3
+    if oldlang is  None:
+        oldlang = '\w\w\w'
+    pattern = '{UUID/(\w+)/(\w+)/(\w+)/blob_(' + oldlang + ').(\w\w+)}'
+    replacement = '{UUID/\g<1>/\g<2>/\g<3>/blob_' + newlang + '.\g<5>}'
+    string = re.sub(pattern ,replacement, string)
+    #
+    pattern = '{UUID/(\w+)/(\w+)/(\w+)/blob_(' + oldlang + ')}'
+    replacement = '{UUID/\g<1>/\g<2>/\g<3>/blob_' + newlang + '}'
+    #
+    pattern = '{SEC/([^/]+)/blob_(' + oldlang + ').(\w\w+)}'
+    replacement = '{SEC/\g<1>/blob_' + newlang + '.\g<3>}'
+    string = re.sub(pattern ,replacement, string)
+    #
+    pattern = '{SEC/([^/]+)/blob_(' + oldlang + ')}'
+    replacement = '{SEC/\g<1>/blob_' + newlang + '}'
+    string = re.sub(pattern ,replacement, string)
+    #
+    return re.sub(pattern ,replacement, string)
+
+def strip_language_lines(string, thelang , header = ColDoc_language_header_prefix):
+    " delete all lines with wrong language header"
+    if not header:
+        # no processing
+        return string
+    assert len(thelang) == 3
+    lines = string.splitlines()
+    newlines = []
+    correctheader = header + thelang
+    N = len(correctheader)
+    for l in lines:
+        r = l.lstrip()
+        if r.startswith(correctheader):
+            newlines.append(r[N:])
+        elif not r.startswith(header):
+            if header in l:
+                logger.warning('misplaced language header')
+                l += '%misplaced language header'
+            newlines.append(l)
+    return '\n'.join(newlines)+'\n'
+
+def gen_lang_metadata(metadata, blobs_dir, coldoc_languages):
+    languages = metadata.get_languages()
+    if 'mul' not in languages:
+        return
+    uuid = metadata.uuid
+    src = osjoin(blobs_dir, uuid_to_dir(uuid), 'blob_mul.tex')
+    if not os.path.isfile(src):
+        logger.error('is not a file: %r',src)
+        return
+    string = open(src).read()
+    for lang in coldoc_languages:
+        if lang in ('mul','zxx','und'):
+            continue
+        string2 = strip_language_lines(string, lang)
+        string3 = replace_language_in_inputs(string2, 'mul', lang)
+        dst = osjoin(blobs_dir, uuid_to_dir(uuid), 'blob_' + lang + '.tex')
+        try:
+            open(dst,'w').write(string3)
+        except:
+            logger.exception(dst)
+        else:
+            logger.debug(' src %r dst %r',src,dst)
+
+
+def gen_lang_coldoc(COLDOC_SITE_ROOT, coldoc_nick):
+    " "
+    #
+    from ColDoc.utils import slug_re
+    assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
+    coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
+    assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
+    #
+    blobs_dir = osjoin(coldoc_dir, 'blobs')
+    assert os.path.exists(blobs_dir), ('Does not exist blobs_dir=%r\n'%(blobs_dir))
+    #
+    from ColDocApp.models import DColDoc
+    coldoc = DColDoc.objects.get(nickname = coldoc_nick)
+    coldoc_languages = coldoc.get_languages()
+    #
+    #
+    from UUID.models import DMetadata
+    for metadata in DMetadata.objects.filter(coldoc = coldoc):
+        gen_lang_metadata(metadata, blobs_dir, coldoc_languages)
 
 ############################
 if __name__ == '__main__':
