@@ -473,15 +473,18 @@ def postlang(request, NICK, UUID):
             #
             if prefix == 'add' or langchoice_ == 'mul':
                 logger.warning('copy %r to %r',src,dst)
-                # TODO should convert 
-                shutil.copy2(src, dst)
+                string = open(src).read()
+                string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
+                open(dst,'w').write(string)
                 messages.add_message(request,messages.INFO,
                                      'A blob with language %r extension %r was created copying from %r.\nPlease translate it.'%
                                      (iso3lang2word(langchoice_),ext_,iso3lang2word(lang_)))
             else:
                 logger.warning('rename %r to %r',src,dst)
-                # TODO should convert
-                os.rename(src, dst)
+                string = open(src).read()
+                string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
+                open(dst,'w').write(string)
+                os.unlink(src)
                 if langchoice_ != 'mul':
                     for j in os.listdir(D):
                         if j[:4] in ('blob','view') and j[5:8] == lang_:
