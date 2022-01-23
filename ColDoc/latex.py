@@ -151,9 +151,11 @@ def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {
         return True
     #
     if lang is not None:
-        langs=[lang]
+        langs = [lang]
     else:
-        langs=metadata.get('lang')
+        langs = metadata.get_languages()
+    if 'mul' in langs:
+        langs = metadata.coldoc.get_languages()
     if not langs:
         logger.debug('No languages for blob %r in blobs_dir %r',uuid,blobs_dir)
         return True
@@ -349,10 +351,13 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
     else:
         options['plastex_theme'] = 'green'
         latex_macros = metadata.coldoc.latex_macros_private
+    #
     if lang is not None:
-        langs=[lang]
+        langs = [lang]
     else:
-        langs=metadata.get('lang')
+        langs = metadata.get_languages()
+    if 'mul' in langs:
+        langs = metadata.coldoc.get_languages()
     #
     ret = True
     coldoc = options.get('coldoc')
