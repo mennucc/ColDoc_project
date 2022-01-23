@@ -704,7 +704,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
             else:
                 uuid = new_uuid(blobs_dir=blobs_dir)
                 do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
-                fo = osjoin(do,'blob')
+                fo = osjoin(do,'blob_und')
                 fm = metadata_class(basepath=blobs_dir,coldoc=coldoc)
                 fm.uuid = uuid
                 fm.add('environ',  macroname)
@@ -712,6 +712,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 fm.add('original_filename', fil)
                 fm.add('original_command', '\\'+macroname+'{'+fil+'}')
                 fm.add('parent_uuid', stack.topstream.uuid)
+                fm.lang='und'
                 # alas we cannot split 'bibliography'
                 outlist.append(fo)
                 a,b=absinputfile,osjoin(blobs_dir,fo)+ext
@@ -963,7 +964,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         #
                         uuid = new_uuid(blobs_dir=blobs_dir)
                         do = uuid_to_dir(uuid, blobs_dir=blobs_dir, create=True)
-                        fo = osjoin(do,'blob')
+                        fo = osjoin(do,'blob_zxx')
                         fm = metadata_class(basepath=blobs_dir,coldoc=coldoc)
                         fm.uuid = uuid
                         fm.add('original_filename', inputfile)
