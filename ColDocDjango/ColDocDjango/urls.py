@@ -32,6 +32,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('UUID/', include('UUID.urls')),
     path('CD/', include('ColDocApp.urls')),
+    # https://docs.djangoproject.com/en/4.0/topics/i18n/translation/#the-set-language-redirect-view
+    path('i18n/', include('django.conf.urls.i18n')),
     ]
 
 if settings.USE_SIMPLE_CAPTCHA:
