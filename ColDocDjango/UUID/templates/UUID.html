@@ -262,7 +262,12 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
     {% endif %}
    <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ blob_lang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm p-2"
-             data-toggle="tooltip" title="Download this blob ({{ blob_language }}).">Download blob</a>
+             data-toggle="tooltip" title="Download this blob as {{ blob_language }}.">Download blob ({{ blob_language }})</a>
+  {% if blob_lang != view_lang %}
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ view_lang }}&ext={{ ext }}"
+             class="btn btn-outline-primary btn-sm p-2"
+             data-toggle="tooltip" title="Download this blob as {{ view_language }}.">{{ view_language }}</a>
+  {% endif %}
    {% if its_something_we_would_latex %}
    <span class="border fill m-2 p-3">
    <span data-toggle="tooltip" title="Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.">
