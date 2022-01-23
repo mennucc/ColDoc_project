@@ -1617,7 +1617,7 @@ def download(request, NICK, UUID):
     if download_as == 'blob':
         content = open(os.path.join(blobs_dir, e_f), 'rb').read()
         response = HttpResponse(content, content_type = _content_type )
-        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s%s' % (NICK,UUID,ext))
+        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s_%s%s' % (NICK,UUID,lang,ext))
         return response
     #
     content = open(os.path.join(blobs_dir, e_f), 'r').read()
@@ -1706,12 +1706,12 @@ def download(request, NICK, UUID):
         options['content'] = '%%%%%% start of ' + UUID + '\n' + content + '\n%%%%%% end of ' + UUID + '\n'
         f = download_template % options
         response = HttpResponse(f, content_type=tex_mimetype)
-        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s_document.tex' % (NICK,UUID))
+        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s_%s_document.tex' % (NICK,UUID,lang))
         return response
     #
     options['preamble'] = '\n'.join([j[1] for j in preambles])
-    uuidname = '%s_%s.tex' % (NICK,UUID)
-    dirname = '%s_%s/' % (NICK,UUID)
+    uuidname = '%s_%s_%s.tex' % (NICK,UUID,lang)
+    dirname = '%s_%s_%s/' % (NICK,UUID,lang)
     options['content'] = '\input{%s}' % (uuidname,)
     if download_as == 'zip':
         import zipfile, io
@@ -1724,7 +1724,7 @@ def download(request, NICK, UUID):
         Z.close()
         F.seek(0)
         response = HttpResponse(F, content_type='application/zip')
-        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_%s.zip' % (NICK,UUID))
+        response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_%s_%s.zip' % (NICK,UUID,lang))
         return response
     #
     if download_as == 'email':
