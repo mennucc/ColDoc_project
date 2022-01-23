@@ -262,18 +262,18 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
     {% endif %}
    <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ blob_lang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm p-2"
-             data-toggle="tooltip" title="Download this blob.">Download blob</a>
+             data-toggle="tooltip" title="Download this blob ({{ blob_language }}).">Download blob</a>
    {% if its_something_we_would_latex %}
    <span class="border fill m-2 p-3">
-   <span data-toggle="tooltip" title="Download this blob together with all parts that constitute a complete, compilable, LaTeX document.">
-   Download inside complete document:</span> 
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=single&lang={{ lang }}&ext={{ ext }}"
+   <span data-toggle="tooltip" title="Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.">
+   Download inside complete {{ view_language }} document:</span> 
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=single&lang={{ view_lang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm"
              data-toggle="tooltip" title="Download this blob embedded in a complete, compilable, LaTeX document.">
       as single document;</a>
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=zip&lang={{ lang }}&ext={{ ext }}"
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=zip&lang={{ view_lang }}&ext={{ ext }}"
              class="btn btn-outline-primary">as ZIP;</a>
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=email&lang={{ lang }}&ext={{ ext }}"
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=email&lang={{ view_lang }}&ext={{ ext }}"
              class="btn btn-outline-primary">
       by email.</a>
    <span>
