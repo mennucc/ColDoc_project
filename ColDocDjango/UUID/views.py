@@ -43,7 +43,7 @@ from plasTeX.TeX import TeX
 #from plasTeX.Packages import graphicx
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
-from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, iso3lang2word, uuid_to_dir
+from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, iso3lang2word, uuid_to_dir, gen_lang_metadata
 from ColDocDjango.utils import get_email_for_user
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru
@@ -556,6 +556,7 @@ def postupload(request, NICK, UUID):
 
 
 def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages, all_messages):
+    gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
     languages = [lang]  if 'mul' not in metadata.get_languages() else coldoc.get_languages()
     for thelang in languages:
         rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, thelang, metadata)
