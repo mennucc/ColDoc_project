@@ -137,6 +137,10 @@ ColDoc_latex_macros_private = '\\newif\\ifColDocPublic\\ColDocPublicfalse\n\\new
 ColDoc_latex_macros_public  = '\\newif\\ifColDocPublic\\ColDocPublictrue \n\\newif\\ifColDocOneUUID\\ColDocOneUUIDfalse\n'
 ColDoc_latex_macros_uuid    = '\\newif\\ifColDocPublic\\ColDocPublicfalse\n\\newif\\ifColDocOneUUID\\ColDocOneUUIDtrue\n'
 
+# prefix for language headers , e.g. `\CDLeng` , `\CDLita` etc
+# in multilingual documents,
+# lines starting with the incorrect language header will be skipped
+ColDoc_language_header_prefix = r'\CDL'
 
 # conditional for language headers , e.g. `\ifCDLeng` , `\ifCDLita` etc
 # in multilingual documents, only one will be set to true
