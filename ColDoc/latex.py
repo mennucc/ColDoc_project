@@ -75,6 +75,7 @@ environments_we_wont_latex = ColDoc.config.ColDoc_environments_we_wont_latex
 
 standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 %(coldoc_api)s
+%(language_conditionals)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
@@ -88,6 +89,7 @@ standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 
 preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s}
 %(coldoc_api)s
+%(language_conditionals)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
@@ -105,6 +107,7 @@ preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s
 
 plastex_template=r"""\documentclass{article}
 %(coldoc_api)s
+%(language_conditionals)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
@@ -116,6 +119,15 @@ plastex_template=r"""\documentclass{article}
 %(end)s
 \end{document}
 """
+
+def lang_conditionals(thelang, langs = None, metadata = None):
+    if langs is None:
+        Mlangs = metadata.get_languages()
+        langs = Mlangs if 'mul' not in Mlangs else metadata.coldoc.get_languages()
+    return [(r'\newif\if{I}{L}\{I}{L}{V}'.format(I=ColDoc.config.ColDoc_language_conditional_infix,\
+                                                 V='true' if a == thelang else 'false',\
+                                                 L=a)) \
+            for a in langs]
 
 
 def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {}):
@@ -187,6 +199,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
          'url_UUID' : options['url_UUID'],
          'latex_macros' : options.get('latex_macros',metadata.coldoc.latex_macros_uuid),
          'coldoc_api' : ColDoc.config.ColDoc_api_version_macro,
+         'language_conditionals' : '\n'.join(lang_conditionals(lang, metadata = metadata)),
          }
     #
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
@@ -363,7 +376,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         if not(preamble):
             logger.warning(r" cannot locate '\begin{document}' ") 
         if True:
-            preamble = [ColDoc.config.ColDoc_api_version_macro, latex_macros] + preamble
+            conditionals = lang_conditionals(lang, metadata = metadata)
+            preamble = [ColDoc.config.ColDoc_api_version_macro, latex_macros] + conditionals + preamble
             import re
             r = re.compile(r'\\usepackage{ColDocUUID}')
             if not any(r.match(a) for a in preamble):
