@@ -1557,6 +1557,8 @@ def download(request, NICK, UUID):
     _content_encoding = 'utf-8'
     # error message
     a = None
+    #
+    options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     # effective file served
     e_f = None
     if not request.user.has_perm('UUID.download'):
@@ -1579,6 +1581,12 @@ def download(request, NICK, UUID):
         # users with perm('UUID.download') and perm('UUID.view_view')
         # but not perm('UUID.view_blob') : have access to the `squashed view`
         e_f = osjoin( uuid_dir, 'squash'+_lang+'.tex')
+        if lang == 'mul':
+            # this is otherwise never created
+            b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
+            s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
+            ColDoc.transform.squash_latex(b, s, blobs_dir, options,
+                                          helper = ColDoc.transform.squash_input_uuid(blobs_dir, metadata, options))
     else:
         # for images, there is currently no difference between
         #`viewing blob` or `viewing view`, so has_perm('UUID.view_view')
@@ -1621,7 +1629,6 @@ def download(request, NICK, UUID):
         messages.add_message(request, messages.WARNING, 'This blob is not not something we would LaTeX')
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
-    options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     engine = options.get('latex_engine','pdflatex')
     options['latex_engine_emacs'] = {'xelatex':'xetex','lualatex':'luatex','pdflatex':'default'}[engine]
     #
