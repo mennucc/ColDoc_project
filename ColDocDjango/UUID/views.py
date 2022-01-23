@@ -555,6 +555,19 @@ def postupload(request, NICK, UUID):
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 
+def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages, all_messages):
+    languages = [lang]  if 'mul' not in metadata.get_languages() else coldoc.get_languages()
+    for thelang in languages:
+        rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, thelang, metadata)
+        if rh and rp:
+            a = 'Compilation of LaTeX succeded (%r)' % thelang
+            messages.add_message(request,messages.INFO,a)
+        else:
+            a = 'Compilation of LaTeX failed (%r)' % thelang
+            messages.add_message(request,messages.WARNING,a)
+        all_messages.append(a)
+
+
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
@@ -745,14 +758,7 @@ def postedit(request, NICK, UUID):
     reparse_blob(filename, metadata, blobs_dir, warn)
     #
     if ext_ == '.tex'  and metadata.environ not in environments_we_wont_latex:
-        rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, metadata)
-        if rh and rp:
-            a = 'Compilation of LaTeX succeded'
-            messages.add_message(request,messages.INFO,a)
-        else:
-            a = 'Compilation of LaTeX failed'
-            messages.add_message(request,messages.WARNING,a)
-        all_messages.append(a)
+        __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages, all_messages)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     email_to = _interested_emails(coldoc,metadata)
@@ -865,11 +871,7 @@ def postmetadataedit(request, NICK, UUID):
     #
     from ColDoc.latex import environments_we_wont_latex
     if ext_ =='.tex'  and metadata.environ not in environments_we_wont_latex:
-        ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, uuid, metadata)
-        if ret :
-            messages.add_message(request,messages.INFO,'Compilation of LaTeX succeded')
-        else:
-            messages.add_message(request,messages.WARNING,'Compilation of LaTeX failed')
+        __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang_, messages, [])
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     #
