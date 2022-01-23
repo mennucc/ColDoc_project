@@ -1602,15 +1602,17 @@ def download(request, NICK, UUID):
         messages.add_message(request, messages.WARNING, 'Cannot download (you have insufficient priviledges)')
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
-    content = open(os.path.join(blobs_dir, e_f), 'rb').read()
     #
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : serving %r',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as, e_f)
     #
     if download_as == 'blob':
+        content = open(os.path.join(blobs_dir, e_f), 'rb').read()
         response = HttpResponse(content, content_type = _content_type )
         response['Content-Disposition'] = "attachment; filename=" + ( 'ColDoc_%s_UUID_%s%s' % (NICK,UUID,ext))
         return response
+    #
+    content = open(os.path.join(blobs_dir, e_f), 'r').read()
     #
     its_something_we_would_latex = (env not in ColDoc.latex.environments_we_wont_latex)
     if not its_something_we_would_latex or ( _content_type != tex_mimetype ) :
