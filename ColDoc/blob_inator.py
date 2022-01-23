@@ -1317,8 +1317,9 @@ def main(args, metadata_class, coldoc = None):
         logger.warning('Please install `pycountry` ')
         pycountry = None
     #
-    if pycountry and args.language is not None:
-        l = args.language
+    languages = args.language.split(',') if args.language is not None else []
+    if pycountry :
+      for  n,l in enumerate(languages):
         if len(l) == 2:
             L = pycountry.languages.get(alpha_2=l) 
         elif len(l) == 3:
@@ -1331,8 +1332,15 @@ def main(args, metadata_class, coldoc = None):
             print(' Please use ISO_639-3 codes, see https://en.wikipedia.org/wiki/ISO_639-3')
             sys.exit(2)
         # normalize to alpha_3
-        args.language = l = L.alpha_3
-        logger.info('Selected language: %s (%s)',l, L.name)
+        languages[n] = l = L.alpha_3
+        logger.info('Selected language %d: %s (%s)', n, l, L.name)
+    #
+    if languages and 'mul' == languages[0]:
+        args.languages = languages[1:]
+        assert  'mul' not in args.languages
+        args.language = 'mul'
+    else:
+        args.languages = languages
     #
     mytex = TeX()
     mydocument = mytex.ownerDocument
