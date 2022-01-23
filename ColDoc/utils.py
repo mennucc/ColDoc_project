@@ -464,6 +464,8 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
         E = [ext]
     #
     L = copy.copy(m.get_languages())
+    if 'mul' in L:
+        L = copy.copy(m.coldoc.get_languages())
     # as a last resort, try a "no language" choice
     L.append('')
     if lang is not None:
