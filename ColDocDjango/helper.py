@@ -20,6 +20,9 @@ This program does some actions that `manage` does not. Possible commands:
     reparse_all
          reparse all blobs
     
+    gen_lang
+         generate all languages (for multilanguage content)
+    
     check_tree
         check that tree is connected and has no loops;
         and consistency of metadata and LaTeX content
@@ -54,7 +57,9 @@ if __name__ == '__main__':
     #
     from ColDoc import loggin
 
-from ColDoc.utils import ColDocException, get_blobinator_args
+from ColDoc.utils import ColDocException, get_blobinator_args, uuid_to_dir, parent_cmd_env_child, \
+     replace_language_in_inputs, strip_language_lines, gen_lang_coldoc, gen_lang_metadata
+
 
 import logging
 logger = logging.getLogger('helper')
@@ -653,7 +658,7 @@ def main(argv):
                         help='root of the coldoc portal (default from env `COLDOC_SITE_ROOT`)', default=COLDOC_SITE_ROOT,
                         required=(COLDOC_SITE_ROOT is None))
     parser.add_argument('--verbose','-v',action='count',default=0)
-    if 'add_blob' in sys.argv or  'reparse_all' in sys.argv or 'check_tree' in sys.argv or 'list_authors' in sys.argv:
+    if any([j in sys.argv for j in ( 'add_blob' , 'reparse_all' , 'check_tree' , 'list_authors' , 'gen_lang') ]):
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
     if 'reparse_all' in sys.argv or 'check_tree' in sys.argv:
@@ -722,6 +727,10 @@ does not contain the file `config.ini`
         def writelog(s):
             sys.stdout.write('>> '+ s + '\n')
         reparse_all(writelog, COLDOC_SITE_ROOT, args.coldoc_nick, args.lang, not args.no_act)
+        return True
+    #
+    elif argv[0] == 'gen_lang':
+        gen_lang_coldoc(COLDOC_SITE_ROOT, args.coldoc_nick)
         return True
     #
     elif argv[0] == 'check_tree':
