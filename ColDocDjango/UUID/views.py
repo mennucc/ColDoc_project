@@ -614,6 +614,8 @@ def postedit(request, NICK, UUID):
     #
     if split_environment_ == 'graphic_file':
         c_lang = 'zxx'
+    elif split_environment_ in ( 'usepackage' , 'bibliography' ):
+        c_lang = 'und'
     else:
         c_lang = lang_
     #
