@@ -1,0 +1,19 @@
+%%% these are properly defined in the ColDoc machinery
+%%% but if you want to compile 'paper.tex' by itself
+%%% you need to give them some reasonable value
+%%% because they are used here and there
+
+%%% https://texfaq.org/FAQ-isdef
+
+\ifdefined\ColDocAPI\else
+ \typeout{Definining ifColDocPublic as false}
+ \newif\ifColDocPublic\ColDocPublicfalse
+ \typeout{Definining ifColDocOneUUID as false}
+ \newif\ifColDocOneUUID\ColDocOneUUIDfalse
+ \typeout{Definining CDLita}
+ \def\CDLita{[ita]}
+ \newif\ifCDLita\CDLitatrue
+ \typeout{Definining CDLeng}
+ \def\CDLeng{[eng]}
+ \newif\ifCDLeng\CDLengtrue
+\fi

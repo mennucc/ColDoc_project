@@ -1,0 +1,28 @@
+\usepackage{amsthm,amsmath}
+
+\usepackage{graphicx}
+
+\usepackage{lipsum}
+
+\newcounter{myCount}
+\newtheorem{Defn}[myCount]{Definition}
+\newtheorem{Theorem}[myCount]{Theorema}
+\newtheorem{Cor}[myCount]{Corollary}
+\newtheorem{Lem}[myCount]{Lemma}
+
+\newenvironment{privateremark}{[}{]}
+
+\newenvironment{buyablecontent}{[}{]}
+
+%% you may customize the appearance of the marker written by the \uuid command
+%%
+% \renewcommand{\uuidformatter}[1]{{\texttt{[#1]}}}
+%%
+%% See in ColDocUUID.sty
+
+
+\ifplastex
+%% plastex currently does not know eqref
+\def\eqref{\ref}
+\fi
+

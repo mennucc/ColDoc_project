@@ -122,6 +122,23 @@ django_paper: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper check_tree
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick paper list_authors
 
+# load a multi-lingual paper in the ColDoc portal
+django_multlang: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
+	test  -f $(COLDOC_SITE_ROOT)/config.ini
+	if  ./django_tester.py --coldoc-nick=multlang isthere ; then  ./django_tester.py  --coldoc-nick=multlang delete ; fi
+	if test -d $(COLDOC_SITE_ROOT)/coldocs/multlang/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/multlang ; fi
+	../ColDocDjango/blob_inator.py --lang mul,eng,ita --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=multlang  --ZS --SP --SE=figure --SL=description  --editor=ed_itor --author=jsmith --private-environment=privateremark  --private-environment=buyablecontent --SAT   multlang/paper.tex
+	./django_tester.py --coldoc-nick=multlang isthere
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --parent-uuid 007  --user jsmith --p_lang mul --c_lang mul --environ E_description add_blob
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --parent-uuid 007  --user jsmith --p_lang mul --c_lang mul --environ E_privateremark add_blob
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --parent-uuid 007  --user jsmith --p_lang mul --c_lang zxx --environ graphic_file add_blob
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang gen_lang
+	../ColDocDjango/latex.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=multlang --url-UUID="http://localhost:8000/UUID/multlang/" all
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --lang mul  reparse_all
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang check_tree
+	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang list_authors
+
+
 # load a book in the ColDoc portal
 django_book: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	test  -f $(COLDOC_SITE_ROOT)/config.ini
