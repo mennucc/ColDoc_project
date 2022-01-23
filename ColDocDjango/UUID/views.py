@@ -1046,7 +1046,10 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         #   
         n = None
         isdir = False
-        langs += metadata.get_languages() + [None]
+        Blangs = metadata.get_languages()
+        if 'mul' in Blangs:
+            Blangs = metadata.coldoc.get_languages()
+        langs = [lang] if (lang is not None) else ( Blangs + [None] )
         pref_ = prefix
         # access to logs
         if  prefix == 'log' :
