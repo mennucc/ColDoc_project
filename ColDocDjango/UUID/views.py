@@ -1600,12 +1600,12 @@ def download(request, NICK, UUID):
     if e_f is None:
         if request.user.is_anonymous: a += ' Please login.'
         messages.add_message(request, messages.WARNING, a)
-        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : '+a,
+        logger.warning('download ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : '+a,
                     request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
     if not os.path.isfile(os.path.join(blobs_dir, e_f)):
-        logger.info('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : no file %r',
+        logger.warning('download ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : no file %r',
                     request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as, e_f)
         messages.add_message(request, messages.WARNING, 'Cannot download (you have insufficient priviledges)')
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
