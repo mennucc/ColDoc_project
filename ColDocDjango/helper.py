@@ -274,6 +274,22 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
                                                    metadata_class=metadata_class)
     logger.debug('Resolved parent as %r', parent_uuid_dir)
     #
+    coldoc = parent_metadata.coldoc
+    Clangs = coldoc.get_languages()
+    Blangs =  parent_metadata.get_languages()
+    if p_lang not in Blangs:
+        a="Parent does not have language %r" % p_lang
+        logger.error(a)
+        return False, a, None
+    #
+    if c_lang not in Clangs and c_lang not in ('mul','und','zxx'):
+        a="ColDoc %r does not allow language %r" % (coldoc_nick, c_lang)
+        logger.error(a)
+        return False, a, None
+    #
+    if 'mul' in Blangs and (p_lang != 'mul' or c_lang not in ('mul','und','zxx')):
+        logger.warning("This is weird Blangs=%r p_lang=%r c_lang=%r" , Blangs, p_lang, c_lang)
+    #
     if '.tex' not in parent_metadata.get('extension'):
         a="Only '.tex' blobs can have children"
         logger.error(a)
