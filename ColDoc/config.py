@@ -1,5 +1,8 @@
 import os.path
 
+# API version
+ColDoc_api_version = 1
+ColDoc_api_version_macro = r'\def\ColDocAPI{1}'
 
 # default for --blobs-dir argument in most commands
 # and for `blobs_dir` in many calls in ColDoc.utils.py

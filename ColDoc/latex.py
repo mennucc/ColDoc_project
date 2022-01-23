@@ -74,6 +74,7 @@ from plasTeX.Packages import amsthm , graphicx
 environments_we_wont_latex = ColDoc.config.ColDoc_environments_we_wont_latex
 
 standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
+%(coldoc_api)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
@@ -86,6 +87,7 @@ standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 """
 
 preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s}
+%(coldoc_api)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
@@ -102,6 +104,7 @@ preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s
 ##%\usepackage[active]{preview}
 
 plastex_template=r"""\documentclass{article}
+%(coldoc_api)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
 \input{preamble.tex}
@@ -183,6 +186,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
          'begin':'','end':'',
          'url_UUID' : options['url_UUID'],
          'latex_macros' : options.get('latex_macros',metadata.coldoc.latex_macros_uuid),
+         'coldoc_api' : ColDoc.config.ColDoc_api_version_macro,
          }
     #
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
@@ -359,7 +363,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         if not(preamble):
             logger.warning(r" cannot locate '\begin{document}' ") 
         if True:
-            preamble = [latex_macros] + preamble
+            preamble = [ColDoc.config.ColDoc_api_version_macro, latex_macros] + preamble
             import re
             r = re.compile(r'\\usepackage{ColDocUUID}')
             if not any(r.match(a) for a in preamble):
