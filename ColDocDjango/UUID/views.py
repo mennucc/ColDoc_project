@@ -1163,7 +1163,7 @@ def index(request, NICK, UUID):
             logger.warning( 'Ignored query %r'%(j,) )
     #
     try:
-        filename, uuid, metadata, lang, ext = \
+        view_filename, uuid, metadata, view_lang, ext = \
             ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
                                      ext = ext, lang = lang, 
                                      metadata_class=DMetadata, coldoc=NICK)
@@ -1177,6 +1177,15 @@ def index(request, NICK, UUID):
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
+    Blangs = metadata.get_languages()
+    CDlangs = coldoc.get_languages()
+    #
+    if 'mul' in Blangs:
+        filename = osjoin( os.path.dirname(view_filename), 'blob_mul.tex')
+        blob_lang = 'mul'
+    else:
+        blob_lang = view_lang
+        filename = view_filename
     BLOB = os.path.basename(filename)
     blob_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     blob_mtime = str(os.path.getmtime(filename))
@@ -1263,16 +1272,16 @@ def index(request, NICK, UUID):
     teh = tree_environ_helper(blobs_dir = blobs_dir)
     #
     pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
-        '?lang=%s&ext=%s'%(lang,ext)
+        '?lang=%s&ext=%s'%(view_lang,ext)
     #
     its_something_we_would_latex = (env not in ColDoc.latex.environments_we_wont_latex)
     if its_something_we_would_latex:
         pdfUUIDurl = django.urls.reverse('ColDoc:pdf', kwargs={'NICK':NICK,}) +\
-            '?lang=%s&ext=%s#UUID:%s'%(lang, ext, UUID)
+            '?lang=%s&ext=%s#UUID:%s'%(view_lang, ext, UUID)
         section, anchor = ColDoc.latex.get_specific_html_for_UUID(global_blobs_dir,UUID)
         htmlUUIDurl = django.urls.reverse('ColDoc:html', kwargs={'NICK':NICK,}) +\
              section +\
-            '?lang=%s&ext=%s%s'%(lang, ext, anchor)
+            '?lang=%s&ext=%s%s'%(view_lang, ext, anchor)
     else: pdfUUIDurl = htmlUUIDurl = ''
     #
     view_md5 = ''
@@ -1281,7 +1290,7 @@ def index(request, NICK, UUID):
     #
     if ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
-        file = open(filename).read()
+        file = open(view_filename).read()
         escapedfile = escape(file).replace('\n', '<br>') #.replace('\\', '&#92;')
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
@@ -1319,8 +1328,8 @@ def index(request, NICK, UUID):
             try:
                 d = os.path.dirname(filename) + '/'
                 a = 'view'
-                if lang:
-                    a += '_' + lang
+                if view_lang:
+                    a += '_' + view_lang
                 a += '_html/index.html'
                 VIEW = a
                 a = d + a
@@ -1374,16 +1383,16 @@ def index(request, NICK, UUID):
         if  can_add_blob or can_change_blob:
             msgs = []
             blobeditform = _build_blobeditform_data(NICK, UUID, env, metadata.optarg, request.user, filename,
-                                                    ext, lang, choices, can_add_blob, can_change_blob, msgs)
+                                                    ext, blob_lang, choices, can_add_blob, can_change_blob, msgs)
             for l, m in msgs:
                 messages.add_message(request, l, m)
             H = difflib.HtmlDiff()
-            blobdiff = H.make_table(file.split('\n'),
+            blobdiff = H.make_table(open(filename).read().split('\n'),
                                     blobeditform.initial['blobcontent'].split('\n'),
                                     'Orig','New', True)
     #
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
-        '?lang=%s&ext=%s'%(lang,ext)
+        '?lang=%s&ext=%s'%(view_lang,ext)
     #
     from ColDocDjango.utils import convert_latex_return_codes
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
@@ -1391,7 +1400,7 @@ def index(request, NICK, UUID):
     #
     can_change_metadata = request.user.has_perm('UUID.change_dmetadata')
     if can_change_metadata:
-        metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':lang, })
+        metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':blob_lang, })
         metadataform.htmlid = "id_form_metadataform"
         ## restrict to allowed choices
         if parent_metadata is not None:
@@ -1407,7 +1416,7 @@ def index(request, NICK, UUID):
             metadataform.fields['optarg'].widget.attrs['readonly'] = True
     #
     mimetype = mimetypes.types_map.get(ext,'')
-    initial_base = {'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,'mimetype':mimetype}
+    initial_base = {'NICK':NICK,'UUID':UUID,'ext':ext,'lang':blob_lang,'mimetype':mimetype}
     blobuploadform = BlobUploadForm(initial=initial_base)
     if mimetype:
         blobuploadform.fields['file'].widget.attrs['accept'] = mimetype
@@ -1419,14 +1428,12 @@ def index(request, NICK, UUID):
     blobuploadform.fields['file'].validators.append(v)
     #    
     other_view_languages = []
-    Blangs = metadata.get_languages()
-    for val in  Blangs:
-        if val not in ('mul','und') and val != lang:
+    for val in  (Blangs if ('mul' not in Blangs) else CDlangs) :
+        if val not in ('mul','und') and val != view_lang:
             link="/UUID/{nick}/{UUID}/?lang={val}".format(UUID=metadata.uuid,nick=coldoc.nickname,val=val)
             other_view_languages.append((iso3lang2word(val), link))
     #
     langforms = []
-    CDlangs = coldoc.get_languages()
     # TODO only '.tex' is supported now
     if can_change_metadata and can_change_blob and ext == '.tex':
         # add
@@ -1450,9 +1457,10 @@ def index(request, NICK, UUID):
                          prefix = 'relabel', initial=initial_base)
             langforms.append( (L,'relabel','change the language of this blob') )
     #
+    view_language = iso3lang2word(view_lang)
+    blob_language = iso3lang2word(blob_lang)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
-    view_language = iso3lang2word(view_lang) #if ('mul' in Blangs) else ''
     return render(request, 'UUID.html', locals() )
 
 
