@@ -11,11 +11,11 @@ The list of languages supported by each coldoc document is in the
 field `languages` of the `coldoc` record; this can be changed using
 the administrative interface.
 
-All language codes may be freely used, but the code `zxx` , `mul` and `und`
+All language codes may be freely used, but the codes `zxx`, `mul` and `und`
 have a special significance, explained in the following.
 
-The metadata of each blob contains a `lang` record, which contains all codes that
-a blob is available in. So if `lang` contains `eng` and `ita` (in two
+The metadata of each UUID contains a `lang` record, which contains all language
+codes that a blob is available in. So if `lang` contains `eng` and `ita` (in two
 lines) then it is expected that there are two files `blob_eng.tex`
 and `blob_ita.tex`
 
@@ -35,20 +35,45 @@ a single-language document is created.
 
 Each blob containing LaTeX code will be stored with name `blob_xxx.tex`
 
-It can be later converted to a multiple-language document.
+It can be later converted to a multiple-language document, see below.
 
 Multiple language documents
 ---------------------------
 
-When importing a document using `blob_inator` with a command option `--lang mul,aaa,bbb,ccc,ddd`,
-a multiple-language document is created, where `aaa,bbb,ccc,ddd` is the list of supported languages.
+When the coldoc document lists more than one language in the
+field `languages` of the `coldoc` record, then it is
+a *multiple language document*.
 
-Each blob containing LaTeX code will be stored with name `blob_mul.tex`
+Each UUID must have multiple blobs, one for each language.
+There are two ways to manage this.
 
-Before compiling the document, each `blob_mul.tex` will be converted to multiple files
-`blob_xxx.tex` where `xxx` is one of `aaa,bbb,ccc,ddd`.
+- You can manage directly different language versions of a blob:
+  in the *tools* tab, use *add* to create missing languages versions;
+  use *relabel* to change the language of a blob if it is mislabeled;
+  use *del* to delete a language version.
+  In this case, there will  be no automatic processing (see `mul` below).
+  Warning: if you add a child to this blob
+  it is up to you to include `\\input` command in all language versions!
 
-In this phase, supposing that `zzz` is a language in the list `aaa,bbb,ccc,ddd`,
+- Using the `mul` (*multiple languages*) method.
+  
+
+The `mul` (*multiple languages*) method
+---------------------------------------
+
+Suppose that  `aaa,bbb,ccc,ddd` is the list of supported languages
+(as listed in the field `languages` of the `coldoc` record).
+
+When an UUID has `mul` as the (only) language, it is subjected to
+some automatic processing.
+
+In this case, by using the web interface you will edit the blob named
+`blob_mul.tex`.
+
+Each time `blob_mul.tex` is changed, an automatic processing method will generate
+all needed language blobs.
+
+Supposing that `zzz` is a language in the list `aaa,bbb,ccc,ddd`,
 when converting  `blob_mul.tex` to  `blob_zzz.tex`:
 
 - all input-type command (that input other blobs) will be language converted, e.g.
@@ -66,10 +91,23 @@ for all supported languages `aaa,bbb,ccc,ddd` , and one (and only one) will
 be set to true; precisely, when compiling `blob_xxx.tex` only the conditional
 `\\ifCDLxxx` will be set to true.
 
+
+Importing a `mul` document
+--------------------------
+
+When importing a document using `blob_inator` with a command option `--lang mul,aaa,bbb,ccc,ddd`,
+a multiple-language document is created, where `aaa,bbb,ccc,ddd` is the list of supported languages.
+
+Each blob containing LaTeX code will be stored with name `blob_mul.tex`
+
+Before compiling the document, each `blob_mul.tex` must be converted to multiple files
+`blob_xxx.tex` where `xxx` is one of `aaa,bbb,ccc,ddd`; this can be done
+with the `helper.py gen_lang` command.
+
 An example document is stored in `test/multlang` and can be imported in the test portal using `make django_multlang`.
 
-Converting single to multi
---------------------------
+Converting single to multi language
+-----------------------------------
 
 To convert a single-language document to multiple-language,
 first you add other languages to the
@@ -80,10 +118,10 @@ Then for each blob containing latex code, you can translate the content.
 
 There are two ways.
 
-- Using the `Multiple languages` (`mul`) method. In the *tools* tab
-  you relabel the blob to `Multiple languages` language;
-  and you add translations of the content of the blob to all languages, using
-  the conditionals or the header tags to mark them.
+- Using the *Multiple languages*  method. In the *tools* tab
+  you use the `multlang` button; then
+  you add translations of the content of the blob to all languages, using
+  the conditionals or the header tags to mark them, as explained above.
   
 - Alternatively, you can manage directly different language versions of a blob:
   in the *tools* tab, use *add* to create all neeeded languages versions,
