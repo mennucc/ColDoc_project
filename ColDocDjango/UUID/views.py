@@ -1373,12 +1373,13 @@ def index(request, NICK, UUID):
         d = os.path.dirname(filename)
         pref_ = 'main' if UUID == metadata.coldoc.root_uuid else 'view'
         for e_ in ColDoc.config.ColDoc_allowed_logs:
-            a = osjoin(d, pref_ + lang_ + e_)
-            if os.path.exists(a):
-                a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':NICK,'UUID':UUID})
-                if a[-1] != '/': a += '/'
-                a += '?lang=%s&ext=%s'  % (lang,e_)
-                availablelogs.append(  (e_, a ) )
+            for l in (Blangs if ('mul' not in Blangs) else CDlangs):
+                a = osjoin(d, pref_ + '_' + l + e_)
+                if os.path.exists(a):
+                    a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':NICK,'UUID':UUID})
+                    if a[-1] != '/': a += '/'
+                    a += '?lang=%s&ext=%s'  % (l,e_)
+                    availablelogs.append(  (l  + ' ' + e_ , a ) )
     #
     blobdiff = ''
     # just to be safe
