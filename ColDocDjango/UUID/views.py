@@ -1193,6 +1193,9 @@ def index(request, NICK, UUID):
     #
     if 'mul' in Blangs:
         filename = osjoin( os.path.dirname(view_filename), 'blob_mul.tex')
+        if not os.path.isfile(filename):
+            return HttpResponse("Cannot find UUID %r with lang=mul , extension=tev." % (UUID,),
+                                status=http.HTTPStatus.NOT_FOUND)
         blob_lang = 'mul'
     else:
         blob_lang = view_lang
