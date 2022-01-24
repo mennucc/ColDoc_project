@@ -1358,14 +1358,19 @@ def html2text(some_html_string):
 
 def multimerge(sources):
     output = []
-    while any(l for l in sources.values()):
+    assert isinstance(sources, dict)
+    assert all(isinstance(sources[z], list) for z in sources)
+    sources = {z:sources[z] for z in sources if sources[z]}
+    while sources:
+        newsources = {}
         for ll in sources:
-            if sources[ll]:
-                L = sources[ll]
-                a = L.pop(0)
-                sources[ll] = L
-                #TODO uniquify equal lines , or lines with no text lines[ll] = a            if len(set(lines.values()))
-                output.append( ll + a )
+            L = sources[ll]
+            a = L.pop(0)
+            if L:
+                newsources[ll] = L
+            #TODO uniquify equal lines , or lines with no text lines[ll] = a            if len(set(lines.values()))
+            output.append( ll + a )
+        sources = newsources
     return output
 
 ###################
