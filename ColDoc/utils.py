@@ -54,7 +54,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'html2text',
             'iso3lang2word',
             'replace_language_in_inputs','strip_language_lines', 'gen_lang_coldoc', 'gen_lang_metadata',
-            'multimerge',
+            'multimerge', 'multimerge_lookahead',
             )
 
 class ColDocException(Exception):
@@ -1379,6 +1379,74 @@ def multimerge(sources):
                 newsources[ll] = L
             output.append( (ll , a) )
         sources = newsources
+    return output
+
+def multimerge_lookahead(sources, keyequal, depth=32):
+    """ `sources` is a dictionary , where each value is a list ;
+    `output` is a list of pairs (key,value) , where `key` is either
+       a `key` from `strings` or `keyequal` .
+    
+     This algorithm will put in `output` all elements of all lists in
+     `sources` , labelling them with `key` , or `keyequal`
+     when the same element is found in all `sources`;
+     it will try to maximize the number of equal elements.
+     
+     Warning: `sources` will be destroyed.
+    """
+    output = []
+    assert isinstance(sources, dict)
+    assert all(isinstance(sources[z], list) for z in sources)
+    sources = {z:sources[z] for z in sources if sources[z]}
+    while len(sources) > 1:
+        firstlines = [z[0] for z in sources.values()]
+        # first lines are all equal, this is very good, pop them all
+        if len(set(firstlines)) == 1 :
+            output.append((keyequal , firstlines[0]))
+            for ll in list(sources.keys()):
+                L = sources[ll]
+                L.pop(0)
+                if L:
+                    sources[ll] = L
+                else:
+                    del sources[ll]
+        # firstlines are not all equal
+        else:
+            howfar = []
+            for ll in sources:
+                thisfirstline = sources[ll][0]
+                # for lines that are significant
+                if thisfirstline.strip():
+                    for zz in sources:
+                        if zz != ll:
+                            # look ahead in all other sources to find a copy
+                            othersource = sources[zz][1:depth]
+                            try:
+                                I = othersource.index(thisfirstline)
+                            except ValueError:
+                                howfar.append(( len(othersource) + 1 , zz,ll))
+                            else:
+                                howfar.append((I, zz,ll))
+            if howfar:
+                howfar.sort()
+                # get a line so that the nearest copy gets even nearer
+                nfl = howfar.pop(0)[1]
+            else:
+                lengths = [ (-len(sources[z]),z) for z in sources]
+                lengths.sort()
+                nfl = lengths.pop()[1]
+            # pop it
+            L = sources[nfl]
+            a = L.pop(0)
+            if L:
+                sources[nfl] = L
+            else:
+                del sources[nfl]
+            output.append( (nfl , a) )
+    # only one source remaining, output it all
+    if sources:
+        for ll in sources:
+            for line in sources[ll]:
+                output.append( (ll , line ))
     return output
 
 ###################
