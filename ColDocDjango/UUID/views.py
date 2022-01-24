@@ -83,7 +83,6 @@ class LangForm(forms.Form):
     def __init__(self, *args, **kwargs):
         choice_list = kwargs.pop('choice_list')
         super(LangForm, self).__init__(*args, **kwargs)
-        self.fields['langchoice'] = forms.ChoiceField(choices=choice_list,
                                                       label="Language",
                                                       #help_text="Language choice"
                                                       )
@@ -1443,9 +1442,11 @@ def index(request, NICK, UUID):
     blobuploadform.fields['file'].validators.append(v)
     #    
     other_view_languages = []
+    uuid_languages = []
     for val in  (Blangs if ('mul' not in Blangs) else CDlangs) :
+        link="/UUID/{nick}/{UUID}/?lang={val}".format(UUID=metadata.uuid,nick=coldoc.nickname,val=val)
+        uuid_languages.append((iso3lang2word(val), link))
         if val not in ('mul','und') and val != view_lang:
-            link="/UUID/{nick}/{UUID}/?lang={val}".format(UUID=metadata.uuid,nick=coldoc.nickname,val=val)
             other_view_languages.append((iso3lang2word(val), link))
     #
     langforms = []
