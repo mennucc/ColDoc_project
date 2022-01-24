@@ -1492,24 +1492,24 @@ def index(request, NICK, UUID):
         if m and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'add', initial=initial_base)
-            langforms.append( (L,'add','add a language version') )
+            langforms.append( (L,'add','Add a language version') )
         # delete
         m = [l for l in Blangs]
         if len(m) > 1 and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'delete', initial=initial_base)
-            langforms.append( (L,'delete','delete a language version') )
+            langforms.append( (L,'delete','Delete a language version') )
         # relabel
         m = [l for l in CDlangs if (l != lang and l not in Blangs) ]
         if m and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'relabel', initial=initial_base)
-            langforms.append( (L,'relabel','change the language of this blob') )
+            langforms.append( (L,'relabel','Change the language of this blob from %s to '%(iso3lang2word(blob_lang),) ) )
         # convert to `mul`
         if 'mul' not in Blangs:
             L = LangForm(choice_list = [ 'mul' ],
                          prefix = 'multlang', initial=initial_base)
-            langforms.append( (L,'multlang','change this UUID to `Multilingual method`') )
+            langforms.append( (L,'multlang','Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)') )
     #
     view_language = iso3lang2word(view_lang)
     blob_language = iso3lang2word(blob_lang)

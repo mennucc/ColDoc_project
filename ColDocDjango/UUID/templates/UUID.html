@@ -308,8 +308,9 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
       <!--<div class="border border-info mt-2">-->
         <form action="{% url 'UUID:postlang' NICK=NICK UUID=UUID %}" method="post" class="border border-info mt-2">
         {% csrf_token %}
-        <table>{{ form.as_table }}</table>
-        <input type="submit"  data-toggle="tooltip" title="{{ tooltip }}"
+        <table><tr><td>{{ tooltip | safe }}</td></tr>{{ form.as_table }}</table>
+        <input type="submit"  
+           {# data-toggle="tooltip" title="{{ tooltip | safe }}" #}
         value="{{ label }}" name="button"  class="btn btn-primary">
       </form>
       <!--</div>-->
