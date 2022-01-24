@@ -6,6 +6,11 @@ try:
 except:
     pycountry = None
 
+try:
+    from pylatexenc.latex2text import LatexNodes2Text
+except:
+    LatexNodes2Text = None
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -450,6 +455,30 @@ def postlang(request, NICK, UUID):
     #
     D = uuid_to_dir(UUID, blobs_dir)
     D = osjoin(blobs_dir, D)
+    #
+    Blangs = metadata.get_languages()
+    if prefix == 'multlang' and len(Blangs) == 1:
+        origlang = Blangs[0]
+        src = osjoin(D,'blob_' + origlang + ext_)
+        dst = osjoin(D,'blob_mul'+ext_)
+        string = open(src).read()
+        string = ColDoc.utils.replace_language_in_inputs(string, origlang, 'mul')
+        F = open(dst,'w')
+        for line in string.splitlines():
+            if LatexNodes2Text is not None:
+                text = LatexNodes2Text().latex_to_text(line)
+            else:
+                text = line
+            text = text.strip()
+            if text:
+                F.write(ColDoc.config.ColDoc_language_header_prefix + origlang + ' ' + line + '\n')
+            else:
+                F.write(line + '\n')
+        metadata.lang = 'mul\n'
+        metadata.save()
+        messages.add_message(request,messages.INFO,'Converted to `mul` method')
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
+                        '?lang=mul&ext=%s'%(ext_) )
     #
     if prefix == 'multlang':
         dst = osjoin(D,'blob_mul'+ext_)
