@@ -1489,21 +1489,19 @@ def index(request, NICK, UUID):
     if can_change_metadata and can_change_blob and ext == '.tex':
         # add
         m = [l for l in CDlangs if l not in Blangs ]
-        if m:
+        if m and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'add', initial=initial_base)
             langforms.append( (L,'add','add a language version') )
         # delete
         m = [l for l in Blangs]
-        if len(m) > 1:
+        if len(m) > 1 and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'delete', initial=initial_base)
             langforms.append( (L,'delete','delete a language version') )
         # relabel
         m = [l for l in CDlangs if (l != lang and l not in Blangs) ]
-        if len(Blangs) == 1 and 'mul' not in Blangs and 'mul' != lang:
-            m = ['mul'] + m
-        if m:
+        if m and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'relabel', initial=initial_base)
             langforms.append( (L,'relabel','change the language of this blob') )
