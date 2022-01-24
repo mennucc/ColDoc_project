@@ -1429,6 +1429,7 @@ if __name__ == '__main__':
     parser.add_argument('--coldoc-nick',type=str,\
                         help='nickname for the new coldoc document') # not required
     parser.add_argument('--language','--lang',type=str,\
+                        default=ColDoc_lang,\
                         help='language of this document (use ISO_639-3 code)')
     add_arguments_to_parser(parser)
     args = parser.parse_args()

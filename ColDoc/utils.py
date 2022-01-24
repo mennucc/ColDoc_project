@@ -337,6 +337,12 @@ class FMetadata(dict, MetadataBase):
     #
     def htmlitems(self):
         return metadata_html_items(self, super().get('coldoc',[''])[0] )
+    @property
+    def lang(self):
+        return super().get('lang',[''])[0]
+    @lang.setter
+    def lang(self, lang):
+        super().__setitem__('lang', [lang])
 
 
 def metadata_html_items(metadata, nick):
