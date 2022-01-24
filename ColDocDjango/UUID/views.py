@@ -83,6 +83,12 @@ class LangForm(forms.Form):
     def __init__(self, *args, **kwargs):
         choice_list = kwargs.pop('choice_list')
         super(LangForm, self).__init__(*args, **kwargs)
+        if kwargs.get('prefix') == 'multlang':
+            if choice_list != ['mul']:
+                logger.error('internal inconsistency')
+            self.fields['langchoice'] = forms.CharField(widget=forms.HiddenInput(),required=False)
+        else:
+            self.fields['langchoice'] = forms.ChoiceField(choices=choice_list,
                                                       label="Language",
                                                       #help_text="Language choice"
                                                       )
@@ -408,13 +414,16 @@ def postlang(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    actions = ['add','relabel','delete']
+    actions = ['add','relabel','delete','multlang']
     prefix = request.POST.get('button')
     if prefix not in actions:
         raise SuspiciousOperation("Wrong action: %r"%prefix)
     #
-    l = coldoc.get_languages() + ['mul','zxx','und']
+    Clangs = coldoc.get_languages()
+    l = Clangs + ['mul','zxx','und']
     ll = [(a,a) for a in l]
+    if prefix == 'multlang':
+        ll = ['mul']
     form=LangForm(data=request.POST, prefix=prefix, choice_list=ll)
     #
     if not form.is_valid():
@@ -441,6 +450,32 @@ def postlang(request, NICK, UUID):
     #
     D = uuid_to_dir(UUID, blobs_dir)
     D = osjoin(blobs_dir, D)
+    #
+    if prefix == 'multlang':
+        dst = osjoin(D,'blob_mul'+ext_)
+        sources = {}
+        for ll in Clangs:
+            src = osjoin(D,'blob_'+ll+ext_)
+            if os.path.isfile(src):
+                sources[ll] = open(src).read().splitlines()
+            else:
+                sources[ll] = []
+        F = open(dst,'w')
+        while any(l for l in sources.values()):
+            #lines = {}
+            for ll in Clangs:
+                if sources[ll]:
+                    L = sources[ll]
+                    a = L.pop(0)
+                    sources[ll] = L
+                    #TODO uniquify equal lines , or lines with no text lines[ll] = a            if len(set(lines.values()))
+                    F.write(ColDoc.config.ColDoc_language_header_prefix + ll + ' ' + a + '\n')
+        metadata.lang = 'mul\n'
+        metadata.save()
+        messages.add_message(request,messages.INFO,'Converted to `mul` method')
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
+                        '?lang=mul&ext=%s'%(ext_) )
+    #
     dst = osjoin(D,'blob_'+langchoice_+ext_)
     src = osjoin(D,'blob_'+lang_+ext_)
     #
@@ -1472,6 +1507,11 @@ def index(request, NICK, UUID):
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'relabel', initial=initial_base)
             langforms.append( (L,'relabel','change the language of this blob') )
+        # convert to `mul`
+        if 'mul' not in Blangs:
+            L = LangForm(choice_list = [ 'mul' ],
+                         prefix = 'multlang', initial=initial_base)
+            langforms.append( (L,'multlang','change this UUID to `Multilingual method`') )
     #
     view_language = iso3lang2word(view_lang)
     blob_language = iso3lang2word(blob_lang)
