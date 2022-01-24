@@ -54,6 +54,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'html2text',
             'iso3lang2word',
             'replace_language_in_inputs','strip_language_lines', 'gen_lang_coldoc', 'gen_lang_metadata',
+            'multimerge',
             )
 
 class ColDocException(Exception):
@@ -1354,6 +1355,20 @@ def html2text(some_html_string):
     return ' '.join(BeautifulSoup(some_html_string, "html.parser").stripped_strings)
 
 ################### replacements by regular expressions
+
+def multimerge(sources):
+    output = []
+    while any(l for l in sources.values()):
+        for ll in sources:
+            if sources[ll]:
+                L = sources[ll]
+                a = L.pop(0)
+                sources[ll] = L
+                #TODO uniquify equal lines , or lines with no text lines[ll] = a            if len(set(lines.values()))
+                output.append( ll + a )
+    return output
+
+###################
 
 def replace_language_in_inputs(string,oldlang,newlang):
     " if oldlang is None, replace all languages (but this is a bad idea)"

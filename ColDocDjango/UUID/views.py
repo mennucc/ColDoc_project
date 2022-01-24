@@ -455,21 +455,12 @@ def postlang(request, NICK, UUID):
         dst = osjoin(D,'blob_mul'+ext_)
         sources = {}
         for ll in Clangs:
+            llll = ColDoc.config.ColDoc_language_header_prefix + ll + ' '
             src = osjoin(D,'blob_'+ll+ext_)
             if os.path.isfile(src):
-                sources[ll] = open(src).read().splitlines()
-            else:
-                sources[ll] = []
-        F = open(dst,'w')
-        while any(l for l in sources.values()):
-            #lines = {}
-            for ll in Clangs:
-                if sources[ll]:
-                    L = sources[ll]
-                    a = L.pop(0)
-                    sources[ll] = L
-                    #TODO uniquify equal lines , or lines with no text lines[ll] = a            if len(set(lines.values()))
-                    F.write(ColDoc.config.ColDoc_language_header_prefix + ll + ' ' + a + '\n')
+                sources[llll] = open(src).read().splitlines()
+        output = ColDoc.utils.multimerge(sources)
+        open(dst,'w').write('\n'.join(output) + '\n')
         metadata.lang = 'mul\n'
         metadata.save()
         messages.add_message(request,messages.INFO,'Converted to `mul` method')
