@@ -57,6 +57,8 @@ from .models import DMetadata, DColDoc
 
 from .shop import encoded_contract_to_buy_permission, can_buy_permission
 
+
+wrong_choice_list = [('internal_error','internal_error')]
 ##############################################################
 
 class PurchaseEncodedForm(forms.Form):
@@ -89,7 +91,7 @@ class LangForm(forms.Form):
         choice_list = kwargs.pop('choice_list')
         super(LangForm, self).__init__(*args, **kwargs)
         if kwargs.get('prefix') == 'multlang':
-            if choice_list != ['mul']:
+            if choice_list != wrong_choice_list:
                 logger.error('internal inconsistency')
             self.fields['langchoice'] = forms.CharField(widget=forms.HiddenInput(),required=False)
         else:
@@ -428,7 +430,7 @@ def postlang(request, NICK, UUID):
     l = Clangs + ['mul','zxx','und']
     ll = [(a,a) for a in l]
     if prefix == 'multlang':
-        ll = ['mul']
+        ll = wrong_choice_list
     form=LangForm(data=request.POST, prefix=prefix, choice_list=ll)
     #
     if not form.is_valid():
@@ -1534,7 +1536,7 @@ def index(request, NICK, UUID):
             langforms.append( (L,'relabel','Change the language of this blob from %s to '%(iso3lang2word(blob_lang),) ) )
         # convert to `mul`
         if 'mul' not in Blangs:
-            L = LangForm(choice_list = [ 'mul' ],
+            L = LangForm(choice_list = wrong_choice_list,
                          prefix = 'multlang', initial=initial_base)
             langforms.append( (L,'multlang','Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)') )
     #
