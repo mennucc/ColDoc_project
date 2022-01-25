@@ -1247,7 +1247,7 @@ def index(request, NICK, UUID):
     try:
         view_filename, uuid, metadata, view_lang, ext = \
             ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
-                                     ext = ext, lang = lang, 
+                                     ext = ext, lang = lang if (lang != 'mul') else None, 
                                      metadata_class=DMetadata, coldoc=NICK)
     except FileNotFoundError:
         logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
