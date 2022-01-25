@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, json, re
+import os, sys, mimetypes, http, json, re, functools
 from os.path import join as osjoin
 
 # taken from Django, for convenience
@@ -18,6 +18,52 @@ import django
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 from django.conf import settings
+from django.utils.translation.trans_real import parse_accept_lang_header
+
+try:
+    import pycountry
+except  ImportError:
+    pycountry = None
+
+@functools.lru_cache(maxsize=1024)
+def http_to_iso_language(lang):
+    # TODO implement subvariants somehow
+    if '-' in lang:
+        p = lang.index('-')
+        lang = lang[:p]
+    newlang = None
+    if len(lang) == 2:
+        try:
+            newlang = pycountry.languages.get(alpha_2=lang).alpha_3
+        except:
+            newlang = None
+            logger.warning('cannot recognize language %r',  lang)
+    elif len(lang) == 3:
+        newlang = lang
+    else:
+        logger.warning('cannot recognize language %r',  lang)
+    return newlang
+
+@functools.lru_cache(maxsize=1024)
+def request_accept_language(accept, cookie):
+    " returns dictionary language -> value"
+    if pycountry is None:
+        return {}
+    lang_value = {}
+    # cookie has precedence
+    if cookie:
+        lang_code = http_to_iso_language(cookie)
+        if lang_code:
+            lang_value[lang_code] = 2.0
+    for lang,value in parse_accept_lang_header(accept):
+        newlang = http_to_iso_language(lang)
+        if newlang:
+            lang_value[newlang] = max(value, lang_value.get(newlang,0) )
+        else:
+            logger.warning('in %r cannot recognize language %r',
+                           accept, lang)
+    return lang_value
+
 
 def permission_str_to_model(perm, obj):
     " convert permission from `str` to `Permission` for that `obj`"
