@@ -843,7 +843,7 @@ def postedit(request, NICK, UUID):
     if not email_to:
         logger.warning('No author has a validated email %r', metadata)
     else:
-        a = "User '%s' changed %s - %s" % (request.user , metadata.coldoc.nickname, metadata.uuid)
+        a = "User '%s' changed %s - %s - %s" % (request.user , metadata.coldoc.nickname, metadata.uuid, lang_)
         r = get_email_for_user(request.user)
         if r is not None: r = [r]
         E = EmailMultiAlternatives(subject = a,
