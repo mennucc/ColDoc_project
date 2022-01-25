@@ -1357,6 +1357,15 @@ def html2text(some_html_string):
 ################### replacements by regular expressions
 
 def multimerge(sources):
+    """ `sources` is a dictionary , where each value is a list ;
+    `output` is a list of pairs (key,value) , where `key` is
+    a `key` from `strings.
+    
+     This algorithm will put in `output` all elements of all lists in
+     `sources` , labelling them with `key`.
+     
+     Warning: `sources` will be destroyed.
+    """    
     output = []
     assert isinstance(sources, dict)
     assert all(isinstance(sources[z], list) for z in sources)
@@ -1368,8 +1377,7 @@ def multimerge(sources):
             a = L.pop(0)
             if L:
                 newsources[ll] = L
-            #TODO uniquify equal lines , or lines with no text lines[ll] = a            if len(set(lines.values()))
-            output.append( ll + a )
+            output.append( (ll , a) )
         sources = newsources
     return output
 
@@ -1516,6 +1524,7 @@ if __name__ == '__main__':
         for ll in A:
             sources[ll.ljust(m+1) ] = open(ll).read().splitlines()
         output = multimerge(sources)
+        output = [ (''.join(a)) for a in output ]
         sys.stdout.write('\n'.join(output)+'\n')
         sys.exit(0)
     else:

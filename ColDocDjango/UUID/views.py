@@ -489,6 +489,7 @@ def postlang(request, NICK, UUID):
             if os.path.isfile(src):
                 sources[llll] = open(src).read().splitlines()
         output = ColDoc.utils.multimerge(sources)
+        output = [ (''.join(a)) for a in output ]
         open(dst,'w').write('\n'.join(output) + '\n')
         metadata.lang = 'mul\n'
         metadata.save()
