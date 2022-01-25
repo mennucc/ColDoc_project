@@ -130,15 +130,10 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
          </ul>
         </div>
       {% endif %}
-      {% if  view_language %}
+      {% if  uuid_languages %}
         <div class="border border-info mt-2">
-          This content is in:  {{ view_language }} 
-        </div>
-      {% endif %}
-      {% if  other_view_languages %}
-        <div class="border border-info mt-2">
-          This content is also available in:
-          {% for val,link in other_view_languages %}
+          This content is available in:
+          {% for val,link in uuid_languages %}
             <a href="{{ link }}">  {{ val }} </a>
           {% endfor %}
         </div>
