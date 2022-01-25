@@ -1248,10 +1248,14 @@ def index(request, NICK, UUID):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
             logger.warning( 'Ignored query %r'%(j,) )
     #
+    accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
+    cookie = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+    accept_lang = ColDocDjango.utils.request_accept_language(accept, cookie)
     try:
         view_filename, uuid, metadata, view_lang, ext = \
             ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
                                      ext = ext, lang = lang if (lang != 'mul') else None, 
+                                     accept_lang = accept_lang,
                                      metadata_class=DMetadata, coldoc=NICK)
     except FileNotFoundError:
         logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
