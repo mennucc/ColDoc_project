@@ -1339,7 +1339,7 @@ def index(request, NICK, UUID):
     if not request.user.has_perm('UUID.download'):
         ret = can_buy_permission(request.user, metadata, 'download')
         if isinstance(ret,(int,float)):
-            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + ('?lang=%s&ext=%s'%(lang,ext)) + '#tools'
+            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + ('?lang=%s&ext=%s'%(view_lang,ext)) + '#tools'
             encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'download', ret, request=request, redirect_fails=a, redirect_ok=a)
             ## long links do not work in Apache
             # buy_download_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
