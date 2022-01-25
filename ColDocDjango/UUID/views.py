@@ -1548,7 +1548,7 @@ def index(request, NICK, UUID):
                          prefix = 'relabel', initial=initial_base)
             langforms.append( (L,'relabel','Change the language of this blob from %s to '%(iso3lang2word(blob_lang),) ) )
         # convert to `mul`
-        if 'mul' not in Blangs:
+        if 'mul' not in Blangs and len(CDlangs) > 1 :
             L = LangForm(choice_list = wrong_choice_list,
                          prefix = 'multlang', initial=initial_base)
             langforms.append( (L,'multlang','Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)') )
