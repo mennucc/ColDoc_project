@@ -87,16 +87,26 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
   <div class="tab-pane fade show active" id="view" role="tabpanel" aria-labelledby="view-tab">
     <h2>View</h2>
      {% if blobcontenttype == 'text' %}
-      <div class="border border-info">
-      {{ html|safe }}
-      </div>
+     <div class="container">
+     <div class="row" class="col-sm border border-info mt-1">
+      {% for thislang,thislanguage,html,pdfurl in all_views %}
+       <div class="col-sm border border-info mt-1"> {# <div class="row"  class="border border-info mt-4"> #}
+       {# if ('mul' == lang) or (len(Blangs) > 1) or (len(CDlangs) > 1) #} <h3> {{ thislanguage }}</h3> {# endif #}
+        <div class="border border-info">
+         {{ html|safe }}
+        </div>
+         {% if pdfurl %}
+          <a href="{{ pdfurl }}" class="btn btn-outline-primary btn-sm">Download PDF</a><br>
+         {% endif %}
+       </div>
+       {% endfor %}
+     </div>
+     </div>
      {% else %}
       <!-- <a href="{{ showurl|safe }}?download"  class="btn btn-outline-primary btn-sm">Download</a>    <br> -->
       <iframe src="{{ showurl|safe }}"   width="100%"   height="640px">(View should be displayed here)</iframe>
      {% endif %}
-     {% if pdfurl %}
-      <a href="{{ pdfurl }}" class="btn btn-outline-primary btn-sm">Download PDF</a><br>
-      {% endif %}
+     
       <div class="border border-info mt-2">
       Authors:
       {% with metadata.M_author as MA %}

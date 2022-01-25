@@ -1356,8 +1356,6 @@ def index(request, NICK, UUID):
     from ColDoc.utils import tree_environ_helper
     teh = tree_environ_helper(blobs_dir = blobs_dir)
     #
-    pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
-        '?lang=%s&ext=%s'%(view_lang,ext)
     #
     its_something_we_would_latex = (env not in ColDoc.latex.environments_we_wont_latex)
     if its_something_we_would_latex:
@@ -1380,6 +1378,7 @@ def index(request, NICK, UUID):
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
             pdfurl = ''
+            all_views = [( view_lang, iso3lang2word(view_lang), html, '')]
         elif env == 'main_file':
             pdfurl = ''
             html = ''
@@ -1409,12 +1408,17 @@ def index(request, NICK, UUID):
                 except:
                     logger.exception('cannot add blob %r to list',b)
             html+='</ul>'
+            all_views = [( view_lang, iso3lang2word(view_lang), html, '')]
         else:
+          all_views = []
+          for ll in  ([view_lang] if (lang != 'mul') else  CDlangs):
+            pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
+                '?lang=%s&ext=%s'%(ll,ext)
             try:
                 d = os.path.dirname(filename) + '/'
                 a = 'view'
                 if view_lang:
-                    a += '_' + view_lang
+                    a += '_' + ll
                 a += '_html/index.html'
                 VIEW = a
                 a = d + a
@@ -1429,6 +1433,7 @@ def index(request, NICK, UUID):
                 logger.exception('Problem when preparing HTML for %r',UUID)
                 messages.add_message(request, messages.WARNING,"HTML preview not available")
                 html = '[NO HTML AVAILABLE]'
+            all_views.append(( ll, iso3lang2word(ll), html, pdfurl))
     else:
         blobcontenttype = 'image' if (ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
         file = html = escapedfile = ''
