@@ -468,6 +468,10 @@ def postlang(request, NICK, UUID):
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?ext=%s'%(ext_) )
     #
     if prefix == 'multlang' and len(Blangs) == 1:
+        if LatexNodes2Text is None:
+            a='You may wish to install `pylatexenc` to improve the quality of these conversions'
+            messages.add_message(request,messages.WARNING, a)
+            logger.warning(a)
         origlang = Blangs[0]
         src = osjoin(D,'blob_' + origlang + ext_)
         dst = osjoin(D,'blob_mul'+ext_)
