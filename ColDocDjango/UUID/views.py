@@ -59,6 +59,7 @@ from .shop import encoded_contract_to_buy_permission, can_buy_permission
 
 
 wrong_choice_list = [('internal_error','internal_error')]
+
 ##############################################################
 
 class PurchaseEncodedForm(forms.Form):
@@ -90,7 +91,7 @@ class LangForm(forms.Form):
     def __init__(self, *args, **kwargs):
         choice_list = kwargs.pop('choice_list')
         super(LangForm, self).__init__(*args, **kwargs)
-        if kwargs.get('prefix') == 'multlang':
+        if kwargs.get('prefix') in ('multlang','manual'):
             if choice_list != wrong_choice_list:
                 logger.error('internal inconsistency')
             self.fields['langchoice'] = forms.CharField(widget=forms.HiddenInput(),required=False)
@@ -421,7 +422,7 @@ def postlang(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    actions = ['add','relabel','delete','multlang']
+    actions = ['add','relabel','delete','multlang','manual']
     prefix = request.POST.get('button')
     if prefix not in actions:
         raise SuspiciousOperation("Wrong action: %r"%prefix)
@@ -429,7 +430,7 @@ def postlang(request, NICK, UUID):
     Clangs = coldoc.get_languages()
     l = Clangs + ['mul','zxx','und']
     ll = [(a,a) for a in l]
-    if prefix == 'multlang':
+    if prefix in ('multlang', 'manual'):
         ll = wrong_choice_list
     form=LangForm(data=request.POST, prefix=prefix, choice_list=ll)
     #
@@ -459,6 +460,13 @@ def postlang(request, NICK, UUID):
     D = osjoin(blobs_dir, D)
     #
     Blangs = metadata.get_languages()
+    if prefix == 'manual':
+        assert len(Blangs) == 1 and 'mul' in Blangs
+        metadata.lang = '\n'.join(Clangs) + '\n'
+        metadata.save()
+        messages.add_message(request,messages.INFO,'Converted to manual language management (non <tt>mul</tt>)')
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?ext=%s'%(ext_) )
+    #
     if prefix == 'multlang' and len(Blangs) == 1:
         origlang = Blangs[0]
         src = osjoin(D,'blob_' + origlang + ext_)
@@ -1539,6 +1547,10 @@ def index(request, NICK, UUID):
             L = LangForm(choice_list = wrong_choice_list,
                          prefix = 'multlang', initial=initial_base)
             langforms.append( (L,'multlang','Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)') )
+        if len(Blangs) == 1 and 'mul' in Blangs:
+            L = LangForm(choice_list =  wrong_choice_list,
+                         prefix = 'manual', initial=initial_base)
+            langforms.append( (L,'manual','Change this UUID to manual language management (non <tt>mul</tt>)') )
     #
     view_language = iso3lang2word(view_lang)
     blob_language = iso3lang2word(blob_lang)
