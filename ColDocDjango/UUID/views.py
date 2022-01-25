@@ -487,7 +487,9 @@ def postlang(request, NICK, UUID):
             llll = ColDoc.config.ColDoc_language_header_prefix + ll + ' '
             src = osjoin(D,'blob_'+ll+ext_)
             if os.path.isfile(src):
-                sources[llll] = open(src).read().splitlines()
+                string = open(src).read()
+                string = ColDoc.utils.replace_language_in_inputs(string, ll, 'mul')
+                sources[llll] = string.splitlines()
         try:
             output = ColDoc.utils.multimerge_lookahead(copy.deepcopy(sources),'')
         except:
