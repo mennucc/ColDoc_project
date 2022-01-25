@@ -88,9 +88,9 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
     <h2>View</h2>
      {% if blobcontenttype == 'text' %}
      <div class="container">
-     <div class="row" class="col-sm border border-info mt-1">
+     <div class="row">
       {% for thislang,thislanguage,html,pdfurl in all_views %}
-       <div class="col-sm border border-info mt-1"> {# <div class="row"  class="border border-info mt-4"> #}
+       <div class="col-sm border border-info mt-1">
        {# if ('mul' == lang) or (len(Blangs) > 1) or (len(CDlangs) > 1) #} <h3> {{ thislanguage }}</h3> {# endif #}
         <div class="border border-info">
          {{ html|safe }}
