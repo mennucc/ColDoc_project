@@ -1509,6 +1509,15 @@ if __name__ == '__main__':
         r = os.system('diff -us %r %r'%(t.name,F))
         os.unlink(t.name)
         sys.exit(r)
+    elif len(sys.argv) > 1 and sys.argv[1] == 'multimerge':
+        sources = {}
+        A = sys.argv[2:]
+        m = max(len(a) for a in A)
+        for ll in A:
+            sources[ll.ljust(m+1) ] = open(ll).read().splitlines()
+        output = multimerge(sources)
+        sys.stdout.write('\n'.join(output)+'\n')
+        sys.exit(0)
     else:
         print(""" Commands:
 %s test_uuid
@@ -1516,6 +1525,9 @@ if __name__ == '__main__':
   prepare_anon coldoc_dir
 
   split_blob FILENAME
+
+  multimerge  FILES
+
 """ % (sys.argv[0],))
 
 
