@@ -1354,7 +1354,7 @@ def html2text(some_html_string):
     #return '\n'.join(BeautifulSoup(some_html_string, "html.parser").findAll(text=True))
     return ' '.join(BeautifulSoup(some_html_string, "html.parser").stripped_strings)
 
-################### replacements by regular expressions
+################### 
 
 def multimerge(sources):
     """ `sources` is a dictionary , where each value is a list ;
@@ -1449,7 +1449,7 @@ def multimerge_lookahead(sources, keyequal, depth=32):
                 output.append( (ll , line ))
     return output
 
-###################
+################### replacements by regular expressions
 
 def replace_language_in_inputs(string,oldlang,newlang):
     " if oldlang is None, replace all languages (but this is a bad idea)"
