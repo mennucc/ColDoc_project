@@ -431,9 +431,11 @@ def sort_extensions(E):
     return E
 
 def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
-                lang = ColDoc_lang, metadata_class=FMetadata, coldoc=None, metadata=None):
+                lang = ColDoc_lang, accept_lang = {}, 
+                metadata_class=FMetadata, coldoc=None, metadata=None):
     """ Choose a blob, trying to satisfy request for language and extension
     returns `filename`, `uuid`, `metadata`, `lang`, `ext`
+    possibly following the preferences of `accept_lang`
     if `ext` is None, an extension will be returned following `sort_extensions`
     if `lang` is None, a random language will be returned
     """
@@ -474,13 +476,18 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
     L = copy.copy(m.get_languages())
     if 'mul' in L:
         L = copy.copy(m.coldoc.get_languages())
+    #
+    if accept_lang:
+        L.sort(key = lambda x : accept_lang.get(x,0), reverse=True)
     # as a last resort, try a "no language" choice
     L.append('')
+    #
     if lang is not None:
         if lang not in L:
             logger.error('Language %r is not available for uuid %r',lang, uuid)
             raise ColDocException()
         L = [lang]
+    #
     for l in L:
         for e in E:
             ls = l
