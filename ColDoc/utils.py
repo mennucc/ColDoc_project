@@ -1585,13 +1585,16 @@ if __name__ == '__main__':
         r = os.system('diff -us %r %r'%(t.name,F))
         os.unlink(t.name)
         sys.exit(r)
-    elif len(sys.argv) > 1 and sys.argv[1] == 'multimerge':
+    elif len(sys.argv) > 1 and sys.argv[1] in ( 'multimerge' , 'multimerge_lookahead'):
         sources = {}
         A = sys.argv[2:]
         m = max(len(a) for a in A)
         for ll in A:
             sources[ll.ljust(m+1) ] = open(ll).read().splitlines()
-        output = multimerge(sources)
+        if sys.argv[1] == 'multimerge':
+            output = multimerge(sources)
+        else:
+            output = multimerge_lookahead(sources, '=' * m + ' ')
         output = [ (''.join(a)) for a in output ]
         sys.stdout.write('\n'.join(output)+'\n')
         sys.exit(0)
@@ -1604,6 +1607,8 @@ if __name__ == '__main__':
   split_blob FILENAME
 
   multimerge  FILES
+
+  multimerge_lookahead  FILES
 
 """ % (sys.argv[0],))
 

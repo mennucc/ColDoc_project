@@ -488,7 +488,11 @@ def postlang(request, NICK, UUID):
             src = osjoin(D,'blob_'+ll+ext_)
             if os.path.isfile(src):
                 sources[llll] = open(src).read().splitlines()
-        output = ColDoc.utils.multimerge(sources)
+        try:
+            output = ColDoc.utils.multimerge_lookahead(copy.deepcopy(sources),'')
+        except:
+            logger.exception('internal error')
+            output = ColDoc.utils.multimerge(sources)
         output = [ (''.join(a)) for a in output ]
         open(dst,'w').write('\n'.join(output) + '\n')
         metadata.lang = 'mul\n'
