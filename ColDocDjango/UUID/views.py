@@ -1574,6 +1574,8 @@ download_template=r"""%% !TeX spellcheck = %(lang)s
 %% !TeX TS-program = %(latex_engine)s
 \documentclass %(documentclassoptions)s {%(documentclass)s}
 \newif\ifplastex\plastexfalse
+%(coldoc_api)s
+%(language_conditionals)s
 \usepackage{hyperref}
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
@@ -1727,6 +1729,8 @@ def download(request, NICK, UUID):
     #
     options.setdefault('latex_macros',metadata.coldoc.latex_macros_uuid)
     options.setdefault('lang',lang)
+    options['language_conditionals'] = '\n'.join(ColDoc.latex.lang_conditionals(lang, langs = coldoc.get_languages()))
+    options['coldoc_api'] = ColDoc.config.ColDoc_api_version_macro
     #
     options['begin']=''
     options['end']=''
@@ -1745,7 +1749,7 @@ def download(request, NICK, UUID):
     try:
         s = open(s).read()
         preambles.append( ('ColDocUUID.sty', '\\usepackage{ColDocUUID}', s) )
-        preamble += '%%%%%%%%%%%%%%%% ColDocUUID.sty\n' + s
+        preamble += '%%%%%%%%%%%%%%%% ColDocUUID.sty\n' + r'\makeatletter' + s + r'\makeatother'
     except:
         preamble += '%%%%%%%%%%%%%%%% internal error ColDocUUID.sty missing\n'
         logger.exception('While adding %r', s)
