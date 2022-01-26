@@ -130,16 +130,20 @@ def lang_conditionals(thelang, langs = None, metadata = None):
             for a in langs]
 
 
-def latex_uuid(blobs_dir, uuid, lang=None, metadata=None, warn=True, options = {}):
-    " `latex` the blob identified `uuid`; if `lang` is None, `latex` all languages; ( `metadata` are courtesy , to avoid recomputing )"
+def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, options = {}):
+    " `latex` the blob identified `uuid` or `metadata`; if `lang` is None, `latex` all languages ; return boolean to report failure "
     log_level = logging.WARNING if warn else logging.DEBUG
+    assert uuid is not None or metadata is not None
     if metadata is None:
         uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
                                 blobs_dir = blobs_dir,
                                 coldoc = options.get('coldoc'),
                                 metadata_class= options['metadata_class'])
     else:
+        uuid_ = metadata.uuid
         uuid_dir = None
+    assert uuid is None or uuid == uuid_
+    uuid = uuid_
     #
     if metadata.environ in environments_we_wont_latex :
         ## 'include_preamble' is maybe illegal LaTeX; 'usepackage' is not yet implemented
