@@ -60,11 +60,11 @@ def index(request, NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     #coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,NICK)
     try:
-        c = DColDoc.objects.filter(nickname = NICK).get()
+        coldoc = DColDoc.objects.filter(nickname = NICK).get()
     except DColDoc.DoesNotExist:
         return HttpResponse("No such ColDoc %r.\n" % (NICK,) , status=http.HTTPStatus.NOT_FOUND)
     #
-    request.user.associate_coldoc_blob_for_has_perm(c, None)
+    request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
     #
     if request.user.has_perm('UUID.view_view') :
         whole_button_class = 'btn-outline-success'
@@ -73,7 +73,7 @@ def index(request, NICK):
     #
     coldocform = None
     if request.user.has_perm('ColDocApp.view_dcoldoc'):
-        coldocform = ColDocForm(instance=c)
+        coldocform = ColDocForm(instance=coldoc)
         coldocform.htmlid = 'id_coldocform'
         for a in 'nickname','root_uuid':
             coldocform.fields[a].widget.attrs['readonly'] = True
@@ -84,7 +84,7 @@ def index(request, NICK):
     completed_tasks = []
     if request.user.is_editor:
         from ColDocDjango.utils import convert_latex_return_codes
-        latex_error_logs = convert_latex_return_codes(c.latex_return_codes, c.nickname, c.root_uuid)
+        latex_error_logs = convert_latex_return_codes(coldoc.latex_return_codes, coldoc.nickname, coldoc.root_uuid)
         #
         failed_blobs = map( lambda x : (x, django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':x})),
                             DMetadata.objects.exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
@@ -94,7 +94,7 @@ def index(request, NICK):
             completed_tasks = [ CompletedTaskForm(instance=j) for j in CompletedTask.objects.all() ]
         #
     check_tree_url = django.urls.reverse('ColDoc:check_tree', kwargs={'NICK':NICK,})
-    return render(request, 'coldoc.html', {'coldoc':c,'NICK':c.nickname,
+    return render(request, 'coldoc.html', {'coldoc':coldoc,'NICK':coldoc.nickname,
                                            'coldocform' : coldocform,
                                            'failedblobs' : failed_blobs,
                                            'check_tree_url' : check_tree_url,
