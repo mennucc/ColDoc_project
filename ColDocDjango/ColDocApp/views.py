@@ -58,7 +58,9 @@ def post_coldoc_edit(request, NICK):
 def index(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    #coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,NICK)
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    blobs_dir = osjoin(coldoc_dir,'blobs')
+    anon_dir = osjoin(coldoc_dir,'anon')
     try:
         coldoc = DColDoc.objects.filter(nickname = NICK).get()
     except DColDoc.DoesNotExist:
@@ -85,6 +87,17 @@ def index(request, NICK):
     if request.user.is_editor:
         from ColDocDjango.utils import convert_latex_return_codes
         latex_error_logs = convert_latex_return_codes(coldoc.latex_return_codes, coldoc.nickname, coldoc.root_uuid)
+        #
+        a = []
+        try:
+            for e_prog, e_language, e_access, e_extension, e_link, useless in latex_error_logs:
+                _dir = blobs_dir if e_access == 'private' else anon_dir
+                uuid_line_err = ColDoc.utils.parse_latex_log(_dir, coldoc.root_uuid, e_language, e_extension, prefix='main')
+                a.append( (e_prog, e_language, e_access, e_extension, e_link, uuid_line_err) )
+        except:
+            logger.exception('while reparsing latex error logs')
+        else:
+            latex_error_logs = a
         #
         failed_blobs = map( lambda x : (x, django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':x})),
                             DMetadata.objects.exclude(latex_return_codes__exact='').values_list('uuid', flat=True))

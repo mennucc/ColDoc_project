@@ -174,18 +174,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
       {% endif %}
     {% endif %}
 
-      {% if latex_error_logs %}
-        <div class="border border-info mt-2">
-       There were errors while compiling
-       <ul>
-        {% for program, lang__, access, extension, link in latex_error_logs %}
-                <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
-                {{ program }} {{ lang__}}  {{ access }}
-                {% if link %}  </a>   {% endif %}
-         {% endfor %}
-         </ul>
-        </div>
-      {% endif %}
+    {% include "latex_error_logs.html" %}
 
     </div>
   </div>

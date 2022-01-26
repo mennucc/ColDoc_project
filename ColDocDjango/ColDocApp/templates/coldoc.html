@@ -91,18 +91,9 @@ First published {{ coldoc.publication_time }}
 </button>
 </div>
 <script>window.addEventListener('ready', AJAXcheck_tree('{{ check_tree_url }}') );</script>
-{% if latex_error_logs %}
-    <div class="border border-info m-2 p-1">
-       There were LaTeX errors while compiling the main document
-       <ul>
-        {% for val,link in latex_error_logs %}
-                <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
-                {{ val }}
-                {% if link %}  </a>   {% endif %}
-         {% endfor %}
-        </ul>
-     </div>
-{% endif %}
+
+{% include "latex_error_logs.html" %}
+
 {% if failedblobs %}
 <h2>Failed blobs in tree</h2>
 <ul>

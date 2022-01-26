@@ -57,6 +57,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'multimerge', 'multimerge_lookahead',
             'text_linechar2pos', 'text_pos2linechar',
             'line_with_language_lines', 'line_without_language_lines',
+            'parse_latex_log',
             )
 
 class ColDocException(Exception):
@@ -79,6 +80,49 @@ else:
             return( L.name)
         return val
 #####################
+
+def parse_latex_log(blobs_dir, uuid, lang, ext, prefix='view', context=10):
+    base_dir = osjoin(blobs_dir, uuid_to_dir(uuid, blobs_dir))
+    errors = []
+    try:
+        log = os.path.join(base_dir, prefix + '_' + lang + ext)
+        if not os.path.exists(log):
+            logger.warning('cannot find a log for %r %r %r %r',base_dir, prefix, lang, ext)
+            return []
+        F = iter(open(log))
+        for z in F:
+            if z.startswith('./UUID/') or z.startswith('UUID/') \
+               or z.startswith('./SEC/') or z.startswith('SEC/'):
+                k = z.split(':')
+                if len(k) >= 3:
+                    s = k[2] 
+                    try:
+                        err_uuid , base = file_to_uuid(k[0], blobs_dir)
+                    except:
+                        logger.exception("file_to_uuid(%r, blobs_dir)" %( k[0],))
+                        err_uuid = k[0]
+                    l = k[1]
+                    c = context
+                    try:
+                        z = next(F)
+                        while z.strip() and c>0:
+                            c -= 1
+                            s += z
+                            z = next(F)
+                        s += z
+                        z = next(F)
+                        while z.strip() and c>0:
+                            c -= 1
+                            s += z
+                            z = next(F)
+                    except StopIteration:
+                        pass
+                    errors.append((err_uuid, l ,s))
+    except:
+        logger.exception("parse_latex_log({blobs_dir!r}, {uuid!r}, {lang!r}, {ext!r}, {prefix!r}, {context!r})".format_map(locals()))
+    return errors
+
+#########################
 
 def text_pos2linechar(text, pos):
     " `pos` is an absolute position in `text` , returns `line` and `char` in line"

@@ -1,0 +1,20 @@
+{% if latex_error_logs %}
+    <div class="border border-info mt-2">
+    There were errors while compiling
+    <ul>
+        {% for e_program, e_lang, e_access, e_extension, e_link, e_errors in latex_error_logs %}
+         <li>{% if e_link  %}  <a href="{{ e_link }}">    {% endif %}
+         {{ e_program }} {{ e_lang}}  {{ e_access }}
+         {% if e_link %}  </a>   {% endif %}
+         {% if e_errors %}
+            <ul class="border  border-info mt-2">
+            {% for e_uuid, e_line, e_text in e_errors %}
+            <li><a href="{% url 'UUID:index' NICK=NICK UUID=e_uuid  %}#blob"> uuid {{ e_uuid }}</a>
+              line {{ e_line }} <code class="container-flex">{{ e_text | linebreaksbr }}</code>
+            {% endfor %}
+            </ul>
+         {% endif %}
+        {% endfor %}
+    </ul>
+   </div>
+{% endif %}
