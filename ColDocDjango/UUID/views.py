@@ -823,8 +823,8 @@ def postedit(request, NICK, UUID):
             reparse_blob(addfilename, addmetadata, blobs_dir, warn)
             # compile it
             if split_environment_ not in environments_we_wont_latex:
-                rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, addmetadata)
-                if rh and rp:
+                ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
+                if ret:
                     a = 'Compilation of new blob succeded'
                     messages.add_message(request,messages.INFO,a)
                 else:
@@ -1007,10 +1007,10 @@ def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, metadata):
     from ColDoc import latex   
     return latex.latex_blob(blobs_dir, metadata, lang, options=options)
 
-def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, uuid, metadata):
+def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata):
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     from ColDoc import latex   
-    return latex.latex_uuid(blobs_dir, uuid, metadata=metadata, options=options)
+    return latex.latex_uuid(blobs_dir, metadata=metadata, options=options)
 
 
 ###############################################################
