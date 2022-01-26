@@ -118,18 +118,6 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
            {% if u == A.last %} . {% else %} ; {% endif %} {% endfor %}
       {% endwith %}
       </div>
-      {% if latex_error_logs %}
-        <div class="border border-info mt-2">
-       There were errors while compiling
-       <ul>
-        {% for val,link in latex_error_logs %}
-                <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
-                {{ val }}
-                {% if link %}  </a>   {% endif %}
-         {% endfor %}
-         </ul>
-        </div>
-      {% endif %}
       {% if  uuid_languages %}
         <div class="border border-info mt-2">
           This content is available in:
@@ -185,6 +173,20 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
       </form></div>
       {% endif %}
     {% endif %}
+
+      {% if latex_error_logs %}
+        <div class="border border-info mt-2">
+       There were errors while compiling
+       <ul>
+        {% for program, lang__, access, extension, link in latex_error_logs %}
+                <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
+                {{ program }} {{ lang__}}  {{ access }}
+                {% if link %}  </a>   {% endif %}
+         {% endfor %}
+         </ul>
+        </div>
+      {% endif %}
+
     </div>
   </div>
  {% endif %}

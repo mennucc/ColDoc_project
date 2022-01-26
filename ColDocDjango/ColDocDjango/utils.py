@@ -74,6 +74,7 @@ def permission_str_to_model(perm, obj):
 
 
 def convert_latex_return_codes(latex_return_codes, NICK, UUID):
+    " returns a list of (program, language, access, extension, link)"
     latex_error_logs = []
     try:
         d = latex_return_codes
@@ -97,7 +98,7 @@ def convert_latex_return_codes(latex_return_codes, NICK, UUID):
                     if access:
                         e += '('+access+')'
                         a += '&access='+access
-                    latex_error_logs.append(  (e, a ) )
+                    latex_error_logs.append(  (e, l, access, e_, a) )
     except:
         logger.exception("While reading latex_return_codes")
     return latex_error_logs
