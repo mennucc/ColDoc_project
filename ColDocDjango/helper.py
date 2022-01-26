@@ -398,6 +398,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     else:
         with open(osjoin(blobs_dir,filename),'w') as f:
             f.write(placeholder+'\n')
+        gen_lang_metadata(child_metadata, blobs_dir, child_metadata.coldoc.get_languages())
     #
     # write  the metadata (including, a a text copy in filesytem)
     parent_metadata.save()
