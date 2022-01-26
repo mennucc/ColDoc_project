@@ -7,5 +7,6 @@ def add_settings(request):
     return {'USE_ALLAUTH': settings.USE_ALLAUTH,
             'USE_BACKGROUND_TASKS': settings.USE_BACKGROUND_TASKS,
             'USE_WALLET': settings.USE_WALLET,
+            'USE_CODEMIRROR': settings.USE_CODEMIRROR,
             'GOOGLE_ANALYTICS4' : settings.GOOGLE_ANALYTICS4,
             }

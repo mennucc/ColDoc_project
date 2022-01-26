@@ -305,6 +305,11 @@ DEDUP_ROOT = config.get('django','dedup_root')
 # and served here
 DEDUP_URL = config.get('django','dedup_url')
 
+## https://codemirror.net/
+USE_CODEMIRROR = os.path.isdir(os.path.join(BASE_DIR, '..', 'node_modules', 'codemirror'))
+if not USE_CODEMIRROR:
+    logger.warning('You may want to install CodeMirror, use `bin/install_CodeMirror.sh`')
+
 # you can overwrite this in the settings.py file in the deployed COLDOC_SITE_ROOT
 GOOGLE_SITE_VERIFICATION =  None
 GOOGLE_ANALYTICS4 = None

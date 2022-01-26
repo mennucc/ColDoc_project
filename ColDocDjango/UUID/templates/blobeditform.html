@@ -1,3 +1,4 @@
+{% load static %}
 <script>
 var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 {% if BLOB %}
@@ -6,6 +7,41 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
   var get_blob_md5_url = "";
 {% endif %}
 </script>
+
+{% if USE_CODEMIRROR %}
+<script> var use_CodeMirror = true; </script>
+<link href="{% static 'UUID/cm/lib/codemirror.css' %}" rel="stylesheet">
+<style>
+      .breakpoints {width: .8em;}
+      .breakpoint { color: #822; }
+      .CodeMirror {border: 1px solid #aaa;}
+    </style>
+    
+<script src="{% static 'UUID/cm/lib/codemirror.js' %}"></script>
+
+<script src="{% static 'UUID/cm/addon/edit/matchbrackets.js' %}"></script>
+<script src="{% static 'UUID/cm/addon/edit/trailingspace.js' %}"></script>
+
+<script src="{% static 'UUID/cm/mode/stex/stex.js' %}"></script>
+<script src="{% static 'UUID/cm/addon/scroll/annotatescrollbar.js' %}"></script>
+
+<script src="{% static 'UUID/cm/addon/scroll/simplescrollbars.js' %}"></script>
+<link href="{% static 'UUID/cm/addon/scroll/simplescrollbars.css' %}" rel="stylesheet">
+
+<script src="{% static 'UUID/cm/addon/search/searchcursor.js' %}"></script>
+
+<script src="{% static 'UUID/cm/addon/search/jump-to-line.js' %}"></script>
+
+<script src="{% static 'UUID/cm/addon/search/matchesonscrollbar.js' %}"></script>
+
+<script src="{% static 'UUID/cm/addon/search/search.js' %}"></script>
+
+{% include "CodeMirrorHelp.html" %}
+
+{% else %}
+<script> var use_CodeMirror = false; </script>
+{% endif %}
+
 <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
         {% csrf_token %}{{ blobeditform.non_field_errors }}
         {% for field in blobeditform %}{% if field.is_hidden %} {{ field }} {% else %}
@@ -27,5 +63,18 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
       {% endif %}
 </form>
 <script>
+{% if USE_CODEMIRROR %}
+let textarea = document.getElementById("id_BlobEditTextarea");
+var BlobEditCodeMirror = CodeMirror.fromTextArea(textarea, {
+      mode: "text/x-stex",
+      matchBrackets: true,
+      extraKeys: {"Alt-F": "findPersistent"},
+      //lineNumbers: false, /// FIXME true,
+      showTrailingSpace : true,
+      // FIXME gutters: ["CodeMirror-linenumbers", "breakpoints"]
+      });
+BlobEditCodeMirror.on("change", update_blobedit_timestamp );
+{% else %}
 $('#id_BlobEditTextarea').on('input propertychange change keyup paste', update_blobedit_timestamp );
+{% endif %}
 </script>

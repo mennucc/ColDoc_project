@@ -9,9 +9,14 @@ function copy() {
 
 function update_editform(){
     let blobeditform = document.getElementById("id_form_blobeditform");
+ if ( use_CodeMirror ) {
+     blobeditform.selection_start.value = JSON.stringify(BlobEditCodeMirror.getCursor('from'));
+     blobeditform.selection_end.value = JSON.stringify(BlobEditCodeMirror.getCursor('to'));
+    } else {
     let textarea = document.getElementById("id_BlobEditTextarea");
     blobeditform.selection_start.value = textarea.selectionStart;
     blobeditform.selection_end.value = textarea.selectionEnd;
+  }
 };
 
 function restore_editform(){
@@ -21,6 +26,9 @@ function restore_editform(){
 	setTimeout(restore_editform, 200);
 	return;
     }
+    // FIXME
+    if (  use_CodeMirror )    { return ; } 
+    // FIXME
     if ( blobeditform.selection_start.value  >= 0 ) {
       textarea.selectionStart = blobeditform.selection_start.value ;
       
