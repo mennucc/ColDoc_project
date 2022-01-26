@@ -55,6 +55,8 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'iso3lang2word',
             'replace_language_in_inputs','strip_language_lines', 'gen_lang_coldoc', 'gen_lang_metadata',
             'multimerge', 'multimerge_lookahead',
+            'text_linechar2pos', 'text_pos2linechar',
+            'line_with_language_lines', 'line_without_language_lines',
             )
 
 class ColDocException(Exception):
@@ -76,6 +78,26 @@ else:
         if L:
             return( L.name)
         return val
+#####################
+
+def text_pos2linechar(text, pos):
+    " `pos` is an absolute position in `text` , returns `line` and `char` in line"
+    if isinstance(text, str):
+        text = text.splitlines(keepends=True)
+    line = 0
+    for z in text:
+        l = len(z)
+        if pos < l:
+            return line, pos
+        pos -= l
+        line += 1
+    return line, pos
+
+def text_linechar2pos(text, line, char):
+    " given `line` and `char`  in `text` , returns `pos`  an absolute position "
+    if isinstance(text, str):
+        text = text.splitlines(keepends=True)
+    return sum(len(z) for z in text[:line]) + char
 
 #####################
 
@@ -1501,6 +1523,51 @@ def strip_language_lines(string, thelang , header = ColDoc_language_header_prefi
                 l += '%misplaced language header'
             newlines.append(l)
     return '\n'.join(newlines)+'\n'
+
+def line_without_language_lines(text, line, thelang , header = ColDoc_language_header_prefix):
+    " count how many lines matching `thelang` there are before line n=`line` (starting from zero)"
+    assert isinstance(line,int)
+    if isinstance(text, str):
+        text = text.splitlines()
+    if not header:
+        # no processing
+        return line
+    assert len(thelang) == 3
+    newline = 0
+    correctheader = header + thelang
+    for l in text:
+        r = l.lstrip()
+        if r.startswith(correctheader):
+            newline += 1
+        elif not r.startswith(header):
+            newline += 1
+        line -= 1
+        if line < 0:
+            return newline
+    return newline
+
+def line_with_language_lines(text, line, thelang , header = ColDoc_language_header_prefix):
+    " count n=`line` lines matching `thelang` and return the line where it stopped"
+    assert isinstance(line,int)
+    if isinstance(text, str):
+        text = text.splitlines()
+    if not header:
+        # no processing
+        return line
+    assert len(thelang) == 3
+    newline = 1
+    correctheader = header + thelang
+    for l in text:
+        r = l.lstrip()
+        if r.startswith(correctheader):
+            line -= 1
+        elif not r.startswith(header):
+            line -= 1
+        if line <= 0:
+            return newline
+        newline += 1
+    return newline
+
 
 def gen_lang_metadata(metadata, blobs_dir, coldoc_languages):
     languages = metadata.get_languages()
