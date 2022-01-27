@@ -1220,6 +1220,16 @@ def get_access_icon(access):
     return ACCESS_ICONS[access]
 
 
+diff_table_template = """
+    <table class="diff" id="difflib_chg_%(prefix)s_top" >
+        <colgroup></colgroup> <colgroup></colgroup> <colgroup></colgroup>
+        <colgroup></colgroup> <colgroup></colgroup> <colgroup></colgroup>
+        %(header_row)s
+        <tbody>
+%(data_rows)s        </tbody>
+    </table>"""
+
+
 def index(request, NICK, UUID):
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID, accept_anon=True)
     #
@@ -1495,9 +1505,12 @@ def index(request, NICK, UUID):
             for l, m in msgs:
                 messages.add_message(request, l, m)
             H = difflib.HtmlDiff()
+            H._table_template = diff_table_template
             blobdiff = H.make_table(open(filename).read().split('\n'),
                                     blobeditform.initial['blobcontent'].split('\n'),
                                     'Orig','New', True)
+            # html5 does not like those
+            #blobdiff = blobdiff.replace('cellspacing="0"','').replace('cellpadding="0"','').replace('rules="groups"','')
     #
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(view_lang,ext)
