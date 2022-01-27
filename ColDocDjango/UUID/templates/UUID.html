@@ -284,9 +284,9 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
              data-toggle="tooltip" title="Download this blob as {{ view_language }}.">{{ view_language }}</a>
   {% endif %}
    {% if its_something_we_would_latex %}
-   <span class="border fill m-2 p-3">
-   <span data-toggle="tooltip" title="Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.">
-   Download inside complete {{ view_language }} document:</span> 
+   <span data-toggle="tooltip" class="border fill m-2 p-3"
+     title="Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.">
+   Download inside complete {{ view_language }} document:
    <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=single&lang={{ view_lang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm"
              data-toggle="tooltip" title="Download this blob embedded in a complete, compilable, LaTeX document.">
@@ -296,7 +296,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
    <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=email&lang={{ view_lang }}&ext={{ ext }}"
              class="btn btn-outline-primary">
       by email.</a>
-   <span>
+   </span>
    {% endif %} {# its_something_we_would_latex #}
   {% endif %}   {# perms.UUID.download or buy_download_info #}
   
