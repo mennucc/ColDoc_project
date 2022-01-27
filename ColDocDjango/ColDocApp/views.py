@@ -103,8 +103,8 @@ def index(request, NICK):
                             DMetadata.objects.exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
         #
         if Task is not None:
-            tasks = [ TaskForm(instance=j) for j in Task.objects.all() ]
-            completed_tasks = [ CompletedTaskForm(instance=j) for j in CompletedTask.objects.all() ]
+            tasks = [ TaskForm(instance=j, prefix=j.id) for j in Task.objects.all() ]
+            completed_tasks = [ CompletedTaskForm(instance=j, prefix=j.id) for j in CompletedTask.objects.all() ]
         #
     check_tree_url = django.urls.reverse('ColDoc:check_tree', kwargs={'NICK':NICK,})
     return render(request, 'coldoc.html', {'coldoc':coldoc,'NICK':coldoc.nickname,

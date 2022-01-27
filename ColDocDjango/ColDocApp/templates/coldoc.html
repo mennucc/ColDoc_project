@@ -133,20 +133,16 @@ First published {{ coldoc.publication_time }}
 {% if  USE_BACKGROUND_TASKS and user.is_editor %}
  <div class="tab-pane fade show border m-2 p-1" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
 <h2> Tasks </h2>
-<div class="border border-info m-2 p-1">
-<ul>
+<div class="row border border-info m-2 p-1"> 
 {% for val in tasks %}
-<li> {{ val }} </li>
+ <table class="col sm border border-info m-1 p-1">{{ val }} </table>
 {% endfor %}
-</ul>
 </div>
 <h2> Completed Tasks </h2>
-<div class="border border-info m-2 p-1">
-<ul>
+<div class="row border border-info m-2 p-1"> 
 {% for val in completed_tasks %}
-<li> {{ val }} </li>
+ <table class="col sm border border-info m-1 p-1">{{ val }} </table>
 {% endfor %}
-</ul>
 </div>
 </div> <!-- view tab -->
 {% endif %} <!-- if editor etc -->
