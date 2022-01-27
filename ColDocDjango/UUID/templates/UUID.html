@@ -307,7 +307,13 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
       <!--<div class="border border-info mt-2">-->
         <form action="{% url 'UUID:postlang' NICK=NICK UUID=UUID %}" method="post" class="border border-info mt-2">
         {% csrf_token %}
-        <table><tr><td>{{ tooltip | safe }}</td></tr>{{ form.as_table }}</table>
+        <span class="font-weight-bold">{{ tooltip | safe }}</span>
+        <table>
+        {# form.as_table : this produces incorrect HTML, for hidden fields #}
+        {% for field in form.visible_fields %}<tr><td>{{ field.errors }}</td>
+        <td>{{ field.label_tag }}</td><td> {{ field }}</td></tr>{% endfor %}
+        </table>
+        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
         <input type="submit"  
            {# data-toggle="tooltip" title="{{ tooltip | safe }}" #}
         value="{{ label }}" name="button"  class="btn btn-primary">
