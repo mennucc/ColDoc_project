@@ -100,7 +100,7 @@ def index(request, NICK):
             latex_error_logs = a
         #
         failed_blobs = map( lambda x : (x, django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':x})),
-                            DMetadata.objects.exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
+                            DMetadata.objects.filter(coldoc=coldoc).exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
         #
         if Task is not None:
             tasks = [ TaskForm(instance=j, prefix=j.id) for j in Task.objects.all() ]
