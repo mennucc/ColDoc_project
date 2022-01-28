@@ -200,6 +200,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
                 prologue = blobcontent[:j]
                 if optarg:
                     shortprologue = '\\' + env + ''.join(optarg) 
+                    shortprologue = re.sub(' +', ' ', shortprologue)
                     blobeditdata = shortprologue + '\n' + blobcontent[j+1:]
                 else:
                     warnings.append('Missing initial \\%s line' % env)
