@@ -324,8 +324,13 @@ def check_tree(request, NICK):
         if problems:
             s = '<h3>Problems in tree of blobs</h3><ul>'
             for code, uuid, desc in problems:
-                url = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid})
-                s += ('<li><a href="%s">'%(url,)) + uuid + '</a> →' + desc + '</li>'
+                if isinstance(uuid,str):
+                    url = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid})
+                    s += ('<li><a href="%s">'%(url,)) + uuid + '</a> →' + desc + '</li>'
+                elif uuid:
+                    s += '<li>' + repr(uuid) + ' →' + desc + '</li>'
+                else:
+                    s += '<li>' + desc + '</li>'
             s += '</ul>'
         else: 
             s = 'Tree is fine.'

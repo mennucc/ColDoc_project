@@ -448,7 +448,6 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
 
 def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     " returns `problems`, a list of problems found in tree"
-    # TODO implement some tree check regarding `lang`
     #
     from functools import partial
     from ColDoc.utils import recurse_tree
@@ -468,6 +467,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     #
     from ColDocApp.models import DColDoc
     coldoc = DColDoc.objects.get(nickname = coldoc_nick)
+    CDlangs = set(coldoc.get_languages())
     #
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc) 
@@ -478,6 +478,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     available = set()
     all_metadata = {}
     problems = []
+    untranslated = []
     #
     for metadata in DMetadata.objects.filter(coldoc = coldoc):
         available.add( metadata.uuid)
@@ -513,6 +514,9 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
                 ret = False
             #else:
             #    warn("The node %r %r can be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ))                
+        Blangs = set(all_metadata[uuid].get_languages())
+        if 'mul' not in Blangs  and 'und' not in Blangs and 'zxx' not in Blangs and  CDlangs != Blangs:
+            untranslated.append((uuid,Blangs))
         return ret
     #
     action = partial(actor, teh=teh, seen=seen, available=available, warn=warn, problems=problems)
@@ -596,6 +600,14 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
                             problems.append(('WRONG_HEADER', uuid, a))
             except:
                 logger.exception('while checking headers in %r', uuid)
+    if untranslated:
+        a = 'There are %d untranslated UUIDs' % len(untranslated)
+        if len(untranslated) > 16:
+            a = 'There are %d untranslated UUIDs, showing some' % len(untranslated)
+            untranslated = untranslated[:16]
+        problems.append(('N_UNTRASLATED',None,a))
+        for uuid,b in untranslated:
+            problems.append(('UNTRANSLATED',uuid,'translated: '+repr(b)))
     return problems
 
 
