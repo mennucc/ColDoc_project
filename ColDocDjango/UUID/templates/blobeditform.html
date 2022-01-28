@@ -15,7 +15,12 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
       .breakpoints {width: .8em;}
       .breakpoint { color: #822; }
       .CodeMirror {border: 1px solid #aaa;}
-    </style>
+      .cm-trailingspace {
+        background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAYAAAB/qH1jAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QUXCToH00Y1UgAAACFJREFUCNdjPMDBUc/AwNDAAAFMTAwMDA0OP34wQgX/AQBYgwYEx4f9lQAAAABJRU5ErkJggg==);
+        background-position: bottom left;
+        background-repeat: repeat-x;
+      }
+</style>
     
 <script src="{% static 'UUID/cm/lib/codemirror.js' %}"></script>
 
@@ -64,16 +69,27 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 </form>
 <script>
 {% if USE_CODEMIRROR %}
+var BlobEditCodeMirror = undefined;
+
+function activate_BlobEditCodeMirror(e) {
 let textarea = document.getElementById("id_BlobEditTextarea");
-var BlobEditCodeMirror = CodeMirror.fromTextArea(textarea, {
+BlobEditCodeMirror = CodeMirror.fromTextArea(textarea, {
       mode: "text/x-stex",
       matchBrackets: true,
       extraKeys: {"Alt-F": "findPersistent"},
-      //lineNumbers: false, /// FIXME true,
+      lineNumbers:  true,
       showTrailingSpace : true,
       // FIXME gutters: ["CodeMirror-linenumbers", "breakpoints"]
       });
 BlobEditCodeMirror.on("change", update_blobedit_timestamp );
+};
+//
+function activate_BlobEditCodeMirror_once(e) {
+  if( BlobEditCodeMirror == undefined && e.target.href.includes('#blob')) {
+    activate_BlobEditCodeMirror(e);
+  }
+};
+$('a[href="#blob"]').on('shown.bs.tab',activate_BlobEditCodeMirror_once);
 {% else %}
 $('#id_BlobEditTextarea').on('input propertychange change keyup paste', update_blobedit_timestamp );
 {% endif %}
