@@ -4,6 +4,12 @@
 
 \documentclass[a4paper]{article}
 
+%%%% define some stuff for independent compilation
+%%% this part will be skipped when compiled inside ColDoc
+\ifdefined\ColDocAPI\else
+\usepackage{coldoc_standalone}
+\fi
+
 %%%%%%%%% early packages that for some reason must be loaded before
 
 %% `unicode-math` will change some definitions in `amssymb`
@@ -31,15 +37,12 @@
  % code for (pdf)latex
    \input{preamble_pdflatex}
 \fi\fi
+
 %%%%%%%%% following are general definitions
+%%%% you can use language conditionals in it
 
 \input{preamble_definitions}
 
-%%%% define some stuff for independent compilation
-%%% this part will be skipped when compiled inside ColDoc
-\ifdefined\ColDocAPI\else
-\usepackage{coldoc_standalone}
-\fi
 
 \begin{document}
 \author{J. Smith

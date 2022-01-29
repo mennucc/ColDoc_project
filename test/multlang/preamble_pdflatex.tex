@@ -1,7 +1,11 @@
    \usepackage{lmodern}
    \usepackage{amsfonts}
    \usepackage[utf8]{inputenc}
-   \usepackage[english]{babel}
+   \usepackage[english,italian]{babel}
    \IfFileExists{bbm.sty}
     {\usepackage{bbm}}
     {\newcommand\mathbbm{\mathbb}}
+
+
+\ifCDLeng \selectlanguage{english}\fi
+\ifCDLita \selectlanguage{italian}\fi

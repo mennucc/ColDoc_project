@@ -5,9 +5,12 @@
 \usepackage{lipsum}
 
 \newcounter{myCount}
-\newtheorem{Defn}[myCount]{Definition}
-\newtheorem{Theorem}[myCount]{Theorema}
-\newtheorem{Cor}[myCount]{Corollary}
+\newtheorem{Defn}[myCount]
+{\ifCDLeng Definition\fi\ifCDLita Definizione\fi}
+\newtheorem{Theorem}[myCount]
+{\ifCDLeng Theorem\fi\ifCDLita Teorema\fi}
+\newtheorem{Cor}[myCount]
+{\ifCDLeng Corollary\fi\ifCDLita Corollario\fi}
 \newtheorem{Lem}[myCount]{Lemma}
 
 \newenvironment{privateremark}{[}{]}
