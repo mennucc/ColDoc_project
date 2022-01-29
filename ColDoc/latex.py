@@ -193,11 +193,19 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     if squash is None:
         squash = options.get('squash')
     #
-    preamble = options.get('preamble', 'preamble' + _lang + '.tex')
-    if '{lang}' in preamble:
-        preamble = preamble.format(lang=lang)
-    if not os.path.isfile(osjoin(blobs_dir, preamble)):
-        logger.error('Cannot find preamble in %s/%s' %(blobs_dir, preamble))
+    preamble = options.get('preamble')
+    if preamble is not None:
+        if '{lang}' in preamble:
+            preamble = preamble.format(lang=lang)
+        if not os.path.isfile(osjoin(blobs_dir, preamble)):
+            logger.warning('Cannot find preamble as in option: %s/%s' %(blobs_dir, preamble))
+            preamble = None
+    if preamble is None:
+        preamble = 'preamble' + _lang + '.tex'
+        if not os.path.isfile(osjoin(blobs_dir, preamble)):
+            logger.error('Cannot find preamble in %s/%s' %(blobs_dir, preamble))
+            preamble = None
+    if preamble is None:
         return False, False
     # note that extensions are missing
     save_name = os.path.join(uuid_dir, 'view' + _lang)
