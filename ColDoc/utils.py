@@ -1659,6 +1659,10 @@ def line_with_language_lines(text, line, thelang , header = ColDoc_language_head
 
 
 def gen_lang_metadata(metadata, blobs_dir, coldoc_languages):
+    " call 'recreate_symlinks' ; for `mul` blobs : create all language versions "
+    # just in case
+    recreate_symlinks(metadata, blobs_dir)
+    #
     languages = metadata.get_languages()
     if 'mul' not in languages:
         return
