@@ -105,6 +105,10 @@ function blob_save_no_reload() {
      return false;
   }
   
+    if( BlobEditCodeMirror != undefined ){
+    BlobEditCodeMirror.save();
+  }
+
   update_editform();
   let blobeditform = document.getElementById("id_form_blobeditform");
    // serializes the form's elements.
