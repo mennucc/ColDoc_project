@@ -1015,6 +1015,13 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     options['coldoc_site_root']  = settings.COLDOC_SITE_ROOT
     options['dedup_root'] = settings.DEDUP_ROOT
     options['dedup_url'] = settings.DEDUP_URL
+    # floating preamble
+    try:
+        m = DMetadata.objects.filter(original_filename = '/preamble.tex').filter(coldoc = coldoc).get()
+        preamble_dir = ColDoc.utils.uuid_to_dir(m.uuid, blobs_dir)
+        options['preamble'] = osjoin(preamble_dir, 'blob_{lang}.tex')
+    except:
+        logger.exception('While looking for   "/preamble.tex" ')
     return options
 
 def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, metadata):
