@@ -59,7 +59,8 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
         {% endif %}{% endfor %}
         <input type="submit" class="btn btn-primary"
          data-toggle="tooltip" title="Save changes, update PDF and HTML"
-         onclick="update_editform(); if ( check_primary_tab() ) { blob_polling =0 ; view_polling =0 ; return true; } else {return false;}" id="id_blobeditform_compile" name="compile" value="Compile">
+         onclick="update_editform();  if ( check_primary_tab() ) { prevent_unload_remove (); blob_polling =0 ; view_polling =0 ; return true; } else {return false;}"
+         id="id_blobeditform_compile" name="compile" value="Compile">
       {% if perms.UUID.change_blob %}
          <input type="submit" class="btn btn-primary" 
          data-toggle="tooltip" title="Save changes so far, update diff"
@@ -68,8 +69,8 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
       {% endif %}
 </form>
 <script>
-{% if USE_CODEMIRROR %}
 var BlobEditCodeMirror = undefined;
+{% if USE_CODEMIRROR %}
 
 function activate_BlobEditCodeMirror(e) {
 let textarea = document.getElementById("id_BlobEditTextarea");

@@ -7,6 +7,34 @@ function copy() {
 
 
 
+function prevent_unload(e) {
+//https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+  // Cancel the event
+  e.preventDefault(); // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+  // Chrome requires returnValue to be set
+  e.returnValue = '';
+};
+
+
+var prevent_unload_added = false;
+
+function prevent_unload_remove () {
+    if (  prevent_unload_added ) {
+// according to https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+// it is not really needed to remove events
+    prevent_unload_added = false;
+    window.removeEventListener("beforeunload", prevent_unload);
+    };
+};
+
+function prevent_unload_add() {
+    if ( ! prevent_unload_added ) {
+       prevent_unload_added = true;
+       window.addEventListener("beforeunload", prevent_unload);
+    };
+};
+
+
 function update_editform(){
     let blobeditform = document.getElementById("id_form_blobeditform");
  if ( use_CodeMirror ) {
@@ -140,6 +168,9 @@ function blob_save_no_reload() {
     //
     last_textarea_keypress = 0;
     $("#id_blobeditform_save_no_reload").addClass("btn-primary");
+    
+    prevent_unload_remove();
+
    // avoid to execute the actual submit of the form.
     return false;
 };
@@ -152,6 +183,7 @@ function update_blobedit_timestamp()
     if( last_textarea_keypress == 0) {
        $("#id_blobeditform_save_no_reload").removeClass("btn-primary");
        $("#id_blobeditform_save_no_reload").addClass("btn-warning");
+       prevent_unload_add();
    }
    last_textarea_keypress = new Date().getTime();
    // once the user starts editing, the polling is reduced to 10 seconds
