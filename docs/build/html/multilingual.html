@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+
+<html lang="en it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiple languages &#8212; ColDoc 0.1 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Acknowledgements" href="ack.html" />
+    <link rel="prev" title="Editing" href="editing.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="multiple-languages">
+<h1>Multiple languages<a class="headerlink" href="#multiple-languages" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Languages are specified  using the 3 letter codes
+<a class="reference external" href="https://en.wikipedia.org/wiki/ISO_639-3">from ISO_639-3</a></p>
+<p>The list of languages supported by each coldoc document is in the
+field <cite>languages</cite> of the <cite>coldoc</cite> record; this can be changed using
+the administrative interface.</p>
+<p>All language codes may be freely used, but the codes <cite>zxx</cite>, <cite>mul</cite> and <cite>und</cite>
+have a special significance, explained in the following.</p>
+<p>The metadata of each UUID contains a <cite>lang</cite> record, which contains all language
+codes that a blob is available in. So if <cite>lang</cite> contains <cite>eng</cite> and <cite>ita</cite> (in two
+lines) then it is expected that there are two files <cite>blob_eng.tex</cite>
+and <cite>blob_ita.tex</cite></p>
+<p>A special significance is given to the code <cite>zxx</cite> : when present,
+it should be the only language: it means that all blobs are of the form <cite>blob_zxx.???</cite>,
+and they do not contain linguistic content; it is used mainly for graphics.</p>
+<p>A special significance is given to the code <cite>und</cite> : when present,
+it should be the only language: it means that all blobs are of the form <cite>blob_und.???</cite>, such as
+the bibliography (copied to a  <cite>blob_und.bib</cite>), or style files (copied to a <cite>blob_und.sty</cite>).</p>
+</div>
+<div class="section" id="single-language-document">
+<h2>Single language document<a class="headerlink" href="#single-language-document" title="Permalink to this headline">¶</a></h2>
+<p>When importing a document using <cite>blob_inator</cite> with a command option <cite>--lang xxx</cite>,
+a single-language document is created.</p>
+<p>Each blob containing LaTeX code will be stored with name <cite>blob_xxx.tex</cite></p>
+<p>It can be later converted to a multiple-language document, see below.</p>
+</div>
+<div class="section" id="multiple-language-documents">
+<h2>Multiple language documents<a class="headerlink" href="#multiple-language-documents" title="Permalink to this headline">¶</a></h2>
+<p>When the coldoc document lists more than one language in the
+field <cite>languages</cite> of the <cite>coldoc</cite> record, then it is
+a <em>multiple language document</em>.</p>
+<p>Each UUID must have multiple blobs, one for each language.
+There are two ways to manage this.</p>
+<ul class="simple">
+<li><p>You can manage directly different language versions of a blob:
+in the <em>tools</em> tab, use <em>add</em> to create missing languages versions;
+use <em>relabel</em> to change the language of a blob if it is mislabeled;
+use <em>del</em> to delete a language version.
+In this case, there will  be no automatic processing (see <cite>mul</cite> below).
+Warning: if you add a child to this blob
+it is up to you to include <cite>\input</cite> command in all language versions!</p></li>
+<li><p>Using the <cite>mul</cite> (<em>multiple languages</em>) method.</p></li>
+</ul>
+</div>
+<div class="section" id="the-mul-multiple-languages-method">
+<h2>The <cite>mul</cite> (<em>multiple languages</em>) method<a class="headerlink" href="#the-mul-multiple-languages-method" title="Permalink to this headline">¶</a></h2>
+<p>Suppose that  <cite>aaa,bbb,ccc,ddd</cite> is the list of supported languages
+(as listed in the field <cite>languages</cite> of the <cite>coldoc</cite> record).</p>
+<p>When an UUID has <cite>mul</cite> as the (only) language, it is subjected to
+some automatic processing.</p>
+<p>In this case, by using the web interface you will edit the blob named
+<cite>blob_mul.tex</cite>.</p>
+<p>Each time <cite>blob_mul.tex</cite> is changed, an automatic processing method will generate
+all needed language blobs.</p>
+<p>Supposing that <cite>zzz</cite> is a language in the list <cite>aaa,bbb,ccc,ddd</cite>,
+when converting  <cite>blob_mul.tex</cite> to  <cite>blob_zzz.tex</cite>:</p>
+<ul class="simple">
+<li><p>all input-type command (that input other blobs) will be language converted, e.g.
+<cite>\input{UUID/0/0/F/blob_mul.tex}</cite> will be converted to
+<cite>\input{UUID/0/0/F/blob_zzz.tex}</cite></p></li>
+<li><p>lines that begin with the header tag <cite>\CDLzzz</cite> will be kept
+(and the header  <cite>\CDLzzz</cite> will be deleted),
+lines beginning with <cite>\CDLxxx</cite> for any other language  will be stripped.</p></li>
+</ul>
+<p>Moreover, when compiling the blob,  <em>language conditionals</em>
+of the form <cite>\ifCDLxxx</cite> will be defined
+for all supported languages <cite>aaa,bbb,ccc,ddd</cite> , and one (and only one) will
+be set to true; precisely, when compiling <cite>blob_xxx.tex</cite> only the conditional
+<cite>\ifCDLxxx</cite> will be set to true.</p>
+</div>
+<div class="section" id="importing-a-mul-document">
+<h2>Importing a <cite>mul</cite> document<a class="headerlink" href="#importing-a-mul-document" title="Permalink to this headline">¶</a></h2>
+<p>When importing a document using <cite>blob_inator</cite> with a command option <cite>--lang mul,aaa,bbb,ccc,ddd</cite>,
+a multiple-language document is created, where <cite>aaa,bbb,ccc,ddd</cite> is the list of supported languages.</p>
+<p>Each blob containing LaTeX code will be stored with name <cite>blob_mul.tex</cite></p>
+<p>Before compiling the document, each <cite>blob_mul.tex</cite> must be converted to multiple files
+<cite>blob_xxx.tex</cite> where <cite>xxx</cite> is one of <cite>aaa,bbb,ccc,ddd</cite>; this can be done
+with the <cite>helper.py gen_lang</cite> command.</p>
+<p>An example document is stored in <cite>test/multlang</cite> and can be imported in the test portal using <cite>make django_multlang</cite>.</p>
+</div>
+<div class="section" id="converting-single-to-multi-language">
+<h2>Converting single to multi language<a class="headerlink" href="#converting-single-to-multi-language" title="Permalink to this headline">¶</a></h2>
+<p>To convert a single-language document to multiple-language,
+first you add other languages to the
+field <cite>languages</cite> of the <cite>coldoc</cite> record (this can be done using
+the administrative interface).</p>
+<p>Then for each blob containing latex code, you can translate the content.</p>
+<p>There are two ways.</p>
+<ul class="simple">
+<li><p>Using the <em>Multiple languages</em>  method. In the <em>tools</em> tab
+you use the <cite>multlang</cite> button; then
+you add translations of the content of the blob to all languages, using
+the conditionals or the header tags to mark them, as explained above.</p></li>
+<li><p>Alternatively, you can manage directly different language versions of a blob:
+in the <em>tools</em> tab, use <em>add</em> to create all neeeded languages versions,
+and then translate them one by one. In this case, there will
+be no automatic processing. Warning: if you add a child to this blob
+it is up to you to include <cite>\input</cite> command in all language versions!</p></li>
+</ul>
+<p>The former is particularly well suited for <em>sections</em> , or in general
+any blob with a lot of children and little linguistic content.</p>
+<p>The latter may be preferred for short blobs with only linguistic
+content and no children.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">ColDoc</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">ColDoc Project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="deploy.html">Deploying</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blob.html">Blob and UUID</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metadata.html">Metadata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html">UUID Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#coldoc-permissions">ColDoc Permissions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="permission.html#groups">Groups</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
+<li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Multiple languages</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#single-language-document">Single language document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiple-language-documents">Multiple language documents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-mul-multiple-languages-method">The <cite>mul</cite> (<em>multiple languages</em>) method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#importing-a-mul-document">Importing a <cite>mul</cite> document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#converting-single-to-multi-language">Converting single to multi language</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="editing.html" title="previous chapter">Editing</a></li>
+      <li>Next: <a href="ack.html" title="next chapter">Acknowledgements</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Andrea C. G. Mennucci.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/multilingual.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

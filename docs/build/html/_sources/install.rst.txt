@@ -37,7 +37,7 @@ To install them (but for plastex) you may use
 
 .. code:: shell
 
-	  pip3 install django BeautifulSoup4 pycountry django-guardian django-allauth django-background-tasks django-select2
+	  pip3 install django BeautifulSoup4 pycountry django-guardian django-allauth django-background-tasks django-select2 pylatexenc
 
 (only the first three are strictly needed, the others can be used to activate advanced features, as explained below)
 

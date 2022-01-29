@@ -101,10 +101,14 @@ for example a graphical file may be available a <cite>.jpeg</cite> and <cite>.sv
 LaTeX, only <cite>.tex</cite> is allowed.</p></li>
 <li><p><cite>author</cite> the list of people that contributed to this blob (this does not distinguish
 if somebody contributed only to a certain language version).</p></li>
-<li><dl class="simple">
+<li><dl>
 <dt><cite>original_filename</cite> , the filename whose content was copied in this</dt><dd><p>blob (and children of this blob) by <cite>blob_inator</cite>; the extension of
 the filename (if any) is stripped; the path is not absolute, but is
 relative to the directory where the main LaTeX file was located.</p>
+<p>An exception of the above are pseudo-filenames starting starting with '/'
+(currently either '/preamble.tex' or '/document.tex' or '/main.tex')
+that indicate the original preamble and document part of the input;
+the code will also create language symlinks for them.</p>
 </dd>
 </dl>
 </li>
@@ -216,6 +220,7 @@ single value (or <cite>None</cite>).</p>
 <li class="toctree-l1"><a class="reference internal" href="permission.html#groups">Groups</a></li>
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 

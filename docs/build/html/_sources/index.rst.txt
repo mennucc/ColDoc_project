@@ -23,6 +23,7 @@ Welcome to ColDoc's documentation!
   permission
   blobify
   editing
+  multilingual
   ack
 
 

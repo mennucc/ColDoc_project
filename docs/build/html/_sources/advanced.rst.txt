@@ -1,0 +1,30 @@
+Advanced topics
+===============
+
+Multiple languages
+------------------
+
+
+Languages are specified  using the 3 letter codes
+`from ISO_639-3 <https://en.wikipedia.org/wiki/ISO_639-3>`_
+
+The metadata contains a `lang` record, which contains all codes that
+a blob is available in. So if `lang` contains `eng` and `ita` (in two
+lines) then it is expected that there are two files `blob_eng.tex`
+and `blob_ita.tex`
+
+A special significance is given to the code `zxx` : when present,
+it should be the only language: it means that all blobs are of the form `blob_zxx.???`,
+and they do not contain linguistic content; it is used for graphics.
+
+A special significance is given to the code `mul` : when this is listed,
+it means that there is single blob `blob_mul.tex`, and this will
+be compiled multiple times, each time a conditional `\\ColDocLangxxx` will be
+set true, and all others will be set to false.
+The content of  `blob_mul.tex` should produce outputs
+with appropriate content depending on the conditionals.
+This is still unimplemented, though.
+
+Some UUID have an empty list of languages, as for example those containing
+the bibliography (copied to a  `blob.bib`), or style files (copied to a `blob.sty`).
+
