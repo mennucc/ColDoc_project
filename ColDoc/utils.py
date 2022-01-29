@@ -58,6 +58,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'text_linechar2pos', 'text_pos2linechar',
             'line_with_language_lines', 'line_without_language_lines',
             'parse_latex_log',
+            'recreate_symlinks',
             )
 
 class ColDocException(Exception):
@@ -1427,7 +1428,44 @@ def replace_with_hash_symlink(base_dir, src_dir , dedup_dir , obj):
         os_rel_symlink(D, S, base_dir, target_is_directory=False)
     return dedup
 
+##################
 
+
+def recreate_symlinks(metadata, blobs_dir):
+    """ metadata.original_filename starting with'/' is either '/preamble.tex' or '/document.tex' and we create language symlinks for it  """
+    a = metadata.get('original_filename')
+    if len(a) != 1:
+        return
+    a = a[0]
+    if  a and a[0] == '/' and a[-4:] == '.tex':
+        a = a[1:-4]
+        langs = metadata.get_languages()
+        ud = uuid_to_dir(metadata.uuid)
+        if 'mul' in langs and not isinstance(metadata, FMetadata):
+            # `mul` documents are not supported outside of Django
+            langs = metadata.coldoc.get_languages()
+        for l in langs:
+            al_link = osjoin(ud, 'blob_' + l + '.tex')
+            al_src = osjoin(blobs_dir, a + '_' + l + '.tex')
+            if os.path.islink(al_src):
+                if os.readlink(al_src) != al_link:
+                    logger.error('symlink %r -> %r does not point to %r',
+                                 al_src, os.readlink(al_src), al_link)
+                try:
+                    u, b = file_to_uuid(os.readlink(al_src), blobs_dir)
+                except:
+                    u = None
+                if u != metadata.uuid:
+                    logger.error('symlink %r -> %r does not point to UUID %r but to UUID %r',
+                                 al_src, os.readlink(al_src), metadata.uuid, u)
+                else:
+                    logger.debug('symlink %r correctly points to %r', al_src, u)
+            elif os.path.exists(al_src):
+                logger.error('Is not a symlink: %r', al_src)
+            else:
+                os.symlink(al_link, al_src)
+
+###################
 
 def html2text(some_html_string):
     " https://stackoverflow.com/a/39899612/5058564 "
