@@ -482,7 +482,11 @@ def postlang(request, NICK, UUID):
         F = open(dst,'w')
         for line in string.splitlines():
             if LatexNodes2Text is not None:
-                text = LatexNodes2Text().latex_to_text(line)
+                try:
+                    text = LatexNodes2Text().latex_to_text(line)
+                except:
+                    logger.exception('while LatexNodes2Text().latex_to_text on %r',line)
+                    text = line
             else:
                 text = line
             text = text.strip()
