@@ -466,6 +466,7 @@ def postlang(request, NICK, UUID):
         metadata.lang = '\n'.join(Clangs) + '\n'
         metadata.save()
         messages.add_message(request,messages.INFO,'Converted to manual language management (non <tt>mul</tt>)')
+        ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?ext=%s'%(ext_) )
     #
     if prefix == 'multlang' and len(Blangs) == 1:
@@ -492,6 +493,7 @@ def postlang(request, NICK, UUID):
         metadata.lang = 'mul\n'
         metadata.save()
         messages.add_message(request,messages.INFO,'Converted to `mul` method')
+        ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                         '?lang=mul&ext=%s'%(ext_) )
     #
@@ -515,6 +517,7 @@ def postlang(request, NICK, UUID):
         metadata.lang = 'mul\n'
         metadata.save()
         messages.add_message(request,messages.INFO,'Converted to `mul` method')
+        ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                         '?lang=mul&ext=%s'%(ext_) )
     #
@@ -580,6 +583,7 @@ def postlang(request, NICK, UUID):
             logger.warning(' lang %r not in %r',langchoice_,L)
     else:
         messages.add_message(request,messages.ERROR, 'unimplemented %r %r'%(prefix,langchoice_))
+    ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                     '?lang=%s&ext=%s'%(redirectlang_,ext_) )
 
