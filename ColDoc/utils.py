@@ -410,6 +410,13 @@ class FMetadata(dict, MetadataBase):
     @lang.setter
     def lang(self, lang):
         super().__setitem__('lang', [lang])
+    #
+    def get_languages(self):
+        " return list of languages, correctly formatted"
+        L = self.lang.splitlines()
+        if any([ (len(z)!=3) for z in L]):
+            logger.warning('Malformed languages %r in %s', self.lang, self)
+        return [z for z in L if len(z) == 3]
 
 
 def metadata_html_items(metadata, nick):
