@@ -605,10 +605,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
     thetex.input(open(cmdargs.input_file), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     stack = EnvStreamStack()
     output = named_stream('main_file')
-    output.add_metadata('original_filename',os.path.basename(input_file))
+    output.add_metadata('original_filename','/main.tex')
     output.add_metadata('original_absolute_filename',input_file)
     file_blob_map[input_file] = output,output.uuid
-    output.symlink_file_add('main.tex')
+    output.symlink_file_add('main_' + cmdargs.language + '.tex')
     if cmdargs.symlink_input:
         output.symlink_file_add(os.path.basename( input_file))
     stack.push(output)
@@ -1024,9 +1024,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         elif cmdargs.split_preamble:
                             old = stack.pop()
                             assert old.environ == 'preamble', " in preamble, the element %r does not match" % old
+                            old.add_metadata('original_filename', '/preamble.tex')
                             r = old.writeout()
                             del old
-                            os_rel_symlink(r,'preamble.tex', cmdargs.blobs_dir ,
+                            # FIXME should create all links, for all languages
+                            os_rel_symlink(r, 'preamble_' + cmdargs.language + '.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
                             input_it(r)
                         in_preamble = False
@@ -1079,7 +1081,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         if not env_inside:
                             # we already wrote \\begin
                             stack.topstream.write(source)
+                        #
                         stack.push(named_stream('E_'+name,parent=stack.topstream))
+                        if name == "document":
+                            stack.top.add_metadata('original_filename','/document.tex')
+                        #
                         if env_inside:
                             stack.topstream.write((r'\begin{%s}' % name) +source)
                         if source:
@@ -1141,7 +1147,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                             stack.topstream.write(r'\end{%s}' % name)
                         r = stack.pop_stream().writeout()
                         if name == 'document':
-                            os_rel_symlink(r,'document.tex', cmdargs.blobs_dir ,
+                            # FIXME should create all links, for all languages
+                            os_rel_symlink(r,'document_' + cmdargs.language + '.tex', cmdargs.blobs_dir ,
                                            target_is_directory=False, force=True)
                         input_it(r)
                         if not env_inside:

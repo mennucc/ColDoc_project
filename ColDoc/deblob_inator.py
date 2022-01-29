@@ -144,6 +144,9 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                         s = submetadata.get('original_filename')
                         assert len(s)<=1, s
                         original_filename = s.pop() if len(s)==1 else None
+                        if original_filename[0] == '/':
+                            # when it is  '/preamble.tex' and '/document.tex', it is a marker, not really a filename
+                            original_filename = '' 
                         if  not original_filename:
                             logger.debug("This \\%s{%s} does not have an `original_filename`" %(macroname,inputfile))
                             if cmdargs.add_UUID_comments:
