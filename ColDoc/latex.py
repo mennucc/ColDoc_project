@@ -78,7 +78,7 @@ standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 %(language_conditionals)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
-\input{preamble.tex}
+\input{%(preamble)s}
 \usepackage{ColDocUUID}
 \begin{document}
 %(begin)s
@@ -92,7 +92,7 @@ preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s
 %(language_conditionals)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
-\input{preamble.tex}
+\input{%(preamble)s}
 \usepackage{hyperref}
 \usepackage{ColDocUUID}
 \begin{document}
@@ -110,7 +110,7 @@ plastex_template=r"""\documentclass{article}
 %(language_conditionals)s
 %(latex_macros)s
 \def\uuidbaseurl{%(url_UUID)s}
-\input{preamble.tex}
+\input{%(preamble)s}
 \usepackage{hyperref}
 \usepackage{ColDocUUID}
 \begin{document}
@@ -192,6 +192,13 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     #
     if squash is None:
         squash = options.get('squash')
+    #
+    preamble = options.get('preamble', 'preamble' + _lang + '.tex')
+    if '{lang}' in preamble:
+        preamble = preamble.format(lang=lang)
+    if not os.path.isfile(osjoin(blobs_dir, preamble)):
+        logger.error('Cannot find preamble in %s/%s' %(blobs_dir, preamble))
+        return False, False
     # note that extensions are missing
     save_name = os.path.join(uuid_dir, 'view' + _lang)
     save_abs_name = os.path.join(blobs_dir, save_name)
@@ -208,6 +215,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
          'latex_macros' : options.get('latex_macros',metadata.coldoc.latex_macros_uuid),
          'coldoc_api' : ColDoc.config.ColDoc_api_version_macro,
          'language_conditionals' : '\n'.join(lang_conditionals(lang, metadata = metadata)),
+         'preamble' : preamble,
          }
     #
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
