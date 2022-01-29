@@ -95,6 +95,11 @@ but are not changed when the blob content is subsequently edited.
    blob (and children of this blob) by `blob_inator`; the extension of
    the filename (if any) is stripped; the path is not absolute, but is
    relative to the directory where the main LaTeX file was located.
+   
+   An exception of the above are pseudo-filenames starting starting with '/'
+   (currently either '/preamble.tex' or '/document.tex' or '/main.tex')
+   that indicate the original preamble and document part of the input;
+   the code will also create language symlinks for them.
 
 - `uuid` , the UUID of this blob
 
