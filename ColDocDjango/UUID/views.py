@@ -351,7 +351,19 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     # give it some context
     thetex = TeX()
     #thetex.ownerDocument.context.loadPackage(thetex, 'article.cls', {})
-    thetex.input(copy.copy(blobeditarea),  Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    ## add lines up to the first empty line
+    b = blobeditarea.splitlines()
+    initial = ''
+    while b and not b[0].strip():
+        # remove empty lines
+        b.pop(0)
+    while b and b[0].strip():
+        # add up to next empty line
+        initial += b[0] + '\n'
+        b.pop(0)
+    rest = '\n'.join(b) + ( '\n' if b else '')
+    #
+    thetex.input(initial,  Tokenizer=TokenizerPassThru.TokenizerPassThru)
     thetex.currentInput[0].pass_comments = True
     itertokens = thetex.itertokens()
     while itertokens is not None:
@@ -395,7 +407,9 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
         newprologue += '%\n'
     if warn_dup_ :
         weird_prologue.append('The blob should contain only one occurrence of \\%s{...}.' % (env,))
-    return newprologue, output, sources
+    if sources and sources[2][0] == '{' and sources[2][-1] != '}':
+        weird_prologue.append('Unterminated \\%s{} command' %(env,))
+    return newprologue, (output + '\n' + rest), sources
 
 def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     sources = None
