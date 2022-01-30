@@ -45,6 +45,9 @@ ColDoc_environments = ('main_file','preamble','input','include','input_preamble'
 # list of sectioning environments, in decreasing order
 ColDoc_environments_sectioning = ('part','chapter','section','subsection')
 
+# when squashing a blob to create its view, add the above sectioning commands
+ColDoc_add_env_when_squashing = True
+
 # once assigned, these cannot be changed
 ColDoc_environments_locked =  ('main_file','preamble','E_document','graphic_file','bibliography','E_thebibliography','usepackage')
 

@@ -87,12 +87,13 @@ class squash_helper_stack(squash_helper_base):
 
 class squash_input_uuid(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
-    def __init__(self, blobs_dir, blob, options):
+    def __init__(self, blobs_dir, blob, options, load_uuid=None):
         self.forw_map = OrderedDict()
         self.back_map = OrderedDict()
         self.blobs_dir =  blobs_dir
         self.blob = blob
         self.options = options
+        self.load_uuid = load_uuid
         self.input_macros = ['input','include','input_preamble','include_preamble','bibliography']
         self.input_macros_with_parameters = ['usepackage',]
         # macros where there may be multiple input files, separated by comma
@@ -138,6 +139,15 @@ class squash_input_uuid(squash_helper_stack):
                 context = self.stack[-1]  if self.stack else None
                 self.back_map[uuid] = macroname, inputfile, context
                 self.forw_map[inputfile] = macroname, uuid
+                if ColDoc_add_env_when_squashing and self.load_uuid is not None:
+                    try:
+                        child = self.load_uuid(uuid)
+                        if child.environ in ColDoc_environments_sectioning:
+                            optarg = json.loads(child.optarg)
+                            optarg[0] = '*'
+                            placeholder +=  '\\' + child.environ + ''.join(optarg)
+                    except:
+                        logger.exception('While adding env %r with optarg %r of uuid %r', child.environ, child.optarg, uuid)
                 placeholder += (r'\uuidplaceholder{' + uuid + '}{' + text + '}')
             return placeholder
         else:

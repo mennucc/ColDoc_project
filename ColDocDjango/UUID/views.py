@@ -1024,8 +1024,10 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     options['url_UUID'] = url
     #
     from ColDocDjango.transform import squash_helper_ref
+    load_uuid = lambda u : DMetadata.load_by_uuid(u, coldoc)
     def foobar(*v, **k):
         " helper factory"
+        k['load_uuid'] = load_uuid 
         return squash_helper_ref(coldoc, *v, **k)
     options["squash_helper"] = foobar
     options['metadata_class'] = DMetadata
@@ -1760,8 +1762,9 @@ def download(request, NICK, UUID):
             # this is otherwise never created
             b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
             s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
+            load_uuid = lambda u : DMetadata.load_by_uuid(u, coldoc)
             ColDoc.transform.squash_latex(b, s, blobs_dir, options,
-                                          helper = ColDoc.transform.squash_input_uuid(blobs_dir, metadata, options))
+                                          helper = ColDoc.transform.squash_input_uuid(blobs_dir, metadata, options, load_uuid))
     else:
         # for images, there is currently no difference between
         #`viewing blob` or `viewing view`, so has_perm('UUID.view_view')
