@@ -192,21 +192,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     #
     if squash is None:
         squash = options.get('squash')
-    #
-    preamble = options.get('preamble')
-    if preamble is not None:
-        if '{lang}' in preamble:
-            preamble = preamble.format(lang=lang)
-        if not os.path.isfile(osjoin(blobs_dir, preamble)):
-            logger.warning('Cannot find preamble as in option: %s/%s' %(blobs_dir, preamble))
-            preamble = None
-    if preamble is None:
-        preamble = 'preamble' + _lang + '.tex'
-        if not os.path.isfile(osjoin(blobs_dir, preamble)):
-            logger.error('Cannot find preamble in %s/%s' %(blobs_dir, preamble))
-            preamble = None
-    if preamble is None:
-        return False, False
     # note that extensions are missing
     save_name = os.path.join(uuid_dir, 'view' + _lang)
     save_abs_name = os.path.join(blobs_dir, save_name)
@@ -214,6 +199,30 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
                                                  suffix='.tex', dir = blobs_dir , mode='w+', delete=False)
     fake_abs_name = fake_texfile.name[:-4]
     fake_name = os.path.basename(fake_abs_name)
+    #
+    preamble = options.get('preamble')
+    if preamble is not None:
+        if '{lang}' in preamble:
+            preamble = preamble.format(lang=lang)
+        if not os.path.isfile(osjoin(blobs_dir, preamble)):
+            b = 'Cannot find preamble as in option: %s/%s' % (blobs_dir, preamble)
+            open(save_abs_name+'.log','w').write(uuid_dir + ':0:' + b + '\n')
+            logger.warning(b)
+            preamble = None
+    if preamble is None:
+        preamble = 'preamble' + _lang + '.tex'
+        if not os.path.isfile(osjoin(blobs_dir, preamble)):
+            b = 'Cannot find preamble in %s/%s' %(blobs_dir, preamble)
+            logger.error(b)
+            preamble = None
+    if preamble is None:
+        open(save_abs_name+'.log','w').write(uuid_dir + ':0:' + b + '\n')
+        retcodes = ColDoc.utils.json_to_dict(metadata.latex_return_codes)
+        j = (':'+lang) if (isinstance(lang,str) and lang) else ''
+        ColDoc.utils.dict_save_or_del( retcodes, 'latex'+j, False)
+        metadata.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
+        metadata.save()
+        return False, False
     #
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
          '_lang':_lang,
