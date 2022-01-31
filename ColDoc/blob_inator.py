@@ -700,6 +700,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
             #            inputfile = None
             
             if absinputfile is None:
+                cmdargs.latex_packages.append((fil, opt))
                 topstream.write('\\'+macroname+opt+'{'+fil+'}')
             else:
                 uuid = new_uuid(blobs_dir=blobs_dir)
@@ -1303,6 +1304,8 @@ def main(args, metadata_class, coldoc = None):
     named_stream._default_write_UUID = args.add_UUID
     #
     args.split_environment += args.private_environment
+    # keep a list of all \usepackage
+    args.latex_packages = []
     #
     verbose = args.verbose
     assert type(verbose) == int and verbose >= 0
