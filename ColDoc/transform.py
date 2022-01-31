@@ -82,8 +82,12 @@ class squash_helper_stack(squash_helper_base):
     #
     def process_end(self, end, thetex):
         end = 'E_' + end
-        if not self.stack or end != self.stack.pop():
-            logger.warning('disaligned stack')
+        if not self.stack:
+            logger.warning('disaligned stack, popped %r but stack is empty',end)
+        else:
+            pop = self.stack.pop()
+            if pop != end:
+                logger.warning('disaligned stack, popped %r instead of %r',end,pop)
 
 class squash_input_uuid(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
