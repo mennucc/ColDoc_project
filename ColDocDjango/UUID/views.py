@@ -985,7 +985,7 @@ def postmetadataedit(request, NICK, UUID):
     if ext_ == '.tex':
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
         if metadata.environ not in environments_we_wont_latex:
-            __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages, all_messages)
+            __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang_, messages, [])
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     #
