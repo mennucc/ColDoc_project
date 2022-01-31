@@ -213,7 +213,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
             macroname = str(tok.macroName)
             if macroname == 'begin':
                 begin = thetex.readArgument(type=str)
-                if begin in options["verbatim_environment"]:
+                if begin in options.get("verbatim_environment",['verbatim']):
                     out.write('\\begin{%s}' % begin)
                     class MyVerbatim(Base.verbatim):
                             macroName = begin
