@@ -508,6 +508,9 @@ def postlang(request, NICK, UUID):
                 F.write(ColDoc.config.ColDoc_language_header_prefix + origlang + ' ' + line + '\n')
             else:
                 F.write(line + '\n')
+        # close it. This flushes the content. Otherwise sometimes the file appears empty in the web interface
+        F.close()
+        #
         metadata.lang = 'mul\n'
         metadata.save()
         messages.add_message(request,messages.INFO,'Converted to `mul` method')
