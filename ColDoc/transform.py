@@ -193,16 +193,17 @@ class squash_helper_reparse_metadata(squash_input_uuid):
             j =  j.translate({10:32})
             self.metadata.append((a+'M_'+macroname,j))
 
-def squash_latex(inp, out, blobs_dir, options, helper=None):
+
+def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     " transforms LaTeX file"
     if helper is None:
         helper = squash_helper_base()
-    if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
+    #
+    assert isinstance(inp, io.IOBase)
+    assert isinstance(out, io.IOBase)
+    #
     thetex = TeX()
-    thetex.input(open(inp), Tokenizer=TokenizerPassThru.TokenizerPassThru)
-    if isinstance(out,str):
-        if not os.path.isabs(out): out = osjoin(blobs_dir, out)
-        out = open(out,'w')
+    thetex.input(inp, Tokenizer=TokenizerPassThru.TokenizerPassThru)
     itertokens = thetex.itertokens()
     squash_recurse(out, thetex, itertokens, options, helper)
     return helper

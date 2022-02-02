@@ -1766,7 +1766,7 @@ def download(request, NICK, UUID):
             b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
             s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
             load_uuid = lambda u : DMetadata.load_by_uuid(u, coldoc)
-            ColDoc.transform.squash_latex(b, s, blobs_dir, options,
+            ColDoc.transform.squash_latex(open(osjoin(blobs_dir,b)), open(osjoin(blobs_dir,s),'w'), options,
                                           helper = ColDoc.transform.squash_input_uuid(blobs_dir, metadata, options, load_uuid))
     else:
         # for images, there is currently no difference between
