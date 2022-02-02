@@ -40,8 +40,7 @@ logger = logging.getLogger(__name__)
 
 from ColDoc.config import *
 
-from ColDoc.utils import *
-
+import ColDoc.utils
 from ColDoc.classes import MetadataBase
 
 
@@ -130,7 +129,7 @@ class squash_input_uuid(squash_helper_stack):
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
                     continue
                 try:
-                    uuid, blob = file_to_uuid(inputfile, self.blobs_dir)
+                    uuid, blob = ColDoc.utils.file_to_uuid(inputfile, self.blobs_dir)
                 except Exception as e:
                     logger.error('Macro %r %r { %r } could not be parsed: %r', macroname, argSource, inputfile, e)
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
