@@ -204,6 +204,7 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     #
     thetex = TeX()
     thetex.input(inp, Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    # MAYBE utils.TeX_add_packages(thetex, options)
     itertokens = thetex.itertokens()
     squash_recurse(out, thetex, itertokens, options, helper)
     return helper

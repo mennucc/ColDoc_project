@@ -59,6 +59,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'line_with_language_lines', 'line_without_language_lines',
             'parse_latex_log',
             'recreate_symlinks',
+            'TeX_add_packages',
             )
 
 class ColDocException(Exception):
@@ -81,6 +82,33 @@ else:
             return( L.name)
         return val
 #####################
+
+
+def TeX_add_packages(thetex,options):
+    mydocument = thetex.ownerDocument
+    mycontext = mydocument.context
+    config = thetex.ownerDocument.config
+    config['general']['load-tex-packages'] = False
+    # give it some context
+    latex_class = options.get('documentclass','article')
+    latex_class_options = options.get('documentclassoptions','')
+    if latex_class:
+        # FIXME use latex_class_options
+        latex_class_options = parenthesizes(latex_class_options, '[]')
+        mycontext.loadPackage(thetex, latex_class + '.cls', {})
+    # fallback
+    f = ['graphicx', 'amsmath', 'amssymb', 'amsthm', 'iftex', 'hyperref']
+    f = [ (a,'') for a in f]
+    # load latex packages
+    latex_packages = options.get('latex_packages', f)
+    for p, o in latex_packages:
+        # FIXME use options
+        try:
+            mycontext.loadPackage(thetex, p + '.sty', {})
+        except:
+            logger.exception('While loading package %r',p)
+
+######################
 
 def parse_latex_log(blobs_dir, uuid, lang, ext, prefix='view', context=10):
     base_dir = osjoin(blobs_dir, uuid_to_dir(uuid, blobs_dir))
