@@ -1,4 +1,3 @@
-import os.path
 
 # API version
 ColDoc_api_version = 1
