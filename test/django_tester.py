@@ -25,6 +25,7 @@ if __name__ == '__main__':
     a = os.path.dirname(a)
     a = os.path.dirname(a)
     COLDOC_SRC_ROOT=a
+    os.environ['COLDOC_SRC_ROOT'] = COLDOC_SRC_ROOT
     a = osjoin(a, 'ColDocDjango')
     assert os.path.isdir(a), a
     if a not in sys.path:
@@ -55,6 +56,7 @@ def main(argv):
     args = parser.parse_args(argv)
     COLDOC_SITE_ROOT = args.coldoc_site_root
     assert os.path.isdir(COLDOC_SITE_ROOT), COLDOC_SITE_ROOT
+    os.environ['COLDOC_SITE_ROOT'] = COLDOC_SITE_ROOT
     #
     a = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs')
     if args.blobs_dir is None:
