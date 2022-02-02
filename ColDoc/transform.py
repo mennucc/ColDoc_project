@@ -57,6 +57,8 @@ from plasTeX import TeXDocument, Command
 
 import plasTeX.Base as Base
 
+from plasTeX.Base.LaTeX import FontSelection
+
 from plasTeX.Packages import amsthm , graphicx
 
 ##############
@@ -193,6 +195,72 @@ class squash_helper_reparse_metadata(squash_input_uuid):
             j =  j.translate({10:32})
             self.metadata.append((a+'M_'+macroname,j))
 
+class squash_helper_token2unicode(squash_helper_stack):
+    " replaces \\input and similar with placeholders; delete comments"
+    def __init__(self):
+        self.firstUnicode = 0xF0000
+        self.counter = 1
+        self.token_map = OrderedDict()
+        self.unicode_map = OrderedDict()
+        super().__init__()
+    #
+    def key2text(self, k):
+        assert k < 65533 , 'out of private area , see https://en.wikipedia.org/wiki/Private_Use_Areas'
+        return chr(k +  self.firstUnicode)
+    #
+    def text2key(self, t):
+        assert len(t) == 1
+        return ord(t) - self.firstUnicode
+    #
+    def __remap(self, s):
+        if s not in self.token_map:
+            u = self.counter 
+            self.token_map[s] = u
+            self.unicode_map[u] = s
+            self.counter += 1
+        else:
+            u = self.token_map[s]
+        return self.key2text(u)
+    def process_begin(self, begin, thetex):
+        super().process_begin(begin, thetex)
+        s = r'\begin{' + begin + '}'
+        obj = thetex.ownerDocument.createElement(begin)
+        if obj.mathMode:
+            obj.parse(thetex)
+            print('parsing',begin,s)
+        return self.__remap(s)
+    #
+    def process_end(self, end, thetex):
+        super().process_end(end, thetex)
+        s = r'\end{' + end + '}'
+        return self.__remap(s)
+    #
+    def process_macro(self, macroname, thetex):
+        obj = thetex.ownerDocument.createElement(macroname)
+        s = '\\' + macroname
+        #if obj.mathMode:
+        if not isinstance(obj, FontSelection.TextCommand):
+            obj.parse(thetex)
+            s += parenthesizes(obj.argSource,'{}')
+        #N = hasattr(obj,'nargs',1)
+        return self.__remap(s)
+    #
+    def process_comment(self, comment, thetex):
+        comment = comment.rstrip() # remove newline
+        return self.__remap('%'+comment) + '\n'
+
+def unsquash_unicode2token(text, helper):
+    assert isinstance(text,str)
+    tmap = helper.unicode_map
+    k2t = helper.key2text
+    for k in tmap:
+        u = k2t(k)
+        t = tmap.get(k)
+        if t:
+            text = text.replace(u,t)
+        else:
+            logger.error('Key %r Value %r',k,t)
+    return text
 
 def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     " transforms LaTeX file"
