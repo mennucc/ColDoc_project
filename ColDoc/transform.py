@@ -64,7 +64,7 @@ from plasTeX.Packages import amsthm , graphicx
 
 class squash_helper_base(object):
     "base class, does nothing"
-    def process_macro(self, macroname, thetex):
+    def process_macro(self, tok, thetex):
         return None
     def process_begin(self, begin, thetex):
         return None
@@ -106,7 +106,8 @@ class squash_input_uuid(squash_helper_stack):
         # it is up to the caller to add other macros such as 'includegraphics'
         super().__init__()
     #
-    def process_macro(self, macroname, thetex):
+    def process_macro(self, tok, thetex):
+        macroname = str(tok.macroName)
         if macroname in (self.input_macros + self.input_macros_with_parameters):
             argSource = ''
             if macroname in self.input_macros_with_parameters:
@@ -169,8 +170,9 @@ class squash_helper_reparse_metadata(squash_input_uuid):
         self.metadata = []
         super().__init__(blobs_dir, metadata, options, *v, **k)
     #
-    def process_macro(self, macroname, thetex, environ=None):
-        r = super().process_macro(macroname, thetex)
+    def process_macro(self, tok, thetex, environ=None):
+        macroname = str(tok.macroName)
+        r = super().process_macro(tok, thetex)
         if r is not None:
             return r
         if macroname not in self.metadata_command:
@@ -234,7 +236,8 @@ class squash_helper_token2unicode(squash_helper_stack):
         s = r'\end{' + end + '}'
         return self.__remap(s)
     #
-    def process_macro(self, macroname, thetex):
+    def process_macro(self, tok, thetex):
+        macroname = str(tok.macroName)
         obj = thetex.ownerDocument.createElement(macroname)
         s = '\\' + macroname
         #if obj.mathMode:
@@ -317,7 +320,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
                     out.write(j)
                 del obj,j,t
             else:
-                r = helper.process_macro(macroname,thetex)
+                r = helper.process_macro(tok,thetex)
                 out.write(r if r is not None else tok.source)
                 # TODO do not alter preamble in main_file
         elif isinstance(tok, TokenizerPassThru.Comment):
