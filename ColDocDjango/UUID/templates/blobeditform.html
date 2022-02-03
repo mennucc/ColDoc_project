@@ -71,6 +71,11 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
          data-toggle="tooltip" title="Normalize LaTeX"
          onclick="blob_post('normalize'); return false;"
          id="id_blobeditform_normalize" name="normalize" value="Normalize">
+
+         <input type="submit" class="btn {{ revert_button_class }} float-right" 
+         data-toggle="tooltip" title="Revert to previous version"
+         onclick="blob_post('revert'); return false;"
+         id="id_blobeditform_revert" name="revert" value="Revert">
       {% endif %}
 </form>
 <script>

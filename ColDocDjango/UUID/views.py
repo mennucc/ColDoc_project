@@ -243,6 +243,7 @@ def _build_blobeditform_data(metadata,
     env = metadata.environ
     optarg = metadata.optarg
     #
+    uncompiled = 0
     file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     blobcontent = open(filename).read()
     # the first line contains the \uuid command or the \section{}\uuid{}
@@ -288,6 +289,7 @@ def _build_blobeditform_data(metadata,
                          'File was changed on disk: check the diff' ))
             N['file_md5'] = file_md5
         elif N['blobcontent'] != blobcontent:
+            uncompiled = 1
             msgs.append(( messages.INFO,
                           'Your saved changes are yet uncompiled' ))
         D.update(N)
@@ -303,7 +305,7 @@ def _build_blobeditform_data(metadata,
     if not can_add_blob:
         blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
         blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
-    return blobeditform
+    return blobeditform, uncompiled
 
 
 def md5(request, NICK, UUID, FILE):
@@ -691,7 +693,7 @@ def postedit(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    actions = 'compile', 'save', 'save_no_reload', 'normalize'
+    actions = 'compile', 'save', 'save_no_reload', 'normalize', 'revert'
     s = sum (int( a in request.POST ) for a in actions)
     assert 1 == s, request.POST.keys()
     #
@@ -772,9 +774,6 @@ def postedit(request, NICK, UUID):
     #
     if 'normalize' in request.POST:
         blobeditarea = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea) 
-    # put back prologue in place
-    blobcontent, newprologue, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
-    form.cleaned_data['blobcontent'] = blobcontent
     # some checks
     try:
         a = json.loads(prologue)
@@ -798,6 +797,21 @@ def postedit(request, NICK, UUID):
             selection_start_  = max(selection_start_ + displacement, 0)
             selection_end_    = max(selection_end_ + displacement, selection_end_)
     #
+    if 'revert' in request.POST:
+        blobcontent = open(filename).read()
+        shortprologue, prologue, blobeditarea, warnings = __extract_prologue(blobcontent, UUID, env, metadata.optarg)
+        form.cleaned_data.update({
+            'BlobEditTextarea':  blobeditarea,
+            'prologue' : json.dumps( (shortprologue, prologue) ),
+            'blobcontent' : blobcontent,
+            })
+        weird_prologue = []
+        sources = newprologue = None
+    else:
+        # put back prologue in place
+        blobcontent, newprologue, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
+        form.cleaned_data['blobcontent'] = blobcontent
+    #
     for wp in weird_prologue:
         logger.warning(' in %r %s', UUID, wp)
     # save state of edit form
@@ -807,7 +821,7 @@ def postedit(request, NICK, UUID):
         json.dump(form.cleaned_data, open(file_editstate,'w'))
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
-    if 'save_no_reload' in request.POST or 'normalize' in request.POST:
+    if 'save_no_reload' in request.POST or 'normalize' in request.POST or 'revert' in request.POST:
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.split('\n'),
@@ -1556,8 +1570,9 @@ def index(request, NICK, UUID):
         blobeditform = None
         if  can_add_blob or can_change_blob:
             msgs = []
-            blobeditform = _build_blobeditform_data(metadata, request.user, filename,
+            blobeditform , uncompiled = _build_blobeditform_data(metadata, request.user, filename,
                                                     ext, blob_lang, choices, can_add_blob, can_change_blob, msgs)
+            revert_button_class =  'btn-warning'  if uncompiled else 'btn-outline-info'
             for l, m in msgs:
                 messages.add_message(request, l, m)
             H = difflib.HtmlDiff()

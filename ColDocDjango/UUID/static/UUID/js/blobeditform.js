@@ -175,6 +175,12 @@ function blob_post(type) {
 		if ( type == 'save_no_reload') {
 		    $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
 		    $("#id_blobeditform_save_no_reload").addClass("btn-primary");
+		    $("#id_blobeditform_revert").removeClass("btn-outline-info");
+		    $("#id_blobeditform_revert").addClass("btn-warning");
+		}
+		if ( type == 'revert') {
+		    $("#id_blobeditform_revert").removeClass("btn-warning");
+		    $("#id_blobeditform_revert").addClass("btn-outline-info");
 		}
 		prevent_unload_remove();
 	   }
