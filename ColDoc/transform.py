@@ -199,19 +199,51 @@ class squash_helper_reparse_metadata(squash_input_uuid):
 class squash_helper_token2unicode(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
     def __init__(self):
-        self.firstUnicode = 0xF0000
-        self.counter = 1
+        self.counter = 0
         self.token_map = OrderedDict()
         self.unicode_map = OrderedDict()
         super().__init__()
     #
+    __ranges = (
+        (0x12000, 0x123FF), # cuneiform    U+12000 to U+123FF
+        (0x10600, 0x1072F),        # Linear A Range: 10600–1077F but we stop at 10600–1072F
+        ( 0x2C00,  0x2C5F), # Glagolitic Range: 2C00–2C5F
+        (0x13000, 0x1342E), # Egyptian Hieroglyphs    Range: 13000–1342F  but the last one is undefined
+        # Linear B Syllabary        Range: 10000–1007F     there are some holes
+        #Cypriot   Unicode range    U+10800–U+1083F          there are some holes
+        ( 0xE000,  0xF8FF), # first private area
+        (0xF0000, 0xFFFFD),  # second private area
+    )
+    #
+    def max_key(self):
+        k = 0
+        for s,e in self.__ranges:
+            w = e-s
+            k += w
+        return k
+    #
     def key2text(self, k):
-        assert k < 65533 , 'out of private area , see https://en.wikipedia.org/wiki/Private_Use_Areas'
-        return chr(k +  self.firstUnicode)
+        for s,e in self.__ranges:
+            w = e-s
+            if k < w:
+                return chr(k + s)
+            k -= w
+        # Three private use areas are defined: one in the Basic Multilingual Plane (U+E000–U+F8FF),
+        # and one each in, and nearly covering, planes 15 and 16 (U+F0000–U+FFFFD, U+100000–U+10FFFD)
+        assert False, 'out of private area , see https://en.wikipedia.org/wiki/Private_Use_Areas'
+        return None
     #
     def text2key(self, t):
         assert len(t) == 1
-        return ord(t) - self.firstUnicode
+        t = ord(t)
+        k = 0
+        for s,e in self.__ranges:
+            w = e-s
+            if s <= t and t <=  e:
+                return t + k - s
+            k += w
+        #
+        assert False, 'out of unicode key space:  %x' % (t,)  
     #
     def __remap(self, s):
         if s not in self.token_map:
