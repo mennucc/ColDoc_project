@@ -3,6 +3,7 @@
 {% block extrahead %}
 <script>var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var VIEW="{{VIEW}}"; 
 var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
+var blob_uncompiled={{ uncompiled }};
 {% if VIEW %}
   var get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID FILE=VIEW %}";
 {% else %}
@@ -316,6 +317,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
         <input type="submit"  
            {# data-toggle="tooltip" title="{{ tooltip | safe }}" #}
+        onclick="if(blob_uncompiled != 0) { alert('Cannot proceed, there are uncompiled changes'); return false;}"
         value="{{ label }}" name="button"  class="btn btn-primary">
       </form>
       <!--</div>-->

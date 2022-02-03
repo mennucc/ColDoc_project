@@ -179,6 +179,7 @@ function blob_post(type) {
 		    $("#id_blobeditform_revert").addClass("btn-warning");
 		}
 		if ( type == 'revert') {
+		    blob_uncompiled = 0 ;
 		    $("#id_blobeditform_revert").removeClass("btn-warning");
 		    $("#id_blobeditform_revert").addClass("btn-outline-info");
 		}
@@ -194,6 +195,7 @@ function blob_post(type) {
 
 function update_blobedit_timestamp()
 {   
+    blob_uncompiled = 1;
     if( last_textarea_keypress == 0) {
        $("#id_blobeditform_save_no_reload").removeClass("btn-primary");
        $("#id_blobeditform_save_no_reload").addClass("btn-warning");
