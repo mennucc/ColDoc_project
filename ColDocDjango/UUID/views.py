@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re
+import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io
 from os.path import join as osjoin
 
 try:
@@ -51,7 +51,7 @@ import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
 from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, iso3lang2word, uuid_to_dir, gen_lang_metadata
 from ColDocDjango.utils import get_email_for_user
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
-from ColDoc import TokenizerPassThru
+from ColDoc import TokenizerPassThru, transform
 
 from .models import DMetadata, DColDoc
 
@@ -676,6 +676,14 @@ def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages,
             messages.add_message(request,messages.WARNING,a)
         all_messages.append(a)
 
+def normalize(coldoc_dir, blobs_dir, metadata, blob):
+    from ColDoc.latex import prepare_options_for_latex
+    options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, metadata.coldoc)
+    helper = transform.squash_helper_token2unicode()
+    out = io.StringIO()
+    inp = io.StringIO(blob)
+    transform.squash_latex(inp, out, options, helper)
+    return transform.unsquash_unicode2token(out.getvalue(), helper)
 
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
