@@ -49,7 +49,8 @@ from ColDoc.classes import MetadataBase
 from ColDoc import TokenizerPassThru
 
 import plasTeX
-import plasTeX.TeX, plasTeX.Base.LaTeX, plasTeX.Context , plasTeX.Tokenizer , plasTeX.Base
+import plasTeX.TeX, plasTeX.Base.LaTeX, plasTeX.Context , plasTeX.Tokenizer , plasTeX.Base, plasTeX.Logging
+
 
 from plasTeX.TeX import TeX
 from plasTeX import TeXDocument, Command
@@ -325,9 +326,19 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     assert isinstance(inp, io.IOBase)
     assert isinstance(out, io.IOBase)
     #
+    if False:
+        # NOPE log = io.StringIO()
+        #import tempfile
+        log = tempfile.NamedTemporaryFile()
+        plasTeX.Logging.fileLogging(log.name)
+    else:
+        plasTeX.Logging.disableLogging()
+    #
     thetex = TeX()
     thetex.input(inp, Tokenizer=TokenizerPassThru.TokenizerPassThru)
-    # MAYBE utils.TeX_add_packages(thetex, options)
+    # FIXME it is only useful for the token2unicode machinery 
+    ColDoc.utils.TeX_add_packages(thetex, options)
+    #
     itertokens = thetex.itertokens()
     squash_recurse(out, thetex, itertokens, options, helper)
     return helper
