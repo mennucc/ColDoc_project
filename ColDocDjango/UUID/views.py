@@ -231,13 +231,18 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
                 prologue = '%'
     return shortprologue, prologue, blobeditdata, warnings
 
-def _build_blobeditform_data(NICK, UUID,
-                             env,  optarg,
+def _build_blobeditform_data(metadata,
                              user, filename,
                              ext, lang,
                              choices,
                              can_add_blob, can_change_blob,
                              msgs):
+    #
+    NICK = metadata.coldoc.nickname
+    UUID = metadata.uuid
+    env = metadata.environ
+    optarg = metadata.optarg
+    #
     file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     blobcontent = open(filename).read()
     # the first line contains the \uuid command or the \section{}\uuid{}
@@ -1538,7 +1543,7 @@ def index(request, NICK, UUID):
         blobeditform = None
         if  can_add_blob or can_change_blob:
             msgs = []
-            blobeditform = _build_blobeditform_data(NICK, UUID, env, metadata.optarg, request.user, filename,
+            blobeditform = _build_blobeditform_data(metadata, request.user, filename,
                                                     ext, blob_lang, choices, can_add_blob, can_change_blob, msgs)
             for l, m in msgs:
                 messages.add_message(request, l, m)
