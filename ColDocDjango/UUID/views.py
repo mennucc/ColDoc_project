@@ -691,7 +691,9 @@ def postedit(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    assert 1 == ( 'compile' in request.POST ) + ( 'save' in request.POST ) + ( 'save_no_reload' in request.POST )
+    actions = 'compile', 'save', 'save_no_reload', 'normalize'
+    s = sum (int( a in request.POST ) for a in actions)
+    assert 1 == s, request.POST.keys()
     #
     form=BlobEditForm(request.POST)
     #
@@ -707,7 +709,7 @@ def postedit(request, NICK, UUID):
     #
     if not form.is_valid():
         a = "Invalid form: "+repr(form.errors)
-        if 'save_no_reload'  in request.POST:
+        if 'save_no_reload'  in request.POST or 'normalize' in request.POST:
             return JsonResponse({"message":a})
         return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
     prologue = form.cleaned_data['prologue']
@@ -767,6 +769,9 @@ def postedit(request, NICK, UUID):
         a = "The file was changed on disk: compile aborted"
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
+    #
+    if 'normalize' in request.POST:
+        blobeditarea = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea) 
     # put back prologue in place
     blobcontent, newprologue, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
     form.cleaned_data['blobcontent'] = blobcontent
@@ -802,14 +807,14 @@ def postedit(request, NICK, UUID):
         json.dump(form.cleaned_data, open(file_editstate,'w'))
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
-    if 'save_no_reload' in request.POST:
+    if 'save_no_reload' in request.POST or 'normalize' in request.POST:
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.split('\n'),
                                 'Orig','New', True)
         for wp in weird_prologue:
             a += '\n' + wp
-        return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5})
+        return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5, 'blobeditarea' : blobeditarea})
     for wp in  weird_prologue:
         messages.add_message(request,messages.WARNING, wp)
     if 'save'  in request.POST:

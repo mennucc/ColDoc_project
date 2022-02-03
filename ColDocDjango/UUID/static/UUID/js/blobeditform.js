@@ -128,7 +128,6 @@ var last_textarea_keypress = 0;
 // https://stackoverflow.com/a/32749586/5058564
 
 function blob_post(type) {
-  $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
   if (! check_primary_tab() ) {
      return false;
   }
@@ -153,6 +152,7 @@ function blob_post(type) {
 	       if ( msg ) {
 		 alert(msg); 
 	       }
+	       let blobeditform = document.getElementById("id_form_blobeditform");
 	       if ( 'blobdiff' in response ) {
 		 blobdiff = response['blobdiff'];
 		 blobdiffdiv = document.getElementById("id_blob_diff");
@@ -160,17 +160,25 @@ function blob_post(type) {
 	       } else { console.log("Did not get blobdiff"); }
 	       if ( 'blob_md5' in response ) {
 		  blob_md5 = response['blob_md5'];
-		  let blobeditform = document.getElementById("id_form_blobeditform");
 		  blobeditform.file_md5.value = blob_md5;
 	       } else { console.log("Did not get blob_md5"); }
+	       if ( 'blobeditarea' in response ) {
+		  b = response['blobeditarea'];
+		  blobeditform.BlobEditTextarea.value = b;
+		  if( BlobEditCodeMirror != undefined ){
+		     // trick 'setValue' will emit a 'change' but we inhibit it
+		     last_textarea_keypress = 1;
+		     BlobEditCodeMirror.setValue(b);
+	            }
+	       } else { console.log("Did not get blobeditarea"); }
+		last_textarea_keypress = 0;
+		if ( type == 'save_no_reload') {
+		    $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
+		    $("#id_blobeditform_save_no_reload").addClass("btn-primary");
+		}
+		prevent_unload_remove();
 	   }
 	 });
-    //
-    last_textarea_keypress = 0;
-    $("#id_blobeditform_save_no_reload").addClass("btn-primary");
-    
-    prevent_unload_remove();
-
    // avoid to execute the actual submit of the form.
     return false;
 };
