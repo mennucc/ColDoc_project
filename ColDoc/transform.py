@@ -56,7 +56,7 @@ from plasTeX import TeXDocument, Command
 
 import plasTeX.Base as Base
 
-from plasTeX.Base.LaTeX import FontSelection
+from plasTeX.Base.LaTeX import FontSelection, DimenCommand
 
 from plasTeX.Packages import amsthm , graphicx
 
@@ -239,12 +239,14 @@ class squash_helper_token2unicode(squash_helper_stack):
     def process_macro(self, tok, thetex):
         macroname = str(tok.macroName)
         obj = thetex.ownerDocument.createElement(macroname)
-        s = '\\' + macroname
-        #if obj.mathMode:
-        if not isinstance(obj, FontSelection.TextCommand):
+        s = tok.source
+        if s and s[-1] == ' ':
+            s = s[:-1]
+        # it is better not to parse certain macros
+        if not isinstance(obj, (FontSelection.TextCommand, DimenCommand)) and\
+           macroname not in ('emph'):
             obj.parse(thetex)
-            s += parenthesizes(obj.argSource,'{}')
-        #N = hasattr(obj,'nargs',1)
+            s += obj.argSource
         return self.__remap(s)
     #
     def process_comment(self, comment, thetex):
