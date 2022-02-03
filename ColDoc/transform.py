@@ -260,7 +260,26 @@ class squash_helper_token2unicode(squash_helper_stack):
         obj = thetex.ownerDocument.createElement(begin)
         if obj.mathMode:
             obj.parse(thetex)
-            print('parsing',begin,s)
+            s += obj.argSource
+            # FIXME this is ugly and may fail
+            I =  thetex.itertokens()
+            for t in I:
+                if not isinstance(t, plasTeX.Tokenizer.EscapeSequence):
+                    s += str(t.source)
+                else:
+                    n = str(t.macroName)
+                    if t == 'end':
+                        end = thetex.readArgument(type=str)
+                        if end == begin:
+                            # push it in, otherwise stack is disaligned
+                            # FIXME there should be a better way
+                            thetex.input( r'\end{' + end + '}')
+                            break
+                        else:
+                            s + r'\end{' + end + '}'
+                    else:
+                        s += str(t.source)
+            #print('parsing math',begin,'got',s)
         return self.__remap(s)
     #
     def process_end(self, end, thetex):
