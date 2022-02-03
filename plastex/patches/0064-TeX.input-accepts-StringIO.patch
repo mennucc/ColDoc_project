@@ -1,0 +1,39 @@
+From 253be67d8c27220dcf9eabe5cbd7442e523ca27f Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Thu, 3 Feb 2022 11:27:20 +0100
+Subject: [PATCH 2/2] TeX.input accepts StringIO
+
+---
+ plasTeX/TeX.py       | 2 +-
+ plasTeX/Tokenizer.py | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
+index f78e2e0..90203b3 100644
+--- a/plasTeX/TeX.py
++++ b/plasTeX/TeX.py
+@@ -160,7 +160,7 @@ class TeX(object):
+         if self.jobname is None:
+             if isinstance(source, str):
+                 self.jobname = os.path.basename(os.path.splitext(source)[0])
+-            elif isinstance(source, IOBase):
++            elif isinstance(source, IOBase) and hasattr(source,'name'):
+                 self.jobname = os.path.basename(os.path.splitext(source.name)[0])
+ 
+         t = Tokenizer(source, self.ownerDocument.context)
+diff --git a/plasTeX/Tokenizer.py b/plasTeX/Tokenizer.py
+index ca16a89..1b39002 100644
+--- a/plasTeX/Tokenizer.py
++++ b/plasTeX/Tokenizer.py
+@@ -205,6 +205,8 @@ class Tokenizer(object):
+         if isinstance(source, str):
+             source = StringIO(source)
+             self.filename = '<string>'
++        elif isinstance(source, StringIO):
++            self.filename = '<string>'
+         elif isinstance(source, bytes):
+             source = TextIOWrapper(BytesIO(source), encoding='utf-8')
+             self.filename = '<string>'
+-- 
+2.32.0
+
