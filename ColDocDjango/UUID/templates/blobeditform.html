@@ -64,7 +64,7 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
       {% if perms.UUID.change_blob %}
          <input type="submit" class="btn btn-primary" 
          data-toggle="tooltip" title="Save changes so far, update diff"
-         onclick="blob_save_no_reload(); return false;"
+         onclick="blob_post('save_no_reload'); return false;"
          id="id_blobeditform_save_no_reload" name="save" value="Save">
       {% endif %}
 </form>

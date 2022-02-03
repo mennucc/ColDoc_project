@@ -104,7 +104,7 @@ var blob_polling = 240000;
 function check_blob_changed_md5() { 
    let blob_callback = (ret) => 
       { if( (ret != undefined) && (blob_md5 != ret)) {
-      blob_save_no_reload();
+      blob_post('save_no_reload');
       blob_md5 = ret; 
    }};
    check_changed_md5(get_blob_md5_url, blob_callback);
@@ -127,7 +127,7 @@ var last_textarea_keypress = 0;
 // https://stackoverflow.com/a/18170009/5058564
 // https://stackoverflow.com/a/32749586/5058564
 
-function blob_save_no_reload() {
+function blob_post(type) {
   $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
   if (! check_primary_tab() ) {
      return false;
@@ -142,7 +142,7 @@ function blob_save_no_reload() {
    // serializes the form's elements.
   let data = $("#id_form_blobeditform").serializeArray();
   // add fake button press
-  data = data.concat([ {name: "save_no_reload", value: "save_no_reload"},]);
+  data = data.concat([ {name: type, value: type},]);
   // post form
   $.ajax(blobeditform.action, {
 	   type: "POST",
@@ -175,7 +175,7 @@ function blob_save_no_reload() {
     return false;
 };
 
-$("#id_blobeditform_save_no_reload").click(blob_save_no_reload);
+//$("#id_blobeditform_save_no_reload").click(blob_save_no_reload);
 
 
 function update_blobedit_timestamp()
