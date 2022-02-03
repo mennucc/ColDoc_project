@@ -1,0 +1,25 @@
+From f5591acadb795e7c3b6c1d68f4404655f0fba1c9 Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Thu, 3 Feb 2022 11:27:20 +0100
+Subject: [PATCH 2/2] some IOBase do not have names
+
+---
+ plasTeX/TeX.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
+index f78e2e0..90203b3 100644
+--- a/plasTeX/TeX.py
++++ b/plasTeX/TeX.py
+@@ -160,7 +160,7 @@ class TeX(object):
+         if self.jobname is None:
+             if isinstance(source, str):
+                 self.jobname = os.path.basename(os.path.splitext(source)[0])
+-            elif isinstance(source, IOBase):
++            elif isinstance(source, IOBase) and hasattr(source,'name'):
+                 self.jobname = os.path.basename(os.path.splitext(source.name)[0])
+ 
+         t = Tokenizer(source, self.ownerDocument.context)
+-- 
+2.32.0
+
