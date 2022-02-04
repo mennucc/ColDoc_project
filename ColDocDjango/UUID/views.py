@@ -695,6 +695,19 @@ def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages,
         all_messages.append(a)
 
 def normalize(coldoc_dir, blobs_dir, metadata, blob):
+    if not blob.strip():
+        return '\n'
+    b = blob.splitlines()
+    while b and not b[-1].strip():
+        b.pop()
+    if not b:
+        return '\n'
+    while b and not b[0].strip():
+        b.pop(0)
+    if not b:
+        return '\n'
+    b = [a.rstrip() for a in b]
+    blob = '\n'.join(b) + '\n'
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, metadata.coldoc)
     helper = transform.squash_helper_token2unicode()
