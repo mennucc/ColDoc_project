@@ -846,7 +846,7 @@ def postedit(request, NICK, UUID):
     if 'save_no_reload' in request.POST or 'normalize' in request.POST or 'revert' in request.POST:
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(open(filename).readlines(),
-                                blobcontent.split('\n'),
+                                blobcontent.splitlines(keepends=True),
                                 'Orig','New', True)
         for wp in weird_prologue:
             a += '\n' + wp
