@@ -423,7 +423,14 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
         weird_prologue.append('The blob should contain only one occurrence of \\%s{...}.' % (env,))
     if sources and sources[2][0] == '{' and sources[2][-1] != '}':
         weird_prologue.append('Unterminated \\%s{} command' %(env,))
-    return newprologue, (output + '\n' + rest), sources
+    # avoid duplicated spaces
+    newprologue = re.sub(' +', ' ', newprologue)
+    if newprologue and newprologue[-1] != '\n':
+        newprologue += '\n'
+    if output and output[-1] != '\n':
+        logger.warning('missing new line %r',output)
+        output += '\n'
+    return newprologue, (output + rest), sources
 
 def   _put_back_prologue(prologue, blobeditarea, env, uuid):
     sources = None
