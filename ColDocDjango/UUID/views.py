@@ -246,6 +246,8 @@ def _build_blobeditform_data(metadata,
     uncompiled = 0
     file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     blobcontent = open(filename).read()
+    if blobcontent and blobcontent[-1] != '\n' :
+        blobcontent += '\n'
     # the first line contains the \uuid command or the \section{}\uuid{}
     shortprologue, prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, optarg)
     if '\\uuid{' in blobeditdata:
@@ -731,7 +733,11 @@ def postedit(request, NICK, UUID):
     prologue = form.cleaned_data['prologue']
     # convert to UNIX line ending 
     blobcontent  = re.sub("\r\n", '\n',  form.cleaned_data['blobcontent'] )
+    if blobcontent and blobcontent[-1] != '\n':
+        blobcontent += '\n'
     blobeditarea = re.sub("\r\n", '\n',  form.cleaned_data['BlobEditTextarea'] )
+    if blobeditarea and blobeditarea[-1] != '\n':
+        blobeditarea += '\n'
     uuid_ = form.cleaned_data['UUID']
     nick_ = form.cleaned_data['NICK']
     lang_ = form.cleaned_data['lang']
@@ -813,6 +819,8 @@ def postedit(request, NICK, UUID):
     #
     if 'revert' in request.POST:
         blobcontent = open(filename).read()
+        if blobcontent and blobcontent[-1] != '\n':
+            blobcontent += '\n'
         shortprologue, prologue, blobeditarea, warnings = __extract_prologue(blobcontent, UUID, env, metadata.optarg)
         form.cleaned_data.update({
             'BlobEditTextarea':  blobeditarea,
