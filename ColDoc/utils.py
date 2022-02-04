@@ -52,7 +52,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'replace_with_hash_symlink',
             'parent_cmd_env_child',
             'html2text',
-            'iso3lang2word',
+            'iso3lang2word', 'iso3lang_to_iso2',
             'replace_language_in_inputs','strip_language_lines', 'gen_lang_coldoc', 'gen_lang_metadata',
             'multimerge', 'multimerge_lookahead',
             'text_linechar2pos', 'text_pos2linechar',
@@ -81,6 +81,14 @@ else:
         if L:
             return( L.name)
         return val
+
+def iso3lang_to_iso2(l):
+    if len(l) == 2:
+        return l
+    elif len(l) == 3:
+        L = pycountry.languages.get(alpha_3=l)
+        return L.alpha_2
+
 #####################
 
 
