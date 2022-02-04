@@ -315,6 +315,11 @@ if not USE_CODEMIRROR:
 GOOGLE_SITE_VERIFICATION =  None
 GOOGLE_ANALYTICS4 = None
 
+# you can overwrite this in the settings.py file in the deployed COLDOC_SITE_ROOT
+# define these to use Microsoft Azure translation service
+AZURE_SUBSCRIPTION_KEY = None
+AZURE_LOCATION = None
+
 ######################### pricing scheme for this coldoc; see settings_suggested for examples
 
 def PRICE_FOR_PERMISSION(user, blob, permission ):
@@ -360,3 +365,9 @@ if USE_SIMPLE_CAPTCHA and USE_RECAPTCHA:
     logger.warning('SIMPLE_CAPTCHA and RECAPTCHA cannot be used at the same time, disabling one of the two')
     USE_RECAPTCHA = bool(RECAPTCHA_PUBLIC_KEY)
 
+TRANSLATOR = None
+
+if AZURE_SUBSCRIPTION_KEY and AZURE_LOCATION:
+    def TRANSLATOR(text, fromlang, tolang):
+        from ColDocDjango.translators import translator_Azure
+        return translator_Azure(text, fromlang, tolang, AZURE_SUBSCRIPTION_KEY, AZURE_LOCATION)
