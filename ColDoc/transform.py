@@ -280,6 +280,7 @@ class squash_helper_token2unicode(squash_helper_stack):
                             s + r'\end{' + end + '}'
                     else:
                         s += str(t.source)
+            s = re.sub(" +", ' ',s)
             #print('parsing math',begin,'got',s)
         return self.__remap(s)
     #
@@ -299,6 +300,7 @@ class squash_helper_token2unicode(squash_helper_stack):
            macroname not in ('emph'):
             obj.parse(thetex)
             s += obj.argSource
+            s = re.sub(" +", ' ',s)
         return self.__remap(s)
     #
     def process_comment(self, comment, thetex):
