@@ -373,6 +373,7 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     thetex.input(initial,  Tokenizer=TokenizerPassThru.TokenizerPassThru)
     thetex.currentInput[0].pass_comments = True
     itertokens = thetex.itertokens()
+    eatspaces = False
     while itertokens is not None:
         try:
             tok = next(itertokens)
@@ -397,6 +398,8 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
                     sources = list(map( lambda x : x.replace('\n',' '), sources ))
                 ignoreme, newprologue = _rewrite_section(sources, uuid, env)
                 seen_one_sec_ = True
+                # after the section, ignore spaces and newline
+                eatspaces = True
             else:
                 warn_dup_ = True
                 if str(tok).startswith('active::'):
@@ -404,7 +407,11 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
                 else:
                     output += '\\' + str(tok)
         else:
-            output += tok.source
+            if tok.source not in (' ','\n','\t'):
+                output += tok.source
+                eatspaces = False
+            elif not eatspaces:
+                output += tok.source
             if not seen_one_sec_ :
                 warn_notfirst_ = True
     if not seen_one_sec_ :
