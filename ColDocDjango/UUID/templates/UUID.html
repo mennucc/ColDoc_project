@@ -130,14 +130,6 @@ var blob_uncompiled={{ uncompiled }};
            {% if u == A.last %} . {% else %} ; {% endif %} {% endfor %}
       {% endwith %}
       </div>
-      {% if  uuid_languages %}
-        <div class="border border-info mt-2">
-          This content is available in:
-          {% for val,link in uuid_languages %}
-            <a href="{{ link }}">  {{ val }} </a>
-          {% endfor %}
-        </div>
-      {% endif %}
   </div>
  {% endif %}
 
@@ -255,14 +247,6 @@ var blob_uncompiled={{ uncompiled }};
        Managing blob in:  {{ blob_language }} 
    </div>
   {% endif %}
-      {% if  uuid_languages %}
-        <div class="border border-info mt-2">
-          This uuid is available in:
-          {% for val,link in uuid_languages %}
-            <a href="{{ link }}#tools">  {{ val }} </a>
-          {% endfor %}
-        </div>
-      {% endif %}
 
   {% if buy_download_link or buy_download_form or perms.UUID.download %}
    <h2>Download</h2>
@@ -325,6 +309,17 @@ var blob_uncompiled={{ uncompiled }};
    {% endif %}
  
   </div>
+
+{% if perms.UUID.view_view %}
+      {% if  uuid_languages %}
+        <div class="border border-info mt-4 mb-4">
+          This content is available in:
+          {% for val,link in uuid_languages %}
+            <a href="{{ link }}">  {{ val }} </a>
+          {% endfor %}
+        </div>
+      {% endif %}
+{% endif %}
 
 </div>
 
