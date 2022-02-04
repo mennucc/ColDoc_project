@@ -598,7 +598,8 @@ def postlang(request, NICK, UUID):
                 logger.warning('copy %r to %r',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
-                print(settings.AZURE_SUBSCRIPTION_KEY )
+                m = 'A blob with language %r extension %r was created copying from %r.\nPlease translate it.'%\
+                    (iso3lang2word(langchoice_),ext_,iso3lang2word(lang_))
                 if settings.TRANSLATOR is not None:
                     try:
                         from ColDoc.latex import prepare_options_for_latex
@@ -609,14 +610,13 @@ def postlang(request, NICK, UUID):
                         transform.squash_latex(inp, out, options, helper)
                         translated = settings.TRANSLATOR(out.getvalue(), lang_, langchoice_)
                         string = transform.unsquash_unicode2token(translated, helper)
-                        messages.add_message(request,messages.INFO, 'The text was automatically translated (%d chars)' % (len(out.getvalue()),))
+                        m = 'A blob with language %r extension %r was automatically translated (%d chars) from %r.\nPlease check it.'%\
+                            (iso3lang2word(langchoice_),ext_,len(out.getvalue()),iso3lang2word(lang_))
                     except:
                         messages.add_message(request,messages.WARNING, 'the automatic translation failed')
-                        logger.exception('Failed translation from %r to %r of %r', lang_, langchoice_, text)
+                        logger.exception('Failed translation from %r to %r of %r', lang_, langchoice_, string)
                 open(dst,'w').write(string)
-                messages.add_message(request,messages.INFO,
-                                     'A blob with language %r extension %r was created copying from %r.\nPlease translate it.'%
-                                     (iso3lang2word(langchoice_),ext_,iso3lang2word(lang_)))
+                messages.add_message(request,messages.INFO, m)
             else:
                 logger.warning('rename %r to %r',src,dst)
                 string = open(src).read()
