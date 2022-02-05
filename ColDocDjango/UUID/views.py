@@ -743,6 +743,8 @@ def postedit(request, NICK, UUID):
     #
     form=BlobEditForm(request.POST)
     #
+    weird_prologue = []
+    #
     metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
     env = metadata.environ
     from ColDoc.utils import tree_environ_helper
@@ -830,22 +832,29 @@ def postedit(request, NICK, UUID):
         shortprologue = None
         logger.exception('cannot json decode %r', prologue)
         weird_prologue.append('Internal JSON error')
-    if split_selection_:
-        if shortprologue is None:
-            weird_prologue.append('Cannot split material when there are internal errors')
-            split_selection_ = False
-        elif weird_prologue:
-            weird_prologue.append('Cannot split material when there are header errors')
-            split_selection_ = False
-        elif shortprologue and not blobeditarea.startswith(shortprologue + '\n'):
-            weird_prologue.append('Sorry, cannot split material when the first line was changed')
-            split_selection_ = False
-        else:
-            displacement = len(prologue) - len(shortprologue)
-            selection_start_  = max(selection_start_ + displacement, 0)
-            selection_end_    = max(selection_end_ + displacement, selection_end_)
     #
-    if 'revert' in request.POST:
+    if 'revert' not in request.POST:
+        # put back prologue in place
+        blobcontent, newprologue, sources , a = _put_back_prologue(prologue, blobeditarea, env, UUID)
+        weird_prologue.extend(a)
+        form.cleaned_data['blobcontent'] = blobcontent
+        # some checks
+        if split_selection_:
+            if shortprologue is None:
+                weird_prologue.append('Cannot split material when there are internal errors')
+                split_selection_ = False
+            elif weird_prologue:
+                weird_prologue.append('Cannot split material when there are header errors')
+                split_selection_ = False
+            elif shortprologue and not blobeditarea.startswith(shortprologue + '\n'):
+                weird_prologue.append('Sorry, cannot split material when the first line was changed')
+                split_selection_ = False
+            else:
+                displacement = len(prologue) - len(shortprologue)
+                selection_start_  = max(selection_start_ + displacement, 0)
+                selection_end_    = max(selection_end_ + displacement, selection_end_)
+    #
+    else: # 'revert' in request.POST:
         blobcontent = open(filename).read()
         if blobcontent and blobcontent[-1] != '\n':
             blobcontent += '\n'
@@ -855,12 +864,7 @@ def postedit(request, NICK, UUID):
             'prologue' : json.dumps( (shortprologue, prologue) ),
             'blobcontent' : blobcontent,
             })
-        weird_prologue = []
         sources = newprologue = None
-    else:
-        # put back prologue in place
-        blobcontent, newprologue, sources , weird_prologue = _put_back_prologue(prologue, blobeditarea, env, UUID)
-        form.cleaned_data['blobcontent'] = blobcontent
     #
     for wp in weird_prologue:
         logger.warning(' in %r %s', UUID, wp)
