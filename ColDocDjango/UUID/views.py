@@ -435,6 +435,7 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     return newprologue, (output + rest), sources
 
 def   _put_back_prologue(prologue, blobeditarea, env, uuid):
+    that is how much the text was displaced from  `blobeditarea` to `newblobeditarea`"
     sources = None
     weird_prologue = []
     newprologue = ''
@@ -864,6 +865,7 @@ def postedit(request, NICK, UUID):
             'prologue' : json.dumps( (shortprologue, prologue) ),
             'blobcontent' : blobcontent,
             })
+        file_md5 = form.cleaned_data['file_md5'] = real_file_md5
         sources = newprologue = None
     #
     for wp in weird_prologue:
