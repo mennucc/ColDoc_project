@@ -57,7 +57,7 @@ from plasTeX import TeXDocument, Command
 
 import plasTeX.Base as Base
 
-from plasTeX.Base.LaTeX import FontSelection, DimenCommand
+from plasTeX.Base.LaTeX import FontSelection, DimenCommand, StartSection
 
 from plasTeX.Packages import amsthm , graphicx
 
@@ -296,7 +296,7 @@ class squash_helper_token2unicode(squash_helper_stack):
         if s and s[-1] == ' ':
             s = s[:-1]
         # it is better not to parse certain macros
-        if not isinstance(obj, (FontSelection.TextCommand, DimenCommand)) and\
+        if not isinstance(obj, (FontSelection.TextCommand, DimenCommand, StartSection)) and\
            macroname not in ('emph'):
             obj.parse(thetex)
             s += obj.argSource
