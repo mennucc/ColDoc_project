@@ -351,6 +351,8 @@ def _interested_emails(coldoc,metadata):
     return email_to
 
 def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
+    " split `prologue` section from `blobeditarea` ;\
+    return  `prologue`  `newblobeditarea` `sources`"
     newprologue = ''
     output = ''
     sources = None
@@ -435,25 +437,33 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     return newprologue, (output + rest), sources
 
 def   _put_back_prologue(prologue, blobeditarea, env, uuid):
+    " for sections, analyze edited `blobeditarea` to get new parameters for `prologue`;\
+    then add `prologue` to `blobeditarea` to recreate `blobcontent`;\
+    return `blobcontent`, `newprologue`, `sources` , `weird_prologue`, `displacement` \
     that is how much the text was displaced from  `blobeditarea` to `newblobeditarea`"
     sources = None
     weird_prologue = []
     newprologue = ''
+    displacement = 0
     if env in ColDoc.config.ColDoc_environments_sectioning :
         # try to parse \\section
         try:
             #
-            newprologue, blobeditarea, sources = _parse_for_section(blobeditarea, env, uuid, weird_prologue)
+            newprologue, b, sources = _parse_for_section(blobeditarea, env, uuid, weird_prologue)
+            displacement = len(b)- len(blobeditarea)
+            blobeditarea = b
         except:
             logger.exception('While parsing \\section')
             weird_prologue.append('Internal error while parsing for \\%s{...}.' % (env,))
         blobcontent = newprologue + blobeditarea
+        displacement += len(newprologue)
     elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
         newprologue = '\\uuid{%s}%%\n' % (uuid,)
         blobcontent = newprologue + blobeditarea
+        displacement = len(newprologue)
     else:        
         blobcontent = blobeditarea
-    return blobcontent, newprologue, sources , weird_prologue
+    return blobcontent, newprologue, sources , weird_prologue, displacement
 
 def postlang(request, NICK, UUID):
     if request.method != 'POST' :
@@ -836,7 +846,7 @@ def postedit(request, NICK, UUID):
     #
     if 'revert' not in request.POST:
         # put back prologue in place
-        blobcontent, newprologue, sources , a = _put_back_prologue(prologue, blobeditarea, env, UUID)
+        blobcontent, newprologue, sources , a, displacement = _put_back_prologue(prologue, blobeditarea, env, UUID)
         weird_prologue.extend(a)
         form.cleaned_data['blobcontent'] = blobcontent
         # some checks
@@ -851,7 +861,6 @@ def postedit(request, NICK, UUID):
                 weird_prologue.append('Sorry, cannot split material when the first line was changed')
                 split_selection_ = False
             else:
-                displacement = len(prologue) - len(shortprologue)
                 selection_start_  = max(selection_start_ + displacement, 0)
                 selection_end_    = max(selection_end_ + displacement, selection_end_)
     #
