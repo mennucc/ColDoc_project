@@ -129,6 +129,11 @@ class BlobEditForm(forms.Form):
                                required = False, label='Prologue',
                                help_text='First line of text file, automatically generated')
     # the real blobcontent
+    shortprologue = forms.CharField(widget = forms.TextInput(attrs={'class': 'form-text w-75'}) \
+                               if __debug_view_prologue__ else \
+                               forms.HiddenInput(),
+                               required = False, label='Short Prologue',
+                               help_text='First line of text file,  short version, automatically generated')
     blobcontent = forms.CharField(widget=forms.HiddenInput(),required = False)
     # what the user can edit
     BlobEditTextarea=forms.CharField(label='Blob content',required = False,
@@ -259,7 +264,8 @@ def _build_blobeditform_data(metadata,
     a = filename[:-4] + '_' + user_id + '_editstate.json'
     #
     D = {'BlobEditTextarea':  blobeditdata,
-         'prologue' : json.dumps( (shortprologue, prologue) ),
+         'prologue' :  prologue,
+         'shortprologue' : shortprologue,
          'blobcontent' : blobcontent,
          'NICK':NICK,'UUID':UUID,'ext':ext,'lang':lang,
          'file_md5' : file_md5,
@@ -772,6 +778,7 @@ def postedit(request, NICK, UUID):
             return JsonResponse({"message":a})
         return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
     prologue = form.cleaned_data['prologue']
+    shortprologue = form.cleaned_data['shortprologue']
     # convert to UNIX line ending 
     blobcontent  = re.sub("\r\n", '\n',  form.cleaned_data['blobcontent'] )
     if blobcontent and blobcontent[-1] != '\n':
@@ -835,14 +842,6 @@ def postedit(request, NICK, UUID):
     #
     if 'normalize' in request.POST:
         blobeditarea = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea) 
-    # some checks
-    try:
-        a = json.loads(prologue)
-        shortprologue, prologue = a
-    except:
-        shortprologue = None
-        logger.exception('cannot json decode %r', prologue)
-        weird_prologue.append('Internal JSON error')
     #
     if 'revert' not in request.POST:
         # put back prologue in place
@@ -871,7 +870,8 @@ def postedit(request, NICK, UUID):
         shortprologue, prologue, blobeditarea, warnings = __extract_prologue(blobcontent, UUID, env, metadata.optarg)
         form.cleaned_data.update({
             'BlobEditTextarea':  blobeditarea,
-            'prologue' : json.dumps( (shortprologue, prologue) ),
+            'prologue' : prologue,
+            'shortprologue' : shortprologue,
             'blobcontent' : blobcontent,
             })
         file_md5 = form.cleaned_data['file_md5'] = real_file_md5
