@@ -1623,6 +1623,7 @@ def index(request, NICK, UUID):
                     availablelogs.append(  (l  + ' ' + e_ , a ) )
     #
     blobdiff = ''
+    uncompiled = 0;
     # just to be safe
     can_change_blob = request.user.has_perm('UUID.change_blob')
     if not request.user.has_perm('UUID.view_view', metadata):
