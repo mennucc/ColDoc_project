@@ -128,11 +128,11 @@ class squash_helper_stack(squash_helper_base):
         return tuple(self.__stack)
     #
     def stack_push(self, begin):
-        #print(self.__stack,' + ',begin)
+        #print(self.input_filename, self.__stack,' + ',begin)
         self.__stack.append(begin)
     #
     def stack_pop(self, end):
-        #print(self.__stack,' - ',end)
+        #print(self.input_filename, self.__stack,' - ',end)
         if not self.__stack:
             logger.warning('file %r : disaligned stack, end of %r but stack is empty', self.input_filename, end)
             return False
@@ -144,7 +144,7 @@ class squash_helper_stack(squash_helper_base):
             return True
     #
     def stack_check(self, end):
-        #print(self.__stack,' ? ',end)
+        #print(self.input_filename, self.__stack,' ? ',end)
         if not self.__stack:
             logger.warning('file %r : disaligned stack, end of %r but stack is empty', self.input_filename, end)
             return False
@@ -549,7 +549,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
             r = process_helper_command(r, out, tok)
             if tok == popmacro :
                 return
-            elif  helper_command.NORECURSE not in r and tok in ('$','$$'):
+            elif  (helper_command.NORECURSE not in r) and tok in ('$','$$'):
                 squash_recurse(out, thetex, itertokens, options, helper, tok)
             if  helper_command.POPSTACK in r: return
 
