@@ -63,6 +63,15 @@ from plasTeX.Packages import amsthm , graphicx
 
 ##############
 
+#opening and closing macros
+
+macros_begin_end = {
+    'bgroup':'egroup',
+    'begingroup':'endgroup',
+    '[':']',
+    '(':')',
+    # NO THIS IS A TOKEN '{':'}',
+}
 class squash_helper_base(object):
     "base class, does nothing"
     input_filename = None
@@ -381,7 +390,7 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     squash_recurse(out, thetex, itertokens, options, helper)
     return helper
 
-def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=None):
+def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
     for tok in itertokens:
         if isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
             macroname = str(tok.macroName)
@@ -405,13 +414,14 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
                 else:
                     r = helper.process_begin(begin, thetex)
                     out.write(r if r is not None else ('\\begin{'+begin+'}'))
-                    squash_recurse(out, thetex, itertokens, options, helper, begin)
+                    squash_recurse(out, thetex, itertokens, options, helper, 'E_'+begin)
             elif macroname == 'end':
                 end = thetex.readArgument(type=str)
                 r = helper.process_end(end,thetex)
                 out.write(r if r is not None else ('\\end{'+end+'}'))
-                if end != beginenvironment:
-                    logger.warning(" begin %r ended by end%r ",beginenvironment,end)
+                if ('E_'+end) != popmacro:
+                    logger.warning("squash_recurse : file %r squash_recurse : begin %r ended by end %r ",
+                                   thetex.filename, popmacro, 'E_'+end)
                 return
             elif macroname == 'verb':
                 obj = Base.verb()
@@ -424,6 +434,15 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
             else:
                 r = helper.process_macro(tok,thetex)
                 out.write(r if r is not None else tok.source)
+                if macroname in macros_begin_end:
+                    end = macros_begin_end[macroname]
+                    helper.stack_push(end)
+                    m = squash_recurse(out, thetex, itertokens, options, helper, end)
+                elif macroname == popmacro:
+                    helper.stack_pop(macroname)
+                    return macroname
+                elif macroname in macros_begin_end.values():
+                    helper.stack_check(macroname)
                 # TODO do not alter preamble in main_file
         elif isinstance(tok, TokenizerPassThru.Comment):
             r = helper.process_comment(str(tok.source),thetex)
