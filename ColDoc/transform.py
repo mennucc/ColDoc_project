@@ -514,7 +514,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                 # TODO do not alter preamble in main_file
         elif isinstance(tok, TokenizerPassThru.Comment):
             r = helper.process_comment(str(tok.source),thetex)
-            r = process_helper_command(r, out, tok.source)
+            r = process_helper_command(r, out, '%'+tok.source)
             if  helper_command.POPSTACK in r: return
         else:
             r = helper.process_token(tok, thetex)
