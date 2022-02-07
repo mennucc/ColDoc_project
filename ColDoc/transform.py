@@ -7,7 +7,7 @@
 
 ############## system modules
 
-import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json, pathlib, pickle
+import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json, pathlib, pickle, enum, tempfile
 import os.path
 from os.path import join as osjoin
 
@@ -72,6 +72,27 @@ macros_begin_end = {
     '(':')',
     # NO THIS IS A TOKEN '{':'}',
 }
+
+
+helper_help = """
+helpers are used by the squash_recurse function
+
+they have three methods, to process either a Macro, a Begin or an End
+
+if they will not process it, they return None : 
+this is useful when stacking helpers
+
+if they process it, they return a new, processed, string 
+
+or otherwise they return a tuple, that is a list of commands
+
+"""
+
+class helper_command(enum.Enum):
+    WRITE = 1
+    POPSTACK = 2
+    NORECURSE = 3
+
 class squash_helper_base(object):
     "base class, does nothing"
     input_filename = None
@@ -389,6 +410,33 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     helper.input_filename = getattr(inp,'name')
     squash_recurse(out, thetex, itertokens, options, helper)
     return helper
+
+def process_helper_command(cmds, out, default_string):
+    if cmds is None:
+        out.write(default_string)
+        return []
+    elif isinstance(cmds,str):
+        out.write(cmds)
+        return []
+    else:
+        if isinstance(cmds,(list,tuple)):
+            cmds = iter(cmds)
+        r = []
+        try:
+            while True:
+                c = next(cmds)
+                if c == helper_command.WRITE:
+                    out.write(next(cmds))
+                elif c in ( helper_command.POPSTACK, helper_command.NORECURSE):
+                    r.append(c)
+                else:
+                    raise NotImplementedError(repr(c))
+        except StopIteration:
+            pass
+        return r
+    logger.warning('Unprocessed command %r %r',cmds,type(cmds))
+    return []
+
 
 def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
     for tok in itertokens:
