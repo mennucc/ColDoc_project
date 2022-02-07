@@ -65,6 +65,8 @@ from plasTeX.Packages import amsthm , graphicx
 
 class squash_helper_base(object):
     "base class, does nothing"
+    input_filename = None
+    #
     def process_macro(self, tok, thetex):
         return None
     def process_begin(self, begin, thetex):
@@ -77,19 +79,50 @@ class squash_helper_base(object):
 class squash_helper_stack(squash_helper_base):
     "manages the stack"
     def __init__(self):
-        self.stack = []
+        self.__stack = []
     #
     def process_begin(self, begin, thetex):
-        self.stack.append('E_'+begin)
+        self.stack_push('E_'+begin)
     #
     def process_end(self, end, thetex):
         end = 'E_' + end
-        if not self.stack:
-            logger.warning('disaligned stack, popped %r but stack is empty',end)
+        self.stack_pop(end)
+    #
+    @property
+    def stack(self):
+        return tuple(self.__stack)
+    #
+    def stack_push(self, begin):
+        #print(self.__stack,' + ',begin)
+        self.__stack.append(begin)
+    #
+    def stack_pop(self, end):
+        #print(self.__stack,' - ',end)
+        if not self.__stack:
+            logger.warning('file %r : disaligned stack, end of %r but stack is empty', self.input_filename, end)
+            return False
         else:
-            pop = self.stack.pop()
+            pop = self.__stack.pop()
             if pop != end:
-                logger.warning('disaligned stack, popped %r instead of %r',end,pop)
+                logger.warning('file %r : disaligned stack, popped %r instead of %r', self.input_filename, pop, end)
+                return pop
+            return True
+    #
+    def stack_check(self, end):
+        #print(self.__stack,' ? ',end)
+        if not self.__stack:
+            logger.warning('file %r : disaligned stack, end of %r but stack is empty', self.input_filename, end)
+            return False
+        else:
+            top = self.__stack[-1]
+            if top == end:
+                self.__stack.pop()
+                logger.warning('file %r : recovered stack, top is %r , popped', self.input_filename, top)
+            else:
+                logger.warning('file %r : disaligned stack, top is %r instead of %r', self.input_filename, top, end)
+                return top
+            return True
+
 
 class squash_input_uuid(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
@@ -342,6 +375,7 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     ColDoc.utils.TeX_add_packages(thetex, options)
     #
     itertokens = thetex.itertokens()
+    helper.input_filename = getattr(inp,'name')
     squash_recurse(out, thetex, itertokens, options, helper)
     return helper
 
