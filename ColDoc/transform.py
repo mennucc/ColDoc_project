@@ -501,7 +501,10 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                 del obj,j,t
             else:
                 r = helper.process_macro(tok,thetex)
-                r = process_helper_command(r, out, tok.source)
+                s = tok.source
+                if s and s[-1] == ' ':
+                    s = s[:-1]
+                r = process_helper_command(r, out, s)
                 if macroname in macros_begin_end and helper_command.NORECURSE not in r:
                     end = macros_begin_end[macroname]
                     helper.stack_push('\\'+end)
