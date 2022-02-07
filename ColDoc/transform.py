@@ -75,6 +75,8 @@ class squash_helper_base(object):
         return None
     def process_comment(self, comment, thetex):
         return None
+    def process_token(self, tok, thetex):
+        return None
 
 class squash_helper_stack(squash_helper_base):
     "manages the stack"
@@ -427,8 +429,8 @@ def squash_recurse(out, thetex, itertokens, options, helper, beginenvironment=No
             r = helper.process_comment(str(tok.source),thetex)
             out.write(r if r is not None else tok.source)
         else:
-            out.write(tok.source)
-
+            r = helper.process_token(tok, thetex)
+            out.write(tok.source if r is None else r)
 
 
 #############################
