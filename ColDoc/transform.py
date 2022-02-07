@@ -478,12 +478,15 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                         logger.warning('squash_recurse : file %r : premature end of \\begin{%s}', thetex.filename, begin)
                 else:
                     r = helper.process_begin(begin, thetex)
-                    out.write(r if r is not None else ('\\begin{'+begin+'}'))
-                    squash_recurse(out, thetex, itertokens, options, helper, 'E_'+begin)
+                    r = process_helper_command(r, out, '\\begin{'+begin+'}')
+                    if  helper_command.NORECURSE not in r:
+                        squash_recurse(out, thetex, itertokens, options, helper, 'E_'+begin)
+                    if  helper_command.POPSTACK in r: return
             elif macroname == 'end':
                 end = thetex.readArgument(type=str)
                 r = helper.process_end(end,thetex)
-                out.write(r if r is not None else ('\\end{'+end+'}'))
+                r = process_helper_command(r, out, ('\\end{'+end+'}'))
+                if  helper_command.POPSTACK in r: return
                 if ('E_'+end) != popmacro:
                     logger.warning("squash_recurse : file %r : expected to end on %r ended by end %r ",
                                    thetex.filename, popmacro, 'E_'+end)
@@ -498,8 +501,8 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                 del obj,j,t
             else:
                 r = helper.process_macro(tok,thetex)
-                out.write(r if r is not None else tok.source)
-                if macroname in macros_begin_end:
+                r = process_helper_command(r, out, tok.source)
+                if macroname in macros_begin_end and helper_command.NORECURSE not in r:
                     end = macros_begin_end[macroname]
                     helper.stack_push(end)
                     m = squash_recurse(out, thetex, itertokens, options, helper, end)
@@ -511,12 +514,14 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                 # TODO do not alter preamble in main_file
         elif isinstance(tok, TokenizerPassThru.Comment):
             r = helper.process_comment(str(tok.source),thetex)
-            out.write(r if r is not None else tok.source)
+            r = process_helper_command(r, out, tok.source)
+            if  helper_command.POPSTACK in r: return
         else:
             r = helper.process_token(tok, thetex)
             if not isinstance(tok,str):
                 tok = tok.source
-            out.write(tok if r is None else r)
+            r = process_helper_command(r, out, tok)
+            if  helper_command.POPSTACK in r: return
 
 
 #############################
