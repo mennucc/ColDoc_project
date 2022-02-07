@@ -297,7 +297,7 @@ class squash_helper_token2unicode(squash_helper_stack):
             s = s[:-1]
         # it is better not to parse certain macros
         if not isinstance(obj, (FontSelection.TextCommand, DimenCommand, StartSection)) and\
-           macroname not in ('emph'):
+           macroname not in ('emph', 'footnote'):
             obj.parse(thetex)
             s += obj.argSource
             s = re.sub(" +", ' ',s)
