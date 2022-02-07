@@ -105,7 +105,7 @@ class squash_helper_base(object):
         return None
     def process_comment(self, comment, thetex):
         return None
-    def process_token(self, tok, thetex):
+    def process_token(self, tok, thetex, is_ending):
         return None
 
 class squash_helper_stack(squash_helper_base):
@@ -520,10 +520,14 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
             r = process_helper_command(r, out, '%'+tok.source)
             if  helper_command.POPSTACK in r: return
         else:
-            r = helper.process_token(tok, thetex)
+            r = helper.process_token(tok, thetex, tok == popmacro)
             if not isinstance(tok,str):
                 tok = tok.source
             r = process_helper_command(r, out, tok)
+            if tok == popmacro :
+                return
+            elif  helper_command.NORECURSE not in r and tok in ('$','$$'):
+                squash_recurse(out, thetex, itertokens, options, helper, tok)
             if  helper_command.POPSTACK in r: return
 
 
