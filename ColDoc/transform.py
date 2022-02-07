@@ -2,6 +2,9 @@
 
 """ the processor
  transforms LaTeX according to rules and tasks
+ 
+ dedollarize [FILE]
+    change $...$ to \(...\) and $$...$$ to \[...\]
 
 """
 
@@ -585,4 +588,11 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     #
     return helper.back_map, helper.metadata
 
-
+if __name__ == '__main__':
+    if len(sys.argv) <= 1:
+        print(__doc__)
+        sys.exit(0)
+    if sys.argv[1] == 'dedollarize':
+        helper=squash_modernize_dollars()
+        squash_latex(open(sys.argv[2]),sys.stdout,{},helper)
+ 
