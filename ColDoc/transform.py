@@ -155,6 +155,19 @@ class squash_helper_stack(squash_helper_base):
                 return top
             return True
 
+class squash_modernize_dollars(squash_helper_stack):
+    remap = {
+        ('$',False) : '\(',
+        ('$',True) : '\)',
+        ('$$',False) : '\[',
+        ('$$',True) : '\]',
+    } 
+    def process_token(self, tok, thetex, is_ending):
+        if tok in ('$','$$'):
+            k = tok, is_ending
+            return self.remap[k]
+        return tok
+
 
 class squash_input_uuid(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
