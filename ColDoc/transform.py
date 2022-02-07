@@ -409,6 +409,8 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     itertokens = thetex.itertokens()
     helper.input_filename = getattr(inp,'name')
     squash_recurse(out, thetex, itertokens, options, helper)
+    if helper.stack :
+        logger.warning('squash_latex : file %r : unterminated group, stack is %r', getattr(inp,'name'), helper.stack)
     return helper
 
 def process_helper_command(cmds, out, default_string):
@@ -473,7 +475,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                     try:
                         next(itertokens)
                     except:
-                        logger.warning('premature end of \\begin{%s}',begin)
+                        logger.warning('squash_recurse : file %r : premature end of \\begin{%s}', thetex.filename, begin)
                 else:
                     r = helper.process_begin(begin, thetex)
                     out.write(r if r is not None else ('\\begin{'+begin+'}'))
@@ -483,7 +485,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                 r = helper.process_end(end,thetex)
                 out.write(r if r is not None else ('\\end{'+end+'}'))
                 if ('E_'+end) != popmacro:
-                    logger.warning("squash_recurse : file %r squash_recurse : begin %r ended by end %r ",
+                    logger.warning("squash_recurse : file %r : expected to end on %r ended by end %r ",
                                    thetex.filename, popmacro, 'E_'+end)
                 return
             elif macroname == 'verb':
