@@ -624,6 +624,7 @@ def postlang(request, NICK, UUID):
                         helper = transform.squash_helper_token2unicode()
                         out = io.StringIO()
                         inp = io.StringIO(string)
+                        inp.name = '%s / %s (%s)' %(nick_, uuid_, lang_)
                         transform.squash_latex(inp, out, options, helper)
                         translated = settings.TRANSLATOR(out.getvalue(), lang_, langchoice_)
                         string = transform.unsquash_unicode2token(translated, helper)
@@ -745,6 +746,7 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob):
     helper = transform.squash_helper_token2unicode()
     out = io.StringIO()
     inp = io.StringIO(blob)
+    inp.name = '%s / %s' %(metadata.coldoc.nickname, metadata.uuid)
     transform.squash_latex(inp, out, options, helper)
     return transform.unsquash_unicode2token(out.getvalue(), helper)
 
