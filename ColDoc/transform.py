@@ -504,10 +504,10 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                 r = process_helper_command(r, out, tok.source)
                 if macroname in macros_begin_end and helper_command.NORECURSE not in r:
                     end = macros_begin_end[macroname]
-                    helper.stack_push(end)
-                    m = squash_recurse(out, thetex, itertokens, options, helper, end)
-                elif macroname == popmacro:
-                    helper.stack_pop(macroname)
+                    helper.stack_push('\\'+end)
+                    squash_recurse(out, thetex, itertokens, options, helper, '\\'+end)
+                elif ('\\'+macroname) == popmacro:
+                    helper.stack_pop('\\'+macroname)
                     return macroname
                 elif macroname in macros_begin_end.values():
                     helper.stack_check(macroname)
