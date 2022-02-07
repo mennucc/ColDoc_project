@@ -336,6 +336,19 @@ class squash_helper_token2unicode(squash_helper_stack):
         else:
             u = self.token_map[s]
         return self.key2text(u)
+    #
+    def __recurse(self, env_from, env_upto, thetex):
+        basehelper = squash_helper_stack()
+        basehelper.stack_push(env_from)
+        basehelper.input_filename = 'SUB ' + str(self.input_filename)
+        newout = io.StringIO()
+        #print('recurse up to ',env_upto)
+        squash_recurse(newout, thetex, self.itertokens, self.options, basehelper, env_upto)
+        #print('recursed ended up to ',env_upto)
+        s = newout.getvalue()
+        s = re.sub(" +", ' ',s)
+        return s
+    #
     def process_begin(self, begin, thetex):
         super().process_begin(begin, thetex)
         s = r'\begin{' + begin + '}'
@@ -343,27 +356,19 @@ class squash_helper_token2unicode(squash_helper_stack):
         if obj.mathMode:
             obj.parse(thetex)
             s += obj.argSource
-            # FIXME this is ugly and may fail
-            I =  thetex.itertokens()
-            for t in I:
-                if not isinstance(t, plasTeX.Tokenizer.EscapeSequence):
-                    s += str(t.source)
-                else:
-                    n = str(t.macroName)
-                    if t == 'end':
-                        end = thetex.readArgument(type=str)
-                        if end == begin:
-                            # push it in, otherwise stack is disaligned
-                            # FIXME there should be a better way
-                            thetex.input( r'\end{' + end + '}')
-                            break
-                        else:
-                            s + r'\end{' + end + '}'
-                    else:
-                        s += str(t.source)
-            s = re.sub(" +", ' ',s)
-            #print('parsing math',begin,'got',s)
+            s += self.__recurse('E_'+begin, 'E_'+begin, thetex)
+            super().process_end(begin, thetex)
+            #print('parsing math',begin,'got',repr(s))
+            return (helper_command.WRITE, self.__remap(s), helper_command.NORECURSE)
         return self.__remap(s)
+    #
+    def process_token(self, tok, thetex, is_ending):
+        if tok in ('$','$$'):
+            if is_ending:
+                logger.warning(' problema 32kbgve9w8')
+            s = tok +  self.__recurse(tok,tok, thetex)
+            #print('tokenized dollars ',repr(s))
+            return (helper_command.WRITE, self.__remap(s), helper_command.NORECURSE)
     #
     def process_end(self, end, thetex):
         super().process_end(end, thetex)
@@ -423,6 +428,8 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     ColDoc.utils.TeX_add_packages(thetex, options)
     #
     itertokens = thetex.itertokens()
+    helper.itertokens = itertokens
+    helper.options = options
     helper.input_filename = getattr(inp,'name')
     squash_recurse(out, thetex, itertokens, options, helper)
     if helper.stack :
