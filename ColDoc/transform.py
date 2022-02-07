@@ -440,6 +440,21 @@ def process_helper_command(cmds, out, default_string):
 
 def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
     for tok in itertokens:
+        # detect $ and $$
+        if isinstance(tok, TokenizerPassThru.MathShift):
+            tok = '$'
+            try:
+                d = next(itertokens)
+                if isinstance(d, TokenizerPassThru.MathShift):
+                    #print(' $$ ')
+                    tok = '$$'
+                else:
+                    #print(' $ ')
+                    thetex.pushToken(d)
+            except StopIteration:
+                #print(' $ ')
+                pass
+        #
         if isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
             macroname = str(tok.macroName)
             if macroname == 'begin':
@@ -497,7 +512,9 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
             out.write(r if r is not None else tok.source)
         else:
             r = helper.process_token(tok, thetex)
-            out.write(tok.source if r is None else r)
+            if not isinstance(tok,str):
+                tok = tok.source
+            out.write(tok if r is None else r)
 
 
 #############################
