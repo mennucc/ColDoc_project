@@ -430,10 +430,10 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     itertokens = thetex.itertokens()
     helper.itertokens = itertokens
     helper.options = options
-    helper.input_filename = getattr(inp,'name')
+    helper.input_filename = getattr(inp,'name', '<unnamed_stream>')
     squash_recurse(out, thetex, itertokens, options, helper)
     if helper.stack :
-        logger.warning('squash_latex : file %r : unterminated group, stack is %r', getattr(inp,'name'), helper.stack)
+        logger.warning('squash_latex : file %r : unterminated group, stack is %r', helper.input_filename, helper.stack)
     return helper
 
 def process_helper_command(cmds, out, default_string):
