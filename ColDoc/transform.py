@@ -131,7 +131,7 @@ class squash_helper_stack(squash_helper_base):
         #print(self.input_filename, self.__stack,' + ',begin)
         self.__stack.append(begin)
     #
-    def stack_pop(self, end):
+    def stack_pop_aggressive(self, end):
         #print(self.input_filename, self.__stack,' - ',end)
         if not self.__stack:
             logger.warning('file %r : disaligned stack, end of %r but stack is empty', self.input_filename, end)
@@ -143,7 +143,7 @@ class squash_helper_stack(squash_helper_base):
                 return pop
             return True
     #
-    def stack_check(self, end):
+    def stack_pop(self, end):
         #print(self.input_filename, self.__stack,' ? ',end)
         if not self.__stack:
             logger.warning('file %r : disaligned stack, end of %r but stack is empty', self.input_filename, end)
@@ -152,11 +152,11 @@ class squash_helper_stack(squash_helper_base):
             top = self.__stack[-1]
             if top == end:
                 self.__stack.pop()
-                logger.warning('file %r : recovered stack, top is %r , popped', self.input_filename, top)
+                logger.debug('file %r : top stack is %r , popped', self.input_filename, top)
+                return False
             else:
                 logger.warning('file %r : disaligned stack, top is %r instead of %r', self.input_filename, top, end)
                 return top
-            return True
 
 class squash_modernize_dollars(squash_helper_stack):
     remap = {
@@ -536,7 +536,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                     helper.stack_pop('\\'+macroname)
                     return macroname
                 elif macroname in macros_begin_end.values():
-                    helper.stack_check('\\'+macroname)
+                    helper.stack_pop('\\'+macroname)
                 # TODO do not alter preamble in main_file
         elif isinstance(tok, TokenizerPassThru.Comment):
             r = helper.process_comment(str(tok.source),thetex)
