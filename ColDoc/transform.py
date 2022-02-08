@@ -391,7 +391,8 @@ class squash_helper_token2unicode(squash_helper_stack):
            macroname not in ('emph', 'footnote'):
             obj.parse(thetex)
             s += obj.argSource
-            #s = re.sub(" +", ' ',s)
+            # inside the macro arguments, plasTeX will add a space
+            s = re.sub(" +", ' ',s)
         return self.__remap(s)
     #
     def process_comment(self, comment, thetex):
