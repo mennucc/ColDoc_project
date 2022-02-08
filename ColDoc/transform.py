@@ -346,7 +346,7 @@ class squash_helper_token2unicode(squash_helper_stack):
         squash_recurse(newout, thetex, self.itertokens, self.options, basehelper, env_upto)
         #print('recursed ended up to ',env_upto)
         s = newout.getvalue()
-        s = re.sub(" +", ' ',s)
+        #s = re.sub(" +", ' ',s)
         return s
     #
     def process_begin(self, begin, thetex):
@@ -386,7 +386,7 @@ class squash_helper_token2unicode(squash_helper_stack):
            macroname not in ('emph', 'footnote'):
             obj.parse(thetex)
             s += obj.argSource
-            s = re.sub(" +", ' ',s)
+            #s = re.sub(" +", ' ',s)
         return self.__remap(s)
     #
     def process_comment(self, comment, thetex):
