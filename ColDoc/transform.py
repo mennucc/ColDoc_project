@@ -155,7 +155,7 @@ class squash_helper_stack(squash_helper_base):
                 logger.debug('file %r : top stack is %r , popped', self.input_filename, top)
                 return False
             else:
-                logger.warning('file %r : disaligned stack, top is %r instead of %r', self.input_filename, top, end)
+                logger.warning('file %r : disaligned stack, top is %r instead of %r, not popping', self.input_filename, top, end)
                 return top
 
 class squash_modernize_dollars(squash_helper_stack):
@@ -541,6 +541,8 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                     helper.stack_pop('\\'+macroname)
                     return macroname
                 elif macroname in macros_begin_end.values():
+                    logger.warning('file %r : disaligned recursion, got unexpected token %r (was expection %r), will try to pop it',
+                                   helper.input_filename, macroname, popmacro)
                     helper.stack_pop('\\'+macroname)
                 # TODO do not alter preamble in main_file
         elif isinstance(tok, TokenizerPassThru.Comment):
