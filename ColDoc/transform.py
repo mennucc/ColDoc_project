@@ -516,9 +516,10 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                 r = process_helper_command(r, out, ('\\end{'+end+'}'))
                 if  helper_command.POPSTACK in r: return
                 if ('E_'+end) != popmacro:
-                    logger.warning("squash_recurse : file %r : expected to end on %r ended by end %r ",
+                    logger.warning("squash_recurse : file %r : expected to end on %r ended by end %r , not returning ",
                                    thetex.filename, popmacro, 'E_'+end)
-                return
+                else:
+                    return
             elif macroname == 'verb':
                 obj = Base.verb()
                 obj.ownerDocument = thetex.ownerDocument
