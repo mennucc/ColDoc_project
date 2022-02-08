@@ -381,6 +381,11 @@ class squash_helper_token2unicode(squash_helper_stack):
         s = tok.source
         if s and s[-1] == ' ':
             s = s[:-1]
+        if s in (r'\(', r'\['):
+            e = '\\' + macros_begin_end[tok.macroName]
+            s +=  self.__recurse(e, e, thetex)
+            #print('tokenized this ',repr(s))
+            return (helper_command.WRITE, self.__remap(s), helper_command.NORECURSE)
         # it is better not to parse certain macros
         if not isinstance(obj, (FontSelection.TextCommand, DimenCommand, StartSection)) and\
            macroname not in ('emph', 'footnote'):
