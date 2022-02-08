@@ -130,7 +130,7 @@ def parse_latex_log(blobs_dir, uuid, lang, ext, prefix='view', context=10):
         for z in F:
             if z.startswith('./UUID/') or z.startswith('UUID/') \
                or z.startswith('./SEC/') or z.startswith('SEC/'):
-                k = z.split(':')
+                k = z.split(':', 2)
                 if len(k) >= 3:
                     s = k[2] 
                     try:
