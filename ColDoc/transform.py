@@ -536,7 +536,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                     helper.stack_pop('\\'+macroname)
                     return macroname
                 elif macroname in macros_begin_end.values():
-                    helper.stack_check(macroname)
+                    helper.stack_check('\\'+macroname)
                 # TODO do not alter preamble in main_file
         elif isinstance(tok, TokenizerPassThru.Comment):
             r = helper.process_comment(str(tok.source),thetex)
