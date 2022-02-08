@@ -325,7 +325,7 @@ class squash_helper_token2unicode(squash_helper_stack):
                 return t + k - s
             k += w
         #
-        assert False, 'out of unicode key space:  %x' % (t,)  
+        raise ValueError('out of unicode key space:  %x' % (t,) )
     #
     def __remap(self, s):
         if s not in self.token_map:
