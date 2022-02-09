@@ -44,6 +44,15 @@ class TestTransform(unittest.TestCase):
         with self.assertRaises(ValueError):
             helper.text2key('A')
 
+    def test_accents_to_unicode(self):
+        helper=T.squash_helper_accents_to_unicode()
+        inp = io.StringIO(r'\~u\`{e}')
+        out = io.StringIO()
+        T.squash_latex(inp,out,{},helper)
+        self.assertEqual(out.getvalue() , r'ũè')
+        self.assertFalse(helper.stack)
+
+
     def test_dedollarize_inline(self):
         helper=T.squash_helper_dedollarize()
         inp = io.StringIO(r'$\cos$')

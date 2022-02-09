@@ -10,7 +10,8 @@
 
 ############## system modules
 
-import itertools, sys, os, io, copy, string, argparse, importlib, shutil, re, json, pathlib, pickle, enum, tempfile
+import  sys, os, io, re, json, pickle, enum, tempfile, unicodedata
+import itertools, copy, string, argparse, importlib, shutil, pathlib
 import os.path
 from os.path import join as osjoin
 
@@ -170,6 +171,31 @@ class squash_helper_dedollarize(squash_helper_stack):
             k = tok, is_ending
             return self.remap[k]
         return tok
+
+
+accents_to_unicode = {
+    0x0300: '`', 0x0301: "'", 0x0302: '^', 0x0308: '"',
+    0x030B: 'H', 0x0303: '~', 0x0327: 'c', 0x0328: 'k',
+    0x0304: '=', 0x0331: 'b', 0x0307: '.', 0x0323: 'd',
+    0x030A: 'r', 0x0306: 'u', 0x030C: 'v',
+}
+
+unicode_to_accents = {
+    k:v for (v,k) in accents_to_unicode.items()
+}
+
+
+class squash_helper_accents_to_unicode(squash_helper_stack):
+    def process_macro(self, tok, thetex):
+        #print('tok  '+tok.macroName+'\n')
+        m = tok.macroName
+        if m in unicode_to_accents:
+            s = thetex.readArgument(type=str)
+            if len(s) != 1:
+                logger.warning('argument of accent %r should not be %r', m, s)
+            s = s[:1] + chr(unicode_to_accents[m]) + s[1:]
+            s = unicodedata.normalize('NFC', s)
+            return s
 
 
 class squash_input_uuid(squash_helper_stack):
@@ -608,7 +634,12 @@ if __name__ == '__main__':
     if len(sys.argv) <= 1:
         print(__doc__)
         sys.exit(0)
+    #
     if sys.argv[1] == 'dedollarize':
         helper=squash_helper_dedollarize()
         squash_latex(open(sys.argv[2]),sys.stdout,{},helper)
- 
+    #
+    if sys.argv[1] == 'accents_to_unicode':
+        helper=squash_helper_accents_to_unicode()
+        inp = io.StringIO(sys.argv[2])
+        squash_latex(inp,sys.stdout,{},helper)
