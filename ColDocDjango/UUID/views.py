@@ -294,9 +294,9 @@ def _build_blobeditform_data(metadata,
     if N:
         if N['file_md5'] != file_md5:
             msgs.append(( messages.WARNING,
-                         'File was changed on disk: check the diff' ))
+                         'File was changed on disk since your last visit' ))
             N['file_md5'] = file_md5
-        elif N['blobcontent'] != blobcontent:
+        elif 'blobcontent' in N and N['blobcontent'] != blobcontent:
             uncompiled = 1
             msgs.append(( messages.INFO,
                           'Your saved changes are yet uncompiled' ))
@@ -1024,7 +1024,7 @@ def postedit(request, NICK, UUID):
     if can_change_blob:
         D = {}
         D['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
-        D['blobcontent'] = open(filename).read()
+        D.pop('blobcontent', None) #= open(filename).read()
         D['split_selection'] = False
         D['selection_start'] = str(selection_start_)
         D['selection_end'] = str(selection_start_)
