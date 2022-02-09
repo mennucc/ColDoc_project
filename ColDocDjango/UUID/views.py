@@ -837,6 +837,10 @@ def postedit(request, NICK, UUID):
         raise SuspiciousOperation("Permission denied (add_blob)")
     #
     real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
+    real_blobcontent = open(filename).read()
+    if real_blobcontent and real_blobcontent[-1] != '\n':
+            real_blobcontent += '\n'
+    #
     if file_md5 != real_file_md5 and 'compile' in request.POST:
         a = "The file was changed on disk: compile aborted"
         messages.add_message(request,messages.ERROR, a)
@@ -866,9 +870,7 @@ def postedit(request, NICK, UUID):
                 selection_end_    = max(selection_end_ + displacement, selection_end_)
     #
     else: # 'revert' in request.POST:
-        blobcontent = open(filename).read()
-        if blobcontent and blobcontent[-1] != '\n':
-            blobcontent += '\n'
+        blobcontent = real_blobcontent
         shortprologue, prologue, blobeditarea, warnings = __extract_prologue(blobcontent, UUID, env, metadata.optarg)
         form.cleaned_data.update({
             'BlobEditTextarea':  blobeditarea,
@@ -882,9 +884,11 @@ def postedit(request, NICK, UUID):
     for wp in weird_prologue:
         logger.warning(' in %r %s', UUID, wp)
     # save state of edit form
+    uncompiled = 0
     if can_change_blob:
         user_id = str(request.user.id)
         file_editstate = filename[:-4] + '_' + user_id + '_editstate.json'
+        uncompiled = int(real_blobcontent != blobcontent)
         json.dump(form.cleaned_data, open(file_editstate,'w'))
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
@@ -895,7 +899,8 @@ def postedit(request, NICK, UUID):
                                 'Orig','New', True)
         for wp in weird_prologue:
             a += '\n' + wp
-        return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5, 'blobeditarea' : blobeditarea})
+        return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5,
+                             'blobeditarea' : blobeditarea, 'uncompiled' : uncompiled})
     for wp in  weird_prologue:
         messages.add_message(request,messages.WARNING, wp)
     if 'save'  in request.POST:
@@ -1641,6 +1646,7 @@ def index(request, NICK, UUID):
             blobeditform , uncompiled = _build_blobeditform_data(metadata, request.user, filename,
                                                     ext, blob_lang, choices, can_add_blob, can_change_blob, msgs)
             revert_button_class =  'btn-warning'  if uncompiled else 'btn-outline-info'
+            compile_button_class=  'btn-warning'  if uncompiled else 'btn-outline-info'
             for l, m in msgs:
                 messages.add_message(request, l, m)
             H = difflib.HtmlDiff()

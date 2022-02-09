@@ -122,6 +122,24 @@ setTimeout(poll_blob_changed_md5, blob_polling);
 
 ///////////////////////////////////////////
 
+function set_buttons_classes_on_uncompiled (b) {
+  blob_uncompiled = b;
+    if (  blob_uncompiled ) {
+	$("#id_blobeditform_revert").removeClass("btn-outline-info");
+	$("#id_blobeditform_revert").addClass("btn-warning");
+	$("#id_blobeditform_compile").removeClass("btn-outline-info");
+	$("#id_blobeditform_compile").addClass("btn-warning");
+    } else {
+	$("#id_blobeditform_revert").removeClass("btn-warning");
+	$("#id_blobeditform_revert").addClass("btn-outline-info");
+	$("#id_blobeditform_compile").removeClass("btn-warning");
+	$("#id_blobeditform_compile").addClass("btn-outline-info");
+    }
+};
+
+
+//////////////////////////////////////////
+
 var last_textarea_keypress = 0;
 
 // https://stackoverflow.com/a/18170009/5058564
@@ -149,6 +167,7 @@ function blob_post(type) {
 	   data: data,
 	   success: function(response)  {
 	       msg = response['message'];
+	       blob_uncompiled_ = response['uncompiled'];
 	       if ( msg ) {
 		 alert(msg); 
 	       }
@@ -175,14 +194,8 @@ function blob_post(type) {
 		if ( type == 'save_no_reload') {
 		    $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
 		    $("#id_blobeditform_save_no_reload").addClass("btn-primary");
-		    $("#id_blobeditform_revert").removeClass("btn-outline-info");
-		    $("#id_blobeditform_revert").addClass("btn-warning");
 		}
-		if ( type == 'revert') {
-		    blob_uncompiled = 0 ;
-		    $("#id_blobeditform_revert").removeClass("btn-warning");
-		    $("#id_blobeditform_revert").addClass("btn-outline-info");
-		}
+		set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		prevent_unload_remove();
 	   }
 	 });
@@ -199,6 +212,8 @@ function update_blobedit_timestamp()
     if( last_textarea_keypress == 0) {
        $("#id_blobeditform_save_no_reload").removeClass("btn-primary");
        $("#id_blobeditform_save_no_reload").addClass("btn-warning");
+       $("#id_blobeditform_compile").removeClass("btn-outline-info");
+       $("#id_blobeditform_compile").addClass("btn-warning");
        prevent_unload_add();
    }
    last_textarea_keypress = new Date().getTime();
