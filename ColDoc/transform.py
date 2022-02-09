@@ -158,7 +158,7 @@ class squash_helper_stack(squash_helper_base):
                 logger.warning('file %r : disaligned stack, top is %r instead of %r, not popping', self.input_filename, top, end)
                 return top
 
-class squash_modernize_dollars(squash_helper_stack):
+class squash_helper_dedollarize(squash_helper_stack):
     remap = {
         ('$',False) : '\(',
         ('$',True) : '\)',
@@ -609,6 +609,6 @@ if __name__ == '__main__':
         print(__doc__)
         sys.exit(0)
     if sys.argv[1] == 'dedollarize':
-        helper=squash_modernize_dollars()
+        helper=squash_helper_dedollarize()
         squash_latex(open(sys.argv[2]),sys.stdout,{},helper)
  

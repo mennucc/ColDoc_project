@@ -45,7 +45,7 @@ class TestTransform(unittest.TestCase):
             helper.text2key('A')
 
     def test_dedollarize_inline(self):
-        helper=T.squash_modernize_dollars()
+        helper=T.squash_helper_dedollarize()
         inp = io.StringIO(r'$\cos$')
         out = io.StringIO()
         T.squash_latex(inp,out,{},helper)
@@ -53,7 +53,7 @@ class TestTransform(unittest.TestCase):
         self.assertFalse(helper.stack)
 
     def test_dedollarize_displayed(self):
-        helper=T.squash_modernize_dollars()
+        helper=T.squash_helper_dedollarize()
         inp = io.StringIO(r'$$\cos$$')
         out = io.StringIO()
         T.squash_latex(inp,out,{},helper)
@@ -61,7 +61,7 @@ class TestTransform(unittest.TestCase):
         self.assertFalse(helper.stack)
 
     def test_dedollarize_mixed(self):
-        helper=T.squash_modernize_dollars()
+        helper=T.squash_helper_dedollarize()
         inp = io.StringIO(r'$${\cos\text{$\sin$}}$$')
         out = io.StringIO()
         T.squash_latex(inp,out,{},helper)
