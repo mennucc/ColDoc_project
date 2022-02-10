@@ -476,7 +476,7 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
     if helper.input_filename is None:
         helper.input_filename = getattr(inp,'name', '<unnamed_stream>')
     squash_recurse(out, thetex, itertokens, options, helper)
-    if helper.stack :
+    if getattr(helper, 'stack', []):
         logger.warning('squash_latex : file %r : unterminated group, stack is %r', helper.input_filename, helper.stack)
     return helper
 
