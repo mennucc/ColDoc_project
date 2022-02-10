@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io
+import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect
 from os.path import join as osjoin
 
 try:
@@ -752,14 +752,41 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
         return '\n'
     b = [a.rstrip() for a in b]
     blob = '\n'.join(b) + '\n'
+    #
+    filename = '%s / %s' %(metadata.coldoc.nickname, metadata.uuid)
+    #
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, metadata.coldoc)
-    helper = transform.squash_helper_token2unicode()
-    out = io.StringIO()
-    inp = io.StringIO(blob)
-    inp.name = '%s / %s' %(metadata.coldoc.nickname, metadata.uuid)
-    transform.squash_latex(inp, out, options, helper, filters)
-    return transform.unsquash_unicode2token(out.getvalue(), helper)
+    #
+    token_filters = []
+    squash_helper = []
+    for name, fun in filters:
+        if name.startswith('filter'):
+            token_filters.append(fun)
+        if name.startswith('squash'):
+            squash_helper.append(fun)
+    if token_filters:
+        helper = transform.squash_helper_stack()
+        out = io.StringIO()
+        inp = io.StringIO(blob)
+        inp.name = filename
+        transform.squash_latex(inp, out, options, helper, token_filters)
+        if helper == transform.squash_helper_token2unicode() :
+            blob = transform.unsquash_unicode2token(out.getvalue(), helper)
+        else:
+            blob = out.getvalue()
+    for helper in squash_helper:
+        if inspect.isclass(helper):
+            helper = helper() # helpers are classes, we need an instance
+        out = io.StringIO()
+        inp = io.StringIO(blob)
+        inp.name = filename
+        transform.squash_latex(inp, out, options, helper)
+        if isinstance(helper, transform.squash_helper_token2unicode) :
+            blob = transform.unsquash_unicode2token(out.getvalue(), helper)
+        else:
+            blob = out.getvalue()
+    return blob
 
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
@@ -861,7 +888,7 @@ def postedit(request, NICK, UUID):
         filters = []
         for name, label, help, val, fun in transform.get_latex_filters():
             if form.cleaned_data[name]:
-                filters.append(fun)
+                filters.append((name, fun))
         blobeditarea = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea, filters) 
     #
     if 'revert' not in request.POST:
