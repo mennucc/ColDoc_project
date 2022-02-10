@@ -444,7 +444,8 @@ def unsquash_unicode2token(text, helper):
             logger.error('Key %r Value %r',k,t)
     return text
 
-def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
+def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
+                 helper=None, filters = []):
     " transforms LaTeX file"
     if helper is None:
         helper = squash_helper_base()
@@ -466,6 +467,9 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     ColDoc.utils.TeX_add_packages(thetex, options)
     #
     itertokens = thetex.itertokens()
+    for f in filters:
+        itertokens = iter(f(itertokens, thetex))
+    #
     helper.thetex = thetex
     helper.itertokens = itertokens
     helper.options = options
