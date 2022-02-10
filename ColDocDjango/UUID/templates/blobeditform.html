@@ -49,7 +49,8 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 
 <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
         {% csrf_token %}{{ blobeditform.non_field_errors }}
-        {% for field in blobeditform %}{% if field.is_hidden %} {{ field }} {% else %}
+        {% for field in blobeditform %} {% if field.is_hidden %}  {{ field }}
+        {% elif not field.name in blobform_filters %}
          <div class="form-group w-100" id="id_div_blobeditform_{{field.name}}"  >
           {{ field.errors }}    {{ field.label_tag }} {{ field }}
           {% if field.help_text %}
@@ -66,16 +67,28 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
          data-toggle="tooltip" title="Save changes so far, update diff"
          onclick="blob_post('save_no_reload'); return false;"
          id="id_blobeditform_save_no_reload" name="save" value="Save">
-         
-         <input type="submit" class="btn btn-primary" 
-         data-toggle="tooltip" title="Normalize LaTeX"
-         onclick="blob_post('normalize'); return false;"
-         id="id_blobeditform_normalize" name="normalize" value="Normalize">
+
 
          <input type="submit" class="btn {{ revert_button_class }} float-right" 
          data-toggle="tooltip" title="Revert to previous version"
          onclick="blob_post('revert'); return false;"
          id="id_blobeditform_revert" name="revert" value="Revert">
+
+         <br>
+         <div class="border border-info mt-1">
+         <input type="submit" class="btn btn-primary" 
+         data-toggle="tooltip" title="Normalize LaTeX"
+         onclick="blob_post('normalize'); return false;"
+         id="id_blobeditform_normalize" name="normalize" value="Normalize">
+         
+         {% for field in blobeditform %} {% if field.name in blobform_filters %}
+           <span class="border m-2 p-2" data-toggle="tooltip" title="{{ field.help_text|safe }}">
+             {{ field.errors }}    {{ field.label_tag }} {{ field }}
+           </span>  
+          {% endif %}
+         {% endfor %}
+
+         </div>
       {% endif %}
 </form>
 <script>

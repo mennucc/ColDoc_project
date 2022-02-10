@@ -118,7 +118,24 @@ class BlobUploadForm(forms.Form):
     lang = forms.CharField(widget=forms.HiddenInput(),required = False)
     mimetype = forms.CharField(widget=forms.HiddenInput(),required = False)    
     
+
+def get_latex_filters():
+    latex_filters = []
+    for a in dir(ColDoc.transform):
+        if a.startswith('filter_'):
+            f = getattr(ColDoc.transform, a)
+            latex_filters.append((a, a[7:].replace('_',' ') , getattr(f,'__doc__'), True, f))
+    return latex_filters
+
 class BlobEditForm(forms.Form):
+    #
+    def __init__(self, *args, **kwargs):
+        filters = kwargs.pop('latex_filters',get_latex_filters())
+        super().__init__(*args, **kwargs)
+        for name, label, help, val, fun in filters:
+            field = forms.BooleanField(label=label,required = False,widget = forms.CheckboxInput(),help_text=help, initial=val)
+            self.fields[name] = field
+    #
     class Media:
         js = ('UUID/js/blobeditform.js',)
     htmlid = "id_form_blobeditform"
@@ -241,7 +258,9 @@ def _build_blobeditform_data(metadata,
                              ext, lang,
                              choices,
                              can_add_blob, can_change_blob,
-                             msgs):
+                             msgs,
+                             latex_filters = [],
+                             ):
     #
     NICK = metadata.coldoc.nickname
     UUID = metadata.uuid
@@ -301,7 +320,8 @@ def _build_blobeditform_data(metadata,
             msgs.append(( messages.INFO,
                           'Your saved changes are yet uncompiled' ))
         D.update(N)
-    blobeditform = BlobEditForm(initial=D)
+    #
+    blobeditform = BlobEditForm(initial=D, latex_filters=latex_filters) #, prefix='BlobEditForm')
     blobeditform.fields['split_environment'].choices = choices
     #
     if __debug_view_prologue__:
@@ -727,7 +747,7 @@ def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages,
             messages.add_message(request,messages.WARNING,a)
         all_messages.append(a)
 
-def normalize(coldoc_dir, blobs_dir, metadata, blob):
+def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
     if not blob.strip():
         return '\n'
     b = blob.splitlines()
@@ -747,7 +767,7 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob):
     out = io.StringIO()
     inp = io.StringIO(blob)
     inp.name = '%s / %s' %(metadata.coldoc.nickname, metadata.uuid)
-    transform.squash_latex(inp, out, options, helper)
+    transform.squash_latex(inp, out, options, helper, filters)
     return transform.unsquash_unicode2token(out.getvalue(), helper)
 
 def postedit(request, NICK, UUID):
@@ -847,7 +867,11 @@ def postedit(request, NICK, UUID):
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     #
     if 'normalize' in request.POST:
-        blobeditarea = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea) 
+        filters = []
+        for name, label, help, val, fun in get_latex_filters():
+            if form.cleaned_data[name]:
+                filters.append(fun)
+        blobeditarea = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea, filters) 
     #
     if 'revert' not in request.POST:
         # put back prologue in place
@@ -1643,8 +1667,11 @@ def index(request, NICK, UUID):
         blobeditform = None
         if  can_add_blob or can_change_blob:
             msgs = []
+            latex_filters = get_latex_filters()
+            blobform_filters = [a[0] for a in latex_filters] 
             blobeditform , uncompiled = _build_blobeditform_data(metadata, request.user, filename,
-                                                    ext, blob_lang, choices, can_add_blob, can_change_blob, msgs)
+                                                    ext, blob_lang, choices, can_add_blob, can_change_blob, msgs,
+                                                    latex_filters)
             revert_button_class =  'btn-warning'  if uncompiled else 'btn-outline-info'
             compile_button_class=  'btn-warning'  if uncompiled else 'btn-outline-info'
             for l, m in msgs:
