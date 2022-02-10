@@ -10,7 +10,7 @@
 
 ############## system modules
 
-import  sys, os, io, re, json, pickle, enum, tempfile, unicodedata
+import  sys, os, io, re, json, pickle, enum, tempfile, unicodedata, subprocess
 import itertools, copy, string, argparse, importlib, shutil, pathlib
 import os.path
 from os.path import join as osjoin
@@ -216,6 +216,71 @@ class filter_accents_to_unicode(object):
                         yield plasTeX.Tokenizer.Letter(c)
       except StopIteration:
         pass
+#####################################
+
+prefer_unicode_math = False
+
+unicode_math_file = '/usr/share/texlive/texmf-dist/tex/latex/unicode-math/unicode-math-table.tex'
+
+try:
+    p = subprocess.Popen(['kpsewhich', 'unicode-math-table.tex'], stdout=subprocess.PIPE)
+    a = p.stdout.read().strip()
+    p.wait()
+    if os.path.isfile(a):
+        unicode_math_file = a
+    else:
+        logger.warning('Cannot locate unicode-math-table.tex')
+except:
+    logger.exception('While running kpsewhich unicode-math-table.tex')
+
+unicode2latex = {
+    0xD7 : '\\times',
+    0x221E : '\\infty',
+    0xab : '\\guillemotleft' , 0xbb : '\\guillemotright',
+    0x25E6 : '\\circ',
+}
+
+
+## see also
+## https://ctan.math.washington.edu/tex-archive/fonts/kpfonts-otf/doc/unimath-kpfonts.pdf
+
+if os.path.isfile(unicode_math_file):
+    for s in open(unicode_math_file):
+        if s.startswith('\\UnicodeMathSymbol'):
+            s = s.split('{')
+            code=int(s[1].lstrip('"').rstrip('}').rstrip(' '),16)
+            latex=s[2].rstrip('}').rstrip(' ')
+            if code not in unicode2latex: 
+                unicode2latex[code] = latex
+            #elif verbose:
+            #    sys.stderr.write('(Prefer %r for %x to %r )\n' % (math2latex[code], code,latex))
+
+latex2unicode = {
+    k:v for (v,k) in unicode2latex.items()
+}
+
+
+class filter_math_to_unicode(object):
+    ' Convert math macros to Unicode symbols, e.g.: \int  → ∫ '
+    def __init__(self, itertokens, thetex):
+        self.itertokens = itertokens
+        self.thetex = thetex
+    def __iter__(self):
+        try:
+            while True:
+                tok = next(self.itertokens)
+                if not isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
+                    yield tok
+                else:
+                    m = '\\' + tok.macroName
+                    if m in latex2unicode:
+                        yield plasTeX.Tokenizer.Letter(chr(latex2unicode[m]))
+                    else:
+                        yield tok
+        except StopIteration:
+            pass
+
+################################################
 
 class squash_helper_accents_to_unicode(squash_helper_stack):
     def process_macro(self, tok):
