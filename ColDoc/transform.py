@@ -10,7 +10,7 @@
 
 ############## system modules
 
-import  sys, os, io, re, json, pickle, enum, tempfile, unicodedata, subprocess
+import  sys, os, io, re, json, pickle, enum, tempfile, unicodedata, subprocess, inspect
 import itertools, copy, string, argparse, importlib, shutil, pathlib
 import os.path
 from os.path import join as osjoin
@@ -77,13 +77,17 @@ from plasTeX.Packages import amsthm , graphicx
 
 ##############
 
-
 def get_latex_filters():
     latex_filters = []
     for a in dir(ColDoc.transform):
+        f = getattr(ColDoc.transform, a)
+        if not inspect.isclass(f):
+            continue
+        act = getattr(f, 'active_in_GUI', True)
         if a.startswith('filter_'):
-            f = getattr(ColDoc.transform, a)
-            latex_filters.append((a, a[7:].replace('_',' ') , getattr(f,'__doc__'), True, f))
+            latex_filters.append((a, a[7:].replace('_',' ') , getattr(f,'__doc__',''), act, f))
+        if a.startswith('squash_helper_') and getattr(f,'present_to_GUI', False):
+                latex_filters.append((a, a[14:].replace('_',' ') , getattr(f,'__doc__',''), act, f))
     return latex_filters
 
 ##############
@@ -187,12 +191,14 @@ class squash_helper_stack(squash_helper_base):
                 return top
 
 class squash_helper_dedollarize(squash_helper_stack):
+    " change $...$ to \(...\) and $$...$$ to \[...\] "
     remap = {
         ('$',False) : '\(',
         ('$',True) : '\)',
         ('$$',False) : '\[',
         ('$$',True) : '\]',
     } 
+    present_to_GUI = True
     def process_token(self, tok, is_ending):
         if tok in ('$','$$'):
             k = tok, is_ending
@@ -203,6 +209,7 @@ class squash_helper_dedollarize(squash_helper_stack):
 
 class filter_accents_to_unicode(object):
     ' Convert accents, e.g.: \'e  → é , \`a  → à , \"u  →  ü '
+    active_in_GUI = True
     def __init__(self,itertokens, thetex):
         self.itertokens = itertokens
         self.thetex = thetex
@@ -386,7 +393,8 @@ class squash_helper_reparse_metadata(squash_input_uuid):
             self.metadata.append((a+'M_'+macroname,j))
 
 class squash_helper_token2unicode(squash_helper_stack):
-    " replaces \\input and similar with placeholders; delete comments"
+    " replaces all LaTeX with unicode placeholders, and back (used to protect LaTeX during translations) "
+    present_to_GUI = True
     def __init__(self, *v, **k):
         self.counter = 0
         self.token_map = OrderedDict()
