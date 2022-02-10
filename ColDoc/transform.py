@@ -190,6 +190,27 @@ unicode_to_accents = {
     k:v for (v,k) in accents_to_unicode.items()
 }
 
+def filter_accents_to_unicode(itertokens, thetex):
+    try:
+        while True:
+            tok = next(itertokens)
+            if not isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
+                yield tok
+            else:
+                m = tok.macroName
+                if m not in unicode_to_accents:
+                    yield tok
+                else:
+                    s = thetex.readArgument(type=str)
+                    if len(s) != 1:
+                        logger.warning('argument of accent %r should not be %r', m, s)
+                    c = s[:1] + chr(unicode_to_accents[m])
+                    c = unicodedata.normalize('NFC', c)
+                    yield plasTeX.Tokenizer.Letter(c)
+                    for c in s[1:]:
+                        yield plasTeX.Tokenizer.Letter(c)
+    except StopIteration:
+        pass
 
 class squash_helper_accents_to_unicode(squash_helper_stack):
     def process_macro(self, tok):
