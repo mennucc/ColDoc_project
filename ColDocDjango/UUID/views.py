@@ -1680,7 +1680,7 @@ def index(request, NICK, UUID):
             H._table_template = diff_table_template
             blobdiff = H.make_table(open(filename).read().split('\n'),
                                     blobeditform.initial['blobcontent'].split('\n'),
-                                    'Orig','New', True)
+                                    'On disk','Your content', True)
             # html5 does not like those
             #blobdiff = blobdiff.replace('cellspacing="0"','').replace('cellpadding="0"','').replace('rules="groups"','')
     #
