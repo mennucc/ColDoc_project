@@ -72,6 +72,15 @@ class TestTransform(unittest.TestCase):
         self.assertFalse(helper.stack)
 
 
+    def test_accents_to_unicode_filtering(self):
+        helper=T.squash_helper_base()
+        inp = io.StringIO(r'\~u\`{e} z')
+        out = io.StringIO()
+        T.squash_latex(inp,out,{},helper,
+                       [T.filter_accents_to_unicode])
+        self.assertEqual(out.getvalue() , r'ũè z')
+
+
     def test_dedollarize_inline(self):
         helper=T.squash_helper_dedollarize()
         inp = io.StringIO(r'$\cos$')
