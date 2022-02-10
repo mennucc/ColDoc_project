@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 
 ############## ColDoc stuff
 
-from ColDoc.config import *
+from ColDoc import config
 
 import ColDoc.utils
 from ColDoc.classes import MetadataBase
@@ -361,10 +361,10 @@ class squash_input_uuid(squash_helper_stack):
                 context = self.stack[-1]  if self.stack else None
                 self.back_map[uuid] = macroname, inputfile, context
                 self.forw_map[inputfile] = macroname, uuid
-                if ColDoc_add_env_when_squashing and self.load_uuid is not None:
+                if config.ColDoc_add_env_when_squashing and self.load_uuid is not None:
                     try:
                         child = self.load_uuid(uuid)
-                        if child.environ in ColDoc_environments_sectioning:
+                        if child.environ in config.ColDoc_environments_sectioning:
                             optarg = json.loads(child.optarg)
                             optarg[0] = '*'
                             placeholder +=  '\\' + child.environ + ''.join(optarg)
