@@ -627,7 +627,8 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
         assert newclass.nargs == n
         mycontext.addGlobal(name, newclass)
     #
-    thetex.input(open(inp), Tokenizer=TokenizerPassThru.TokenizerPassThru)
+    inp_f = open(inp)
+    thetex.input(inp_f, Tokenizer=TokenizerPassThru.TokenizerPassThru)
     out = io.StringIO()
     itertokens = thetex.itertokens()
     #
@@ -638,6 +639,8 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
         helper.input_macros_with_parameters += options['split_graphic']
     #
     squash_recurse(out, thetex, itertokens, options, helper)
+    #
+    inp_f.close()
     #
     a = osjoin(os.path.dirname(inp),'.back_map.pickle')
     f = open(a,'wb')
