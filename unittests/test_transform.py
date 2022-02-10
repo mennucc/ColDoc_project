@@ -5,7 +5,7 @@ testdir = os.path.dirname(os.path.realpath(__file__))
 sourcedir = os.path.dirname(testdir)
 
 if __name__ == '__main__':
-    sys.path.append(sourcedir)
+    sys.path.append(osjoin(sourcedir,'ColDocDjango'))
 
 from ColDoc import transform as T
 
@@ -104,6 +104,16 @@ class TestTransform(unittest.TestCase):
         T.squash_latex(inp,out,{},helper)
         self.assertEqual(out.getvalue() , r'\[{\cos\text{\(\sin\)}}\]')
         self.assertFalse(helper.stack)
+
+
+    def test_dedollarize_various(self):
+        helper=T.squash_helper_dedollarize()
+        inp = io.StringIO(latex_correct)
+        out = io.StringIO()
+        T.squash_latex(inp,out,{},helper)
+        #self.assertEqual(out.getvalue() , r'\[{\cos\text{\(\sin\)}}\]')
+        self.assertFalse(helper.stack)
+
 
     @unittest.skipIf(sys.version_info < (3,10,0), 'Needs Python 3.10')
     def test_closed_groups_no_log(self):
