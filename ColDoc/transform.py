@@ -47,7 +47,17 @@ from ColDoc import config
 import ColDoc.utils
 from ColDoc.classes import MetadataBase
 
-
+try:
+    import unicode2latex
+except ImportError:
+    logger.warning('Please install `unicode2latex` ')
+    latex2unicodemath = {}
+    latexaccents2unicode = {}
+    latex2greek = {}
+else:
+    latex2unicodemath = unicode2latex.latex2unicodemath
+    latexaccents2unicode = unicode2latex.latexaccents2unicode
+    latex2mathgreek = unicode2latex.latex2mathgreek
 
 #########################################################################
 from ColDoc import TokenizerPassThru
@@ -190,16 +200,6 @@ class squash_helper_dedollarize(squash_helper_stack):
         return tok
 
 
-accents_to_unicode = {
-    0x0300: '`', 0x0301: "'", 0x0302: '^', 0x0308: '"',
-    0x030B: 'H', 0x0303: '~', 0x0327: 'c', 0x0328: 'k',
-    0x0304: '=', 0x0331: 'b', 0x0307: '.', 0x0323: 'd',
-    0x030A: 'r', 0x0306: 'u', 0x030C: 'v',
-}
-
-unicode_to_accents = {
-    k:v for (v,k) in accents_to_unicode.items()
-}
 
 class filter_accents_to_unicode(object):
     ' Convert accents, e.g.: \'e  → é , \`a  → à , \"u  →  ü '
@@ -214,13 +214,13 @@ class filter_accents_to_unicode(object):
                 yield tok
             else:
                 m = tok.macroName
-                if m not in unicode_to_accents:
+                if m not in latexaccents2unicode:
                     yield tok
                 else:
                     s = self.thetex.readArgument(type=str)
                     if len(s) != 1:
                         logger.warning('argument of accent %r should not be %r', m, s)
-                    c = s[:1] + chr(unicode_to_accents[m])
+                    c = s[:1] + chr(latexaccents2unicode[m])
                     c = unicodedata.normalize('NFC', c)
                     yield plasTeX.Tokenizer.Letter(c)
                     for c in s[1:]:
@@ -229,50 +229,10 @@ class filter_accents_to_unicode(object):
         pass
 #####################################
 
-prefer_unicode_math = False
-
-unicode_math_file = '/usr/share/texlive/texmf-dist/tex/latex/unicode-math/unicode-math-table.tex'
-
-try:
-    p = subprocess.Popen(['kpsewhich', 'unicode-math-table.tex'], stdout=subprocess.PIPE)
-    a = p.stdout.read().strip()
-    p.wait()
-    if os.path.isfile(a):
-        unicode_math_file = a
-    else:
-        logger.warning('Cannot locate unicode-math-table.tex')
-except:
-    logger.exception('While running kpsewhich unicode-math-table.tex')
-
-unicode2latex = {
-    0xD7 : '\\times',
-    0x221E : '\\infty',
-    0xab : '\\guillemotleft' , 0xbb : '\\guillemotright',
-    0x25E6 : '\\circ',
-}
 
 
-## see also
-## https://ctan.math.washington.edu/tex-archive/fonts/kpfonts-otf/doc/unimath-kpfonts.pdf
 
-if os.path.isfile(unicode_math_file):
-    for s in open(unicode_math_file):
-        if s.startswith('\\UnicodeMathSymbol'):
-            s = s.split('{')
-            code=int(s[1].lstrip('"').rstrip('}').rstrip(' '),16)
-            latex=s[2].rstrip('}').rstrip(' ')
-            if code not in unicode2latex: 
-                unicode2latex[code] = latex
-            #elif verbose:
-            #    sys.stderr.write('(Prefer %r for %x to %r )\n' % (math2latex[code], code,latex))
-
-latex2unicode = {
-    k:v for (v,k) in unicode2latex.items()
-}
-
-
-class filter_math_to_unicode(object):
-    ' Convert math macros to Unicode symbols, e.g.: \int  → ∫ '
+class filterdict(object):
     def __init__(self, itertokens, thetex):
         self.itertokens = itertokens
         self.thetex = thetex
@@ -284,12 +244,25 @@ class filter_math_to_unicode(object):
                     yield tok
                 else:
                     m = '\\' + tok.macroName
-                    if m in latex2unicode:
-                        yield plasTeX.Tokenizer.Letter(chr(latex2unicode[m]))
+                    if m in self.D:
+                        yield plasTeX.Tokenizer.Letter(chr(self.D[m]))
                     else:
                         yield tok
         except StopIteration:
             pass
+
+
+class filter_math_to_unicode(filterdict):
+    r' Convert math macros to Unicode symbols, e.g.: \int  → ∫ '
+    D = latex2unicodemath
+    active_in_GUI = False
+    #mychr = chr
+
+class filter_greek_to_unicode(filterdict):
+    r' Convert math macros to greek symbols, e.g.: \alpha  → α '
+    #mychr = lambda x : x
+    active_in_GUI = False
+    D = { k:ord(v) for (k,v) in latex2mathgreek.items() }
 
 ################################################
 
@@ -297,11 +270,11 @@ class squash_helper_accents_to_unicode(squash_helper_stack):
     def process_macro(self, tok):
         #print('tok  '+tok.macroName+'\n')
         m = tok.macroName
-        if m in unicode_to_accents:
+        if m in latexaccents2unicode:
             s = self.thetex.readArgument(type=str)
             if len(s) != 1:
                 logger.warning('argument of accent %r should not be %r', m, s)
-            s = s[:1] + chr(unicode_to_accents[m]) + s[1:]
+            s = s[:1] + chr(latexaccents2unicode[m]) + s[1:]
             s = unicodedata.normalize('NFC', s)
             return s
 
