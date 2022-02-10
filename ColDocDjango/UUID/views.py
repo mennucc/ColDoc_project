@@ -1685,7 +1685,13 @@ def index(request, NICK, UUID):
         blobeditform = None
         if  can_add_blob or can_change_blob:
             msgs = []
-            latex_filters = transform.get_latex_filters()
+            latex_filters = []
+            for name, label, help, val, fun in transform.get_latex_filters():
+                if fun == transform.squash_helper_token2unicode:
+                    val = settings.TRANSLATOR is not None
+                if fun in ( transform.filter_greek_to_unicode, transform.filter_math_to_unicode):
+                    val = coldoc.latex_engine != 'pdflatex'
+                latex_filters.append((name, label, help, val, fun))
             blobform_filters = [a[0] for a in latex_filters] 
             blobeditform , uncompiled = _build_blobeditform_data(metadata, request.user, filename,
                                                     ext, blob_lang, choices, can_add_blob, can_change_blob, msgs,
