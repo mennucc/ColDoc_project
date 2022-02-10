@@ -190,10 +190,15 @@ unicode_to_accents = {
     k:v for (v,k) in accents_to_unicode.items()
 }
 
-def filter_accents_to_unicode(itertokens, thetex):
-    try:
+class filter_accents_to_unicode(object):
+    ' Convert accents, e.g.: \'e  → é , \`a  → à , \"u  →  ü '
+    def __init__(self,itertokens, thetex):
+        self.itertokens = itertokens
+        self.thetex = thetex
+    def __iter__(self):
+      try:
         while True:
-            tok = next(itertokens)
+            tok = next(self.itertokens)
             if not isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 yield tok
             else:
@@ -201,7 +206,7 @@ def filter_accents_to_unicode(itertokens, thetex):
                 if m not in unicode_to_accents:
                     yield tok
                 else:
-                    s = thetex.readArgument(type=str)
+                    s = self.thetex.readArgument(type=str)
                     if len(s) != 1:
                         logger.warning('argument of accent %r should not be %r', m, s)
                     c = s[:1] + chr(unicode_to_accents[m])
@@ -209,7 +214,7 @@ def filter_accents_to_unicode(itertokens, thetex):
                     yield plasTeX.Tokenizer.Letter(c)
                     for c in s[1:]:
                         yield plasTeX.Tokenizer.Letter(c)
-    except StopIteration:
+      except StopIteration:
         pass
 
 class squash_helper_accents_to_unicode(squash_helper_stack):
