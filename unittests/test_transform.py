@@ -1,4 +1,5 @@
-import os, sys, io, unittest
+import os, sys, io, unittest, tempfile
+from os.path import join as osjoin
 
 testdir = os.path.dirname(os.path.realpath(__file__))
 sourcedir = os.path.dirname(testdir)
@@ -23,6 +24,24 @@ latex_correct =  r"""
   $\log   t$
   $$\int   z$$
 \egroup
+
+\label{ese:tabelle_verita}
+Tabella verità
+\index{table_of_truth}
+    \begin{center}
+    \noindent\begin{tabular}{c|c|c|c|c|c|c|c}
+               P & Q & ¬ P & $P \land Q$ & $P \lor Q$ & $P \Rightarrow Q$ & $P\Leftarrow Q$ & $P  \iff Q$ \\\hline
+               V & V & &&&&\\\hline
+               V & F & &&&&\\\hline
+               F & V & &&&&\\\hline
+               F & F & &&&&
+    \end{tabular}
+  \end{center}
+
+\begin{delasol}
+\input{UUID/1/V/Z/blob_ita.tex}
+\end{delasol}
+
 \end{B}\end{A}
 """
 
@@ -143,6 +162,27 @@ class TestTransform(unittest.TestCase):
     def test_tokenize_detokenize_end_itemize(self):
         return self.__test_tokenize_detokenize(r'\end{itemize}' + latex_correct, willlog=True)
 
+    def test_reparse_metadata(self):
+        d = tempfile.mkdtemp()
+        #print(' tempo dir :',d)
+        inp = open(osjoin(d,'blob'),'w') #tempfile.NamedTemporaryFile(mode='w+', dir=d, delete=False)
+        inp.write(latex_correct)
+        inp.close()
+        from ColDoc.utils import FMetadata
+        metadata = FMetadata()
+        options = {
+            'metadata_command' : ['index','label','ref'],
+            'split_graphic' : ['includegraphics'],
+            }
+        back_map_, metadata_ = T.reparse_metadata(inp.name, metadata , '/tmp/', options)
+        back_map_ = dict(back_map_)
+        expected_metadata = [('S_E_B_M_label', '{ese:tabelle_verita}'), ('S_E_B_M_index', '{table_of_truth}')]
+        expected_backmap = {'1VZ': ('input', 'UUID/1/V/Z/blob_ita.tex', 'E_delasol')}
+        self.assertEqual(expected_backmap, back_map_)
+        self.assertEqual(expected_metadata, metadata_)
+        os.unlink(inp.name)
+        os.unlink(osjoin(d,'.back_map.pickle'))
+        os.rmdir(d)
 
     @unittest.skip('macros inside arguments of macros have an extra space at the end')
     def test_tokenize_detokenize_sec1(self):

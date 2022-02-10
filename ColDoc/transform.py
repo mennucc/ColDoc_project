@@ -626,7 +626,9 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     squash_recurse(out, thetex, itertokens, options, helper)
     #
     a = osjoin(os.path.dirname(inp),'.back_map.pickle')
-    pickle.dump(helper.back_map,open(a,'wb'),)
+    f = open(a,'wb')
+    pickle.dump(helper.back_map,f)
+    f.close()
     #
     return helper.back_map, helper.metadata
 
