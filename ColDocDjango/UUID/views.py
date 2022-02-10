@@ -117,20 +117,11 @@ class BlobUploadForm(forms.Form):
     ext  = forms.CharField(widget=forms.HiddenInput())
     lang = forms.CharField(widget=forms.HiddenInput(),required = False)
     mimetype = forms.CharField(widget=forms.HiddenInput(),required = False)    
-    
-
-def get_latex_filters():
-    latex_filters = []
-    for a in dir(ColDoc.transform):
-        if a.startswith('filter_'):
-            f = getattr(ColDoc.transform, a)
-            latex_filters.append((a, a[7:].replace('_',' ') , getattr(f,'__doc__'), True, f))
-    return latex_filters
 
 class BlobEditForm(forms.Form):
     #
     def __init__(self, *args, **kwargs):
-        filters = kwargs.pop('latex_filters',get_latex_filters())
+        filters = kwargs.pop('latex_filters',transform.get_latex_filters())
         super().__init__(*args, **kwargs)
         for name, label, help, val, fun in filters:
             field = forms.BooleanField(label=label,required = False,widget = forms.CheckboxInput(),help_text=help, initial=val)
@@ -868,7 +859,7 @@ def postedit(request, NICK, UUID):
     #
     if 'normalize' in request.POST:
         filters = []
-        for name, label, help, val, fun in get_latex_filters():
+        for name, label, help, val, fun in transform.get_latex_filters():
             if form.cleaned_data[name]:
                 filters.append(fun)
         blobeditarea = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea, filters) 
@@ -1667,7 +1658,7 @@ def index(request, NICK, UUID):
         blobeditform = None
         if  can_add_blob or can_change_blob:
             msgs = []
-            latex_filters = get_latex_filters()
+            latex_filters = transform.get_latex_filters()
             blobform_filters = [a[0] for a in latex_filters] 
             blobeditform , uncompiled = _build_blobeditform_data(metadata, request.user, filename,
                                                     ext, blob_lang, choices, can_add_blob, can_change_blob, msgs,

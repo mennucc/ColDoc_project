@@ -67,6 +67,17 @@ from plasTeX.Packages import amsthm , graphicx
 
 ##############
 
+
+def get_latex_filters():
+    latex_filters = []
+    for a in dir(ColDoc.transform):
+        if a.startswith('filter_'):
+            f = getattr(ColDoc.transform, a)
+            latex_filters.append((a, a[7:].replace('_',' ') , getattr(f,'__doc__'), True, f))
+    return latex_filters
+
+##############
+
 #opening and closing macros
 
 macros_begin_end = {
