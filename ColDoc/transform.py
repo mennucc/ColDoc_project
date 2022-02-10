@@ -100,27 +100,33 @@ class helper_command(enum.Enum):
 class squash_helper_base(object):
     "base class, does nothing"
     input_filename = None
+    def __init__(self, thetex=None, itertokens=None, options={}, input_filename=None):
+        self.thetex = thetex
+        self.itertokens = itertokens
+        self.options = options
+        self.input_filename = input_filename
     #
-    def process_macro(self, tok, thetex):
+    def process_macro(self, tok):
         return None
-    def process_begin(self, begin, thetex):
+    def process_begin(self, begin):
         return None
-    def process_end(self, end, thetex):
+    def process_end(self, end):
         return None
-    def process_comment(self, comment, thetex):
+    def process_comment(self, comment):
         return None
-    def process_token(self, tok, thetex, is_ending):
+    def process_token(self, tok, is_ending):
         return None
 
 class squash_helper_stack(squash_helper_base):
     "manages the stack"
-    def __init__(self):
+    def __init__(self, *v, **k):
         self.__stack = []
+        super().__init__(*v, **k)
     #
-    def process_begin(self, begin, thetex):
+    def process_begin(self, begin):
         self.stack_push('E_'+begin)
     #
-    def process_end(self, end, thetex):
+    def process_end(self, end):
         end = 'E_' + end
         self.stack_pop(end)
     #
@@ -166,7 +172,7 @@ class squash_helper_dedollarize(squash_helper_stack):
         ('$$',False) : '\[',
         ('$$',True) : '\]',
     } 
-    def process_token(self, tok, thetex, is_ending):
+    def process_token(self, tok, is_ending):
         if tok in ('$','$$'):
             k = tok, is_ending
             return self.remap[k]
@@ -186,11 +192,11 @@ unicode_to_accents = {
 
 
 class squash_helper_accents_to_unicode(squash_helper_stack):
-    def process_macro(self, tok, thetex):
+    def process_macro(self, tok):
         #print('tok  '+tok.macroName+'\n')
         m = tok.macroName
         if m in unicode_to_accents:
-            s = thetex.readArgument(type=str)
+            s = self.thetex.readArgument(type=str)
             if len(s) != 1:
                 logger.warning('argument of accent %r should not be %r', m, s)
             s = s[:1] + chr(unicode_to_accents[m]) + s[1:]
@@ -200,7 +206,7 @@ class squash_helper_accents_to_unicode(squash_helper_stack):
 
 class squash_input_uuid(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
-    def __init__(self, blobs_dir, blob, options, load_uuid=None):
+    def __init__(self, blobs_dir, blob, options, load_uuid=None, **k):
         self.forw_map = OrderedDict()
         self.back_map = OrderedDict()
         self.blobs_dir =  blobs_dir
@@ -212,21 +218,21 @@ class squash_input_uuid(squash_helper_stack):
         # macros where there may be multiple input files, separated by comma
         self.input_macros_comma_separated = ['usepackage','bibliography']
         # it is up to the caller to add other macros such as 'includegraphics'
-        super().__init__()
+        super().__init__(options = options, **k)
     #
-    def process_macro(self, tok, thetex):
+    def process_macro(self, tok):
         macroname = str(tok.macroName)
         if macroname in (self.input_macros + self.input_macros_with_parameters):
             argSource = ''
             if macroname in self.input_macros_with_parameters:
                 for spec in '*','[]',None:
-                    _, s = thetex.readArgumentAndSource(spec=spec)
+                    _, s = self.thetex.readArgumentAndSource(spec=spec)
                     if spec is None:
                         inputfile = s[1:-1]
                     else:
                         argSource += s
             else:   
-                inputfile = thetex.readArgument(type=str)
+                inputfile = self.thetex.readArgument(type=str)
             if macroname in self.input_macros_comma_separated:
                 inputfiles = inputfile.split(',')
             else:
@@ -267,7 +273,7 @@ class squash_input_uuid(squash_helper_stack):
         else:
             return None
     #
-    def process_comment(self, comment, thetex):
+    def process_comment(self, comment):
         "deletes comments"
         return '%\n'
 
@@ -278,25 +284,25 @@ class squash_helper_reparse_metadata(squash_input_uuid):
         self.metadata = []
         super().__init__(blobs_dir, metadata, options, *v, **k)
     #
-    def process_macro(self, tok, thetex, environ=None):
+    def process_macro(self, tok, environ=None):
         macroname = str(tok.macroName)
-        r = super().process_macro(tok, thetex)
+        r = super().process_macro(tok)
         if r is not None:
             return r
         if macroname not in self.metadata_command:
             return None
         # keep this in sync with ColDoc.blob_inator, around line 1060
-        obj = thetex.ownerDocument.createElement(macroname)
-        thetex.currentInput[0].pass_comments = False
+        obj = self.thetex.ownerDocument.createElement(macroname)
+        self.thetex.currentInput[0].pass_comments = False
         ## FIXME why is this attribute not there...
         if hasattr(obj,'nargs'):
             N=obj.nargs
         else:
             logger.debug('nargs wrong for '+repr(obj))
             N = 1
-        args = [ thetex.readArgumentAndSource(type=str)[1] for j in range(N)]
-        #obj.parse(thetex)
-        thetex.currentInput[0].pass_comments = True
+        args = [ self.thetex.readArgumentAndSource(type=str)[1] for j in range(N)]
+        #obj.parse(self.thetex)
+        self.thetex.currentInput[0].pass_comments = True
         logger.info('metadata %r  %r' % (macroname,args))
         #
         a = '' if not self.stack else ('S_'+self.stack[-1]+'_')
@@ -306,11 +312,11 @@ class squash_helper_reparse_metadata(squash_input_uuid):
 
 class squash_helper_token2unicode(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
-    def __init__(self):
+    def __init__(self, *v, **k):
         self.counter = 0
         self.token_map = OrderedDict()
         self.unicode_map = OrderedDict()
-        super().__init__()
+        super().__init__(*v, **k)
     #
     __ranges = (
         (0x12000, 0x123FF), # cuneiform    U+12000 to U+123FF
@@ -363,65 +369,65 @@ class squash_helper_token2unicode(squash_helper_stack):
             u = self.token_map[s]
         return self.key2text(u)
     #
-    def __recurse(self, env_from, env_upto, thetex):
+    def __recurse(self, env_from, env_upto):
         basehelper = squash_helper_stack()
         basehelper.stack_push(env_from)
         basehelper.input_filename = 'SUB ' + str(self.input_filename)
         newout = io.StringIO()
         #print('recurse up to ',env_upto)
-        squash_recurse(newout, thetex, self.itertokens, self.options, basehelper, env_upto)
+        squash_recurse(newout, self.thetex, self.itertokens, self.options, basehelper, env_upto)
         #print('recursed ended up to ',env_upto)
         s = newout.getvalue()
         #s = re.sub(" +", ' ',s)
         return s
     #
-    def process_begin(self, begin, thetex):
-        super().process_begin(begin, thetex)
+    def process_begin(self, begin):
+        super().process_begin(begin)
         s = r'\begin{' + begin + '}'
-        obj = thetex.ownerDocument.createElement(begin)
+        obj = self.thetex.ownerDocument.createElement(begin)
         if obj.mathMode:
-            obj.parse(thetex)
+            obj.parse(self.thetex)
             s += obj.argSource
-            s += self.__recurse('E_'+begin, 'E_'+begin, thetex)
-            super().process_end(begin, thetex)
+            s += self.__recurse('E_'+begin, 'E_'+begin)
+            super().process_end(begin)
             #print('parsing math',begin,'got',repr(s))
             return (helper_command.WRITE, self.__remap(s), helper_command.NORECURSE)
         return self.__remap(s)
     #
-    def process_token(self, tok, thetex, is_ending):
+    def process_token(self, tok, is_ending):
         if tok in ('$','$$'):
             if is_ending:
                 logger.warning(' problema 32kbgve9w8')
-            s = tok +  self.__recurse(tok,tok, thetex)
+            s = tok +  self.__recurse(tok,tok)
             #print('tokenized dollars ',repr(s))
             return (helper_command.WRITE, self.__remap(s), helper_command.NORECURSE)
     #
-    def process_end(self, end, thetex):
-        super().process_end(end, thetex)
+    def process_end(self, end):
+        super().process_end(end)
         s = r'\end{' + end + '}'
         return self.__remap(s)
     #
-    def process_macro(self, tok, thetex):
+    def process_macro(self, tok):
         macroname = str(tok.macroName)
-        obj = thetex.ownerDocument.createElement(macroname)
+        obj = self.thetex.ownerDocument.createElement(macroname)
         s = tok.source
         if s and s[-1] == ' ':
             s = s[:-1]
         if s in (r'\(', r'\['):
             e = '\\' + macros_begin_end[tok.macroName]
-            s +=  self.__recurse(e, e, thetex)
+            s +=  self.__recurse(e, e)
             #print('tokenized this ',repr(s))
             return (helper_command.WRITE, self.__remap(s), helper_command.NORECURSE)
         # it is better not to parse certain macros
         if not isinstance(obj, (FontSelection.TextCommand, DimenCommand, StartSection)) and\
            macroname not in ('emph', 'footnote'):
-            obj.parse(thetex)
+            obj.parse(self.thetex)
             s += obj.argSource
             # inside the macro arguments, plasTeX will add a space
             s = re.sub(" +", ' ',s)
         return self.__remap(s)
     #
-    def process_comment(self, comment, thetex):
+    def process_comment(self, comment):
         comment = comment.rstrip() # remove newline
         return self.__remap('%'+comment) + '\n'
 
@@ -460,9 +466,11 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict, helper=None):
     ColDoc.utils.TeX_add_packages(thetex, options)
     #
     itertokens = thetex.itertokens()
+    helper.thetex = thetex
     helper.itertokens = itertokens
     helper.options = options
-    helper.input_filename = getattr(inp,'name', '<unnamed_stream>')
+    if helper.input_filename is None:
+        helper.input_filename = getattr(inp,'name', '<unnamed_stream>')
     squash_recurse(out, thetex, itertokens, options, helper)
     if helper.stack :
         logger.warning('squash_latex : file %r : unterminated group, stack is %r', helper.input_filename, helper.stack)
@@ -532,14 +540,14 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                     except:
                         logger.warning('squash_recurse : file %r : premature end of \\begin{%s}', thetex.filename, begin)
                 else:
-                    r = helper.process_begin(begin, thetex)
+                    r = helper.process_begin(begin)
                     r = process_helper_command(r, out, '\\begin{'+begin+'}')
                     if  helper_command.NORECURSE not in r:
                         squash_recurse(out, thetex, itertokens, options, helper, 'E_'+begin)
                     if  helper_command.POPSTACK in r: return
             elif macroname == 'end':
                 end = thetex.readArgument(type=str)
-                r = helper.process_end(end,thetex)
+                r = helper.process_end(end)
                 r = process_helper_command(r, out, ('\\end{'+end+'}'))
                 if  helper_command.POPSTACK in r: return
                 if ('E_'+end) != popmacro:
@@ -556,7 +564,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                     out.write(j)
                 del obj,j,t
             else:
-                r = helper.process_macro(tok,thetex)
+                r = helper.process_macro(tok)
                 s = tok.source
                 if s and s[-1] == ' ':
                     s = s[:-1]
@@ -574,11 +582,11 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                     helper.stack_pop('\\'+macroname)
                 # TODO do not alter preamble in main_file
         elif isinstance(tok, TokenizerPassThru.Comment):
-            r = helper.process_comment(str(tok.source),thetex)
+            r = helper.process_comment(str(tok.source))
             r = process_helper_command(r, out, '%'+tok.source)
             if  helper_command.POPSTACK in r: return
         else:
-            r = helper.process_token(tok, thetex, tok == popmacro)
+            r = helper.process_token(tok, tok == popmacro)
             if not isinstance(tok,str):
                 tok = tok.source
             r = process_helper_command(r, out, tok)
@@ -595,11 +603,6 @@ import io
 
 def reparse_metadata(inp, metadata, blobs_dir, options):
     " reparse metadata of LaTeX file"
-    #
-    helper = squash_helper_reparse_metadata(blobs_dir, metadata, options)
-    from ColDoc.latex import environments_we_wont_latex
-    if metadata.environ not in environments_we_wont_latex:
-        helper.input_macros_with_parameters += options['split_graphic']
     #
     if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
     thetex = TeX()
@@ -623,6 +626,13 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     thetex.input(open(inp), Tokenizer=TokenizerPassThru.TokenizerPassThru)
     out = io.StringIO()
     itertokens = thetex.itertokens()
+    #
+    helper = squash_helper_reparse_metadata(blobs_dir, metadata, options,
+                                            thetex=thetex, itertokens=itertokens)
+    from ColDoc.latex import environments_we_wont_latex
+    if metadata.environ not in environments_we_wont_latex:
+        helper.input_macros_with_parameters += options['split_graphic']
+    #
     squash_recurse(out, thetex, itertokens, options, helper)
     #
     a = osjoin(os.path.dirname(inp),'.back_map.pickle')

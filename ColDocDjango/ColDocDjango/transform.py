@@ -12,13 +12,13 @@ class squash_helper_ref(transform.squash_input_uuid):
     def __init__(self, coldoc, *v, **k):
         self.coldoc = coldoc
         super().__init__(*v, **k)
-    def process_macro(self, macroname, thetex):
-        r = super().process_macro(macroname, thetex)
+    def process_macro(self, macroname):
+        r = super().process_macro(macroname)
         if r is not None:
             return r
         if macroname not in self.__macros_refs:
             return None
-        label = thetex.readArgument(type=str)
+        label = self.thetex.readArgument(type=str)
         # shortcircuit labels where UUID is evident
         if label.startswith('UUID:'):
             a = label[5:].strip()
