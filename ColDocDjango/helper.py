@@ -125,7 +125,8 @@ def deploy(target):
         v = 'python-home=' + os.environ['VIRTUAL_ENV']
     z = z.replace('@VIRTUAL_ENV@', v)
     b = osjoin(target, 'apache2.conf')
-    open(b,'w').write(z)
+    with open(b,'w') as f_:
+        f_.write(z)
     #
     print("TODO : migrate, collectstatic, customize and install apache2.conf")
     return True

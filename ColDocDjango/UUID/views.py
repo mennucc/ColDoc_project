@@ -585,7 +585,8 @@ def postlang(request, NICK, UUID):
             logger.exception('internal error')
             output = ColDoc.utils.multimerge(sources)
         output = [ (''.join(a)) for a in output ]
-        open(dst,'w').write('\n'.join(output) + '\n')
+        with open(dst,'w') as f_:
+            f_.write('\n'.join(output) + '\n')
         metadata.lang = 'mul\n'
         metadata.save()
         messages.add_message(request,messages.INFO,'Converted to `mul` method')
@@ -644,13 +645,15 @@ def postlang(request, NICK, UUID):
                     except:
                         messages.add_message(request,messages.WARNING, 'the automatic translation failed')
                         logger.exception('Failed translation from %r to %r of %r', lang_, langchoice_, string)
-                open(dst,'w').write(string)
+                with open(dst,'w') as f_:
+                    f_.write(string)
                 messages.add_message(request,messages.INFO, m)
             else:
                 logger.warning('rename %r to %r',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
-                open(dst,'w').write(string)
+                with open(dst,'w') as f_:
+                    f_.write(string)
                 os.unlink(src)
                 if langchoice_ != 'mul':
                     for j in os.listdir(D):
@@ -931,7 +934,8 @@ def postedit(request, NICK, UUID):
         user_id = str(request.user.id)
         file_editstate = filename[:-4] + '_' + user_id + '_editstate.json'
         uncompiled = int(real_blobcontent != blobcontent)
-        json.dump(form.cleaned_data, open(file_editstate,'w'))
+        with open(file_editstate,'w') as f_:
+            json.dump(form.cleaned_data, f_)
     #
     a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
     if 'save_no_reload' in request.POST or 'normalize' in request.POST or 'revert' in request.POST:
@@ -958,7 +962,8 @@ def postedit(request, NICK, UUID):
         request.build_absolute_uri(django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':uuid})), uuid)
     # write new content
     if can_change_blob:
-        open(filename,'w').write(blobcontent)
+        with open(filename,'w') as f_:
+            f_.write(blobcontent)
         metadata.blob_modification_time_update()
         if sources is not None:
             metadata.optarg = json.dumps(sources)
@@ -1073,7 +1078,8 @@ def postedit(request, NICK, UUID):
         D['lang'] = lang
         D['UUID'] = uuid
         D['ext'] = ext
-        json.dump(D, open(file_editstate,'w'))
+        with open(file_editstate,'w') as f_:
+            json.dump(D, f_)
     #
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 

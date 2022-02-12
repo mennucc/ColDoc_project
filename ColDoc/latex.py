@@ -206,7 +206,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
             preamble = preamble.format(lang=lang)
         if not os.path.isfile(osjoin(blobs_dir, preamble)):
             b = 'Cannot find preamble as in option: %s/%s' % (blobs_dir, preamble)
-            open(save_abs_name+'.log','w').write(uuid_dir + ':0:' + b + '\n')
+            with open(save_abs_name+'.log','w') as f_:
+                f_.write(uuid_dir + ':0:' + b + '\n')
             logger.warning(b)
             preamble = None
     if preamble is None:
@@ -216,7 +217,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
             logger.error(b)
             preamble = None
     if preamble is None:
-        open(save_abs_name+'.log','w').write(uuid_dir + ':0:' + b + '\n')
+        with open(save_abs_name+'.log','w') as f_:
+            f_.write(uuid_dir + ':0:' + b + '\n')
         retcodes = ColDoc.utils.json_to_dict(metadata.latex_return_codes)
         j = (':'+lang) if (isinstance(lang,str) and lang) else ''
         ColDoc.utils.dict_save_or_del( retcodes, 'latex'+j, False)
@@ -301,7 +303,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         try:
             a = open(save_abs_name+ext).read()
             b = a.replace(fake_name,save_name)
-            open(save_abs_name+ext,'w').write(b)
+            with open(save_abs_name+ext,'w') as f_:
+                f_.write(b)
         except Exception as e:
             logger.warning(e)
     ## create html
@@ -424,7 +427,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             a = (r'\def\uuidbaseurl{%s}'%(ColDoc.config.ColDoc_url_placeholder,)+'\n')
             f_html = ''.join(prologue + preamble + [a] + body + epilogue)
         #
-        open(fake_abs_name+'.tex','w').write(f_pdf)
+        with open(fake_abs_name+'.tex','w') as f_:
+            f_.write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
         ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
         try:
@@ -432,7 +436,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
                                         blobs_dir, False, True)
         except:
             logger.exception('while symlinking')
-        open(fake_abs_name+'.tex','w').write(f_html)
+        with open(fake_abs_name+'.tex','w') as f_:
+            f_.write(f_html)
         rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
         parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'), save_abs_name+'_plastex.paux')
@@ -630,7 +635,8 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
                         L = L.replace(p+o+e , p+r+e)
             if L != O:
                 os.rename(f,f+'~')
-                open(f,'w').write(L)
+                with open(f,'w') as f_:
+                    f_.write(L)
     #
     if strip_head:
         for f in os.listdir(osjoin(blobs_dir, save_name+'_html')):

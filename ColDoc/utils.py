@@ -896,7 +896,8 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
     os.chdir(cwd_)
     #
     assert isinstance(stdout_, str)
-    open(stdout_,'w').write('start at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
+    with open(stdout_,'w') as f_:
+        f_.write('start at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
     #
     exception = None
     if True:
@@ -1715,7 +1716,8 @@ def gen_lang_metadata(metadata, blobs_dir, coldoc_languages):
         string3 = replace_language_in_inputs(string2, 'mul', lang)
         dst = osjoin(blobs_dir, uuid_to_dir(uuid), 'blob_' + lang + '.tex')
         try:
-            open(dst,'w').write(string3)
+            with open(dst,'w') as f_:
+                f_.write(string3)
         except:
             logger.exception(dst)
         else:

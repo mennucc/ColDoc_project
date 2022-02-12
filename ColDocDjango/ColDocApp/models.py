@@ -199,7 +199,8 @@ class DColDoc(models.Model):
             os.makedirs(coldoc_dir)
         data = serializers.serialize("json", [self])
         assert data[0] == '[' and data[-1]==']'
-        open(osjoin(coldoc_dir,'coldoc.json'),'w').write(data[1:-1])
+        with open(osjoin(coldoc_dir,'coldoc.json'),'w') as f_:
+            f_.write(data[1:-1])
     #
     #def get_fields(self):
     #    return [(field.name, field.value_to_string(self)) for field in DColDoc._meta.fields]
