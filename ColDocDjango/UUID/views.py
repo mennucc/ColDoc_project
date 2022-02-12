@@ -488,7 +488,7 @@ def postlang(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
-    actions = ['add','relabel','delete','multlang','manual']
+    actions = ['add','translate','relabel','delete','multlang','manual']
     prefix = request.POST.get('button')
     if prefix not in actions:
         raise SuspiciousOperation("Wrong action: %r"%prefix)
@@ -605,10 +605,10 @@ def postlang(request, NICK, UUID):
         logger.warning('A blob with language %r extension %r does not exist' % (lang_,ext_))
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
-    if prefix == 'add' or prefix == 'relabel':
+    if prefix in ( 'add', 'translate' )  or prefix == 'relabel':
         L = metadata.get_languages()
         #
-        if langchoice_ not in L and prefix == 'add':
+        if langchoice_ not in L and prefix in ( 'add', 'translate' ):
             metadata.lang = '\n'.join(L + [langchoice_]) + '\n'
             metadata.save()
         #
@@ -622,13 +622,13 @@ def postlang(request, NICK, UUID):
                 metadata.lang = '\n'.join(L) + '\n'
                 metadata.save()
             #
-            if prefix == 'add' or langchoice_ == 'mul':
+            if prefix in ( 'add', 'translate' ) or langchoice_ == 'mul':
                 logger.warning('copy %r to %r',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
                 m = 'A blob with language %r extension %r was created copying from %r.\nPlease translate it.'%\
                     (iso3lang2word(langchoice_),ext_,iso3lang2word(lang_))
-                if settings.TRANSLATOR is not None:
+                if settings.TRANSLATOR is not None and  prefix == 'translate':
                     try:
                         from ColDoc.latex import prepare_options_for_latex
                         options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, metadata.coldoc)
@@ -1782,6 +1782,11 @@ def index(request, NICK, UUID):
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'add', initial=initial_base)
             langforms.append( (L,'add','Add a language version') )
+            #
+            if settings.TRANSLATOR is not None:
+                L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
+                         prefix = 'translate', initial=initial_base)
+                langforms.append( (L,'translate','Translate to language') )
         # delete
         m = [l for l in Blangs]
         if len(m) > 1 and 'mul' not in Blangs:
