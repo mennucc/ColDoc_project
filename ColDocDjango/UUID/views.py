@@ -1776,38 +1776,44 @@ def index(request, NICK, UUID):
     langforms = []
     # TODO only '.tex' is supported now
     if can_change_metadata and can_change_blob and ext == '.tex':
+        bc = 'btn-primary'
         # add
         m = [l for l in CDlangs if l not in Blangs ]
         if m and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'add', initial=initial_base)
-            langforms.append( (L,'add','Add a language version') )
+            a = bc if (settings.TRANSLATOR is None or 'preamble' in env) else   'border-info'
+            langforms.append( (L, 'add', 'Add a language version', a) )
             #
             if settings.TRANSLATOR is not None:
                 L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'translate', initial=initial_base)
-                langforms.append( (L,'translate','Translate to language') )
+                s = 'Translate to language' 
+                if 'preamble' in env:
+                    s += ' ' + '(may damage preamble parts)'
+                a = 'border-info' if ('preamble' in env) else bc
+                langforms.append( (L, 'translate', s, a) )
         # delete
         m = [l for l in Blangs]
         if len(m) > 1 and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'delete', initial=initial_base)
-            langforms.append( (L,'delete','Delete a language version') )
+            langforms.append( (L,'delete','Delete a language version', bc) )
         # relabel
         m = [l for l in CDlangs if (l != lang and l not in Blangs) ]
         if m and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'relabel', initial=initial_base)
-            langforms.append( (L,'relabel','Change the language of this blob from %s to '%(iso3lang2word(blob_lang),) ) )
+            langforms.append( (L,'relabel','Change the language of this blob from %s to '%(iso3lang2word(blob_lang),) , bc) )
         # convert to `mul`
         if 'mul' not in Blangs and len(CDlangs) > 1 :
             L = LangForm(choice_list = wrong_choice_list,
                          prefix = 'multlang', initial=initial_base)
-            langforms.append( (L,'multlang','Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)') )
+            langforms.append( (L,'multlang','Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)', bc) )
         if len(Blangs) == 1 and 'mul' in Blangs:
             L = LangForm(choice_list =  wrong_choice_list,
                          prefix = 'manual', initial=initial_base)
-            langforms.append( (L,'manual','Change this UUID to manual language management (non <tt>mul</tt>)') )
+            langforms.append( (L,'manual','Change this UUID to manual language management (non <tt>mul</tt>)', bc) )
     #
     view_language = iso3lang2word(view_lang)
     blob_language = iso3lang2word(blob_lang)

@@ -288,7 +288,7 @@ var blob_uncompiled={{ uncompiled }};
   
   {% if  langforms and perms.UUID.change_dmetadata and perms.UUID.change_blob %}
     <h2>Language tools</h2>
-    {% for form,label,tooltip in langforms %}
+    {% for form, label, tooltip, buttonclass in langforms %}
       <!--<div class="border border-info mt-2">-->
         <form action="{% url 'UUID:postlang' NICK=NICK UUID=UUID %}" method="post" class="border border-info mt-2">
         {% csrf_token %}
@@ -302,7 +302,7 @@ var blob_uncompiled={{ uncompiled }};
         <input type="submit"  
            {# data-toggle="tooltip" title="{{ tooltip | safe }}" #}
         onclick="if(blob_uncompiled != 0) { alert('Cannot proceed, there are uncompiled changes'); return false;}"
-        value="{{ label }}" name="button"  class="btn btn-primary">
+        value="{{ label }}" name="button"  class="btn {{ buttonclass }}">
       </form>
       <!--</div>-->
      {% endfor %}
