@@ -55,9 +55,9 @@ except ImportError:
     latexaccents2unicode = {}
     latex2greek = {}
 else:
-    latex2unicodemath = unicode2latex.latex2unicodemath
-    latexaccents2unicode = unicode2latex.latexaccents2unicode
-    latex2mathgreek = unicode2latex.latex2mathgreek
+    latex2unicodemath = unicode2latex.math_latex2unicode
+    latexaccents2unicode = unicode2latex.accents_latex2unicode
+    latex2mathgreek = unicode2latex.greek_latex2unicode
 
 #########################################################################
 from ColDoc import TokenizerPassThru
@@ -269,7 +269,7 @@ class filter_greek_to_unicode(filterdict):
     r' Convert math macros to greek symbols, e.g.: \alpha  → α '
     #mychr = lambda x : x
     active_in_GUI = False
-    D = { k:ord(v) for (k,v) in latex2mathgreek.items() }
+    D = latex2mathgreek
 
 ################################################
 
