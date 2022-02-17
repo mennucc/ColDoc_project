@@ -1,19 +1,19 @@
-From 736adbe9eb33a0f704b620926850910637e08856 Mon Sep 17 00:00:00 2001
+From f1794c77698e7e5fdb9a9a0c559dd944bd083f03 Mon Sep 17 00:00:00 2001
 From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
 Date: Wed, 13 Nov 2019 10:50:42 +0100
-Subject: [PATCH 9/9] add Tokenizer to input()
+Subject: [PATCH 03/10] add Tokenizer to input()
 
 ---
  plasTeX/TeX.py | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
-index dd4f30e..f48b9b9 100644
+index df2de62..e612081 100644
 --- a/plasTeX/TeX.py
 +++ b/plasTeX/TeX.py
-@@ -140,7 +140,7 @@ class TeX(object):
-                 self.input(myfile)
-                 self.jobname = os.path.basename(os.path.splitext(myfile.name)[0])
+@@ -139,7 +139,7 @@ class TeX(object):
+                 self.input(file)
+                 self.jobname = os.path.basename(os.path.splitext(file.name)[0])
  
 -    def input(self, source):
 +    def input(self, source, Tokenizer=Tokenizer):
@@ -21,5 +21,5 @@ index dd4f30e..f48b9b9 100644
          Add a new input source to the stack
  
 -- 
-2.17.1
+2.32.0
 
