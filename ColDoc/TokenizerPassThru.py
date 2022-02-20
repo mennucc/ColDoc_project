@@ -3,10 +3,8 @@ import string
 
 class Comment(Token):
     catcode = Token.CC_COMMENT
-    nodeType = Node.COMMENT_NODE
     nodeName = '#comment'
     isElementContentWhitespace = True
-    __slots__ = Token.TOKEN_SLOTS
 
 
 class TokenizerPassThru(Tokenizer):
@@ -40,7 +38,6 @@ class TokenizerPassThru(Tokenizer):
         STATE_N = self.STATE_N
         STATE_M = self.STATE_M
         STATE_S = self.STATE_S
-        ELEMENT_NODE = Node.ELEMENT_NODE
         CC_LETTER = Token.CC_LETTER
         CC_OTHER = Token.CC_OTHER
         CC_SPACE = Token.CC_SPACE
