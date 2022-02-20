@@ -1,4 +1,5 @@
 from plasTeX.Tokenizer import *
+import string
 
 class Comment(Token):
     catcode = Token.CC_COMMENT
@@ -137,7 +138,7 @@ class TokenizerPassThru(Tokenizer):
 # HACK: I couldn't get the parse() thing to work so I'm just not
 #       going to parse whitespace after EscapeSequences that end in
 #       non-letter characters as a half-assed solution.
-                        if token[-1] in encoding.stringletters():
+                        if token[-1] in string.ascii_letters:
                             # Absorb following whitespace
                             self.state = STATE_S
 
