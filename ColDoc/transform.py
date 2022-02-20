@@ -691,6 +691,15 @@ import io
 def reparse_metadata(inp, metadata, blobs_dir, options):
     " reparse metadata of LaTeX file"
     #
+    if False:
+        # NOPE log = io.StringIO()
+        #import tempfile
+        log = tempfile.NamedTemporaryFile()
+        plasTeX.Logging.fileLogging(log.name)
+        print(log.name)
+    else:
+        plasTeX.Logging.disableLogging()
+    #
     if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
     thetex = TeX()
     mydocument = thetex.ownerDocument
