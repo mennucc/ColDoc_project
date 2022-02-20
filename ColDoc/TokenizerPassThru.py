@@ -1,5 +1,18 @@
-from plasTeX.Tokenizer import *
 import string
+
+import logging
+logger = logging.getLogger(__name__)
+
+
+####################################################
+try:
+    from plasTeX.Tokenizer import *
+except ImportError:
+    logger.info('Using FakePlasTeX')
+    from FakePlasTeX.FakeTokenizer import *
+
+
+###############################################
 
 class Comment(Token):
     catcode = Token.CC_COMMENT
