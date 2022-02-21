@@ -296,7 +296,19 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         #
         fake_texfile.write(latextemplate % D)
         fake_texfile.close()
-    rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+    #
+    other_pid_ = rp = None
+    if sys.platform == 'linux':
+        # forking
+        other_pid_ = os.fork()
+        if other_pid_ == 0:
+            rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+            os._exit(0 if rp else 13)
+        else:
+            logger.debug('Forked pdflatex_engine to pid %r', other_pid_)
+    else:
+        logger.warning('FIXME no forking in your platform')
+        rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
     # rewrite log to replace temporary file name with final file name
     for ext in '.log','.fls':
@@ -317,6 +329,15 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     # paux is quite large and it will not be used after this line
     if os.path.isfile(save_abs_name+'_plastex.paux'):
         os.unlink(save_abs_name+'_plastex.paux')
+    #
+    # get child result
+    if other_pid_ is not None:
+        pid_, exitstatus_ = os.waitpid(other_pid_, 0)
+        if pid_ != other_pid_:
+            logger.error('internal error kjnbfi20a')
+        exitstatus_ = os.waitstatus_to_exitcode(exitstatus_)
+        rp = (exitstatus_ == 0)
+    #
     # TODO there is a fundamental mistake here. This function may be called to
     # update the PDF/HTML view of only one language. This timestamp
     # does not record which language was updated. We should have different timestamps
