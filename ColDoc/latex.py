@@ -23,6 +23,13 @@ Command help:
 
 import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm
 
+if sys.version_info >= (3,9) and False:
+    from os import waitstatus_to_exitcode
+else:
+    def waitstatus_to_exitcode(status):
+        return os.WEXITSTATUS(status) if os.WIFEXITED(status) else \
+               ( - os.WTERMSIG(status) if os.WIFSIGNALED(status) else None)
+
 from os.path import join as osjoin
 
 if __name__ == '__main__':
@@ -331,7 +338,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         pid_, exitstatus_ = os.waitpid(other_pid_, 0)
         if pid_ != other_pid_:
             logger.error('internal error kjnbfi20a')
-        exitstatus_ = os.waitstatus_to_exitcode(exitstatus_)
+        exitstatus_ = waitstatus_to_exitcode(exitstatus_)
         rp = (exitstatus_ == 0)
     #
     # rewrite pdflatex log to replace temporary file name with final file name
@@ -490,7 +497,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             pid_, exitstatus_ = os.waitpid(other_pid_, 0)
             if pid_ != other_pid_:
                 logger.error('internal error mnqwkqla9')
-            exitstatus_ = os.waitstatus_to_exitcode(exitstatus_)
+            exitstatus_ = waitstatus_to_exitcode(exitstatus_)
             rp = (exitstatus_ == 0)
         #
         ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
