@@ -456,12 +456,6 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         with open(fake_abs_name+'.tex','w') as f_:
             f_.write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
-        ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
-        try:
-            ColDoc.utils.os_rel_symlink(save_name+'.pdf','main'+_lang+'.pdf',
-                                        blobs_dir, False, True)
-        except:
-            logger.exception('while symlinking')
         #
         fake_name2 = 'fakemain2' + _lang
         fake_abs_name2 = os.path.join(blobs_dir, fake_name2)
@@ -476,6 +470,13 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         try:
             ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
                                         blobs_dir, True, True)
+        except:
+            logger.exception('while symlinking')
+        #
+        ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
+        try:
+            ColDoc.utils.os_rel_symlink(save_name+'.pdf','main'+_lang+'.pdf',
+                                        blobs_dir, False, True)
         except:
             logger.exception('while symlinking')
         #
