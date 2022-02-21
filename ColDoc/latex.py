@@ -455,8 +455,21 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         fake_abs_name = os.path.join(blobs_dir, fake_name)
         with open(fake_abs_name+'.tex','w') as f_:
             f_.write(f_pdf)
-        rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
         #
+        other_pid_ = rp = None
+        if sys.platform == 'linux':
+            # forking
+            other_pid_ = os.fork()
+            if other_pid_ == 0:
+                rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+                os._exit(0 if rp else 13)
+            else:
+                logger.debug('Forked pdflatex_engine to pid %r', other_pid_)
+        else:
+            logger.warning('FIXME no forking in your platform')
+            rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+        #
+        # plastex
         fake_name2 = 'fakemain2' + _lang
         fake_abs_name2 = os.path.join(blobs_dir, fake_name2)
         with open(fake_abs_name2+'.tex','w') as f_:
@@ -472,6 +485,13 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
                                         blobs_dir, True, True)
         except:
             logger.exception('while symlinking')
+        # get pdflatex child result
+        if other_pid_ is not None:
+            pid_, exitstatus_ = os.waitpid(other_pid_, 0)
+            if pid_ != other_pid_:
+                logger.error('internal error mnqwkqla9')
+            exitstatus_ = os.waitstatus_to_exitcode(exitstatus_)
+            rp = (exitstatus_ == 0)
         #
         ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
         try:
