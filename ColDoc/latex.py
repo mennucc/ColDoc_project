@@ -433,8 +433,6 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         # note that extensions are missing
         save_name = os.path.join(uuid_dir, 'main' + _lang)
         save_abs_name = os.path.join(blobs_dir, save_name)
-        fake_name = 'fakemain' + _lang
-        fake_abs_name = os.path.join(blobs_dir, fake_name)
         #
         a = os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex')
         prologue, preamble, body, epilogue = ColDoc.utils.split_blob(open(a))
@@ -453,6 +451,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             a = (r'\def\uuidbaseurl{%s}'%(ColDoc.config.ColDoc_url_placeholder,)+'\n')
             f_html = ''.join(prologue + preamble + [a] + body + epilogue)
         #
+        fake_name = 'fakemain1' + _lang
+        fake_abs_name = os.path.join(blobs_dir, fake_name)
         with open(fake_abs_name+'.tex','w') as f_:
             f_.write(f_pdf)
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
@@ -462,9 +462,12 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
                                         blobs_dir, False, True)
         except:
             logger.exception('while symlinking')
-        with open(fake_abs_name+'.tex','w') as f_:
+        #
+        fake_name2 = 'fakemain2' + _lang
+        fake_abs_name2 = os.path.join(blobs_dir, fake_name2)
+        with open(fake_abs_name2+'.tex','w') as f_:
             f_.write(f_html)
-        rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options,
+        rh = plastex_engine(blobs_dir, fake_name2, save_name, environ, options,
                             levels = True, tok = True, strip_head = False)
         parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'), save_abs_name+'_plastex.paux')
         # paux is quite large and it will not be used after this line
