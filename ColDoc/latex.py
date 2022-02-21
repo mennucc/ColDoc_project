@@ -310,15 +310,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         logger.warning('FIXME no forking in your platform')
         rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
     ##
-    # rewrite log to replace temporary file name with final file name
-    for ext in '.log','.fls':
-        try:
-            a = open(save_abs_name+ext).read()
-            b = a.replace(fake_name,save_name)
-            with open(save_abs_name+ext,'w') as f_:
-                f_.write(b)
-        except Exception as e:
-            logger.warning(e)
     ## create html
     logger.debug('create html for %r',save_abs_name)
     main_file = open(fake_abs_name+'.tex', 'w')
@@ -338,6 +329,15 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         exitstatus_ = os.waitstatus_to_exitcode(exitstatus_)
         rp = (exitstatus_ == 0)
     #
+    # rewrite pdflatex log to replace temporary file name with final file name
+    for ext in '.log','.fls':
+        try:
+            a = open(save_abs_name+ext).read()
+            b = a.replace(fake_name,save_name)
+            with open(save_abs_name+ext,'w') as f_:
+                f_.write(b)
+        except Exception as e:
+            logger.warning(e)
     # TODO there is a fundamental mistake here. This function may be called to
     # update the PDF/HTML view of only one language. This timestamp
     # does not record which language was updated. We should have different timestamps
