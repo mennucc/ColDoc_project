@@ -23,7 +23,7 @@ Command help:
 
 import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm
 
-if sys.version_info >= (3,9) and False:
+if sys.version_info >= (3,9):
     from os import waitstatus_to_exitcode
 else:
     def waitstatus_to_exitcode(status):
