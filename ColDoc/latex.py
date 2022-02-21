@@ -195,10 +195,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     # note that extensions are missing
     save_name = os.path.join(uuid_dir, 'view' + _lang)
     save_abs_name = os.path.join(blobs_dir, save_name)
-    fake_texfile = tempfile.NamedTemporaryFile(prefix='fakelatex' + _lang + '_' + uuid + '_',
-                                                 suffix='.tex', dir = blobs_dir , mode='w+', delete=False)
-    fake_abs_name = fake_texfile.name[:-4]
-    fake_name = os.path.basename(fake_abs_name)
     #
     preamble = options.get('preamble')
     if preamble is not None:
@@ -260,8 +256,9 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     if env == 'main_file':
         # never used, the main_file is compiled with the latex_main() function
         logger.error("should never reach this line")
-        fake_texfile.write(open(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex')).read())
-        fake_texfile.close()
+        assert False
+        #fake_texfile.write(open(os.path.join(blobs_dir, uuid_dir, 'blob'+_lang+'.tex')).read())
+        #fake_texfile.close()
     else:
         #
         ltclsch = metadata.get('latex_documentclass_choice')
@@ -294,8 +291,12 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         ltclsopt = ColDoc.utils.parenthesizes(ltclsopt, '[]')
         D['documentclass_options'] = ltclsopt
         #
-        fake_texfile.write(latextemplate % D)
-        fake_texfile.close()
+    fake_texfile = tempfile.NamedTemporaryFile(prefix='fakelatex' + _lang + '_' + uuid + '_',
+                                               suffix='.tex', dir = blobs_dir , mode='w+', delete=False)
+    fake_abs_name = fake_texfile.name[:-4]
+    fake_name = os.path.basename(fake_abs_name)
+    fake_texfile.write(latextemplate % D)
+    fake_texfile.close()
     #
     other_pid_ = rp = None
     if sys.platform == 'linux':
@@ -312,11 +313,15 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     ##
     ## create html
     logger.debug('create html for %r',save_abs_name)
-    main_file = open(fake_abs_name+'.tex', 'w')
+    fake_texfile2 = tempfile.NamedTemporaryFile(prefix='fakelatex' + _lang + '_' + uuid + '_',
+                                               suffix='.tex', dir = blobs_dir , mode='w+', delete=False)
+    fake_abs_name2 = fake_texfile2.name[:-4]
+    fake_name2 = os.path.basename(fake_abs_name2)
+    main_file = open(fake_abs_name2+'.tex', 'w')
     D['url_UUID'] = ColDoc.config.ColDoc_url_placeholder
     main_file.write(plastex_template % D)
     main_file.close()
-    rh = plastex_engine(blobs_dir, fake_name, save_name, environ, options)
+    rh = plastex_engine(blobs_dir, fake_name2, save_name, environ, options)
     # paux is quite large and it will not be used after this line
     if os.path.isfile(save_abs_name+'_plastex.paux'):
         os.unlink(save_abs_name+'_plastex.paux')
