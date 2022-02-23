@@ -1536,7 +1536,7 @@ def multimerge(sources):
         sources = newsources
     return output
 
-def multimerge_lookahead(sources, keyequal, depth=32):
+def multimerge_lookahead(sources, keyequal, depth=32, alsoempty = True):
     """ `sources` is a dictionary , where each value is a list ;
     `output` is a list of pairs (key,value) , where `key` is either
        a `key` from `strings` or `keyequal` .
@@ -1570,7 +1570,7 @@ def multimerge_lookahead(sources, keyequal, depth=32):
             for ll in sources:
                 thisfirstline = sources[ll][0]
                 # for lines that are significant
-                if thisfirstline.strip():
+                if alsoempty or thisfirstline.strip():
                     for zz in sources:
                         if zz != ll:
                             # look ahead in all other sources to find a copy
@@ -1578,7 +1578,7 @@ def multimerge_lookahead(sources, keyequal, depth=32):
                             try:
                                 I = othersource.index(thisfirstline)
                             except ValueError:
-                                howfar.append(( len(othersource) + 1 , zz,ll))
+                                howfar.append(( depth + 1 , zz,ll))
                             else:
                                 howfar.append((I, zz,ll))
             if howfar:
