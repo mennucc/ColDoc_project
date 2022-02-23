@@ -730,10 +730,9 @@ def postupload(request, NICK, UUID):
 
 
 def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages, all_messages):
-    languages = [lang]  if 'mul' not in metadata.get_languages() else coldoc.get_languages()
-    for thelang in languages:
-        rh, rp = _latex_blob(request, coldoc_dir, blobs_dir, coldoc, thelang, metadata)
-        if rh and rp:
+    res = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata)
+    for thelang in res:
+        if res[thelang]:
             a = 'Compilation of LaTeX succeded (%r)' % thelang
             messages.add_message(request,messages.INFO,a)
         else:
@@ -1199,11 +1198,6 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     except:
         logger.exception('While looking for   "/preamble.tex" ')
     return options
-
-def _latex_blob(request, coldoc_dir, blobs_dir, coldoc, lang, metadata):
-    options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
-    from ColDoc import latex   
-    return latex.latex_blob(blobs_dir, metadata, lang, options=options)
 
 def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata):
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
