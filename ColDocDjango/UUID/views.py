@@ -1007,6 +1007,7 @@ def postedit(request, NICK, UUID):
             # compile it
             if split_environment_ not in environments_we_wont_latex:
                 ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
+                ret = all(ret.values())
                 if ret:
                     a = 'Compilation of new blob succeded'
                     messages.add_message(request,messages.INFO,a)

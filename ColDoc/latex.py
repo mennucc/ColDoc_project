@@ -140,7 +140,7 @@ def lang_conditionals(thelang, langs = None, metadata = None):
 
 
 def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, options = {}):
-    " `latex` the blob identified `uuid` or `metadata`; if `lang` is None, `latex` all languages ; return boolean to report failure "
+    " `latex` the blob identified `uuid` or `metadata`; if `lang` is None, `latex` all languages ; return a dict of booleans to report failure for each language "
     log_level = logging.WARNING if warn else logging.DEBUG
     assert uuid is not None or metadata is not None
     if metadata is None:
@@ -157,11 +157,11 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     if metadata.environ in environments_we_wont_latex :
         ## 'include_preamble' is maybe illegal LaTeX; 'usepackage' is not yet implemented
         logger.log(warn, 'Cannot `pdflatex` environ=%r',metadata.environ)
-        return True
+        return {l:True for l in metadata.get_languages()}
     #
     if metadata.environ == 'main_file':
         logger.log(log_level, 'Do not need to `pdflatex` the main_file')
-        return True
+        return {l:True for l in metadata.get_languages()}
     #
     if lang is not None:
         langs = [lang]
@@ -173,11 +173,11 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
         logger.debug('No languages for blob %r in blobs_dir %r',uuid,blobs_dir)
         return True
     #
-    res = True
+    res = {}
     for l in langs:
         rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
                             uuid_dir=uuid_dir, options = options)
-        res = res and rh and rp
+        res[l] = rh and rp
     if lang is None:
         # update only if all languages were recomputed
         metadata.latex_time_update()
@@ -857,6 +857,7 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_
         logger.log(log_level, 'Cannot `latex` environ %r , UUID = %r'%(metadata.environ, uuid,))
     else:
         r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
+        r = all(r.values())
         ret = ret and r
     for u in metadata.get('child_uuid'):
         logger.debug('moving down from node %r to node %r',uuid,u)
@@ -966,6 +967,7 @@ def main_by_args(args,options):
         if len(argv)>2:
             lang = argv[2]
         ret = latex_uuid(blobs_dir,UUID,lang=lang, options=options)
+        ret = all(ret.values())
     elif argv[0] == 'tree':
         ret = latex_tree(blobs_dir,UUID, options=options)
     elif argv[0] == 'main_private':
