@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect
+import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect, functools
 from os.path import join as osjoin
 
 try:
@@ -764,6 +764,16 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
     squash_helper = []
     for name, fun in filters:
         if name.startswith('filter'):
+            if name == "filter_math_to_unicode":
+                f = osjoin(coldoc_dir, 'math_to_unicode.json')
+                if os.path.isfile(f):
+                    with open(f) as f_:
+                        try:    
+                            d = json.load(f_)
+                        except:
+                            logger.exception('while loading %r',f)
+                        else:
+                            fun = functools.partial(fun,update=d)
             token_filters.append(fun)
         if name.startswith('squash'):
             squash_helper.append(fun)
