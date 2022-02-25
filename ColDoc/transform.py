@@ -240,9 +240,13 @@ class filter_accents_to_unicode(object):
 
 
 class filterdict(object):
-    def __init__(self, itertokens, thetex):
+    def __init__(self, itertokens, thetex, update = None):
+        " the `update` parameter is a dict { macro : unicode } that can be used to override part of the transform"
         self.itertokens = itertokens
         self.thetex = thetex
+        if update:
+            self.update(update)
+    #
     def __iter__(self):
         try:
             while True:
@@ -251,13 +255,18 @@ class filterdict(object):
                     yield tok
                 else:
                     m = '\\' + tok.macroName
-                    if m in self.D:
-                        yield plasTeX.Tokenizer.Letter(chr(self.D[m]))
+                    c = self.D.get(m,-1)
+                    if c >= 0 :
+                        yield plasTeX.Tokenizer.Letter(chr(c))
                     else:
                         yield tok
         except StopIteration:
             pass
-
+    #
+    def update(self, D2):
+        " add updates to the filter mapping"
+        self.D = copy.copy(self.D)
+        self.D.update(D2)
 
 class filter_math_to_unicode(filterdict):
     r' Convert math macros to Unicode symbols, e.g.: \int  → ∫ '
