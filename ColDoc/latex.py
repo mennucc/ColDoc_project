@@ -190,13 +190,13 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
                                 uuid_dir=uuid_dir, options = options)
             res[l] = rh and rp
     #
-    for lang, other_pid_ in langpids:
+    for ll, other_pid_ in langpids:
         logger.debug('wait %r', other_pid_)
         pid_, exitstatus_ = os.waitpid(other_pid_, 0)
         if pid_ != other_pid_:
             logger.error('internal error lnkanla19')
         exitstatus_ = waitstatus_to_exitcode(exitstatus_)
-        res[lang] = (exitstatus_ == 0)
+        res[ll] = (exitstatus_ == 0)
     #
     if lang is None:
         # update only if all languages were recomputed
