@@ -370,6 +370,10 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
                 f_.write(b)
         except Exception as e:
             logger.warning(e)
+    _update_metadata(metadata, lang, rh, rp)
+    return rh, rp
+
+def _update_metadata(metadata, lang, rh, rp):
     # TODO there is a fundamental mistake here. This function may be called to
     # update the PDF/HTML view of only one language. This timestamp
     # does not record which language was updated. We should have different timestamps
@@ -384,7 +388,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     metadata.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
     #
     metadata.save()
-    return rh, rp
 
 def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public', verbose_name=None, email_to=None):
     #
