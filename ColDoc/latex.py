@@ -180,8 +180,10 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
             other_pid_ = os.fork()
             if other_pid_ == 0:
                 rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
-                                    uuid_dir=uuid_dir, options = options)
-                os._exit(0 if (rp and rh) else 13)
+                                    uuid_dir=uuid_dir, options = options, forked=True)
+                rh = 0 if rh else 4
+                rp = 0 if rp else 8
+                os._exit(rh + rp)
             else:
                 logger.debug('fork %r', other_pid_)
                 langpids.append((l, other_pid_))
@@ -196,6 +198,11 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
         if pid_ != other_pid_:
             logger.error('internal error lnkanla19')
         exitstatus_ = waitstatus_to_exitcode(exitstatus_)
+        if exitstatus_ not in (0,4,8,12):
+            logger.error('internal error exitstatus_ %r', exitstatus_)
+        rh = (exitstatus_ & 4 ) == 0
+        rp = (exitstatus_ & 8 ) == 0
+        _update_metadata(metadata, ll, rh, rp)
         res[ll] = (exitstatus_ == 0)
     #
     if lang is None:
@@ -204,7 +211,7 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     metadata.save()
     return res
 
-def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash = True):
+def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash = True, forked=False):
     """ `latex` the blob identified by the `metadata`, for the given language `lang`.
     ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )
     Optionally squashes all sublevels, replacing with \\uuidplaceholder """
@@ -370,7 +377,9 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
                 f_.write(b)
         except Exception as e:
             logger.warning(e)
-    _update_metadata(metadata, lang, rh, rp)
+    if not forked:
+        # when forked, cannot update metadata here, it would clash with other processes
+        _update_metadata(metadata, lang, rh, rp)
     return rh, rp
 
 def _update_metadata(metadata, lang, rh, rp):
