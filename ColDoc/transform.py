@@ -125,11 +125,15 @@ class helper_command(enum.Enum):
 class squash_helper_base(object):
     "base class, does nothing"
     input_filename = None
-    def __init__(self, thetex=None, itertokens=None, options={}, input_filename=None):
+    def __init__(self, thetex=None, itertokens=None, options={}, input_filename=None, errors = None):
         self.thetex = thetex
         self.itertokens = itertokens
         self.options = options
         self.input_filename = input_filename
+        # a list of pairs (s,a) where s is an error string that can be translate before rendering,
+        # and then after translations can be formatted: all this using  (_(s) % a)
+        # see https://docs.djangoproject.com/en/4.0/topics/i18n/translation/
+        self.errors = errors if errors is not None else []
     #
     def process_macro(self, tok):
         return None
@@ -210,9 +214,10 @@ class squash_helper_dedollarize(squash_helper_stack):
 class filter_accents_to_unicode(object):
     ' Convert accents, e.g.: \'e  → é , \`a  → à , \"u  →  ü '
     active_in_GUI = True
-    def __init__(self,itertokens, thetex):
+    def __init__(self,itertokens, thetex, errors = None):
         self.itertokens = itertokens
         self.thetex = thetex
+        self.errors = errors if errors is not None else []
     def __iter__(self):
       try:
         while True:
@@ -240,12 +245,13 @@ class filter_accents_to_unicode(object):
 
 
 class filterdict(object):
-    def __init__(self, itertokens, thetex, update = None):
+    def __init__(self, itertokens, thetex, errors = None, update = None):
         " the `update` parameter is a dict { macro : unicode } that can be used to override part of the transform"
         self.itertokens = itertokens
         self.thetex = thetex
         if update:
             self.update(update)
+        self.errors = errors if errors is not None else []
     #
     def __iter__(self):
         try:
