@@ -342,6 +342,8 @@ class squash_input_uuid(squash_helper_stack):
                     continue
                 try:
                     uuid, blob = ColDoc.utils.file_to_uuid(inputfile, self.blobs_dir)
+                    # this checks if uuid is valid
+                    ColDoc.utils.uuid_to_int(uuid)
                 except Exception as e:
                     logger.error('Macro %r %r { %r } could not be parsed: %r', macroname, argSource, inputfile, e)
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
