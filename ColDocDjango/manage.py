@@ -17,7 +17,7 @@ def main():
     else:
         COLDOC_SITE_ROOT = None #os.path.dirname(os.path.abspath(__file__))
     #
-    if (len(argv)>1 and argv[1] not in ('help','startapp')) and \
+    if (len(argv)>1 and argv[1] not in ('help','startapp','makemessages','compilemessages')) and \
           (COLDOC_SITE_ROOT is None or \
            not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini'))):
         if COLDOC_SITE_ROOT is not None:
