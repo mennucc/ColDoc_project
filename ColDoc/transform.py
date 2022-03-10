@@ -15,6 +15,9 @@ import itertools, copy, string, argparse, importlib, shutil, pathlib
 import os.path
 from os.path import join as osjoin
 
+def _(s):
+    "mark translatable strings; no attempt is made to translate them, since this is a library"
+    return s
 
 # note that from python 3.6 on, `dict` preserves order
 from collections import OrderedDict
@@ -323,7 +326,7 @@ class squash_input_uuid(squash_helper_stack):
             argSource = ''
             if macroname in self.input_macros_with_parameters:
                 for spec in '*','[]',None:
-                    _, s = self.thetex.readArgumentAndSource(spec=spec)
+                    ignore, s = self.thetex.readArgumentAndSource(spec=spec)
                     if spec is None:
                         inputfile = s[1:-1]
                     else:

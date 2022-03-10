@@ -20,8 +20,8 @@ from django.conf import settings
 import logging
 logger = logging.getLogger(__name__)
 
-def _(s):
-    return s
+from django.utils.translation import gettext, gettext_lazy, gettext_noop
+_ = gettext_lazy
 
 #############################################################
 
@@ -47,7 +47,7 @@ AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 class UUID_FormField(forms.CharField):
     ## TODO FIXME THIS DOES NOT WORK AS EXPECTED
     default_error_messages = {
-        'invalid': 'Enter a valid UUID (numbers and consonants)',
+        'invalid': _('Enter a valid UUID (numbers and consonants)'),
     }
     def clean(self, value):
         if (not (value == '' and not self.required) and   not uuid_valid_symbols.match(value)):
@@ -122,11 +122,11 @@ class DColDoc(models.Model):
         return reverse('ColDoc:index', args=(self.nickname,))
     #  https://docs.djangoproject.com/en/3.0/ref/models/fields
     nickname = models.SlugField("short string to identify",
-                                help_text="short string to identify this ColDoc in URLs (alphanumeric only, use '_' or '-' for other chars)",
+                                help_text=_("short string to identify this ColDoc in URLs (alphanumeric only, use '_' or '-' for other chars)"),
                                 validators=[validate_coldoc_nickname],
                                 max_length=10,  db_index = True, primary_key=True)
     #
-    languages = models.TextField("languages supported (one ISO_639-3 three letter code per line)", max_length=200, blank=True)
+    languages = models.TextField( _("languages supported (one ISO_639-3 three letter code per line)"), max_length=200, blank=True)
     #
     def get_languages(self):
         " return list of languages, correctly formatted"
@@ -150,12 +150,12 @@ class DColDoc(models.Model):
     #    if default is None: default=DT.now()
     #    self.modification_time = default
     #
-    blob_modification_time = models.DateTimeField('time of last modification of any blob in this coldoc', default=DT.now)
+    blob_modification_time = models.DateTimeField(_('time of last modification of any blob in this coldoc'), default=DT.now)
     def blob_modification_time_update(self, default=None):
         if default is None: default=DT.now()
         self.blob_modification_time = default
     #
-    latex_time = models.DateTimeField('time of last run of latex',
+    latex_time = models.DateTimeField(_('time of last run of latex'),
                                       default=None, null=True, blank=True)
     def latex_time_update(self, default=None):
         if default is None: default=DT.now()
@@ -174,10 +174,10 @@ class DColDoc(models.Model):
     #
     anonymous_can_view = models.BooleanField(default=True)
     #
-    author_can_add_blob = models.BooleanField('An user can add a children if s/he is the author of the blob',default=True)
+    author_can_add_blob = models.BooleanField(_('An user can add a children if s/he is the author of the blob'),default=True)
     #
     LATEX_ENGINES=ColDoc_latex_engines
-    latex_engine = models.CharField("latex-type command used to compile",
+    latex_engine = models.CharField(_("latex-type command used to compile"),
         max_length=15,
         choices=LATEX_ENGINES,
         default='pdflatex',

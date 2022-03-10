@@ -30,6 +30,9 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib.auth.models import Group
 from django.core.validators import FileExtensionValidator
 
+from django.utils.translation import gettext, gettext_lazy, gettext_noop
+_ = gettext_lazy
+
 if settings.USE_SELECT2 :
     from django_select2 import forms as s2forms
 
@@ -111,7 +114,7 @@ __debug_view_prologue__ = False
 
 class BlobUploadForm(forms.Form):
     htmlid = "id_form_blobuploadform"
-    file = forms.FileField(help_text="File to upload  — will replace the blob's content")
+    file = forms.FileField(help_text=_("File to upload  — will replace the blob's content"))
     UUID = forms.CharField(widget=forms.HiddenInput())
     NICK = forms.CharField(widget=forms.HiddenInput())
     ext  = forms.CharField(widget=forms.HiddenInput())
@@ -134,22 +137,22 @@ class BlobEditForm(forms.Form):
     prologue = forms.CharField(widget = forms.TextInput(attrs={'class': 'form-text w-75'}) \
                                if __debug_view_prologue__ else \
                                forms.HiddenInput(),
-                               required = False, label='Prologue',
-                               help_text='First line of text file, automatically generated')
+                               required = False, label=_('Prologue'),
+                               help_text=_('First line of text file, automatically generated'))
     # the real blobcontent
     shortprologue = forms.CharField(widget = forms.TextInput(attrs={'class': 'form-text w-75'}) \
                                if __debug_view_prologue__ else \
                                forms.HiddenInput(),
-                               required = False, label='Short Prologue',
-                               help_text='First line of text file,  short version, automatically generated')
+                               required = False, label=_('Short Prologue'),
+                               help_text=_('First line of text file,  short version, automatically generated'))
     blobcontent = forms.CharField(widget=forms.HiddenInput(),required = False)
     # what the user can edit
-    BlobEditTextarea=forms.CharField(label='Blob content',required = False,
+    BlobEditTextarea=forms.CharField(label=_('Blob content'),required = False,
                                      widget=forms.Textarea(attrs={'class': 'form-text w-100'}),
-                                     help_text='Edit the blob content')
-    BlobEditComment=forms.CharField(label='Comment',required = False,
+                                     help_text=_('Edit the blob content'))
+    BlobEditComment=forms.CharField(label=_('Comment'),required = False,
                                     widget=forms.TextInput(attrs={'class': 'form-text w-75'}),
-                                    help_text='Comment for this commit')
+                                    help_text=_('Comment for this commit'))
     UUID = forms.CharField(widget=forms.HiddenInput())
     NICK = forms.CharField(widget=forms.HiddenInput())
     ext  = forms.CharField(widget=forms.HiddenInput())
@@ -157,12 +160,13 @@ class BlobEditForm(forms.Form):
     file_md5 = forms.CharField(widget=forms.HiddenInput())
     selection_start = forms.CharField(widget=forms.HiddenInput(),initial=-1)
     selection_end = forms.CharField(widget=forms.HiddenInput(),initial=-1)
-    split_selection = forms.BooleanField(label='Insert a child',required = False,
+    split_selection = forms.BooleanField(label=_('Insert a child node'),required = False,
                                          widget = forms.CheckboxInput(attrs = {'onclick' : "hide_and_show();", }),
-                                         help_text="Insert a child at cursor (if a piece of text is selected, it will be moved into the child)")
-    split_environment = forms.ChoiceField(label="environment",
-                                          help_text="environment for newly created blob")
-    split_add_beginend = forms.BooleanField(label='Add begin/end',required = False,help_text="add a begin{}..end{} around the splitted ")
+                                         help_text=_("Insert a child node at cursor (if a piece of text is selected, it will be moved into the child)"))
+    split_environment = forms.ChoiceField(label=_("Environment"),
+                                          help_text=_("Environment for newly created blob"))
+    split_add_beginend = forms.BooleanField(label=_('Add begin/end'),required = False,
+                                            help_text=_("add a begin{}..end{} around the splitted part"))
 
 def common_checks(request, NICK, UUID, accept_anon=False):
     assert isinstance(NICK,str) and isinstance(UUID,str)
@@ -204,7 +208,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
                 optarg = json.loads(optarg)
     except:
         logger.exception('While parsing optarg %r', optarg)
-        warnings.append('Internal error when parsing optarg %r for  blob %r ' % (optarg,uuid))
+        warnings.append(_('Internal error when parsing optarg %r for  blob %r ') % (optarg,uuid))
         optarg = []
     if env in ColDoc.config.ColDoc_environments_sectioning:
         if blobcontent.startswith('\\'+env):
@@ -226,13 +230,13 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
             if optarg:
                 shortprologue = '\\' + env + ''.join(optarg) 
                 blobeditdata = shortprologue + '\n' + blobcontent
-                warnings.append('Added initial \\%s line' % env)
+                warnings.append(_('Added initial \\%s line') % env)
             else:
-                warnings.append('Missing initial \\%s line' % env)
+                warnings.append(_('Missing initial \\%s line') % env)
     elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
         if not blobcontent.startswith('\\uuid'):
             logger.error('Blob %r does not start with \\uuid',uuid)
-            warnings.append('Missing initial, hidden, \\uuid line in blob %r' % (uuid,))
+            warnings.append(_('Missing initial, hidden, \\uuid line in blob %r') % (uuid,))
             prologue = '\\uuid{%s}%%' % (uuid,)
         else:
             try:
@@ -266,7 +270,7 @@ def _build_blobeditform_data(metadata,
     # the first line contains the \uuid command or the \section{}\uuid{}
     shortprologue, prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, optarg)
     if '\\uuid{' in blobeditdata:
-        warnings.append('(Why is there a  \\uuid  in this blob ?)')    
+        warnings.append(_('(Why is there a  \\uuid  in this blob ?)'))
     for wp in warnings:
         msgs.append(( messages.WARNING, wp))
     #
@@ -299,17 +303,17 @@ def _build_blobeditform_data(metadata,
         if m:
             logger.warning(m)
             msgs.append(( messages.WARNING, 
-                          'Editstate ignored: ' + m ))
+                        _('Editstate ignored') + ': ' + m ))
             N ={}
     if N:
         if N['file_md5'] != file_md5:
             msgs.append(( messages.WARNING,
-                         'File was changed on disk since your last visit' ))
+                         _('File was changed on disk since your last visit')))
             N['file_md5'] = file_md5
         elif 'blobcontent' in N and N['blobcontent'] != blobcontent:
             uncompiled = 1
             msgs.append(( messages.INFO,
-                          'Your saved changes are yet uncompiled' ))
+                          _('Your saved changes are yet uncompiled') ))
         D.update(N)
     #
     blobeditform = BlobEditForm(initial=D, latex_filters=latex_filters) #, prefix='BlobEditForm')
@@ -415,7 +419,7 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
                 src, sources, attributes = _parse_obj(obj, thetex)
                 thetex.currentInput[0].pass_comments = True
                 if any([ ('\n' in s) for s in sources]):
-                    weird_prologue.append('Keep the\\%s{...} command all in one line.' % (env,))
+                    weird_prologue.append(_('Keep the\\%s{...} command all in one line.') % (env,))
                     sources = list(map( lambda x : x.replace('\n',' '), sources ))
                 ignoreme, newprologue = _rewrite_section(sources, uuid, env)
                 seen_one_sec_ = True
@@ -436,14 +440,14 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
             if not seen_one_sec_ :
                 warn_notfirst_ = True
     if not seen_one_sec_ :
-        weird_prologue.append('Please add a \\%s{...} command in first line.' % (env,))
+        weird_prologue.append(_('Please add a \\%s{...} command in first line.') % (env,))
     elif warn_notfirst_:
-        weird_prologue.append('The command \\%s{...} was moved to first line.' % (env,))
+        weird_prologue.append(_('The command \\%s{...} was moved to first line.') % (env,))
         newprologue += '%\n'
     if warn_dup_ :
-        weird_prologue.append('The blob should contain only one occurrence of \\%s{...}.' % (env,))
+        weird_prologue.append(_('The blob should contain only one occurrence of \\%s{...}.') % (env,))
     if sources and sources[2][0] == '{' and sources[2][-1] != '}':
-        weird_prologue.append('Unterminated \\%s{} command' %(env,))
+        weird_prologue.append(_('Unterminated \\%s{} command') %(env,))
     # avoid duplicated spaces
     newprologue = re.sub(' +', ' ', newprologue)
     if newprologue and newprologue[-1] != '\n':
@@ -471,7 +475,7 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
             blobeditarea = b
         except:
             logger.exception('While parsing \\section')
-            weird_prologue.append('Internal error while parsing for \\%s{...}.' % (env,))
+            weird_prologue.append(_('Internal error while parsing for \\%s{...}.') % (env,))
         blobcontent = newprologue + blobeditarea
         displacement += len(newprologue)
     elif env not in ColDoc.config.ColDoc_do_not_write_uuid_in:
@@ -530,7 +534,7 @@ def postlang(request, NICK, UUID):
         assert len(Blangs) == 1 and 'mul' in Blangs
         metadata.lang = '\n'.join(Clangs) + '\n'
         metadata.save()
-        messages.add_message(request,messages.INFO,'Converted to manual language management (non <tt>mul</tt>)')
+        messages.add_message(request,messages.INFO,_('Converted to manual language management (non <tt>mul</tt>)'))
         ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?ext=%s'%(ext_) )
     #
@@ -564,7 +568,7 @@ def postlang(request, NICK, UUID):
         #
         metadata.lang = 'mul\n'
         metadata.save()
-        messages.add_message(request,messages.INFO,'Converted to `mul` method')
+        messages.add_message(request,messages.INFO, _('Converted to `mul` method'))
         ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                         '?lang=mul&ext=%s'%(ext_) )
@@ -589,7 +593,7 @@ def postlang(request, NICK, UUID):
             f_.write('\n'.join(output) + '\n')
         metadata.lang = 'mul\n'
         metadata.save()
-        messages.add_message(request,messages.INFO,'Converted to `mul` method')
+        messages.add_message(request,messages.INFO,_('Converted to `mul` method'))
         ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                         '?lang=mul&ext=%s'%(ext_) )
@@ -601,8 +605,8 @@ def postlang(request, NICK, UUID):
     #
     if not os.path.exists(src):
         messages.add_message(request,messages.WARNING,
-                             'A blob with language %r extension %r does not exist'%
-                             (iso3lang2word(lang_),ext_))
+                             _('A blob with language %(lang)r extension %(ext)r does not exist') %
+                             {'lang':iso3lang2word(lang_),'ext':ext_})
         logger.warning('A blob with language %r extension %r does not exist' % (lang_,ext_))
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
@@ -615,8 +619,8 @@ def postlang(request, NICK, UUID):
         #
         if os.path.exists(dst):
             messages.add_message(request,messages.WARNING,
-                                 'A blob with language %r extension %r already exists'%
-                                 (iso3lang2word(langchoice_),ext_))
+                                 _('A blob with language %(lang)r extension %(ext)r already exists') %
+                                 {'lang':iso3lang2word(lang_),'ext':ext_})
         else:
             if prefix == 'relabel':
                 L[L.index(lang_)] = langchoice_
@@ -627,8 +631,8 @@ def postlang(request, NICK, UUID):
                 logger.warning('copy %r to %r',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
-                m = 'A blob with language %r extension %r was created copying from %r.\nPlease translate it.'%\
-                    (iso3lang2word(langchoice_),ext_,iso3lang2word(lang_))
+                m = _('A blob with language %(newlang)r extension %(ext)r was created copying from %(oldlang)r.')%\
+                    {'newlang':iso3lang2word(langchoice_),'ext':ext_, 'oldlang':iso3lang2word(lang_)}  + '\n' + _('Please check it.')
                 if settings.TRANSLATOR is not None and  prefix == 'translate':
                     try:
                         from ColDoc.latex import prepare_options_for_latex
@@ -640,10 +644,11 @@ def postlang(request, NICK, UUID):
                         transform.squash_latex(inp, out, options, helper)
                         translated = settings.TRANSLATOR(out.getvalue(), lang_, langchoice_)
                         string = transform.unsquash_unicode2token(translated, helper)
-                        m = 'A blob with language %r extension %r was automatically translated (%d chars) from %r.\nPlease check it.'%\
-                            (iso3lang2word(langchoice_),ext_,len(out.getvalue()),iso3lang2word(lang_))
+                        m = _('A blob with language %(newlang)r extension %(ext)r was automatically translated (%(len)d chars) from %(oldlang)r.')%\
+                            {'newlang':iso3lang2word(langchoice_),'ext':ext_, 'oldlang':iso3lang2word(lang_),
+                             'len':len(out.getvalue())} + '\n' + _('Please check it.')
                     except:
-                        messages.add_message(request,messages.WARNING, 'the automatic translation failed')
+                        messages.add_message(request,messages.WARNING, _('The automatic translation failed'))
                         logger.exception('Failed translation from %r to %r of %r', lang_, langchoice_, string)
                 with open(dst,'w') as f_:
                     f_.write(string)
@@ -717,11 +722,13 @@ def postupload(request, NICK, UUID):
         os.rename(dest + '~~', dest)
     except:
         logger.exception('failed %r',dest)
-        messages.add_message(request,messages.ERROR, 'File upload failed')
+        messages.add_message(request,messages.ERROR, _('File upload failed'))
     ## nope this uses the extension
     #_type_ , _encod_ = mimetypes.guess_type(dest)
     if file_.content_type != type__:
-        messages.add_message(request,messages.ERROR,   'File uploaded is %r instead of %r' % ( file_.content_type , type__) )
+        messages.add_message(request,messages.ERROR,
+                             _('File uploaded is %(this)r instead of %(that)r') %
+                             {'this': file_.content_type , 'that': type__})
     #
     metadata.blob_modification_time_update()
     metadata.save()
@@ -733,10 +740,10 @@ def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages,
     res = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata)
     for thelang in res:
         if res[thelang]:
-            a = 'Compilation of LaTeX succeded (%r)' % thelang
+            a = _('Compilation of LaTeX succeded.') + '(%r)' % thelang
             messages.add_message(request,messages.INFO,a)
         else:
-            a = 'Compilation of LaTeX failed (%r)' % thelang
+            a = _('Compilation of LaTeX failed') + '(%r)' % thelang
             messages.add_message(request,messages.WARNING,a)
         all_messages.append(a)
 
@@ -896,6 +903,7 @@ def postedit(request, NICK, UUID):
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     #
+    normalize_errors = []
     if 'normalize' in request.POST:
         filters = []
         for name, label, help, val, fun in transform.get_latex_filters():
@@ -911,13 +919,13 @@ def postedit(request, NICK, UUID):
         # some checks
         if split_selection_:
             if shortprologue is None:
-                weird_prologue.append('Cannot split material when there are internal errors')
+                weird_prologue.append(_('Cannot split material when there are internal errors'))
                 split_selection_ = False
             elif weird_prologue:
-                weird_prologue.append('Cannot split material when there are header errors')
+                weird_prologue.append(_('Cannot split material when there are header errors'))
                 split_selection_ = False
             elif shortprologue and not blobeditarea.startswith(shortprologue + '\n'):
-                weird_prologue.append('Sorry, cannot split material when the first line was changed')
+                weird_prologue.append(_('Sorry, cannot split material when the first line was changed'))
                 split_selection_ = False
             else:
                 selection_start_  = max(selection_start_ + displacement, 0)
@@ -946,7 +954,7 @@ def postedit(request, NICK, UUID):
         with open(file_editstate,'w') as f_:
             json.dump(form.cleaned_data, f_)
     #
-    a = '' if ( file_md5 == real_file_md5 ) else "The file was changed on disk: check the diff"
+    a = '' if ( file_md5 == real_file_md5 ) else _("The file was changed on disk: check the diff")
     if 'save_no_reload' in request.POST or 'normalize' in request.POST or 'revert' in request.POST:
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(open(filename).readlines(),
@@ -994,8 +1002,8 @@ def postedit(request, NICK, UUID):
             new_uuid_as_html = '<a href="%s">%s</a>' %(
                 request.build_absolute_uri(django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':addnew_uuid})),
                 addnew_uuid)
-            addmessage = ("Created blob with UUID %s, please edit %s to properly input it (a stub \\input was inserted for your convenience)"%
-                          (new_uuid_as_html, uuid_as_html))
+            addmessage = _("Created blob with UUID %(newuuid)s, please edit %(olduuid)s to properly input it (a stub \\input was inserted for your convenience)") %\
+                          {'newuuid':new_uuid_as_html, 'olduuid':uuid_as_html}
             messages.add_message(request,messages.INFO,addmessage)
             addmetadata = DMetadata.load_by_uuid(uuid=addnew_uuid,coldoc=coldoc)
             add_extension = addmetadata.get('extension')
@@ -1010,24 +1018,24 @@ def postedit(request, NICK, UUID):
                                          metadata_class=DMetadata, coldoc=NICK)
             # parse it for metadata
             def warn(msg):
-                all_messages.append('Metadata change in new blob: '+msg)
-                messages.add_message(request,messages.INFO,'In new blob: '+msg)
+                all_messages.append(_('Metadata change in new blob') + ': ' + msg)
+                messages.add_message(request,messages.INFO, _('In new blob') + ': ' + msg)
             reparse_blob(addfilename, addmetadata, blobs_dir, warn)
             # compile it
             if split_environment_ not in environments_we_wont_latex:
                 ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
                 ret = all(ret.values())
                 if ret:
-                    a = 'Compilation of new blob succeded'
+                    a = _('Compilation of new blob succeded')
                     messages.add_message(request,messages.INFO,a)
                 else:
-                    a = 'Compilation of new blob failed'
+                    a = _('Compilation of new blob failed')
                     messages.add_message(request,messages.WARNING,a)
                 all_messages.append(a)
     #
     # parse it to refresh metadata (after splitting)
     def warn(msg):
-        all_messages.append('Metadata change in blob: '+msg)
+        all_messages.append(_('Metadata change in blob') + ': ' + msg)
         messages.add_message(request,messages.INFO,msg)
     reparse_blob(filename, metadata, blobs_dir, warn)
     #
@@ -1042,7 +1050,7 @@ def postedit(request, NICK, UUID):
     if not email_to:
         logger.warning('No author has a validated email %r', metadata)
     else:
-        a = "User '%s' changed %s - %s - %s" % (request.user , metadata.coldoc.nickname, metadata.uuid, lang_)
+        a = _("User '%s' changed %s - %s - %s") % (request.user , metadata.coldoc.nickname, metadata.uuid, lang_)
         r = get_email_for_user(request.user)
         if r is not None: r = [r]
         E = EmailMultiAlternatives(subject = a,
@@ -1054,11 +1062,11 @@ def postedit(request, NICK, UUID):
         file_lines_after = open(filename).readlines()
         blobdiff = H.make_file(file_lines_before,
                                file_lines_after,
-                               'Orig','New', True)
+                               _('Orig'),_('New'), True)
         try:
             j  = blobdiff.index('<body>') + 6
             blobdiff = blobdiff[:j] + '<ul><li>' + '\n<li>'.join(all_messages) + \
-                '</ul>\n<h1>File differences for ' + uuid_as_html + '</h1>\n' + blobdiff[j:]
+                '</ul>\n<h1>' + _('File differences for') + ' ' + uuid_as_html + '</h1>\n' + blobdiff[j:]
         except:
             logger.exception('While preparing ')
         else:
@@ -1141,10 +1149,11 @@ def postmetadataedit(request, NICK, UUID):
         logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation('UUID Mismatch')
     if ext_ not in metadata.get('extension') :
-        messages.add_message(request,messages.WARNING,'Internal problem, check the metadata again %r != %r' %([ext_], metadata.extension))
+        messages.add_message(request,messages.WARNING, _('Internal problem, check the metadata again %r != %r') %\
+                             ([ext_], metadata.extension))
     #
     form.save()
-    messages.add_message(request,messages.INFO,'Changes saved')
+    messages.add_message(request,messages.INFO,_('Changes saved'))
     #
     from ColDoc.latex import environments_we_wont_latex
     if ext_ == '.tex':
@@ -1158,14 +1167,14 @@ def postmetadataedit(request, NICK, UUID):
     if not email_to:
         logger.warning('No author has a validated email %r', metadata)
     else:
-        a = "User '%s' changed metadata in %s - %s" % (request.user , metadata.coldoc.nickname, metadata.uuid)
+        a = _("User '%s' changed metadata in %s - %s") % (request.user , metadata.coldoc.nickname, metadata.uuid)
         r = get_email_for_user(request.user)
         P = subprocess.run(['diff', '-u', baF+'~~', baF, ], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                            check=False, universal_newlines=True )
         message = P.stdout
         after = open(metadata.backup_filename()).readlines()
         H = difflib.HtmlDiff()
-        html_message = H.make_file(before, after, 'Orig','New', True)
+        html_message = H.make_file(before, after, _('Orig'),_('New'), True)
         if r is not None: r = [r]
         E = EmailMultiAlternatives(subject = a, 
                          from_email = settings.DEFAULT_FROM_EMAIL,
@@ -1256,7 +1265,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if a != UUID:
             # TODO this is not shown
             messages.add_message(request, messages.WARNING,
-                                 "UUID was normalized from %r to %r"%(UUID,a))
+                                 _("UUID was normalized from %(old)r to %(new)r)") %   {'old':UUID,'new':a})
         UUID = a
     except ValueError as e:
         return HttpResponse("Internal error for UUID %r : %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
@@ -1607,7 +1616,7 @@ def index(request, NICK, UUID):
             try:
                 b = DMetadata.objects.filter(coldoc=NICK, environ='E_document')[0]
                 a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':b.uuid})
-                html += r'<a href="%s">main document</a>' % (a,)
+                html += (r'<a href="%s">'  % (a,)) + _('Main document') + r'</a>' 
             except:
                 logger.exception('cannot find E_document')
             html+='<ul>'
@@ -1653,8 +1662,8 @@ def index(request, NICK, UUID):
                 html = html.replace('src="images/','src="html/images/')
             except:
                 logger.exception('Problem when preparing HTML for %r',UUID)
-                messages.add_message(request, messages.WARNING,"HTML preview not available")
-                html = '[NO HTML AVAILABLE]'
+                messages.add_message(request, messages.WARNING,_("HTML preview not available"))
+                html = _('[NO HTML AVAILABLE]')
             all_views.append(( ll, iso3lang2word(ll), html, pdfurl))
     else:
         blobcontenttype = 'image' if (ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
@@ -1687,9 +1696,9 @@ def index(request, NICK, UUID):
     # just to be safe
     can_change_blob = request.user.has_perm('UUID.change_blob')
     if not request.user.has_perm('UUID.view_view', metadata):
-        html = '[access denied]'
+        html = _('[access denied]')
     if not request.user.has_perm('UUID.view_blob'):
-        file = '[access denied]'
+        file = _('[access denied]')
     elif  blobcontenttype == 'text' :
         choices = teh.list_allowed_choices(metadata.environ)
         can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
@@ -1715,7 +1724,7 @@ def index(request, NICK, UUID):
             H._table_template = diff_table_template
             blobdiff = H.make_table(open(filename).read().split('\n'),
                                     blobeditform.initial['blobcontent'].split('\n'),
-                                    'On disk','Your content', True)
+                                    _('Saved on disk'),_('Your content'), True)
             # html5 does not like those
             #blobdiff = blobdiff.replace('cellspacing="0"','').replace('cellpadding="0"','').replace('rules="groups"','')
     #
@@ -1794,14 +1803,14 @@ def index(request, NICK, UUID):
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'add', initial=initial_base)
             a = bc if (settings.TRANSLATOR is None or 'preamble' in env) else   'border-info'
-            langforms.append( (L, 'add', 'Add a language version', a) )
+            langforms.append( (L, 'add', _('Add a language version'), a) )
             #
             if settings.TRANSLATOR is not None:
                 L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'translate', initial=initial_base)
-                s = 'Translate to language' 
+                s = _('Translate to language' )
                 if 'preamble' in env:
-                    s += ' ' + '(may damage preamble parts)'
+                    s += ' ' + _('(may damage preamble parts)')
                 a = 'border-info' if ('preamble' in env) else bc
                 langforms.append( (L, 'translate', s, a) )
         # delete
@@ -1809,22 +1818,23 @@ def index(request, NICK, UUID):
         if len(m) > 1 and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'delete', initial=initial_base)
-            langforms.append( (L,'delete','Delete a language version', bc) )
+            langforms.append( (L,'delete', _('Delete a language version'), bc) )
         # relabel
         m = [l for l in CDlangs if (l != lang and l not in Blangs) ]
         if m and 'mul' not in Blangs:
             L = LangForm(choice_list = [ (a,iso3lang2word(a)) for a in m ],
                          prefix = 'relabel', initial=initial_base)
-            langforms.append( (L,'relabel','Change the language of this blob from %s to '%(iso3lang2word(blob_lang),) , bc) )
+            langforms.append( (L,'relabel',
+                               _('Change the language of this blob from %s to:') % (iso3lang2word(blob_lang),) , bc) )
         # convert to `mul`
         if 'mul' not in Blangs and len(CDlangs) > 1 :
             L = LangForm(choice_list = wrong_choice_list,
                          prefix = 'multlang', initial=initial_base)
-            langforms.append( (L,'multlang','Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)', bc) )
+            langforms.append( (L,'multlang',_('Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)'), bc) )
         if len(Blangs) == 1 and 'mul' in Blangs:
             L = LangForm(choice_list =  wrong_choice_list,
                          prefix = 'manual', initial=initial_base)
-            langforms.append( (L,'manual','Change this UUID to manual language management (non <tt>mul</tt>)', bc) )
+            langforms.append( (L,'manual',_('Change this UUID to manual language management (non <tt>mul</tt>)'), bc) )
     #
     view_language = iso3lang2word(view_lang)
     blob_language = iso3lang2word(blob_lang)
@@ -1922,7 +1932,7 @@ def download(request, NICK, UUID):
     # effective file served
     e_f = None
     if not request.user.has_perm('UUID.download'):
-        a = 'Download denied for this content.'
+        a = _('Download denied for this content.')
         e_f = None
         ret = can_buy_permission(request.user, metadata, 'download')
         if isinstance(ret,(int,float)):
@@ -1935,7 +1945,7 @@ def download(request, NICK, UUID):
         e_f = filename
         _content_type , _content_encoding = mimetypes.guess_type(filename)
     elif not request.user.has_perm('UUID.view_view'):
-        a = 'Access denied to this content.'
+        a = _('Access denied to this content.')
         e_f = None
     elif ext == '.tex' :
         # users with perm('UUID.download') and perm('UUID.view_view')
@@ -1959,7 +1969,7 @@ def download(request, NICK, UUID):
             e_f = None
     #
     if e_f is None:
-        if request.user.is_anonymous: a += ' Please login.'
+        if request.user.is_anonymous: a += ' ' + _('Please login.')
         messages.add_message(request, messages.WARNING, a)
         logger.warning('download ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : '+a,
                     request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)

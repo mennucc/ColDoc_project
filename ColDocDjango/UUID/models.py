@@ -15,6 +15,9 @@ from django.urls import reverse
 from django.conf import settings
 AUTH_USER_MODEL = settings.AUTH_USER_MODEL
 
+from django.utils.translation import gettext, gettext_lazy, gettext_noop
+_ = gettext_lazy
+
 from ColDocApp.models import DColDoc, UUID_Field
 
 
@@ -36,7 +39,7 @@ class UUID_Tree_Edge(models.Model):
     coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
     parent = UUID_Field(db_index = True)
     child = UUID_Field(db_index = True)
-    child_ordering = models.IntegerField("used to order the children as in the TeX",default=0)
+    child_ordering = models.IntegerField(_("used to order the children as in the TeX"),default=0)
 
 #class UUID_Tree_Edge_(models.Model):
 #    "edges for the graph parent-child of blobs in a coldoc"
@@ -93,24 +96,24 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     uuid = UUID_Field(db_index = True, )
     environ = models.CharField(max_length=100, db_index = True, blank=True)
     optarg = models.CharField(max_length=300, blank=True)
-    extension = models.TextField(max_length=100,help_text="newline-separated list of extensions",
+    extension = models.TextField(max_length=100,help_text=_("newline-separated list of extensions"),
                                  default='', blank=True)
-    lang = models.TextField(max_length=100,help_text="newline-separated list of languages",
+    lang = models.TextField(max_length=100,help_text=_("newline-separated list of languages"),
                             default='', blank=True)
     original_filename = models.CharField(max_length=1000, blank=True,
-                                         help_text="the filename whose content was copied in this blob (and children of this blob)")
+                                         help_text=_("the filename whose content was copied in this blob (and children of this blob)"))
     #
     author = models.ManyToManyField(AUTH_USER_MODEL)
     #
-    creation_time = models.DateTimeField('date of creation', default=DT.now)
+    creation_time = models.DateTimeField(_('date of creation'), default=DT.now)
     #
-    blob_modification_time = models.DateTimeField('time of last modification of content',
+    blob_modification_time = models.DateTimeField(_('time of last modification of content'),
                                                   default=None, null=True)
     def blob_modification_time_update(self, default=None):
         if default is None: default=DT.now()
         self.blob_modification_time = default
     #
-    latex_time = models.DateTimeField('time of last run of latex',
+    latex_time = models.DateTimeField(_('time of last run of latex'),
                                       default=None, null=True, blank=True)
     def latex_time_update(self, default=None):
         if default is None: default=DT.now()
@@ -119,20 +122,20 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     latex_return_codes = models.CharField(max_length=2000, blank=True)
     #
     # used for permissions, see utils.user_has_perm()
-    ACCESS_CHOICES = [('open','view and LaTeX visible to everybody'),
-              ('public','view visible to everybody, LaTeX restricted'),
-              ('private','visible only to editors, and authors of this blob')]
-    access = models.CharField("access", max_length=15,
+    ACCESS_CHOICES = [('open', _('view and LaTeX visible to everybody')),
+              ('public', _('view visible to everybody, LaTeX restricted')),
+              ('private', _('visible only to editors, and authors of this blob'))]
+    access = models.CharField(_("access policy"), max_length=15,
                               choices=ACCESS_CHOICES,    default='public')
     #
     BLOB_DOCUMENTCLASS=[
-        ('auto','use `main` class for sections and whole document, `standalone` class for others'),
-        ('main','use the class of the main document (usually associated to UUID 001)'),
-        ('standalone','use `standalone` documentclass'),
-        ('article','use `article` documentclass'),
-        ('book','use `book` documentclass'),
+        ('auto', _('use `main` class for sections and whole document, `standalone` class for others')),
+        ('main', _('use the class of the main document (usually associated to UUID 001)')),
+        ('standalone', _('use `standalone` documentclass')),
+        ('article', _('use `article` documentclass')),
+        ('book', _('use `book` documentclass')),
     ]
-    latex_documentclass_choice = models.CharField("documentclass used to compile", max_length=15,
+    latex_documentclass_choice = models.CharField(_("documentclass used to compile"), max_length=15,
                                            choices=BLOB_DOCUMENTCLASS,   default='auto')
     ####
     # these calls implement part of the interface `classes.MetadataBase`

@@ -13,6 +13,9 @@ from django.contrib import messages
 from django.forms import ModelForm
 from django.core.exceptions import SuspiciousOperation
 
+from django.utils.translation import gettext, gettext_lazy, gettext_noop
+_ = gettext_lazy
+
 import ColDoc.utils, ColDocDjango
 
 from ColDoc.utils import slug_re, get_blobinator_args
@@ -322,7 +325,7 @@ def check_tree(request, NICK):
         from helper import check_tree
         problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
         if problems:
-            s = '<h3>Problems in tree of blobs</h3><ul>'
+            s = '<h3>' + _('Problems in tree of blobs') + '</h3><ul>'
             for code, uuid, desc in problems:
                 if isinstance(uuid,str):
                     url = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid})
@@ -333,7 +336,7 @@ def check_tree(request, NICK):
                     s += '<li>' + desc + '</li>'
             s += '</ul>'
         else: 
-            s = 'Tree is fine.'
+            s = _('Tree is fine.')
         return HttpResponse(s)
     except Exception as e:
         logger.exception(repr(e))
