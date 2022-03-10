@@ -90,7 +90,7 @@ class UUID_Field(models.IntegerField):
         try:
             return uuid_to_int(value)
         except (TypeError, ValueError):
-            raise exceptions.ValidationError(
+            raise ValidationError(
                 'Invalid UUID',
                 code='invalid',
                 params={'value': value},
