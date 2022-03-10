@@ -1113,7 +1113,9 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
     options =  get_blobinator_args(blobs_dir)
     #
     from ColDoc.transform import reparse_metadata
-    parsed_back_map, parsed_metadata = reparse_metadata(filename, metadata, blobs_dir, options)
+    parsed_back_map, parsed_metadata, errors = reparse_metadata(filename, metadata, blobs_dir, options)
+    for s,a in errors:
+        warn(s % a)
     #
     # insert changes regarding children
     old_children = metadata.get('child_uuid')

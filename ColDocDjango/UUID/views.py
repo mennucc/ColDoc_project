@@ -767,6 +767,7 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, metadata.coldoc)
     #
+    errors = []
     token_filters = []
     squash_helper = []
     for name, fun in filters:
@@ -790,6 +791,7 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
         inp = io.StringIO(blob)
         inp.name = filename
         transform.squash_latex(inp, out, options, helper, token_filters)
+        errors += helper.errors
         if helper == transform.squash_helper_token2unicode() :
             blob = transform.unsquash_unicode2token(out.getvalue(), helper)
         else:
@@ -801,11 +803,12 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
         inp = io.StringIO(blob)
         inp.name = filename
         transform.squash_latex(inp, out, options, helper)
+        errors += helper.errors
         if isinstance(helper, transform.squash_helper_token2unicode) :
             blob = transform.unsquash_unicode2token(out.getvalue(), helper)
         else:
             blob = out.getvalue()
-    return blob
+    return blob, errors
 
 def postedit(request, NICK, UUID):
     if request.method != 'POST' :
@@ -909,7 +912,10 @@ def postedit(request, NICK, UUID):
         for name, label, help, val, fun in transform.get_latex_filters():
             if form.cleaned_data[name]:
                 filters.append((name, fun))
-        blobeditarea = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea, filters) 
+        blobeditarea, normalize_errors = normalize(coldoc_dir, blobs_dir, metadata, blobeditarea, filters)
+        ## no these are not propagated thru json below
+        #for s,a in normalize_errors:
+        #    messages.add_message(request,messages.ERROR, gettext(s) % a)
     #
     if 'revert' not in request.POST:
         # put back prologue in place
@@ -962,6 +968,8 @@ def postedit(request, NICK, UUID):
                                 'Orig','New', True)
         for wp in weird_prologue:
             a += '\n' + wp
+        for string_,argument_ in normalize_errors:
+            a += '\n' + (gettext(string_) % argument_)
         return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5,
                              'blobeditarea' : blobeditarea, 'uncompiled' : uncompiled})
     for wp in  weird_prologue:

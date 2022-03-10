@@ -235,6 +235,7 @@ class filter_accents_to_unicode(object):
                     s = self.thetex.readArgument(type=str)
                     if len(s) != 1:
                         logger.warning('argument of accent %r should not be %r', m, s)
+                        self.errors.append(( _('argument of accent %(accent)r should not be %(value)r'), {'accent':m,'value':s}))
                     c = s[:1] + chr(latexaccents2unicode[m])
                     c = unicodedata.normalize('NFC', c)
                     yield plasTeX.Tokenizer.Letter(c)
@@ -299,6 +300,7 @@ class squash_helper_accents_to_unicode(squash_helper_stack):
             s = self.thetex.readArgument(type=str)
             if len(s) != 1:
                 logger.warning('argument of accent %r should not be %r', m, s)
+                self.errors.append(( _('argument of accent %(accent)r should not be %(value)r'), {'accent':m,'value':s}))
             s = s[:1] + chr(latexaccents2unicode[m]) + s[1:]
             s = unicodedata.normalize('NFC', s)
             return s
@@ -347,8 +349,9 @@ class squash_input_uuid(squash_helper_stack):
                     uuid, blob = ColDoc.utils.file_to_uuid(inputfile, self.blobs_dir)
                     # this checks if uuid is valid
                     ColDoc.utils.uuid_to_int(uuid)
-                except Exception as e:
-                    logger.error('Macro %r %r { %r } could not be parsed: %r', macroname, argSource, inputfile, e)
+                except Exception as error:
+                    logger.error('Macro %r %r { %r } could not be parsed: %r', macroname, argSource, inputfile, error)
+                    self.errors.append(( _('Macro %(macroname)r %(argSource)r %(inputfile)r could not be parsed: %(error)r'), locals()))
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
                     continue
                 if inputfile[:5] == 'UUID/':
@@ -359,6 +362,8 @@ class squash_input_uuid(squash_helper_stack):
                     logger.debug('while squashing, no good text substitution for inputfile %r uuid %r blob %r', inputfile, uuid, blob)
                     text = uuid
                 context = self.stack[-1]  if self.stack else None
+                if uuid in self.back_map:
+                    self.errors.append( ( _('UUID %(uuid)r is input more than once'), {'uuid':uuid} ) )
                 self.back_map[uuid] = macroname, inputfile, context
                 self.forw_map[inputfile] = macroname, uuid
                 if config.ColDoc_add_env_when_squashing and self.load_uuid is not None:
@@ -571,7 +576,8 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
     #
     itertokens = thetex.itertokens()
     for f in filters:
-        itertokens = iter(f(itertokens, thetex))
+        # passing helper.errors makes sure that all errors are recorded into it
+        itertokens = iter(f(itertokens, thetex, errors = helper.errors))
     #
     helper.thetex = thetex
     helper.itertokens = itertokens
@@ -759,7 +765,7 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     pickle.dump(helper.back_map,f)
     f.close()
     #
-    return helper.back_map, helper.metadata
+    return helper.back_map, helper.metadata, helper.errors
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
