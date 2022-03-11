@@ -1063,7 +1063,7 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
 ############################
 
 
-def recurse_tree(load_metadata_by_uuid, action, uuid='001', seen=None, branch=None):
+def recurse_tree(load_metadata_by_uuid, action, uuid='001', seen=None, branch=None, problems=None):
     """ recurse tree starting from `uuid` , for each node call 
     `action(uuid=uuid, metadata=metadata, branch=branch)` which should return a boolean.
     `load_metadata_by_uuid(uuid)` is a function that returns the metadata
@@ -1073,12 +1073,13 @@ def recurse_tree(load_metadata_by_uuid, action, uuid='001', seen=None, branch=No
         seen = set()
     if branch is None:
         branch = []
+    problems = problems if problems is not None else []
     assert isinstance(seen, set)
     assert isinstance(branch, list)
-    return recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch)
+    return recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch, problems)
 
 
-def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch):
+def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch, problems):
     """ you may want to see `recurse tree`"""
     #
     metadata = load_metadata_by_uuid(uuid)
@@ -1096,7 +1097,7 @@ def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch):
         for u in metadata.get('child_uuid'):
             ## disabled, to speed up
             #logger.debug('moving down '+('→'*len(branch))+'from node %r to node %r',uuid,u)
-            r = recurse_tree__(load_metadata_by_uuid, action, uuid=u, seen=seen, branch=b)
+            r = recurse_tree__(load_metadata_by_uuid, action, uuid=u, seen=seen, branch=b,problems=problems)
             ret = ret and r
     else:
         logger.warning("skipping duplicate node %r", uuid)
