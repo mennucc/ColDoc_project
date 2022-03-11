@@ -7,6 +7,15 @@ EMAIL_HOST_PASSWORD = "password"
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "helpdesk@that_email"
 
+## you may want to reduce the list of available languages
+
+from django.utils.translation import gettext_lazy
+
+LANGUAGES = [
+    ('en', gettext_lazy('English')),
+    ('it', gettext_lazy('Italian')),
+]
+
 
 ## as per https://bugs.freedesktop.org/show_bug.cgi?id=5455
 
@@ -38,7 +47,7 @@ def PRICE_FOR_PERMISSION(user, blob, permission ):
         # in this example, an user with `operate` on wallet can by `download` of anything that is not `preamble`
         print('price for permission %r is 20' % permission)
         return 20
-    elif env in  ('E_buyablecontent') and permission == 'view_view':
+    elif env in  ('E_buyablecontent',) and permission == 'view_view':
         print('price for permission %r is 100' % permission)
         return 100
     else:
