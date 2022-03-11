@@ -968,24 +968,29 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, c
         return 0
     os.makedirs(td)
     publ = metadata.get('access')[0] in ('open','public')
-    for j in os.listdir(bd):
+    files = os.listdir(bd)
+    if '.tex'  in metadata.get('extension'):
+        files += [ ('blob_' + ll + '.tex') for ll in langs ]
+    for j in  files:
         f = osjoin(bd,j)
         t = osjoin(td,j)
+        if  os.path.exists(t):
+            continue
         if j == 'metadata':
             ret += 1
             logger.debug('did copy %r',f)
             shutil.copy2(f,t, follow_symlinks=False)
-        elif j.startswith('blob') and os.path.isfile(f): # or os.path.islink(f):
+        elif j.startswith('blob'):
             # extract extension
             B,E = os.path.splitext(j)
-            # extract language, with underscore
-            L = B[4:]
-            if lang is not None and L and lang != L[1:]:
+            # extract language, without underscore
+            L = B[5:]
+            if lang is not None and L and lang != L:
                 # If `lang` is not None, skip any blob that has a language that is not None
                 logger.debug('did not copy %r wrong language',f)
                 continue
             ret += 1
-            if publ:
+            if publ and os.path.exists(f):
                 try:
                     os.link(f,t)
                     logger.debug('did link %r',f)
@@ -995,14 +1000,23 @@ def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, c
             elif  E == '.tex':
                 # mask content, preserve tree
                 F = open(t,'w')
-                F.write('\\uuidplaceholder{%s}{%s}'% (uuid,uuid))
+                a = r'{UNACCESSIBLE UUID %r}' % (uuid,)
+                if not os.path.exists(f):
+                    F.write(r'\message{UUID %r untranslated, using fake content}' % (uuid,))
+                    a = r'{UNTRANSLATED UUID %r}' % (uuid,)
+                    logger.warning('Added untranslate stub for UUID %r lang %r', uuid, L)
+                F.write('\\uuidplaceholder{%s}{%s}'% (uuid,a))
                 for u in metadata.get('child_uuid'):
                     # We include all LaTeX children, to keep tree connectivity
-                    sub_uuid_, sub_uuid_dir, sub_metadata = resolve_uuid(uuid=u, uuid_dir=None,
+                    sub_metadata = None
+                    try:
+                        sub_uuid_, sub_uuid_dir, sub_metadata = resolve_uuid(uuid=u, uuid_dir=None,
                                                                          blobs_dir = blobs_dir,
                                                                          metadata_class=metadata_class, coldoc=coldoc)
-                    if '.tex' in sub_metadata.get('extension'):
-                        F.write('\\input{%s/blob%s.tex}'%(sub_uuid_dir,L))
+                    except ColDocException:
+                        continue
+                    if sub_metadata is not None and '.tex' in sub_metadata.get('extension'):
+                        F.write('\\input{%s/blob_%s.tex}'%(sub_uuid_dir,L))
                 F.close()
                 logger.debug('did mask private %r',f)
             else:
