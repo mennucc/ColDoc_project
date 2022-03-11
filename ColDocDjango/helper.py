@@ -42,6 +42,11 @@ import os, sys, argparse, json, pickle, io
 from os.path import join as osjoin
 
 
+def _(s):
+    "mark translatable strings; no attempt is made to translate them, since part of this code is used as a library"
+    return s
+
+
 if __name__ == '__main__':
     for j in ('','.'):
         if j in sys.path:
@@ -368,7 +373,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     if environ in CC.ColDoc_environments_sectioning:
         from ColDoc.blob_inator import _rewrite_section
         sources = ['','','{placeholder}']
-        _, src = _rewrite_section(sources, new_uuid, environ)
+        ignore_me, src = _rewrite_section(sources, new_uuid, environ)
         placeholder = src + '\n' + placeholder
         child_metadata.add('optarg', json.dumps(sources))
         child_metadata.save()
