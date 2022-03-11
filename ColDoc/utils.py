@@ -942,9 +942,24 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
 
 def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, coldoc):
     " subrouting for `prepare_anon_tree` "
-    uuid_, uuid_dir, metadata = resolve_uuid(uuid=uuid, uuid_dir=None,
+    uuid_dir = uuid_to_dir(uuid, blobs_dir=blobs_dir)
+    langs = [lang] if lang is not None else coldoc.get_languages()
+    try:
+        uuid_, uuid_dir, metadata = resolve_uuid(uuid=uuid, uuid_dir=uuid_dir,
                                                    blobs_dir = blobs_dir,
                                                    metadata_class=metadata_class, coldoc=coldoc)
+    except ColDocException:
+        uuid_ = None
+    if uuid_ is None:
+        td = osjoin(temp_dir,uuid_dir)
+        os.makedirs(td)
+        for ll in langs:
+            b = osjoin(td,'blob_' + ll + '.tex')
+            with open(b,'w') as f:
+                f.write(r'\texttt{[MISSING UUID %r]}\errmessage{UUID %r missing, using fake content}' % (uuid,uuid))
+            logger.warning('Created fake %r', b)
+        return len(langs)
+    #
     ret = 0
     bd = osjoin(blobs_dir,uuid_dir)
     td = osjoin(temp_dir,uuid_dir)
