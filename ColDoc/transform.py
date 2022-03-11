@@ -732,7 +732,9 @@ def reparse_metadata(inp, metadata, blobs_dir, options, load_uuid=None):
     else:
         plasTeX.Logging.disableLogging()
     #
-    if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
+    ## TODO creates more problem than it solves
+    #if not os.path.isabs(inp): inp = osjoin(blobs_dir, inp)
+    ##
     thetex = TeX()
     mydocument = thetex.ownerDocument
     mycontext = mydocument.context
