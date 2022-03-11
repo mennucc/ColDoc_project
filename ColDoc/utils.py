@@ -6,6 +6,11 @@ import os.path
 from os.path import join as osjoin
 from bs4 import BeautifulSoup
 
+
+def _(s):
+    "mark translatable strings; no attempt is made to translate them, since this is a library"
+    return s
+
 import plasTeX
 
 if __name__ == '__main__':
