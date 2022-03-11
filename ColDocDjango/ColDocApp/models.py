@@ -64,16 +64,16 @@ validate_UUID = RegexValidator(
 # https://docs.djangoproject.com/en/3.0/howto/custom-model-fields/
 class UUID_Field(models.IntegerField):
     default_error_messages = {
-        'invalid': _("'%(value)s' value must be a ColDoc UUID."),
+        'invalid': _("'%(value)s' value must be a valid UUID."),
     }
-    description = _("ColDoc UUID")
+    description = _("UUID")
     default_validators = [validate_UUID]
     #
     def to_python(self, value):
         if isinstance(value, str) or value is None:
             return value
         else:
-            return int_to_uuid(obj)
+            return int_to_uuid(value)
     #
     def from_db_value(self, obj, expression, connection):
         if isinstance(obj, int):
@@ -91,7 +91,7 @@ class UUID_Field(models.IntegerField):
             return uuid_to_int(value)
         except (TypeError, ValueError):
             raise ValidationError(
-                'Invalid UUID',
+                _('Invalid UUID'),
                 code='invalid',
                 params={'value': value},
             )
@@ -174,7 +174,7 @@ class DColDoc(models.Model):
     #
     anonymous_can_view = models.BooleanField(default=True)
     #
-    author_can_add_blob = models.BooleanField(_('An user can add a children if s/he is the author of the blob'),default=True)
+    author_can_add_blob = models.BooleanField(_('An user can add a child node if s/he is the author of the blob'),default=True)
     #
     LATEX_ENGINES=ColDoc_latex_engines
     latex_engine = models.CharField(_("latex-type command used to compile"),

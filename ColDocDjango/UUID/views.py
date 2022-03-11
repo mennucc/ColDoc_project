@@ -678,7 +678,7 @@ def postlang(request, NICK, UUID):
         else:
             logger.warning(' lang %r not in %r',langchoice_,L)
     else:
-        messages.add_message(request,messages.ERROR, 'unimplemented %r %r'%(prefix,langchoice_))
+        messages.add_message(request,messages.ERROR, 'Unimplemented %r %r'%(prefix,langchoice_))
     ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                     '?lang=%s&ext=%s'%(redirectlang_,ext_) )

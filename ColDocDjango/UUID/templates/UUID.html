@@ -104,13 +104,13 @@ var blob_uncompiled={{ uncompiled }};
 <div class="tab-content" id="myTabContent">
  {% if perms.UUID.view_view %}
   <div class="tab-pane fade show active" id="view" role="tabpanel" aria-labelledby="view-tab">
-    <h2>View</h2>
+    <h2>{% translate "View" %}</h2>
      {% if blobcontenttype == 'text' %}
      <div class="container">
      <div class="row">
       {% for thislang,thislanguage,html,pdfurl in all_views %}
        <div class="col-sm border border-info mt-1">
-       {# if ('mul' == lang) or (len(Blangs) > 1) or (len(CDlangs) > 1) #} <h3> {{ thislanguage }}</h3> {# endif #}
+       {# if ('mul' == lang) or (len(Blangs) > 1) or (len(CDlangs) > 1) #} <h3> {% translate thislanguage %}</h3> {# endif #}
         <div class="border border-info">
          {{ html|safe }}
         </div>
@@ -146,8 +146,8 @@ var blob_uncompiled={{ uncompiled }};
     <h2>Blob</h2>
     <div class="border border-info p-1 m-1">
     <ul>
-    {% if blob_language %}<li>Selected language: {{ blob_language }}{% endif %}
-    {% if ext %}<li>{% translate "Selected extension" %}: {{ ext }} {% endif %}
+    {% if blob_language %}<li>{% translate "Selected language:" %} {{ blob_language }}{% endif %}
+    {% if ext %}<li>{% translate "Selected extension:" %} {{ ext }} {% endif %}
     </ul>
     {% if blobcontenttype == 'text' %}
      {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
@@ -321,7 +321,7 @@ var blob_uncompiled={{ uncompiled }};
 {% if perms.UUID.view_view %}
       {% if  uuid_languages %}
         <div class="border border-info mt-4 mb-4">
-          This content is available in:
+          {% translate "This content is available in:" %}
           {% for val,link in uuid_languages %}
             <a href="{{ link }}">  {{ val }} </a>
           {% endfor %}
