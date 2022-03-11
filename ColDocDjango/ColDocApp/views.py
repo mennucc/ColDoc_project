@@ -327,7 +327,12 @@ def check_tree(request, NICK):
         problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
         if problems:
             s = '<h3>' + _('Problems in tree of blobs') + '</h3><ul>'
-            for code, uuid, desc in problems:
+            for code, uuid, msg, args in problems:
+                try:
+                    desc = gettext_lazy(msg) % args
+                except:
+                    logger.exception('when formatting msg %r args %r',msg,args)
+                    desc = repr((msg,args))
                 if isinstance(uuid,str):
                     url = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid})
                     s += ('<li><a href="%s">'%(url,)) + uuid + '</a> →' + desc + '</li>'

@@ -457,6 +457,7 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
 
 
 def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
+    " returns `problems`, a list of problems found in tree; `warn(s,a)` is a function where `s` is a translatable string, `a` its arguments"
     #
     from functools import partial
     from ColDoc.utils import recurse_tree
@@ -498,28 +499,28 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     #
     def actor(teh, seen, available, warn, problems, uuid, branch, *v , **k):
         if uuid in branch:
-            a = "loop detected along branch %r" %(branch+[uuid],)
-            warn(a)
-            problems.append(("LOOP", uuid, a))
+            s,a = _("loop detected along branch %r") , (branch+[uuid],)
+            warn(s,a)
+            problems.append(("LOOP", uuid, s, a))
         ret = True
         if uuid in seen:
             ret = False
-            a = "duplicate node %r in tree" % (uuid,)
-            warn(a)
-            problems.append(("DUPLICATE", uuid, a))
+            s,a = _("duplicate node %r in tree"), (uuid,)
+            warn(s, a)
+            problems.append(("DUPLICATE", uuid, s, a))
         if uuid in available:
             available.discard(uuid)
         else:
             ret = False
-            warn("already deleted from queue %r" % uuid)
+            warn(_("already deleted from queue %r") , uuid)
         seen.add(uuid)
         if len(branch) > 1:
             c = load_by_uuid(branch[-1])
             p = load_by_uuid(branch[-2])
             if not teh.child_is_allowed(c.environ, p.environ, c.get('extension')):
-                a = "The node %r %r cannot be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ)
-                problems.append(("WRONG_LINK", uuid,a))
-                warn(a)
+                s,a = _("The node %r %r cannot be a child of %r %r"), (c.uuid,c.environ,p.uuid,p.environ)
+                problems.append(("WRONG_LINK", uuid, s, a))
+                warn(s, a)
                 ret = False
             #else:
             #    warn("The node %r %r can be a child of %r %r" %(c.uuid,c.environ,p.uuid,p.environ))                
@@ -534,10 +535,11 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     assert bool(problems) ^ (bool(ret)), (ret,problems, bool(ret), bool(problems))
     #
     if available:
-        a = ("Disconnected nodes %r"%available)
-        warn(a)
+        s,a = _("Disconnected nodes %r") , available
+        warn(s, a)
+        s = _("Disconnected node %r")
         for j in available:
-            problems.append(('DISCONNECTED',j,a))
+            problems.append(('DISCONNECTED', j, s, [j]))
     # load back_maps
     from ColDoc.utils import uuid_to_dir, parent_cmd_env_child
     back_maps = {}
@@ -555,9 +557,9 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
         M = all_metadata[uuid]
         env = M.get('environ')
         if len(env) != 1 :
-            a = 'UUID %r environ %r' % (uuid, env)
+            s, a = _('UUID %r environ %r') , (uuid, env)
             logger.error(a)
-            problems.append(("WRONG environ", uuid, a))
+            problems.append(("WRONG environ", uuid, s, a))
             continue
         environments[uuid] = env[0]
     # check protection
@@ -567,8 +569,8 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             env = environments.get(uuid)
             M = all_metadata[uuid]
             if (env[:2] == 'E_') and ( bool(env[2:] in private_environment) != bool( M.access == 'private')):
-                a = 'UUID %r environ %r access %r' % (uuid, env, M.access)
-                logger.warning(a)
+                s, a = _('UUID %r environ %r access %r') ,  (uuid, env, M.access)
+                logger.warning(s % a)
                 problems.append(('WRONG access', uuid, a))
     # check that the environment of the child corresponds to the LaTex \begin/\end used in the parent
     split_graphic = options.get("split_graphic",[])
@@ -588,10 +590,10 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             wrong = parent_cmd_env_child(parent_uses_env, cmd, child_env, split_graphic, allowed_parenthood)
             if wrong:
                 #a = 'child env %r parent_env %r parent_cmd %r' %(child_env,parent_uses_env,cmd))
-                a = 'Parent %r includes child %r using cmd %r environ %r but child %r thinks it is environ %r' %\
-                    (parent_uuid, uuid, cmd, parent_uses_env, uuid , child_env)
-                logger.warning(a)
-                problems.append(('CMD_PARENT_CHILD',uuid,a))
+                s = _('Parent %r includes child %r using cmd %r environ %r but child %r thinks it is environ %r')
+                a =  (parent_uuid, uuid, cmd, parent_uses_env, uuid , child_env)
+                logger.warning(s % a)
+                problems.append(('CMD_PARENT_CHILD', uuid, s, a))
     # check that header is consistent
     from ColDoc.config import ColDoc_environments_sectioning
     for uuid in all_metadata :
@@ -604,19 +606,22 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
                     if j.startswith('blob') and j.endswith('.tex'):
                         l = open( osjoin(D,j) ).readline(32)
                         if not l.startswith('\\'+ env):
-                            a = 'UUID %r file %r environ %r first line %r' % (uuid, j, env, l)
-                            logger.warning(a)
-                            problems.append(('WRONG_HEADER', uuid, a))
+                            s = _('UUID %r file %r environ %r first line %r')
+                            a = (uuid, j, env, l)
+                            logger.warning(s % a)
+                            problems.append(('WRONG_HEADER', uuid, s, a))
             except:
                 logger.exception('while checking headers in %r', uuid)
     if untranslated:
         a = 'There are %d untranslated UUIDs' % len(untranslated)
         if len(untranslated) > 16:
-            a = 'There are %d untranslated UUIDs, showing some' % len(untranslated)
+            s = _('There are %d untranslated UUIDs, showing some')
+            a = (len(untranslated),)
             untranslated = untranslated[:16]
-        problems.append(('N_UNTRASLATED',None,a))
+        problems.append(('N_UNTRASLATED',None,s,a))
         for uuid,b in untranslated:
-            problems.append(('UNTRANSLATED',uuid,'translated: '+repr(b)))
+            s = _('translated to: %r')
+            problems.append(('UNTRANSLATED',uuid, s, b))
     return problems
 
 
@@ -811,13 +816,19 @@ does not contain the file `config.ini`
         return True
     #
     elif argv[0] == 'check_tree':
-        problems = check_tree(logger.warning, COLDOC_SITE_ROOT, args.coldoc_nick)
+        def warn(s,a):
+            print(gettext('Warning') + ' : ' + gettext(s) % a)
+        problems = check_tree(warn, COLDOC_SITE_ROOT, args.coldoc_nick)
         if problems:
-            print('Problems:')
+            print(gettext('Problems') + ' : ')
             for a in problems:
-                print(' '+repr(a))
+                try:
+                    a =  (str(a[1] or '')) + ' : ' + ( gettext(a[-2]) % a[-1] )
+                except:
+                    print('  (!formatting error)')
+                print(' ' + str(a))
         else:
-            print("Tree for coldoc %r is fine" % (args.coldoc_nick,))
+            print(gettext("Tree for coldoc %r is fine") % (args.coldoc_nick,))
         return not bool(problems)
     #
     elif argv[0] == 'send_test_email':
