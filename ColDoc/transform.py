@@ -366,15 +366,21 @@ class squash_input_uuid(squash_helper_stack):
                     self.errors.append( ( _('UUID %(uuid)r is input more than once'), {'uuid':uuid} ) )
                 self.back_map[uuid] = macroname, inputfile, context
                 self.forw_map[inputfile] = macroname, uuid
-                if config.ColDoc_add_env_when_squashing and self.load_uuid is not None:
+                #
+                if self.load_uuid is not None:
+                    child = optarg = None
                     try:
                         child = self.load_uuid(uuid)
-                        if child.environ in config.ColDoc_environments_sectioning:
+                        if config.ColDoc_add_env_when_squashing and child and child.environ in config.ColDoc_environments_sectioning:
                             optarg = json.loads(child.optarg)
                             optarg[0] = '*'
                             placeholder +=  '\\' + child.environ + ''.join(optarg)
                     except:
-                        logger.exception('While adding env %r with optarg %r of uuid %r', child.environ, child.optarg, uuid)
+                        logger.exception('For uuid %r child %r optarg %r ', uuid, child, optarg)
+                    if child is None:
+                        a = _('Macro %(macroname)r %(argSource)r %(inputfile)r references a non-existant UUID %(uuid)r')
+                        self.errors.append( (a,locals()) )
+                        logger.warning( a % locals())
                 placeholder += (r'\uuidplaceholder{' + uuid + '}{' + text + '}')
             return placeholder
         else:
