@@ -212,7 +212,8 @@ def reparse(request, NICK):
             messages.add_message(request,messages.INFO,'Reparsing results will be sent to '+str(request.user.email))
     else:
         from helper import reparse_all
-        def writelog(s):
+        def writelog(msg, args):
+            s = _(msg) % args
             messages.add_message(request,messages.INFO,s)
         reparse_all(writelog, settings.COLDOC_SITE_ROOT, NICK)
         messages.add_message(request,messages.INFO,'Reparsing done')

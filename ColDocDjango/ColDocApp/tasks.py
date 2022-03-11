@@ -110,7 +110,8 @@ class CompletedTaskForm(ModelForm):
 @background()
 def reparse_all_sched(email_to, NICK):
     log_file = tempfile.NamedTemporaryFile('w', delete=False, suffix='.txt', prefix='reparse')
-    def writelog(s):
+    def writelog(msg, args):
+        s = msg % args # TODO how to translate?
         log_file.write(s+'\n')
     from helper import reparse_all
     reparse_all(writelog, settings.COLDOC_SITE_ROOT, NICK)

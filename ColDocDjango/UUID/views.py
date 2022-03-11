@@ -1026,7 +1026,8 @@ def postedit(request, NICK, UUID):
                                          ext = ext_, lang = lang_,
                                          metadata_class=DMetadata, coldoc=NICK)
             # parse it for metadata
-            def warn(msg):
+            def warn(msg, args):
+                msg =  _(msg) % args
                 all_messages.append(_('Metadata change in new blob') + ': ' + msg)
                 messages.add_message(request,messages.INFO, _('In new blob') + ': ' + msg)
             reparse_blob(addfilename, addmetadata, blobs_dir, warn, load_uuid=load_uuid)
@@ -1043,7 +1044,8 @@ def postedit(request, NICK, UUID):
                 all_messages.append(a)
     #
     # parse it to refresh metadata (after splitting)
-    def warn(msg):
+    def warn(msg, args):
+        msg = _(msg) % args
         all_messages.append(_('Metadata change in blob') + ': ' + msg)
         messages.add_message(request,messages.INFO,msg)
     reparse_blob(filename, metadata, blobs_dir, warn, load_uuid=load_uuid)

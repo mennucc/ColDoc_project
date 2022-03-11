@@ -1112,16 +1112,17 @@ def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch, problems):
 
 
 def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid=True, load_uuid=None):
-    " reparse a blob to extract and update all metadata "
+    " reparse a blob to extract and update all metadata ; `warn(s,a)` is a function where `s` is a translatable string, `a` its arguments"
     if warn is None:
-        warn = logger.warning
+        def warn(s,a):
+            logger.warning(s % a)
     #
     options =  get_blobinator_args(blobs_dir)
     #
     from ColDoc.transform import reparse_metadata
     parsed_back_map, parsed_metadata, errors = reparse_metadata(filename, metadata, blobs_dir, options, load_uuid=load_uuid)
     for s,a in errors:
-        warn(s % a)
+        warn(s, a)
     #
     # insert changes regarding children
     old_children = metadata.get('child_uuid')
@@ -1131,7 +1132,8 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
         new_children_set = set()
         for childuuid in parsed_back_map:
             if childuuid in new_children_set:
-                warn('In %r the child %r is referenced twice'%(uuid,childuuid))
+                warn(_('In UUID %(uuid)r the child %(childuuid)r is referenced twice') ,
+                     {'uuid':uuid,'childuuid':childuuid})
             else:
                 metadata.add('child_uuid',childuuid)
             new_children_set.add(childuuid)
@@ -1140,9 +1142,9 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
     #
     if old_children_set != new_children_set:
         if old_children_set.difference(new_children_set):
-            warn('Warning connection to these children was disconnected: %r'%(old_children_set.difference(new_children_set),))
+            warn(_('Warning connection to these children was disconnected: %r'), (old_children_set.difference(new_children_set),))
         if new_children_set.difference(old_children_set):
-            warn('New connection to these children: %r'%(new_children_set.difference(old_children_set),))
+            warn(_('New connection to these children: %r'), (new_children_set.difference(old_children_set),))
     #
     # insert changes regarding extrametadata
     #
@@ -1161,9 +1163,9 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
         new_metadata_set = set(parsed_metadata)
     if old_metadata_set != new_metadata_set:
         if old_metadata_set.difference(new_metadata_set):
-            warn('Deleted metadata: %r'%(old_metadata_set.difference(new_metadata_set),))
+            warn(_('Deleted metadata: %r'),(old_metadata_set.difference(new_metadata_set),))
         if new_metadata_set.difference(old_metadata_set):
-            warn('New metadata: %r'%(new_metadata_set.difference(old_metadata_set),))
+            warn(_('New metadata: %r'),(new_metadata_set.difference(old_metadata_set),))
     #
     if act:
         for key in metadata.keys():
@@ -1172,7 +1174,8 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
         for key, value in parsed_metadata:
             if key == 'M_uuid':
                 if value != ('{'+metadata.uuid+'}'):
-                    warn('Warning: there is a `uuid` command with value %s instead of {%s}'%(value,metadata.uuid))
+                    warn(_('Warning: there is a `uuid` command with value %(value)s instead of {%(uuid)s}'),
+                         {"value":value,'uuid':metadata.uuid})
                 if not ignore_uuid:
                     metadata.add(key,value)
             else:
