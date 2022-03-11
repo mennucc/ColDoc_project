@@ -1,4 +1,5 @@
 {% extends "bootstrapbase.html" %}
+{% load i18n %}
 {% load static %}
 {% block title %} ColDoc — {{ coldoc.nickname }}{% endblock %}
 {% block extrahead %}<script src="{% static 'ColDoc/js/dyna.js' %}"></script>{% endblock %}
@@ -8,9 +9,9 @@
 <h1>{% if coldoc.title %} {{coldoc.title}} {% else %}
 ColDoc  — {{ coldoc.nickname }} {% endif %}</h1>
 
-First published {{ coldoc.publication_time }}
+{% translate "First published" %} {{ coldoc.publication_time }}
 {% if coldoc.authors %}
-<h2>Authors</h2>
+<h2>{% translate "Authors" %}</h2>
 <p> {{ coldoc.authors|escape|linebreaks }}</p>
 {% endif %}
 {% if coldoc.abstract %}
@@ -21,35 +22,36 @@ First published {{ coldoc.publication_time }}
 <br>
 
 <a href="{% url 'ColDoc:html' NICK=coldoc.nickname %}" class="btn {{ whole_button_class }} btn-sm">
- View whole document
+ {% translate "View whole document" %}
 </a>
 
 <a href="{% url 'ColDoc:pdf' NICK=coldoc.nickname %}" class="btn {{ whole_button_class }} btn-sm">
- View whole document, as PDF
+ {% translate "View whole document, as PDF" %}
 </a>
 
 <a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=coldoc.root_uuid %}" class="btn btn-outline-primary btn-sm">
- Navigate document tree
+ {% translate "Navigate document tree" %}
 </a>
 
 <br>
 
 {% if user.is_editor %}
 <a href="{% url 'ColDoc:latex' NICK=coldoc.nickname %}?type=anon"
- class="btn btn-outline-primary btn-sm" data-toggle="tooltip" title="Compile whole document. In this HTML and PDF private material is omitted.">
- Compile public 
+ class="btn btn-outline-primary btn-sm" data-toggle="tooltip" 
+ title="{% translate 'Compile whole document. In this HTML and PDF private material is omitted.' %}">
+ {% translate "Compile public" %} 
 </a>
-<a href="{% url 'ColDoc:latex' NICK=coldoc.nickname  %}?type=main" class="btn btn-outline-primary btn-sm"
- data-toggle="tooltip" title="Compile whole document. This HTML and PDF are visible only to editors; all material is visible.">
- Compile private
+<a href="{% url 'ColDoc:latex' NICK=coldoc.nickname  %}?type=main" class="btn btn-outline-primary btn-sm" data-toggle="tooltip" 
+ title="{% translate 'Compile whole document. This HTML and PDF are visible only to editors; all material is visible.' %}">
+ {% translate "Compile private" %}
 </a>
 <a href="{% url 'ColDoc:latex' NICK=coldoc.nickname  %}?type=tree" class="btn btn-outline-primary btn-sm"
- data-toggle="tooltip" title="Recompile HTML and PDF for all blobs.">
- Compile blobs
+ data-toggle="tooltip" title="{% translate 'Recompile HTML and PDF for all blobs.' %}">
+ {% translate "Compile blobs" %}
 </a>
 <a href="{% url 'ColDoc:reparse' NICK=coldoc.nickname  %}" class="btn btn-outline-primary btn-sm"
- data-toggle="tooltip" title="Reparse all blobs to extract metadata.">
- Reparse
+ data-toggle="tooltip" title="{% translate 'Reparse all blobs to extract metadata.' %}">
+ {% translate "Reparse" %}
 </a>
 {% endif %}
 
@@ -62,17 +64,20 @@ First published {{ coldoc.publication_time }}
 <ul class="nav nav-tabs" id="myTab" role="tablist">
  {% if user.is_editor %}
   <li class="nav-item">
-    <a class="nav-link" id="status-tab" data-toggle="tab" href="#status" role="tab" aria-controls="status" aria-selected="true">Status</a>
+    <a class="nav-link" id="status-tab" data-toggle="tab" href="#status" role="tab" aria-controls="status" aria-selected="true">
+    {% translate "Status" %}</a>
   </li>
  {% endif %}
  {% if  user.is_staff or perms.ColDocApp.view_dcoldoc %}
   <li class="nav-item">
-      <a class="nav-link" id="settings-tab" data-toggle="tab" href="#settings" role="tab" aria-controls="settings" aria-selected="false">Settings</a>
+      <a class="nav-link" id="settings-tab" data-toggle="tab" href="#settings" role="tab" aria-controls="settings" aria-selected="false">
+      {% translate "Settings" %}</a>
   </li>
  {% endif %}
  {% if user.is_editor %}
   <li class="nav-item">
-    <a class="nav-link" id="tasks-tab" data-toggle="tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">Tasks</a>
+    <a class="nav-link" id="tasks-tab" data-toggle="tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">
+    {% translate "Tasks" %}</a>
   </li>
  {% endif %}
 </ul>
@@ -83,11 +88,11 @@ First published {{ coldoc.publication_time }}
 
 {% if user.is_editor %}
 <div class="tab-pane fade show active border m-2 p-1" id="status" role="tabpanel" aria-labelledby="status-tab">
-<h2>Document checks</h2>
+<h2>{% translate "Document checks" %}</h2>
 <div class="border border-info m-2 p-1">
 <div id='id_check_tree'>......</div>
 <button   type="button" class="btn btn-outline-primary btn-sm" id="id_button_check_tree" onClick="AJAXcheck_tree('{{ check_tree_url }}');">
-  check tree
+  {% translate "Check tree" %}
 </button>
 </div>
 <script>window.addEventListener('ready', AJAXcheck_tree('{{ check_tree_url }}') );</script>
@@ -95,7 +100,7 @@ First published {{ coldoc.publication_time }}
 {% include "latex_error_logs.html" %}
 
 {% if failedblobs %}
-<h2>Failed blobs in tree</h2>
+<h2>{% translate "Failed blobs in tree" %}</h2>
 <ul>
  {% for val ,link in failedblobs %}
  <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
@@ -110,7 +115,7 @@ First published {{ coldoc.publication_time }}
 
 <div class="tab-pane fade show border m-2 p-1" id="settings" role="tabpanel" aria-labelledby="settings-tab">
 {% if perms.ColDocApp.view_dcoldoc %}
-<h2>Settings</h2>
+<h2>{% translate "Settings" %}</h2>
 <div class="border border-info m-2 p-1">
      {% if perms.ColDocApp.change_dcoldoc %}
      <form action="{% url 'ColDoc:postcoldocedit' NICK=NICK %}" id="{{ coldocform.htmlid }}" method="post" class="w-100">
@@ -118,13 +123,13 @@ First published {{ coldoc.publication_time }}
      {% endif %}
 <table class="w-100">{{ coldocform }}</table>
 {% if perms.ColDocApp.change_dcoldoc %} <input type="submit" class="btn btn-primary" value="Submit">   </form> {% else %}
-   <div class="alert alert-warning" role="alert">No permission to change data.</div>{% endif %}
+   <div class="alert alert-warning" role="alert">{% translate "No permission to change data." %}</div>{% endif %}
 </div>
 {% endif %} <!--perms.ColDocApp.view_dcoldoc-->
 
 {% if user.is_staff %}
 <a href="/admin/ColDocApp/dcoldoc/{{ coldoc.nickname }}/change/" class="btn btn-outline-primary btn-sm">
-  edit settings in admin form
+  {% translate "edit settings in admin form" %}
 </a>
 {% endif %}
 </div>  <!-- settings tab -->
@@ -132,13 +137,13 @@ First published {{ coldoc.publication_time }}
 
 {% if  USE_BACKGROUND_TASKS and user.is_editor %}
  <div class="tab-pane fade show border m-2 p-1" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
-<h2> Tasks </h2>
+<h2>{% translate "Tasks" %}</h2>
 <div class="row border border-info m-2 p-1"> 
 {% for val in tasks %}
  <table class="col sm border border-info m-1 p-1">{{ val }} </table>
 {% endfor %}
 </div>
-<h2> Completed Tasks </h2>
+<h2>{% translate "Completed Tasks" %}</h2>
 <div class="row border border-info m-2 p-1"> 
 {% for val in completed_tasks %}
  <table class="col sm border border-info m-1 p-1">{{ val }} </table>
