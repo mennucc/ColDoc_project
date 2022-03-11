@@ -276,6 +276,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
+LOCALE_PATHS = [
+    os.path.join(COLDOC_SRC_ROOT, 'ColDocDjango', 'locale'),
+    ]
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
