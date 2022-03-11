@@ -1,5 +1,6 @@
 {% extends "bootstrapbase.html" %}
 {% load static %}
+{% load i18n %}
 {% block extrahead %}
 <script>var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var VIEW="{{VIEW}}"; 
 var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
@@ -39,11 +40,11 @@ var blob_uncompiled={{ uncompiled }};
  {% if downlink %}<a class="btn btn-outline-primary" href="{{downlink|safe}}">↓</a>
  {% else %}<div class="btn btn-outline-light disabled">↓</div>{% endif %}
  {% if pdfUUIDurl %} <a href="{{ pdfUUIDurl | safe }}" class="btn btn-outline-primary"
-            data-toggle="tooltip" title="View this blob inside the whole PDF">
+            data-toggle="tooltip" title="{% translate 'View this blob inside the whole PDF' %}">
   <img src="{% static 'ColDoc/Adobe_PDF_goto_icon.svg' %}"  style="height: 14pt" alt="view in whole PDF"></a>
  {% endif %}
 {% if htmlUUIDurl %} <a href="{{ htmlUUIDurl | safe }}" class="btn btn-outline-primary"
-            data-toggle="tooltip" title="View this blob inside the whole HTML">
+            data-toggle="tooltip" title="{% translate 'View this blob inside the whole HTML' %}">
   <img src="{% static 'ColDoc/HTML_goto_icon.svg' %}"  style="height: 14pt" alt="view in whole HTML"></a>
  {% endif %}
 
@@ -64,31 +65,37 @@ var blob_uncompiled={{ uncompiled }};
 <ul class="nav nav-tabs" id="myTab" role="tablist">
  {% if perms.UUID.view_view %}
   <li class="nav-item">
-    <a class="nav-link" id="view-tab" data-toggle="tab" href="#view" role="tab" aria-controls="view" aria-selected="true">View</a>
+    <a class="nav-link" id="view-tab" data-toggle="tab" href="#view" role="tab" aria-controls="view" aria-selected="true">
+    {% translate "View" %}</a>
   </li>
  {% endif %}
  {% if perms.UUID.view_blob %}
   <li class="nav-item">
-    <a class="nav-link" id="blob-tab" data-toggle="tab" href="#blob" role="tab" aria-controls="blob" aria-selected="true">Blob</a>
+    <a class="nav-link" id="blob-tab" data-toggle="tab" href="#blob" role="tab" aria-controls="blob" aria-selected="true">
+    {% translate "Blob" %}</a>
   </li>
  {% endif %}
  {% if perms.UUID.view_dmetadata %}
   <li class="nav-item">
-      <a class="nav-link" id="metadata-tab" data-toggle="tab" href="#metadata" role="tab" aria-controls="metadata" aria-selected="false">Metadata</a>
+      <a class="nav-link" id="metadata-tab" data-toggle="tab" href="#metadata" role="tab" aria-controls="metadata" aria-selected="false">
+      {% translate "Metadata" %}</a>
   </li>
  {% endif %}
  {% if show_comment %}
   <li class="nav-item">
-    <a class="nav-link" id="comments-tab" data-toggle="tab" href="#comments" role="tab" aria-controls="comments" aria-selected="false">Comments</a>
+    <a class="nav-link" id="comments-tab" data-toggle="tab" href="#comments" role="tab" aria-controls="comments" aria-selected="false">
+    {% translate "Comments" %}</a>
   </li>
  {% endif %}
  {% if perms.UUID.view_log %}
   <li class="nav-item">
-    <a class="nav-link" id="logs-tab" data-toggle="tab" href="#logs" role="tab" aria-controls="logs" aria-selected="false">Logs</a>
+    <a class="nav-link" id="logs-tab" data-toggle="tab" href="#logs" role="tab" aria-controls="logs" aria-selected="false">
+    {% translate "Logs" %}</a>
   </li>
  {% endif %}
   <li class="nav-item">
-    <a class="nav-link" id="tools-tab" data-toggle="tab" href="#tools" role="tab" aria-controls="tools" aria-selected="false">Tools</a>
+    <a class="nav-link" id="tools-tab" data-toggle="tab" href="#tools" role="tab" aria-controls="tools" aria-selected="false">
+    {% translate "Tools" %}</a>
   </li>
 </ul>
 
@@ -108,7 +115,7 @@ var blob_uncompiled={{ uncompiled }};
          {{ html|safe }}
         </div>
          {% if pdfurl %}
-          <a href="{{ pdfurl }}" class="btn btn-outline-primary btn-sm">Download PDF</a><br>
+          <a href="{{ pdfurl }}" class="btn btn-outline-primary btn-sm">{% translate "Download PDF" %}</a><br>
          {% endif %}
        </div>
        {% endfor %}
@@ -120,7 +127,7 @@ var blob_uncompiled={{ uncompiled }};
      {% endif %}
      
       <div class="border border-info mt-2">
-      Authors:
+      {% translate "Authors" %}:
       {% with metadata.M_author as MA %}
        {% for  u in MA %} {{ u }} ; {% endfor %}
       {% endwith %}
@@ -140,7 +147,7 @@ var blob_uncompiled={{ uncompiled }};
     <div class="border border-info p-1 m-1">
     <ul>
     {% if blob_language %}<li>Selected language: {{ blob_language }}{% endif %}
-    {% if ext %}<li>Selected extension: {{ ext }} {% endif %}
+    {% if ext %}<li>{% translate "Selected extension" %}: {{ ext }} {% endif %}
     </ul>
     {% if blobcontenttype == 'text' %}
      {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
@@ -165,7 +172,8 @@ var blob_uncompiled={{ uncompiled }};
       <form enctype="multipart/form-data" method="post" action="{% url 'UUID:postupload' NICK=NICK UUID=UUID %}" id="{{ blobuploadform.htmlid }}"  class="w-100">
       {% csrf_token %}{{ blobuploadform.non_field_errors }}
        <table class="w-100">{{ blobuploadform }}</table>
-       <input type="submit" class="btn btn-primary"  data-toggle="tooltip" title="Upload new content" name="Upload" value="Upload">
+       <input type="submit" class="btn btn-primary"  data-toggle="tooltip" title="{% translate 'Upload new content' %}"
+       name="{% translate 'Upload' %}" value="Upload">
       </form></div>
       {% endif %}
     {% endif %}
@@ -195,7 +203,7 @@ var blob_uncompiled={{ uncompiled }};
     {% if user.is_authenticated and user.is_staff %}
          <div class="border border-info mt-2">
         <a href="/admin/UUID/dmetadata/{{ metadata.id }}/change/"  class="btn btn-outline-primary btn-sm">
-         Edit using administrative interface
+         {% translate "Edit using administrative interface" %}
          </a>
          </div>
     {% endif %}
@@ -244,12 +252,12 @@ var blob_uncompiled={{ uncompiled }};
   <div class="tab-pane fade" id="tools" role="tabpanel" aria-labelledby="tools-tab">
   {% if  blob_language %}
    <div class="border border-info mt-2">
-       Managing blob in:  {{ blob_language }} 
+       {% translate "Managing blob in:" %}  {{ blob_language }} 
    </div>
   {% endif %}
 
   {% if buy_download_link or buy_download_form or perms.UUID.download %}
-   <h2>Download</h2>
+   <h2>{% translate "Download" %}</h2>
     {% if buy_download_link %} <a href="{{ buy_download_link | safe }}" class="btn btn-outline-primary"
             data-toggle="tooltip" title="{{ buy_download_tooltip }}">{{ buy_download_label }}</a>
     {% endif %}
@@ -287,7 +295,7 @@ var blob_uncompiled={{ uncompiled }};
   
   
   {% if  langforms and perms.UUID.change_dmetadata and perms.UUID.change_blob %}
-    <h2>Language tools</h2>
+    <h2>{% translate "Language tools" %}</h2>
     {% for form, label, tooltip, buttonclass in langforms %}
       <!--<div class="border border-info mt-2">-->
         <form action="{% url 'UUID:postlang' NICK=NICK UUID=UUID %}" method="post" class="border border-info mt-2">
