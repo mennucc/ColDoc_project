@@ -815,6 +815,7 @@ def postedit(request, NICK, UUID):
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
     #
     actions = 'compile', 'save', 'save_no_reload', 'normalize', 'revert'
     s = sum (int( a in request.POST ) for a in actions)
@@ -1028,7 +1029,7 @@ def postedit(request, NICK, UUID):
             def warn(msg):
                 all_messages.append(_('Metadata change in new blob') + ': ' + msg)
                 messages.add_message(request,messages.INFO, _('In new blob') + ': ' + msg)
-            reparse_blob(addfilename, addmetadata, blobs_dir, warn)
+            reparse_blob(addfilename, addmetadata, blobs_dir, warn, load_uuid=load_uuid)
             # compile it
             if split_environment_ not in environments_we_wont_latex:
                 ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
@@ -1045,7 +1046,7 @@ def postedit(request, NICK, UUID):
     def warn(msg):
         all_messages.append(_('Metadata change in blob') + ': ' + msg)
         messages.add_message(request,messages.INFO,msg)
-    reparse_blob(filename, metadata, blobs_dir, warn)
+    reparse_blob(filename, metadata, blobs_dir, warn, load_uuid=load_uuid)
     #
     if ext_ == '.tex':
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
@@ -1206,7 +1207,7 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     options['url_UUID'] = url
     #
     from ColDocDjango.transform import squash_helper_ref
-    load_uuid = lambda u : DMetadata.load_by_uuid(u, coldoc)
+    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
     def foobar(*v, **k):
         " helper factory"
         k['load_uuid'] = load_uuid 
@@ -1879,6 +1880,7 @@ tex_mimetype = 'text/x-tex'
 
 def download(request, NICK, UUID):
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
     #
     q = request.GET
     ext = None
@@ -1963,7 +1965,6 @@ def download(request, NICK, UUID):
             # this is otherwise never created
             b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
             s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
-            load_uuid = lambda u : DMetadata.load_by_uuid(u, coldoc)
             ColDoc.transform.squash_latex(open(osjoin(blobs_dir,b)), open(osjoin(blobs_dir,s),'w'), options,
                                           helper = ColDoc.transform.squash_input_uuid(blobs_dir, metadata, options, load_uuid))
     else:

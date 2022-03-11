@@ -714,7 +714,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
 
 import io
 
-def reparse_metadata(inp, metadata, blobs_dir, options):
+def reparse_metadata(inp, metadata, blobs_dir, options, load_uuid=None):
     " reparse metadata of LaTeX file"
     #
     if False:
@@ -751,7 +751,7 @@ def reparse_metadata(inp, metadata, blobs_dir, options):
     itertokens = thetex.itertokens()
     #
     helper = squash_helper_reparse_metadata(blobs_dir, metadata, options,
-                                            thetex=thetex, itertokens=itertokens)
+                                            thetex=thetex, itertokens=itertokens, load_uuid=load_uuid)
     from ColDoc.latex import environments_we_wont_latex
     if metadata.environ not in environments_we_wont_latex:
         helper.input_macros_with_parameters += options['split_graphic']

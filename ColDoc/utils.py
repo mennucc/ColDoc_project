@@ -1105,7 +1105,7 @@ def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch):
 ############################
 
 
-def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid=True):
+def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid=True, load_uuid=None):
     " reparse a blob to extract and update all metadata "
     if warn is None:
         warn = logger.warning
@@ -1113,7 +1113,7 @@ def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid
     options =  get_blobinator_args(blobs_dir)
     #
     from ColDoc.transform import reparse_metadata
-    parsed_back_map, parsed_metadata, errors = reparse_metadata(filename, metadata, blobs_dir, options)
+    parsed_back_map, parsed_metadata, errors = reparse_metadata(filename, metadata, blobs_dir, options, load_uuid=load_uuid)
     for s,a in errors:
         warn(s % a)
     #
