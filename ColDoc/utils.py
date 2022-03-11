@@ -1101,7 +1101,15 @@ def recurse_tree(load_metadata_by_uuid, action, uuid='001', seen=None, branch=No
 def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch, problems):
     """ you may want to see `recurse tree`"""
     #
-    metadata = load_metadata_by_uuid(uuid)
+    try:
+        metadata = load_metadata_by_uuid(uuid)
+    except Exception as e:
+        s = ('Exception %r when loading UUID %r')
+        logger.error(s, e, uuid)
+        ## nope
+        #problems.append(('MISSING_UUID',uuid,s,uuid))
+        ## by returning None, the caller will add to `problems`
+        return None
     #
     if uuid in branch:
         logger.warning("loop detected along branch %r",branch)
@@ -1117,6 +1125,13 @@ def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch, problems):
             ## disabled, to speed up
             #logger.debug('moving down '+('→'*len(branch))+'from node %r to node %r',uuid,u)
             r = recurse_tree__(load_metadata_by_uuid, action, uuid=u, seen=seen, branch=b,problems=problems)
+            if r is None:
+                s = _('Missing child %(child)r of UUID %(uuid)s')
+                a = { 'child' : u , 'uuid' : uuid }
+                logger.error(s % a)
+                problems.append(('MISSING_CHILD',uuid,s,a))
+                r = False
+            #
             ret = ret and r
     else:
         logger.warning("skipping duplicate node %r", uuid)
