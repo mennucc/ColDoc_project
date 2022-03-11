@@ -457,7 +457,6 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
 
 
 def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
-    " returns `problems`, a list of problems found in tree"
     #
     from functools import partial
     from ColDoc.utils import recurse_tree
@@ -785,6 +784,8 @@ does not contain the file `config.ini`
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
         import django
         django.setup()
+        from django.utils.translation import gettext, activate
+        activate(os.environ.get('LANG','en-US'))
     #
     if argv[0] == 'deploy':
         return deploy(COLDOC_SITE_ROOT)
