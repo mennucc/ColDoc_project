@@ -136,3 +136,38 @@ The latter may be preferred for short blobs with only linguistic
 content and no children.
 
 
+Automatic translations
+----------------------
+
+The portal can interface to an automatic translator.
+
+Currently there are hooks to connect to
+`Microsoft translator <https://azure.microsoft.com/en-us/services/cognitive-services/translator/>`_
+. If you have an account for that service, enter your credential into the `settings.py`
+file in your ColDoc instance, uncommenting the lines
+
+.. code:: Python
+
+	  ## define these to use Microsoft Azure translation service
+	  #AZURE_SUBSCRIPTION_KEY = "XXXXXXXXXXX"
+	  #AZURE_LOCATION = "XXXXXXXXXXXXXX"
+
+This will add a button `translate` in the `Tools` tab.
+
+The portal will protect LaTeX commands, and the content of math environments,
+before submitting your text to the automatic translator.
+Currently, text inside math environments will not be translated.
+
+Other tools
+-----------
+
+The command
+
+.. code:: Python
+
+	  ./ColDocDjango/helper.py  --coldoc-site-root ...  --coldoc-nick ...   count_untranslated_chars
+
+will estimate how many characters are yet to be translated.
+
+In the editor panes, the `Document checks` will also list the untranslated blobs.
+

@@ -250,6 +250,10 @@ To enjoy advanced caching capabilities you may also
 	  sudo a2enmod expires
 	  sudo a2enmod headers
 
+If you activated `whitenoise` you may also tweak caching timings,
+as explained in `apache2.conf` .
+
+
 Serve without Apache
 --------------------
 
@@ -271,6 +275,19 @@ Note that in this case *django* will not serve the static files, unless you set 
 	  dedup_url = /static/dedup
 
 in that file.
+
+Software upgrade and/or template changes
+----------------------------------------
+
+Note that each time you upgrade the software you need to
+
+.. code:: shell
+
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
+
+This is particularly important when you use  `whitenoise` otherwise the
+cache will not work and your server will return 500.
 
 Final remarks
 -------------

@@ -38,7 +38,7 @@ it also uses some JavaScript snippets for interactive features.
 Authors
 -------
 
-This software is Copyright 2019-21
+This software is Copyright 2019-22
 
 `Andrea C. G. Mennucci <https://www.sns.it/it/persona/andrea-carlo-giuseppe-mennucci>`_
 

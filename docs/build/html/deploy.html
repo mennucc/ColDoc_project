@@ -213,6 +213,8 @@ sudo systemctl reload apache2
 sudo a2enmod headers
 </pre></div>
 </div>
+<p>If you activated <cite>whitenoise</cite> you may also tweak caching timings,
+as explained in <cite>apache2.conf</cite> .</p>
 </div>
 <div class="section" id="serve-without-apache">
 <h2>Serve without Apache<a class="headerlink" href="#serve-without-apache" title="Permalink to this headline">¶</a></h2>
@@ -229,6 +231,16 @@ firefox http://localhost:8000/
 </pre></div>
 </div>
 <p>in that file.</p>
+</div>
+<div class="section" id="software-upgrade-and-or-template-changes">
+<h2>Software upgrade and/or template changes<a class="headerlink" href="#software-upgrade-and-or-template-changes" title="Permalink to this headline">¶</a></h2>
+<p>Note that each time you upgrade the software you need to</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py migrate
+python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py collectstatic
+</pre></div>
+</div>
+<p>This is particularly important when you use  <cite>whitenoise</cite> otherwise the
+cache will not work and your server will return 500.</p>
 </div>
 <div class="section" id="final-remarks">
 <h2>Final remarks<a class="headerlink" href="#final-remarks" title="Permalink to this headline">¶</a></h2>
@@ -278,6 +290,7 @@ as follows</p>
 <li class="toctree-l2"><a class="reference internal" href="#add-test-material">Add test material</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#activate-the-apache-portal">Activate the Apache portal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#serve-without-apache">Serve without Apache</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#software-upgrade-and-or-template-changes">Software upgrade and/or template changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#final-remarks">Final remarks</a></li>
 </ul>
 </li>

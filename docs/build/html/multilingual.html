@@ -139,6 +139,32 @@ any blob with a lot of children and little linguistic content.</p>
 <p>The latter may be preferred for short blobs with only linguistic
 content and no children.</p>
 </div>
+<div class="section" id="automatic-translations">
+<h2>Automatic translations<a class="headerlink" href="#automatic-translations" title="Permalink to this headline">¶</a></h2>
+<p>The portal can interface to an automatic translator.</p>
+<p>Currently there are hooks to connect to
+<a class="reference external" href="https://azure.microsoft.com/en-us/services/cognitive-services/translator/">Microsoft translator</a>
+. If you have an account for that service, enter your credential into the <cite>settings.py</cite>
+file in your ColDoc instance, uncommenting the lines</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1">## define these to use Microsoft Azure translation service</span>
+<span class="c1">#AZURE_SUBSCRIPTION_KEY = &quot;XXXXXXXXXXX&quot;</span>
+<span class="c1">#AZURE_LOCATION = &quot;XXXXXXXXXXXXXX&quot;</span>
+</pre></div>
+</div>
+<p>This will add a button <cite>translate</cite> in the <cite>Tools</cite> tab.</p>
+<p>The portal will protect LaTeX commands, and the content of math environments,
+before submitting your text to the automatic translator.
+Currently, text inside math environments will not be translated.</p>
+</div>
+<div class="section" id="other-tools">
+<h2>Other tools<a class="headerlink" href="#other-tools" title="Permalink to this headline">¶</a></h2>
+<p>The command</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">ColDocDjango</span><span class="o">/</span><span class="n">helper</span><span class="o">.</span><span class="n">py</span>  <span class="o">--</span><span class="n">coldoc</span><span class="o">-</span><span class="n">site</span><span class="o">-</span><span class="n">root</span> <span class="o">...</span>  <span class="o">--</span><span class="n">coldoc</span><span class="o">-</span><span class="n">nick</span> <span class="o">...</span>   <span class="n">count_untranslated_chars</span>
+</pre></div>
+</div>
+<p>will estimate how many characters are yet to be translated.</p>
+<p>In the editor panes, the <cite>Document checks</cite> will also list the untranslated blobs.</p>
+</div>
 </div>
 
 
@@ -177,6 +203,8 @@ content and no children.</p>
 <li class="toctree-l2"><a class="reference internal" href="#the-mul-multiple-languages-method">The <cite>mul</cite> (<em>multiple languages</em>) method</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#importing-a-mul-document">Importing a <cite>mul</cite> document</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#converting-single-to-multi-language">Converting single to multi language</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#automatic-translations">Automatic translations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-tools">Other tools</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
