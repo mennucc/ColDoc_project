@@ -560,10 +560,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         coldoc.save()
     return ret
 
-def parse_plastex_paux(blobs_dir, paux):
+def parse_plastex_paux(paux):
     if isinstance(paux,str):
-        if not os.path.isabs(paux):
-            paux = osjoin(blobs_dir, paux)
         try:
             paux = open(paux,'rb')
         except OSError as e:
@@ -593,7 +591,7 @@ def parse_plastex_html(blobs_dir, html_dir, paux):
     except ImportError:
         logger.error('Please install BeautifulSoup4: pip3 install BeautifulSoup4')
         return
-    D = parse_plastex_paux(blobs_dir, paux)
+    D = parse_plastex_paux(paux)
     P = ColDoc.config.ColDoc_url_placeholder
     for S in os.listdir(html_dir):
         if S.endswith('html'):
