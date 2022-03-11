@@ -940,7 +940,7 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
 
 
 
-def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, coldoc=None):
+def prepare_anon_tree_recurse(blobs_dir, temp_dir, uuid, lang, metadata_class, coldoc):
     " subrouting for `prepare_anon_tree` "
     uuid_, uuid_dir, metadata = resolve_uuid(uuid=uuid, uuid_dir=None,
                                                    blobs_dir = blobs_dir,
