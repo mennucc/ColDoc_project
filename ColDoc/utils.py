@@ -897,8 +897,6 @@ def plastex_main(argv):
 
 def plastex_invoke(cwd_, stdout_ , argv_, logfile):
     "invoke plastex with given args.  TODO cache some stuff"
-    cwdO = os.getcwd()
-    os.chdir(cwd_)
     #
     assert isinstance(stdout_, str)
     with open(stdout_,'w') as f_:
@@ -911,10 +909,11 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
                              stdout=stdout_d, stderr=subprocess.STDOUT)
         p.wait()
         stdout_d.write('end at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
-        os.chdir(cwdO)
         return p.returncode
     # unfortunately this code is unstable, it crashes on long runs
     # (probably the plastex library uses too much memory on repeated calls)
+    cwdO = os.getcwd()
+    os.chdir(cwd_)
     try:
         with contextlib.redirect_stdout(open(stdout_,'a')):
             plastex_main(argv_)
