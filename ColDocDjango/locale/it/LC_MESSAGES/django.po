@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ColDoc 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-11 11:44+0100\n"
-"PO-Revision-Date: 2022-03-11 12:45+0100\n"
+"POT-Creation-Date: 2022-03-12 09:13+0100\n"
+"PO-Revision-Date: 2022-03-12 09:14+0100\n"
 "Last-Translator: Andrea Mennucci <andrea.mennucci@sns.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: it\n"
@@ -46,13 +46,16 @@ msgstr "UUID invalido"
 #: ColDocApp/models.py:109
 #, python-format
 msgid "Please do not use %(value)s as nickname, it may generate confusion"
-msgstr "Per favore non usare %(value)s come nomignolo, potrebbe generare confusione"
+msgstr ""
+"Per favore non usare %(value)s come nomignolo, potrebbe generare confusione"
 
 #: ColDocApp/models.py:125
 msgid ""
 "short string to identify this ColDoc in URLs (alphanumeric only, use '_' or "
 "'-' for other chars)"
-msgstr "breve stringa per identificare questo ColDoc negli URL (solo caratteri alfanumeric, usare '_' o '-' per altri caratteri)"
+msgstr ""
+"breve stringa per identificare questo ColDoc negli URL (solo caratteri "
+"alfanumeric, usare '_' o '-' per altri caratteri)"
 
 #: ColDocApp/models.py:129
 msgid "languages supported (one ISO_639-3 three letter code per line)"
@@ -74,11 +77,106 @@ msgstr "Un utente può aggiungere un nodo figlio se è l'autore del blob"
 msgid "latex-type command used to compile"
 msgstr "tipo di comando latex da usare per compilare"
 
-#: ColDocApp/views.py:328
+#: ColDocApp/templates/coldoc.html:12
+msgid "First published"
+msgstr "Pubblicato per la prima volta"
+
+#: ColDocApp/templates/coldoc.html:14 UUID/templates/UUID.html:130
+msgid "Authors"
+msgstr "Autori"
+
+#: ColDocApp/templates/coldoc.html:25
+msgid "View whole document"
+msgstr "Vedi il documento principale"
+
+#: ColDocApp/templates/coldoc.html:29
+msgid "View whole document, as PDF"
+msgstr "Vedi il documento principale in PDF"
+
+#: ColDocApp/templates/coldoc.html:33
+msgid "Navigate document tree"
+msgstr "Naviga il documento principale"
+
+#: ColDocApp/templates/coldoc.html:41
+msgid ""
+"Compile whole document. In this HTML and PDF private material is omitted."
+msgstr ""
+"Compila l'intero documento. In questi HTML e PDF il materiale privato è "
+"omesso."
+
+#: ColDocApp/templates/coldoc.html:42
+msgid "Compile public"
+msgstr "Compila la versione pubblica"
+
+#: ColDocApp/templates/coldoc.html:45
+msgid ""
+"Compile whole document. This HTML and PDF are visible only to editors; all "
+"material is visible."
+msgstr ""
+"Compila l'intero documento. Questi HTML e PDF sono visibili solo agli "
+"editori; il materiale è tutto visibile."
+
+#: ColDocApp/templates/coldoc.html:46
+msgid "Compile private"
+msgstr "Compila la versione privata"
+
+#: ColDocApp/templates/coldoc.html:49
+msgid "Recompile HTML and PDF for all blobs."
+msgstr "Ricompila HTML e PDF da tutti i blob."
+
+#: ColDocApp/templates/coldoc.html:50
+msgid "Compile blobs"
+msgstr "Compila i blob"
+
+#: ColDocApp/templates/coldoc.html:53
+msgid "Reparse all blobs to extract metadata."
+msgstr "Rinalizza tutti i blob per estrarre i metadati"
+
+#: ColDocApp/templates/coldoc.html:54
+msgid "Reparse"
+msgstr "Rianalizza"
+
+#: ColDocApp/templates/coldoc.html:68
+msgid "Status"
+msgstr "Stato"
+
+#: ColDocApp/templates/coldoc.html:74 ColDocApp/templates/coldoc.html:118
+msgid "Settings"
+msgstr "Settaggi"
+
+#: ColDocApp/templates/coldoc.html:80 ColDocApp/templates/coldoc.html:140
+msgid "Tasks"
+msgstr "Lavori"
+
+#: ColDocApp/templates/coldoc.html:91
+msgid "Document checks"
+msgstr "Controlli sul documento"
+
+#: ColDocApp/templates/coldoc.html:95
+msgid "Check tree"
+msgstr "Controllo dell'albero"
+
+#: ColDocApp/templates/coldoc.html:103
+msgid "Failed blobs in tree"
+msgstr "Blob falliti nell'albero"
+
+#: ColDocApp/templates/coldoc.html:126
+msgid "No permission to change data."
+msgstr "Non hai permesso di cambiare i dati."
+
+#: ColDocApp/templates/coldoc.html:132
+msgid "edit settings in admin form"
+msgstr "cambia i settaggi nella interfaccia amministrativa"
+
+#: ColDocApp/templates/coldoc.html:146
+msgid "Completed Tasks"
+msgstr "Lavori completati"
+
+#: ColDocApp/views.py:329
 msgid "Problems in tree of blobs"
 msgstr "Problemi nell'albero dei blob"
 
-#: ColDocApp/views.py:339
+#: ColDocApp/views.py:345
 msgid "Tree is fine."
 msgstr "L'albero è corretto"
 
@@ -128,11 +226,15 @@ msgstr "politica di accesso"
 msgid ""
 "use `main` class for sections and whole document, `standalone` class for "
 "others"
-msgstr "userà la classe 'main' per sezioni e l'intero documento, 'standalone' per gli altri"
+msgstr ""
+"userà la classe 'main' per sezioni e l'intero documento, 'standalone' per "
+"gli altri"
 
 #: UUID/models.py:133
 msgid "use the class of the main document (usually associated to UUID 001)"
-msgstr "userà la classe del documento principale (normalmente associato allo UUID 001)"
+msgstr ""
+"userà la classe del documento principale (normalmente associato allo UUID "
+"001)"
 
 #: UUID/models.py:134
 msgid "use `standalone` documentclass"
@@ -186,10 +288,6 @@ msgstr "Strumenti"
 msgid "Download PDF"
 msgstr "Scarica PDF"
 
-#: UUID/templates/UUID.html:130
-msgid "Authors"
-msgstr "Autori"
-
 #: UUID/templates/UUID.html:149
 msgid "Selected language:"
 msgstr "Lingua selezionata:"
@@ -226,334 +324,432 @@ msgstr "Strumenti per le lingue"
 msgid "This content is available in:"
 msgstr "Questo contenuto è disponibile in:"
 
-#: UUID/views.py:117
+#: UUID/views.py:108
+msgid "Language"
+msgstr "Lingua"
+
+#: UUID/views.py:122
 msgid "File to upload  — will replace the blob's content"
 msgstr "File da caricare - sostituirà il contenuto del blob"
 
-#: UUID/views.py:140
+#: UUID/views.py:145
 msgid "Prologue"
 msgstr "Prologo"
 
-#: UUID/views.py:141
+#: UUID/views.py:146
 msgid "First line of text file, automatically generated"
 msgstr "Prima linea del testo, generata automaticamente"
 
-#: UUID/views.py:146
+#: UUID/views.py:151
 msgid "Short Prologue"
 msgstr "Prologo corto"
 
-#: UUID/views.py:147
+#: UUID/views.py:152
 msgid "First line of text file,  short version, automatically generated"
 msgstr "Prima linea del file testo, versione corta, generata automaticamente"
 
-#: UUID/views.py:150
+#: UUID/views.py:155
 msgid "Blob content"
 msgstr "Contenuto del blob"
 
-#: UUID/views.py:152
+#: UUID/views.py:157
 msgid "Edit the blob content"
 msgstr "Modifica il contenuto del blob"
 
-#: UUID/views.py:153
+#: UUID/views.py:158
 msgid "Comment"
 msgstr "Commenti"
 
-#: UUID/views.py:155
+#: UUID/views.py:160
 msgid "Comment for this commit"
 msgstr "Commento per questa modifica"
 
-#: UUID/views.py:163
+#: UUID/views.py:168
 msgid "Insert a child node"
 msgstr "Inserisci un nodo di figlio"
 
-#: UUID/views.py:165
+#: UUID/views.py:170
 msgid ""
 "Insert a child node at cursor (if a piece of text is selected, it will be "
 "moved into the child)"
-msgstr "Inserisci un nodo figlio nel punto del cursore (se una parte di testo è selezionata, sarà spostata nel nodo figlio)"
+msgstr ""
+"Inserisci un nodo figlio nel punto del cursore (se una parte di testo è "
+"selezionata, sarà spostata nel nodo figlio)"
 
-#: UUID/views.py:166
+#: UUID/views.py:171
 msgid "Environment"
 msgstr "Ambiente"
 
-#: UUID/views.py:167
+#: UUID/views.py:172
 msgid "Environment for newly created blob"
 msgstr "Ambiente per il nuovo nodo figlio che sarà creato"
 
-#: UUID/views.py:168
+#: UUID/views.py:173
 msgid "Add begin/end"
 msgstr "Aggiungi begin/end"
 
-#: UUID/views.py:169
+#: UUID/views.py:174
 msgid "add a begin{}..end{} around the splitted part"
 msgstr "aggiungi begin{}..end{} intorno alla parte estratta"
 
-#: UUID/views.py:211
+#: UUID/views.py:216
 #, python-format
 msgid "Internal error when parsing optarg %r for  blob %r "
 msgstr "Errore interno nel'interpretare optarg %r per blob %r "
 
-#: UUID/views.py:233
+#: UUID/views.py:238
 #, python-format
 msgid "Added initial \\%s line"
 msgstr "Aggiunta linea iniziale \\%s"
 
-#: UUID/views.py:235
+#: UUID/views.py:240
 #, python-format
 msgid "Missing initial \\%s line"
 msgstr "Manca la linea iniziale \\%s"
 
-#: UUID/views.py:239
+#: UUID/views.py:244
 #, python-format
 msgid "Missing initial, hidden, \\uuid line in blob %r"
 msgstr "Manca la linea iniziale nascosta \\uuid in questo blob %r"
 
-#: UUID/views.py:273
+#: UUID/views.py:278
 msgid "(Why is there a  \\uuid  in this blob ?)"
 msgstr "(Perché c'è un comando \\uuid in questo blob?)"
 
-#: UUID/views.py:306
+#: UUID/views.py:311
 msgid "Editstate ignored"
 msgstr "Ignorato lo stato di edit"
 
-#: UUID/views.py:311
+#: UUID/views.py:316
 msgid "File was changed on disk since your last visit"
 msgstr "Il file è stato modificato nel disco dopo la tua ultima visita"
 
-#: UUID/views.py:316
+#: UUID/views.py:321
 msgid "Your saved changes are yet uncompiled"
 msgstr "Le tue modifiche salvate non sono state ancora compilate"
 
-#: UUID/views.py:422
+#: UUID/views.py:427
 #, python-format
 msgid "Keep the\\%s{...} command all in one line."
 msgstr "Tieni il comando \\%s{...} tutto sulla stessa linea"
 
-#: UUID/views.py:443
+#: UUID/views.py:448
 #, python-format
 msgid "Please add a \\%s{...} command in first line."
 msgstr "Si prega di aggiungere il comando \\%s{...} nella prima linea"
 
-#: UUID/views.py:445
+#: UUID/views.py:450
 #, python-format
 msgid "The command \\%s{...} was moved to first line."
 msgstr "Il comando \\%s{...} è stato spostat sulla prima linea"
 
-#: UUID/views.py:448
+#: UUID/views.py:453
 #, python-format
 msgid "The blob should contain only one occurrence of \\%s{...}."
 msgstr "Il blob dovrebbe contenere solo un comando \\%s{...}"
 
-#: UUID/views.py:450
+#: UUID/views.py:455
 #, python-format
 msgid "Unterminated \\%s{} command"
 msgstr "Comando \\%s{...} non terminato"
 
-#: UUID/views.py:478
+#: UUID/views.py:483
 #, python-format
 msgid "Internal error while parsing for \\%s{...}."
 msgstr "Errore interno nell'analisi di \\%s{...}"
 
-#: UUID/views.py:537
+#: UUID/views.py:542
 msgid "Converted to manual language management (non <tt>mul</tt>)"
 msgstr "Convertito a gestione manuale delle lingue (non <tt>mul</tt>)"
 
-#: UUID/views.py:571 UUID/views.py:596
+#: UUID/views.py:576 UUID/views.py:601
 msgid "Converted to `mul` method"
 msgstr "Convertito a metodo `mul`"
 
-#: UUID/views.py:608
+#: UUID/views.py:613
 #, python-format
 msgid "A blob with language %(lang)r extension %(ext)r does not exist"
 msgstr "Non esiste un blob con lingua %(lang)r extensione %(ext)r"
 
-#: UUID/views.py:622
+#: UUID/views.py:627
 #, python-format
 msgid "A blob with language %(lang)r extension %(ext)r already exists"
 msgstr "Esiste già un blob con lingua %(lang)r extensione %(ext)r"
 
-#: UUID/views.py:634
+#: UUID/views.py:639
 #, python-format
 msgid ""
 "A blob with language %(newlang)r extension %(ext)r was created copying from "
 "%(oldlang)r."
-msgstr "Il blob con lingua %(newlang)r extensione %(ext)r è stato creato copiando da %(oldlang)r"
+msgstr ""
+"Il blob con lingua %(newlang)r extensione %(ext)r è stato creato copiando da "
+"%(oldlang)r"
 
-#: UUID/views.py:635 UUID/views.py:649
+#: UUID/views.py:640 UUID/views.py:654
 msgid "Please check it."
 msgstr "Si prega di controllarlo"
 
-#: UUID/views.py:647
+#: UUID/views.py:652
 #, python-format
 msgid ""
 "A blob with language %(newlang)r extension %(ext)r was automatically "
 "translated (%(len)d chars) from %(oldlang)r."
-msgstr "Il blob con lingua %(newlang)r extensione %(ext)r è stato automaticamente tradotto da %(oldlang)r  (%(len)d caratteri)"
+msgstr ""
+"Il blob con lingua %(newlang)r extensione %(ext)r è stato automaticamente "
+"tradotto da %(oldlang)r  (%(len)d caratteri)"
 
-#: UUID/views.py:651
+#: UUID/views.py:656
 msgid "The automatic translation failed"
 msgstr "La traduzione automatica è fallita"
 
-#: UUID/views.py:725
+#: UUID/views.py:730
 msgid "File upload failed"
 msgstr "Il caricamento del file è fallito"
 
-#: UUID/views.py:730
+#: UUID/views.py:735
 #, python-format
 msgid "File uploaded is %(this)r instead of %(that)r"
 msgstr "Il file caricato è %(this)r invece di %(that)r"
 
-#: UUID/views.py:743
+#: UUID/views.py:748
 msgid "Compilation of LaTeX succeded."
 msgstr "La compilazione LaTeX è riuscita"
 
-#: UUID/views.py:746
+#: UUID/views.py:751
 msgid "Compilation of LaTeX failed"
 msgstr "La compilazione LaTeX è fallita"
 
-#: UUID/views.py:929
+#: UUID/views.py:934
 msgid "Cannot split material when there are internal errors"
 msgstr "Non si può separare del materiale se vi sono stati errori interni"
 
-#: UUID/views.py:932
+#: UUID/views.py:937
 msgid "Cannot split material when there are header errors"
-msgstr "Non si può separare del materiale se vi sono stati errori nelle intestazioni"
+msgstr ""
+"Non si può separare del materiale se vi sono stati errori nelle intestazioni"
 
-#: UUID/views.py:935
+#: UUID/views.py:940
 msgid "Sorry, cannot split material when the first line was changed"
-msgstr "Spiacente, non si può separare del materiale se la prima linea è stata cambiata"
+msgstr ""
+"Spiacente, non si può separare del materiale se la prima linea è stata "
+"cambiata"
 
-#: UUID/views.py:964
+#: UUID/views.py:969
 msgid "The file was changed on disk: check the diff"
 msgstr "Il file è stato cambiato nel disco: controlla le differenze"
 
-#: UUID/views.py:1014
+#: UUID/views.py:1019
 #, python-format
 msgid ""
 "Created blob with UUID %(newuuid)s, please edit %(olduuid)s to properly "
 "input it (a stub \\input was inserted for your convenience)"
-msgstr "È stato creato il blob con UUID %(newuuid)s, si prega di modificare %(olduuid)s per essere sicuri che sia correttamente incluso (un comando \\\\inputè stato inserito per comodità)"
+msgstr ""
+"È stato creato il blob con UUID %(newuuid)s, si prega di modificare "
+"%(olduuid)s per essere sicuri che sia correttamente incluso (un comando \\"
+"\\inputè stato inserito per comodità)"
 
-#: UUID/views.py:1030
+#: UUID/views.py:1036
 msgid "Metadata change in new blob"
 msgstr "I metadati cambiati nel nuovo blob"
 
-#: UUID/views.py:1031
+#: UUID/views.py:1037
 msgid "In new blob"
 msgstr "Nel nuovo blob"
 
-#: UUID/views.py:1038
+#: UUID/views.py:1044
 msgid "Compilation of new blob succeded"
 msgstr "La compilazione del nuovo blob è riuscita"
 
-#: UUID/views.py:1041
+#: UUID/views.py:1047
 msgid "Compilation of new blob failed"
 msgstr "La compilazione del nuovo blob è fallita"
 
-#: UUID/views.py:1047
+#: UUID/views.py:1054
 msgid "Metadata change in blob"
 msgstr "Cambiamento di metadata nel blob"
 
-#: UUID/views.py:1062
+#: UUID/views.py:1069
 #, python-format
 msgid "User '%s' changed %s - %s - %s"
 msgstr "L'utente '%s' ha cambiato %s - %s - %s"
 
-#: UUID/views.py:1074 UUID/views.py:1186
+#: UUID/views.py:1081 UUID/views.py:1193
 msgid "Orig"
 msgstr "Orig"
 
-#: UUID/views.py:1074 UUID/views.py:1186
+#: UUID/views.py:1081 UUID/views.py:1193
 msgid "New"
 msgstr "Nuovo"
 
-#: UUID/views.py:1078
+#: UUID/views.py:1085
 msgid "File differences for"
 msgstr "Differenza nei file per"
 
-#: UUID/views.py:1161
+#: UUID/views.py:1168
 #, python-format
 msgid "Internal problem, check the metadata again %r != %r"
 msgstr "Problema interno, ricontrolla i metadati  %r != %r"
 
-#: UUID/views.py:1165
+#: UUID/views.py:1172
 msgid "Changes saved"
 msgstr "Cambiamenti salvati"
 
-#: UUID/views.py:1179
+#: UUID/views.py:1186
 #, python-format
 msgid "User '%s' changed metadata in %s - %s"
 msgstr "L'utente '%s' ha cambiato i metadata in %s - %s"
 
-#: UUID/views.py:1277
+#: UUID/views.py:1284
 #, python-format
 msgid "UUID was normalized from %(old)r to %(new)r)"
 msgstr "Lo UUID è stato normalizzato da %(old)r a %(new)r)"
 
-#: UUID/views.py:1628
+#: UUID/views.py:1640
 msgid "Main document"
 msgstr "Documento principale"
 
-#: UUID/views.py:1674
+#: UUID/views.py:1686
 msgid "HTML preview not available"
 msgstr "Anteprima HTML non disponibile"
 
-#: UUID/views.py:1675
+#: UUID/views.py:1687
 msgid "[NO HTML AVAILABLE]"
 msgstr "[HTML NON DISPONIBILE]"
 
-#: UUID/views.py:1708 UUID/views.py:1710
+#: UUID/views.py:1720 UUID/views.py:1722
 msgid "[access denied]"
 msgstr "[accesso negato]"
 
-#: UUID/views.py:1736
+#: UUID/views.py:1748
 msgid "Saved on disk"
 msgstr "Salvato nel disco"
 
-#: UUID/views.py:1736
+#: UUID/views.py:1748
 msgid "Your content"
 msgstr "Il tuo contenuto"
 
-#: UUID/views.py:1815
+#: UUID/views.py:1827
 msgid "Add a language version"
 msgstr "Aggiungi una versione in lingua"
 
-#: UUID/views.py:1820
+#: UUID/views.py:1832
 msgid "Translate to language"
 msgstr "Traduci alla lingua"
 
-#: UUID/views.py:1822
+#: UUID/views.py:1834
 msgid "(may damage preamble parts)"
 msgstr "(potrebbe danneggiare il preambolo)"
 
-#: UUID/views.py:1830
+#: UUID/views.py:1842
 msgid "Delete a language version"
 msgstr "Cancella una versione in lingua"
 
-#: UUID/views.py:1837
+#: UUID/views.py:1849
 #, python-format
 msgid "Change the language of this blob from %s to:"
 msgstr "Cambia la lingua di questo blob da %s a:"
 
-#: UUID/views.py:1842
+#: UUID/views.py:1854
 msgid "Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)"
 msgstr "Cambia questo UUID a <tt>mul</tt> (<i>Multilingual method</i>)"
 
-#: UUID/views.py:1846
+#: UUID/views.py:1858
 msgid "Change this UUID to manual language management (non <tt>mul</tt>)"
 msgstr "Cambia questo UUID a gestione manuale delle lingue (non <tt>mul</tt>)"
 
-#: UUID/views.py:1945
+#: UUID/views.py:1957
 msgid "Download denied for this content."
 msgstr "Scaricamento negato per questo contenuto"
 
-#: UUID/views.py:1958
+#: UUID/views.py:1970
 msgid "Access denied to this content."
 msgstr "Accesso negato per questo contenuto"
 
-#: UUID/views.py:1981
+#: UUID/views.py:1993
 msgid "Please login."
 msgstr "Si prega di autenticarsi."
+
+#: helper.py:455
+#, python-format
+msgid "Parsing uuid %r lang %r : %s"
+msgstr "Analizzando uuid %r lingua %r : %s"
+
+#: helper.py:502
+#, python-format
+msgid "loop detected along branch %r"
+msgstr "anello nel ramo %r"
+
+#: helper.py:508
+#, python-format
+msgid "duplicate node %r in tree"
+msgstr "nodo %r duplicato nel ramo"
+
+#: helper.py:515
+#, python-format
+msgid "already deleted from queue %r"
+msgstr "già cancellato %r dalla coda"
+
+#: helper.py:521
+#, python-format
+msgid "The node %r %r cannot be a child of %r %r"
+msgstr "Il nodo %r %r non può essere un figlio di %r %r"
+
+#: helper.py:538
+#, python-format
+msgid "Disconnected nodes %r"
+msgstr "Nodi disconnessi %r"
+
+#: helper.py:540
+#, python-format
+msgid "Disconnected node %r"
+msgstr "Nodo disconnesso %r"
+
+#: helper.py:560
+#, python-format
+msgid "UUID %r environ %r"
+msgstr "UUID %r ambiente %r"
+
+#: helper.py:572
+#, python-format
+msgid "UUID %r environ %r access %r"
+msgstr "UUID %r ambiente %r accesso %r"
+
+#: helper.py:593
+#, python-format
+msgid ""
+"Parent %r includes child %r using cmd %r environ %r but child %r thinks it "
+"is environ %r"
+msgstr ""
+"Il genitore %r include il figlio %r usando il comando %r ambiente %r\n"
+"ma il figlio %r è ambiente %r"
+
+#: helper.py:609
+#, python-format
+msgid "UUID %r file %r environ %r first line %r"
+msgstr "UUID %r file %r ambiente %r prima linea %r"
+
+#: helper.py:618
+#, python-format
+msgid "There are %d untranslated UUIDs, showing some"
+msgstr "Vi sono %d UUID non tradotti, ne mostro alcuni"
+
+#: helper.py:623
+#, python-format
+msgid "translated to: %r"
+msgstr "Tradotto in: %r"
+
+#: helper.py:820
+msgid "Warning"
+msgstr "Allerta"
+
+#: helper.py:823
+msgid "Problems"
+msgstr "Problemi"
+
+#: helper.py:831
+#, python-format
+msgid "Tree for coldoc %r is fine"
+msgstr "L'albero per il coldoc %r è corretto"
 
 #: settings_local.py:134 settings_suggested.py:15
 msgid "English"
@@ -594,7 +790,9 @@ msgstr ""
 msgid ""
 "If you have not created an account yet, then please\n"
 "<a href=\"%(signup_url)s\">register</a> first."
-msgstr "Se non avete ancora creato un account, per favore <a href=\"%(signup_url)s\">registratevi</a>"
+msgstr ""
+"Se non avete ancora creato un account, per favore <a href=\"%(signup_url)s"
+"\">registratevi</a>"
 
 #: templates/account/login.html:51
 msgid "Forgot Password?"
@@ -630,8 +828,11 @@ msgstr ""
 "  voi sarete in grado di iscrivervi a %(site_name)s.\n"
 "  Comunque alcune informazioni saranno utili:\n"
 "  <ul><li> uno <i>username</i> per essere identificati in questo portal\n"
-"      (che servirà anche per autenticarsi, se attiverete una password locale),</li>\n"
-"   <li> una <i>email</i> (se il provider  %(provider_name)s non ne fornisce una, o se preferite usarne una diversa — in questo caso dovreste verificarla usando il menù <i>`email`</i>)\n"
+"      (che servirà anche per autenticarsi, se attiverete una password "
+"locale),</li>\n"
+"   <li> una <i>email</i> (se il provider  %(provider_name)s non ne fornisce "
+"una, o se preferite usarne una diversa — in questo caso dovreste verificarla "
+"usando il menù <i>`email`</i>)\n"
 "   </li>\n"
 " </ul>\n"
 " "
