@@ -639,7 +639,7 @@ def uuid_check_normalize(symbol_string):
     " normalize a string and check that it is a valid UUID "
     norm_string = symbol_string.translate(uuid_normalize_symbols).upper()
     if not uuid_valid_symbols.match(norm_string):
-        raise ValueError("string '%s' contains invalid characters" % symbol_string)
+        raise ValueError("UUID %r contains invalid characters" % symbol_string)
     return norm_string.rjust(3,'0')
 
 def uuid_to_int(symbol_string):
@@ -674,7 +674,7 @@ def uuid_to_dir(u, blobs_dir = ColDoc_as_blobs, create = False):   #, ColDocCont
 def dir_to_uuid(directory):
     prefix = 'UUID/'
     directory = os.path.normpath(directory)
-    assert directory[:len(prefix)] == prefix, (directory, prefix)
+    assert directory.startswith(prefix), ('dir_to_uuid: directory %r does not start with prefix %r' % (directory, prefix))
     directory = directory[len(prefix):].split(os.path.sep)
     return directory[0] + directory[1] + directory[2]
 
@@ -693,7 +693,7 @@ def file_to_uuid(filename, blobs_dir):
                 break
     filename = os.path.realpath(filename)
     blobs_dir += os.path.sep
-    assert filename[:len(blobs_dir)] == blobs_dir, (filename, blobs_dir)
+    assert filename.startswith(blobs_dir), ('filename %r does not start with %r' %(filename, blobs_dir))
     if os.path.isfile(filename):
         filename, base = os.path.split(filename)
     else:
