@@ -2,8 +2,8 @@
 
 set -e
 
-version=f4152e7aaf0e311ebd6b0c6bdd7f85d82dde5c8d
-date=2022-02-13
+version=806d80c9ef6ef61bed73
+date=2022-03-11
 
 b="$(dirname $( realpath $0 ))"
 cd "$b"
