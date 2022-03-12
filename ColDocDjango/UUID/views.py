@@ -105,7 +105,7 @@ class LangForm(forms.Form):
             self.fields['langchoice'] = forms.CharField(widget=forms.HiddenInput(),required=False)
         else:
             self.fields['langchoice'] = forms.ChoiceField(choices=choice_list,
-                                                      label="Language",
+                                                      label=_("Language"),
                                                       #help_text="Language choice"
                                                       )
 
