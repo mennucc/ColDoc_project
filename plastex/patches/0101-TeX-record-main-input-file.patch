@@ -1,14 +1,14 @@
-From 4e4ab5d6010a36c6b56534dbfb1ff2533f75aade Mon Sep 17 00:00:00 2001
+From bec05d8186be368cbe0597e5cfc2d8bd699b6788 Mon Sep 17 00:00:00 2001
 From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
-Date: Mon, 21 Feb 2022 19:37:48 +0100
-Subject: [PATCH 101/103] TeX record main input file
+Date: Sat, 12 Mar 2022 09:52:21 +0100
+Subject: [PATCH 1/4] TeX record main input file
 
 ---
  plasTeX/TeX.py | 9 +++++++++
  1 file changed, 9 insertions(+)
 
 diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
-index d8d04ed..f40316f 100644
+index 7959e07..51b67e4 100644
 --- a/plasTeX/TeX.py
 +++ b/plasTeX/TeX.py
 @@ -122,6 +122,9 @@ class TeX(object):
@@ -17,7 +17,7 @@ index d8d04ed..f40316f 100644
                  '''
 +
 +                self.main_input_file = file
-+                
++
                  try:
                      encoding = self.ownerDocument.config['files'].get('input-encoding', 'utf_8_sig')
                  except (KeyError, AttributeError):
@@ -30,7 +30,7 @@ index d8d04ed..f40316f 100644
 +        else:
 +            self.main_input_file = None
  
-     def input(self, source):
+     def input(self, source, Tokenizer=Tokenizer):
          """
 @@ -156,6 +162,9 @@ class TeX(object):
              elif isinstance(source, IOBase) and hasattr(source,'name'):

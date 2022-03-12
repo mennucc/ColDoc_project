@@ -1,18 +1,17 @@
-From 5247a1ab39b3899d950b9fdc93988f4955f45ef3 Mon Sep 17 00:00:00 2001
+From b8dae4f823e36b1c320b645cb14db293f2bce0fc Mon Sep 17 00:00:00 2001
 From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
-Date: Mon, 21 Feb 2022 19:02:02 +0100
-Subject: [PATCH 102/103] kspewhich: local searches are wrt the main input
- filename
+Date: Sat, 12 Mar 2022 09:53:41 +0100
+Subject: [PATCH 2/4] kspewhich: local searches are wrt the main input
 
 ---
  plasTeX/TeX.py | 13 ++++++-------
  1 file changed, 6 insertions(+), 7 deletions(-)
 
 diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
-index f40316f..89e5b8f 100644
+index 51b67e4..1968080 100644
 --- a/plasTeX/TeX.py
 +++ b/plasTeX/TeX.py
-@@ -1335,13 +1335,12 @@ class TeX(object):
+@@ -1345,13 +1345,12 @@ class TeX(object):
          # When, for example, ``\Input{name}`` is encountered, we should look in
          # the directory containing the file being processed. So the following
          # code adds the directory to the start of $TEXINPUTS.
@@ -25,13 +24,13 @@ index f40316f..89e5b8f 100644
 -        else:
 +        #
 +        TEXINPUTS = srcDir = None
-+        
++
 +        srcDir = None if self.main_input_file is None else  os.path.dirname(self.main_input_file)
 +
 +        if srcDir is not None:
              TEXINPUTS = os.environ.get("TEXINPUTS",'')
-             os.environ["TEXINPUTS"] = "%s%s%s%s" % (srcDir, os.path.pathsep, TEXINPUTS, os.path.pathsep)
- 
+             t = TEXINPUTS.split(os.path.pathsep)
+             if srcDir not in t:
 -- 
 2.32.0
 
