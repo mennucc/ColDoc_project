@@ -1,0 +1,25 @@
+From ad599193547209630b5c0c57db0df39aee2f7db0 Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Mon, 21 Feb 2022 21:03:40 +0100
+Subject: [PATCH] fix TeX.fileLogging()
+
+---
+ plasTeX/TeX.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
+index 530832d..18ef48e 100644
+--- a/plasTeX/TeX.py
++++ b/plasTeX/TeX.py
+@@ -251,7 +251,7 @@ class TeX(object):
+         disableLogging()
+ 
+     def fileLogging(self):
+-        fname = '%s/%s.log' % (os.path.dirname(self.filename), self.jobname)
++        fname = os.path.join(os.path.dirname(self.filename), self.jobname or 'null') + '.log'
+         fileLogging(fname)
+ 
+     def itertokens(self):
+-- 
+2.32.0
+
