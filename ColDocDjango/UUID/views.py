@@ -51,10 +51,15 @@ from plasTeX.TeX import TeX
 #from plasTeX.Packages import graphicx
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
-from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, iso3lang2word, uuid_to_dir, gen_lang_metadata
+from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, uuid_to_dir, gen_lang_metadata
 from ColDocDjango.utils import get_email_for_user
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
+
+from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
+
+def iso3lang2word(*v , **k):
+    return gettext_lazy(iso3lang2word_untranslated(*v, **k))
 
 from .models import DMetadata, DColDoc
 
