@@ -1322,6 +1322,10 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     #    if j not in ('ext','lang'):
     #        messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
     #
+    accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
+    cookie = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+    accept_lang = ColDocDjango.utils.request_accept_language(accept, cookie)
+    #
     try:
         uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
                                                        blobs_dir = blobs_dir, coldoc = NICK,
@@ -1355,6 +1359,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if 'mul' in Blangs:
             Blangs = metadata.coldoc.get_languages()
         langs = [lang] if (lang is not None) else ( Blangs + [None] )
+        langs.sort(key = lambda x : accept_lang.get(x,0), reverse=True)
         pref_ = prefix
         # access to logs
         if  prefix == 'log' :
