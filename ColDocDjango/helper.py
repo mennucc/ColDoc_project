@@ -571,7 +571,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             if (env[:2] == 'E_') and ( bool(env[2:] in private_environment) != bool( M.access == 'private')):
                 s, a = _('UUID %r environ %r access %r') ,  (uuid, env, M.access)
                 logger.warning(s % a)
-                problems.append(('WRONG access', uuid, a))
+                problems.append(('WRONG access', uuid, s, a))
     # check that the environment of the child corresponds to the LaTex \begin/\end used in the parent
     split_graphic = options.get("split_graphic",[])
     allowed_parenthood = options.get("allowed_parenthood",{})
