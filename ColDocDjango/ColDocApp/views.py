@@ -329,11 +329,16 @@ def check_tree(request, NICK):
     try:
         from helper import check_tree
         problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
-        if problems:
-            s = '<h3>' + _('Problems in tree of blobs') + '</h3><ul>'
-            for code, uuid, msg, args in problems:
+    except Exception:
+        logger.exception('on check_tree')
+        return HttpResponse("Internal error on check_tree", status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
+    if problems:
+        s = '<h3>' + _('Problems in tree of blobs') + '</h3><ul>'
+        for problem in problems:
+            try:
+                code, uuid, msg, args = problem
                 try:
-                    desc = gettext_lazy(msg) % args
+                    desc = _(msg) % args
                 except:
                     logger.exception('when formatting msg %r args %r',msg,args)
                     desc = repr((msg,args))
@@ -344,10 +349,10 @@ def check_tree(request, NICK):
                     s += '<li>' + repr(uuid) + ' →' + desc + '</li>'
                 else:
                     s += '<li>' + desc + '</li>'
-            s += '</ul>'
-        else: 
-            s = _('Tree is fine.')
-        return HttpResponse(s)
-    except Exception as e:
-        logger.exception(repr(e))
-        return HttpResponse("Internal error", status=http.HTTPStatus.SERVICE_UNAVAILABLE)
+            except Exception as e:
+                logger.exception('when formatting %r',problem)
+                s += '<li>' + repr(problem) + '</li>\n'
+        s += '</ul>'
+    else: 
+        s = _('Tree is fine.')
+    return HttpResponse(s)
