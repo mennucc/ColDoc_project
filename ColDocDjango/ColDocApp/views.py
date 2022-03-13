@@ -14,7 +14,11 @@ from django.forms import ModelForm
 from django.core.exceptions import SuspiciousOperation
 
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
-_ = gettext_lazy
+if django.VERSION[0] >= 4 :
+    _ = gettext_lazy
+else:
+    # in django 3 you cannot concatenate strings to lazy-strings
+    _ = gettext
 
 import ColDoc.utils, ColDocDjango
 

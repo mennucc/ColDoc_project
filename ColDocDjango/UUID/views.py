@@ -31,7 +31,11 @@ from django.contrib.auth.models import Group
 from django.core.validators import FileExtensionValidator
 
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
-_ = gettext_lazy
+if django.VERSION[0] >= 4 :
+    _ = gettext_lazy
+else:
+    # in django 3 you cannot concatenate strings to lazy-strings
+    _ = gettext
 
 if settings.USE_SELECT2 :
     from django_select2 import forms as s2forms
