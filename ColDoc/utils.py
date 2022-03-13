@@ -1672,6 +1672,7 @@ def replace_language_in_inputs(string,oldlang,newlang):
     #
     pattern = '{UUID/(\w+)/(\w+)/(\w+)/blob_(' + oldlang + ')}'
     replacement = '{UUID/\g<1>/\g<2>/\g<3>/blob_' + newlang + '}'
+    string = re.sub(pattern ,replacement, string)
     #
     pattern = '{SEC/([^/]+)/blob_(' + oldlang + ').(\w\w+)}'
     replacement = '{SEC/\g<1>/blob_' + newlang + '.\g<3>}'
