@@ -613,10 +613,10 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
             except:
                 logger.exception('while checking headers in %r', uuid)
     if untranslated:
-        a = 'There are %d untranslated UUIDs' % len(untranslated)
+        s = 'There are %d untranslated UUIDs' 
+        a = (len(untranslated),)
         if len(untranslated) > 16:
             s = _('There are %d untranslated UUIDs, showing some')
-            a = (len(untranslated),)
             untranslated = untranslated[:16]
         problems.append(('N_UNTRASLATED',None,s,a))
         for uuid,b in untranslated:
