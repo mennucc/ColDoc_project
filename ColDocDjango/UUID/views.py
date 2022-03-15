@@ -626,6 +626,9 @@ def postlang(request, NICK, UUID):
             metadata.lang = '\n'.join(L + [langchoice_]) + '\n'
             metadata.save()
         #
+        if prefix == 'add' and os.path.exists(dst+'~disable~'):
+            os.rename(dst+'~disable~', dst)
+        #
         if os.path.exists(dst):
             messages.add_message(request,messages.WARNING,
                                  _('A blob with language %(lang)r extension %(ext)r already exists') %
@@ -678,12 +681,18 @@ def postlang(request, NICK, UUID):
                             logger.warning('rename %r to %r',src,dst)
                             os.rename(src, dst)
     elif prefix == 'delete':
-        redirectlang_ = lang_
         L = metadata.get_languages()
         if langchoice_ in L:
             del L[L.index(langchoice_)]
             metadata.lang = '\n'.join(L)  + '\n'
             metadata.save()
+            redirectlang_ = L[0]
+            for j in os.listdir(D):
+                if j[:4] in ('blob','view') and j[5:8] == langchoice_  and j[-1] != '~':
+                    src = osjoin(D,j)
+                    dst = src + '~disable~'
+                    logger.debug('disable by renaming %r to %r',src,dst)
+                    os.rename(src, dst)
         else:
             logger.warning(' lang %r not in %r',langchoice_,L)
     else:
