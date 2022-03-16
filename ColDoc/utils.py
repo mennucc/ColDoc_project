@@ -1788,6 +1788,7 @@ def gen_lang_metadata(metadata, blobs_dir, coldoc_languages):
         dst = osjoin(blobs_dir, uuid_to_dir(uuid), 'blob_' + lang + '.tex')
         try:
             with open(dst,'w') as f_:
+                f_.write('%% this content was automatically generated from %r\n%% ********** DO NOT EDIT *********** \n' % src)
                 f_.write(string3)
         except:
             logger.exception(dst)
