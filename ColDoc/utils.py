@@ -1170,7 +1170,7 @@ def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch, problems):
 ############################
 
 
-def reparse_blob(filename, metadata, blobs_dir, warn=None, act=True, ignore_uuid=True, load_uuid=None):
+def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignore_uuid=True, load_uuid=None):
     " reparse a blob to extract and update all metadata ; `warn(s,a)` is a function where `s` is a translatable string, `a` its arguments"
     if warn is None:
         def warn(s,a):

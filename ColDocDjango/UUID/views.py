@@ -1048,7 +1048,7 @@ def postedit(request, NICK, UUID):
                 msg =  _(msg) % args
                 all_messages.append(_('Metadata change in new blob') + ': ' + msg)
                 messages.add_message(request,messages.INFO, _('In new blob') + ': ' + msg)
-            reparse_blob(addfilename, addmetadata, blobs_dir, warn, load_uuid=load_uuid)
+            reparse_blob(addfilename, addmetadata, lang, blobs_dir, warn, load_uuid=load_uuid)
             # compile it
             if split_environment_ not in environments_we_wont_latex:
                 ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
@@ -1066,7 +1066,7 @@ def postedit(request, NICK, UUID):
         msg = _(msg) % args
         all_messages.append(_('Metadata change in blob') + ': ' + msg)
         messages.add_message(request,messages.INFO,msg)
-    reparse_blob(filename, metadata, blobs_dir, warn, load_uuid=load_uuid)
+    reparse_blob(filename, metadata, lang, blobs_dir, warn, load_uuid=load_uuid)
     #
     if ext_ == '.tex':
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
