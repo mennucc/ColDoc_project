@@ -320,6 +320,10 @@ class squash_input_uuid(squash_helper_stack):
         # macros where there may be multiple input files, separated by comma
         self.input_macros_comma_separated = ['usepackage','bibliography']
         # it is up to the caller to add other macros such as 'includegraphics'
+        #
+        self.lang = k.pop('lang','und')
+        self.allowed_blob_names = [ (a+'_'+self.lang) for a in  k.pop('allowed_blob_names',['blob']) ]
+        #
         super().__init__(options = options, **k)
     #
     def process_macro(self, tok):
@@ -759,7 +763,7 @@ def reparse_metadata(inp, metadata, lang, blobs_dir, options, load_uuid=None):
     itertokens = thetex.itertokens()
     #
     helper = squash_helper_reparse_metadata(blobs_dir, metadata, options,
-                                            thetex=thetex, itertokens=itertokens, load_uuid=load_uuid)
+                                            thetex=thetex, itertokens=itertokens, load_uuid=load_uuid, lang=lang)
     from ColDoc.latex import environments_we_wont_latex
     if metadata.environ not in environments_we_wont_latex:
         helper.input_macros_with_parameters += options['split_graphic']
