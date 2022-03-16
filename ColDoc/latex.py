@@ -809,34 +809,39 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     #
     if r != 0:
         logger.debug('LaTeX failed %r will not run BiBTeX',r)
-    elif environ in ( 'main_file', 'E_document') and \
-         os.path.isfile(fake_abs_name+'.aux') and \
-         '\\bibdata' in open(fake_abs_name+'.aux').read():
-        logger.debug('Running BiBTeX')
-        if os.path.isfile(fake_abs_name+'.bbl'):
-            file_md5 = hashlib.md5(open(fake_abs_name+'.bbl','rb').read()).hexdigest()
+    subcommands = []
+    if environ in ( 'main_file', 'E_document') and os.path.isfile(fake_abs_name+'.aux'):
+        if '\\bibdata' in open(fake_abs_name+'.aux').read():
+            subcommands.append( ('bibtex','.bbl','.blg') )
+        #
+        if os.path.isfile(fake_abs_name+'.idx'):
+            subcommands.append( ('makeindex','.ind','.ilg') )
+    #
+    for cmd,cmdext,logext in subcommands:
+        logger.debug('Running '+cmd)
+        if os.path.isfile(fake_abs_name+cmdext):
+            file_md5 = hashlib.md5(open(fake_abs_name+cmdext,'rb').read()).hexdigest()
         else:
             file_md5 = None
-        p = subprocess.Popen(['bibtex',fake_name],
+        p = subprocess.Popen([cmd,fake_name],
                              cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
         a = p.stdout.read()
         if p.wait() != 0:
-            logger.warning('bibtex fails, see %r'%(save_abs_name+'.blg',))
-            logger.warning('bibtex output: %r',a)
+            logger.warning('%s fails, see %r', cmd, save_abs_name+logext)
+            logger.warning('%s output: %r', cmd, a)
         else:
-            if os.path.isfile(fake_abs_name+'.bbl'):
-                if file_md5 is None or file_md5 != hashlib.md5(open(fake_abs_name+'.bbl','rb').read()).hexdigest():
+            if os.path.isfile(fake_abs_name+cmdext):
+                if file_md5 is None or file_md5 != hashlib.md5(open(fake_abs_name+cmdext,'rb').read()).hexdigest():
                     if repeat is None:
-                        logger.debug('BibTeX changed the .bbl file, will rerun')
+                        logger.debug('%s changed the %s file, will rerun',cmd,cmdext)
                         repeat = True
                     else:
-                        logger.debug('BibTeX changed the .bbl file')
+                        logger.debug('%s changed the %s file',cmd,cmdext)
                 else:
-                    logger.debug('BibTeX did not change the .bbl file')
+                    logger.debug('%s did not change the %s file',cmd,cmdext)
             else:
-                logger.warning('BiBTeX did not generate %r',fake_abs_name+'.bbl') 
-                
+                logger.warning('%s failed to create the %s file',cmd,cmdext)
     #
     a = 'Rerun to get cross-references right'
     if r == 0:
