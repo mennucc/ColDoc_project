@@ -544,8 +544,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         #
         for e in ('.aux','.bbl','_plastex.paux'):
             # keep a copy of the aux file
-            # TODO should encode by language
-            a,b = osjoin(blobs_dir,save_name+e), osjoin(blobs_dir,'main'+e)
+            a,b = osjoin(blobs_dir,save_name+e), osjoin(blobs_dir,'main'+_lang+e)
             if os.path.isfile(a):
                 logger.debug('Copy %r to %r',a,b)
                 shutil.copy(a,b)
@@ -758,9 +757,11 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     " If repeat is None, it will be run twice if bib data or aux data changed"
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
+    _lang = ('_'+lang) if lang else ''
     # 'main.aux' and 'main.bbl' are saved latex_main()
     for e in ColDoc.config.ColDoc_pdflatex_fakemain_reuse_extensions:
-        a = os.path.join(blobs_dir,'main'+e)
+        f = 'main' + _lang + e
+        a = os.path.join(blobs_dir,f)
         if os.path.exists(save_abs_name+e):
             logger.debug("Re-using %r for %r",save_abs_name+e,fake_abs_name+e)
             shutil.copy2(save_abs_name+e, fake_abs_name+e)
