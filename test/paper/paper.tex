@@ -31,6 +31,11 @@
  % code for (pdf)latex
    \input{preamble_pdflatex}
 \fi\fi
+
+\usepackage{makeidx}
+\makeindex
+
+
 %%%%%%%%% following are general definitions
 
 \input{preamble_definitions}
@@ -68,6 +73,7 @@ Stress test  \texttt{plasTeX} embedding \texttt{HTML}
 
 BBM test for bold ``1''
 \[f={\mathbbm{1}}_A\]
+\index{BBM test}
 
 \begin{buyablecontent}
   This content is reserved but it may be bought
@@ -90,6 +96,8 @@ BBM test for bold ``1''
 
 \section*{Table of contents}
 \tableofcontents
+
+\printindex
 
 \bibliographystyle{plain}
 \bibliography{subdir/paper}
