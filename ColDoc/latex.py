@@ -139,6 +139,7 @@ def lang_conditionals(thelang, langs = None, metadata = None):
             for a in langs]
 
 
+@ColDoc.utils.log_debug
 def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, options = {}):
     " `latex` the blob identified `uuid` or `metadata`; if `lang` is None, `latex` all languages ; return a dict of booleans to report failure for each language "
     log_level = logging.WARNING if warn else logging.DEBUG
@@ -211,6 +212,7 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     metadata.save()
     return res
 
+@ColDoc.utils.log_debug
 def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash = True, forked=False):
     """ `latex` the blob identified by the `metadata`, for the given language `lang`.
     ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )
@@ -398,6 +400,7 @@ def _update_metadata(metadata, lang, rh, rp):
     #
     metadata.save()
 
+@ColDoc.utils.log_debug
 def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public', verbose_name=None, email_to=None):
     #
     assert access=='public'
@@ -420,6 +423,7 @@ def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'
         return False
 
 
+@ColDoc.utils.log_debug
 def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, verbose_name=None, email_to=None):
     "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
     #
@@ -548,6 +552,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             if os.path.isfile(a):
                 logger.debug('Copy %r to %r',a,b)
                 shutil.copy(a,b)
+            else:
+                logger.debug('No such file %r , did not copy to %r',a,b)
         #
         ret = ret and rh and rp
     #
@@ -649,6 +655,7 @@ def dedup_html(src, options):
                             replacements.append( ( o, (dedup_url + '/' + dedup + '/' + r) ) )
     return replacements
 
+@ColDoc.utils.log_debug
 def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
                    levels = False, tok = False, strip_head = True, plastex_theme=None):
     " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
@@ -663,13 +670,15 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
         f = 'main' + _lang + es
         a = osjoin(blobs_dir,f)
         if os.path.exists(a):
-            logger.debug("Re-using %r as %r",a,fake_abs_name+ed)
+            logger.debug("Re-using %r as %r",f,fake_name+ed)
             shutil.copy2(a,fake_abs_name+ed)
             fake_support.append((a,fake_abs_name+ed))
         elif os.path.exists(save_abs_name+es):
-            logger.debug("Re-using %r as %r",save_abs_name+es,fake_abs_name+ed)
+            logger.debug("Re-using %r as %r",save_name+es,fake_name+ed)
             shutil.copy(save_abs_name+es,fake_abs_name+ed)
             fake_support.append((save_abs_name+es,fake_abs_name+ed))
+        else:
+            logger.debug("No %r -> %r file for this job",es,ed)
     #
     F = fake_name+'.tex'
     d = os.path.dirname(F)
@@ -704,9 +713,12 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
     extensions = ColDoc.config.ColDoc_plastex_fakemain_preserve_extension
     for e in extensions:
         if os.path.exists(save_abs_name+'_plastex'+e):
-            os.rename(save_abs_name+'_plastex'+e,save_abs_name+'_plastex'+e+'~')
+            a= save_abs_name+'_plastex'+e
+            os.rename(a,a+'~')
         if os.path.exists(fake_abs_name+e):
-            s,d = fake_abs_name+e,save_abs_name+'_plastex'+e
+            s, d = fake_name+e,save_name+'_plastex'+e
+            logger.debug('Rename %r to %r ', s, d)
+            s, d = fake_abs_name+e,save_abs_name+'_plastex'+e
             os.rename(s,d)
             if ret: logger.warning(' rename %r to %r',s,d)
     if os.path.isfile(osjoin(blobs_dir, save_name+'_html','index.html')):
@@ -754,7 +766,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
                     logger.exception('ARGH')
     return ret == 0
 
-
+@ColDoc.utils.log_debug
 def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, repeat = None):
     " If repeat is None, it will be run twice if bib data or aux data changed"
     save_abs_name = os.path.join(blobs_dir, save_name)
@@ -765,10 +777,10 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
         f = 'main' + _lang + e
         a = os.path.join(blobs_dir,f)
         if os.path.exists(save_abs_name+e):
-            logger.debug("Re-using %r for %r",save_abs_name+e,fake_abs_name+e)
+            logger.debug("Re-using %r for %r",save_name+e,fake_name+e)
             shutil.copy2(save_abs_name+e, fake_abs_name+e)
         elif os.path.exists(a):
-            logger.debug("Re-using %r for %r (hoping for the best)",a,fake_abs_name+e)
+            logger.debug("Re-using %r for %r (hoping for the best)",f,fake_name+e)
             shutil.copy2(a,fake_abs_name+e)
         else:
             logger.debug("No %r file for this job",e)
@@ -852,11 +864,12 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
             if e == '.pdf':
                 siz=os.path.getsize(fake_abs_name+e)
                 if siz :
-                    logger.info("Created pdf %r size %d"%(save_abs_name+e,siz))
+                    logger.info("Created pdf %r size %d"%(save_name+e,siz))
                 else:
-                    logger.warning("Created empty pdf %r "%(save_abs_name+e,))
-            a,b=fake_abs_name+e,save_abs_name+e
+                    logger.warning("Created empty pdf %r "%(save_name+e,))
+            a,b=fake_name+e,save_name+e
             logger.debug('Rename %r to %r',a,b)
+            a,b=fake_abs_name+e,save_abs_name+e
             os.rename(a,b)
         else:
             if e not in ( '.pdf', '.aux' ) :
