@@ -703,6 +703,9 @@ def file_to_uuid(filename, blobs_dir):
     """given a file or directory, tracks down symlinks,
     returns (UUID, basename)  where `basename` is the filename inside the UUID directory,
     or `None` if `filename` was a directory"""
+    assert isinstance(filename, str)
+    if len(filename) < 5 :
+        raise ValueError('filename too short: %r' % filename)
     blobs_dir = os.path.realpath(blobs_dir)
     if not os.path.isabs(filename):
         filename = os.path.join(blobs_dir,filename)
@@ -715,10 +718,11 @@ def file_to_uuid(filename, blobs_dir):
     filename = os.path.realpath(filename)
     blobs_dir += os.path.sep
     assert filename.startswith(blobs_dir), ('filename %r does not start with %r' %(filename, blobs_dir))
-    if os.path.isfile(filename):
-        filename, base = os.path.split(filename)
-    else:
+    if os.path.isdir(filename) or filename[-1] == os.pathsep:
         base = None
+    else:
+        filename, base = os.path.split(filename)
+    #
     filename = filename[len(blobs_dir):]
     uuid = dir_to_uuid(filename)
     return uuid, base
