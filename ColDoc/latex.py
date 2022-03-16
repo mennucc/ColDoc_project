@@ -337,13 +337,13 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         # forking
         other_pid_ = os.fork()
         if other_pid_ == 0:
-            rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+            rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
             os._exit(0 if rp else 13)
         else:
             logger.debug('Forked pdflatex_engine to pid %r', other_pid_)
     else:
         logger.warning('FIXME no forking in your platform')
-        rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+        rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
     ##
     ## create html
     logger.debug('create html for %r',save_abs_name)
@@ -500,13 +500,13 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             # forking
             other_pid_ = os.fork()
             if other_pid_ == 0:
-                rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+                rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
                 os._exit(0 if rp else 13)
             else:
                 logger.debug('Forked pdflatex_engine to pid %r', other_pid_)
         else:
             logger.warning('FIXME no forking in your platform')
-            rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, options)
+            rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
         #
         # plastex
         fake_name2 = 'fakemain2' + _lang
@@ -754,7 +754,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     return ret == 0
 
 
-def pdflatex_engine(blobs_dir, fake_name, save_name, environ, options, repeat = None):
+def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, repeat = None):
     " If repeat is None, it will be run twice if bib data or aux data changed"
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
