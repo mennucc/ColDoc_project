@@ -112,16 +112,16 @@ ColDoc_environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_p
                                'usepackage', 'bibliography', 'E_thebibliography','graphic_file' )
 
 # Before compiling with latex a file, these files are copied back from 
-# blobs/UUID/N/N/N/YYYY_ll_LL.XXX or
-# (where YYYY is `main` or `view` )
+# blobs/UUID/N/N/N/YYYY_LLL.XXX 
+# (where YYYY is `main` or `view`  and `LLL` is the language code)
 ColDoc_pdflatex_fakemain_reuse_extensions = ['.aux','.toc','.idx','.bbl','.out']
 
 # after compiling with latex a file, these files are saved as 
-# blobs/UUID/N/N/N/YYYY_ll_LL.XXX or
+# blobs/UUID/N/N/N/YYYY_LLL.XXX
 ColDoc_pdflatex_fakemain_preserve_extensions = ColDoc_pdflatex_fakemain_reuse_extensions + ['.tex','.log','.pdf','.fls','.blg']
 
 # Before compiling with plastex a file, these files are copied back from 
-# blobs/UUID/N/N/N/YYYY_ll_LL.XXX or
+# blobs/UUID/N/N/N/YYYY_LLL.XXX
 ColDoc_plastex_fakemain_reuse_extensions = [('_plastex.paux','.paux'), ('.bbl','.bbl')]
 
 # Moreover these are preserved when recreating the anon tree
