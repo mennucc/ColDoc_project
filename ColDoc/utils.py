@@ -1,6 +1,7 @@
 import itertools, sys, os, io, copy, logging, shelve, unicodedata
 import re, pathlib, subprocess, datetime, json
 import tempfile, shutil, json, hashlib, importlib
+import functools, inspect
 import traceback, contextlib
 import os.path
 from os.path import join as osjoin
@@ -65,6 +66,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'parse_latex_log',
             'recreate_symlinks',
             'TeX_add_packages',
+            'log_debug',
             )
 
 class ColDocException(Exception):
@@ -72,6 +74,20 @@ class ColDocException(Exception):
 
 class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
+
+######################
+# 
+def log_debug(fun):
+    @functools.wraps(fun)
+    def log_call(*args, **kwds):
+        S=inspect.signature(fun)
+        B=S.bind(*args, **kwds)
+        B.apply_defaults()
+        globals()['logger'].debug('Calling function %s  %s ', fun, B)
+        return fun(*args, **kwds)
+    return log_call
+
+
 
 #####################
 
