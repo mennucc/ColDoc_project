@@ -349,15 +349,28 @@ class squash_input_uuid(squash_helper_stack):
                 if  macroname == 'usepackage' and inputfile[:5] != 'UUID/':
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
                     continue
+                if os.path.isabs(inputfile):
+                    a = _('Macro %(macroname)r %(argSource)r %(inputfile)r  points to an absolute filename')
+                    logger.warning(a % locals())
+                    self.errors.append(( a, locals()))
                 try:
                     uuid, blob = ColDoc.utils.file_to_uuid(inputfile, self.blobs_dir)
                     # this checks if uuid is valid
                     ColDoc.utils.uuid_to_int(uuid)
                 except Exception as error:
-                    logger.error('Macro %r %r { %r } could not be parsed: %r', macroname, argSource, inputfile, error)
-                    self.errors.append(( _('Macro %(macroname)r %(argSource)r %(inputfile)r could not be parsed: %(error)r'), locals()))
+                    a =  _('Macro %(macroname)r %(argSource)r %(inputfile)r could not be parsed: %(error)r')
+                    logger.warning(a % locals())
+                    self.errors.append(( a, locals()))
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
                     continue
+                if blob is None:
+                    logger.warning('Macro %r %r { %r } does not point to a file', macroname, argSource, inputfile)
+                    self.errors.append(( _('Macro %(macroname)r %(argSource)r %(inputfile)r does not point to a file'), locals()))
+                else:
+                    blob_base, blob_ext = os.path.splitext(blob)
+                    if blob_base not in self.allowed_blob_names:
+                        logger.warning(( _('Macro %(macroname)r %(argSource)r %(inputfile)r is including an incorrect blob %(blob)s'), locals()))
+                        self.errors.append(( _('Macro %(macroname)r %(argSource)r %(inputfile)r is including an incorrect blob %(blob)s'), locals()))
                 if inputfile[:5] == 'UUID/':
                     text = uuid
                 elif inputfile[:4] == 'SEC/':
