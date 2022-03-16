@@ -1179,7 +1179,7 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
     options =  get_blobinator_args(blobs_dir)
     #
     from ColDoc.transform import reparse_metadata
-    parsed_back_map, parsed_metadata, errors = reparse_metadata(filename, metadata, blobs_dir, options, load_uuid=load_uuid)
+    parsed_back_map, parsed_metadata, errors = reparse_metadata(filename, metadata, lang, blobs_dir, options, load_uuid=load_uuid)
     for s,a in errors:
         warn(s, a)
     #

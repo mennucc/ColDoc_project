@@ -193,7 +193,7 @@ class TestTransform(unittest.TestCase):
             'metadata_command' : ['index','label','ref'],
             'split_graphic' : ['includegraphics'],
             }
-        back_map_, metadata_ = T.reparse_metadata(inp.name, metadata , '/tmp/', options)
+        back_map_, metadata_ = T.reparse_metadata(inp.name, metadata , 'ita', '/tmp/', options)
         back_map_ = dict(back_map_)
         expected_metadata = [('S_E_B_M_label', '{ese:tabelle_verita}'), ('S_E_B_M_index', '{table_of_truth}')]
         expected_backmap = {'1VZ': ('input', 'UUID/1/V/Z/blob_ita.tex', 'E_delasol')}

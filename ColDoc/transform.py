@@ -720,7 +720,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
 
 import io
 
-def reparse_metadata(inp, metadata, blobs_dir, options, load_uuid=None):
+def reparse_metadata(inp, metadata, lang, blobs_dir, options, load_uuid=None):
     " reparse metadata of LaTeX file"
     #
     if False:
