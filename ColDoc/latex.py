@@ -418,7 +418,7 @@ def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'
                                                  metadata_class=metadata_class, coldoc=coldoc)
     if anon_dir is not None:
         assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
-        return latex_main(anon_dir, uuid=uuid, lang=lang, options = options, access='public')
+        return latex_main(anon_dir, uuid=uuid, lang=lang, options = options, access='public', verbose_name=verbose_name, email_to=email_to)
     else:
         return False
 
