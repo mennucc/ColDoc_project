@@ -494,8 +494,10 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             a = (r'\def\uuidbaseurl{%s}'%(ColDoc.config.ColDoc_url_placeholder,)+'\n')
             f_html = ''.join(prologue + preamble + [a] + body + epilogue)
         #
-        fake_name = 'fakemain1' + _lang
-        fake_abs_name = os.path.join(blobs_dir, fake_name)
+        fake_texfile = tempfile.NamedTemporaryFile(prefix='fakelatex' + _lang +'_',
+                                                    suffix='.tex', dir = blobs_dir , mode='w+', delete=False)
+        fake_abs_name = fake_texfile.name[:-4]
+        fake_name = os.path.basename(fake_abs_name)
         with open(fake_abs_name+'.tex','w') as f_:
             f_.write(f_pdf)
         #
@@ -513,8 +515,10 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
         #
         # plastex
-        fake_name2 = 'fakemain2' + _lang
-        fake_abs_name2 = os.path.join(blobs_dir, fake_name2)
+        fake_texfile2 = tempfile.NamedTemporaryFile(prefix='fakelatex' + _lang + '_',
+                                               suffix='.tex', dir = blobs_dir , mode='w+', delete=False)
+        fake_abs_name2 = fake_texfile2.name[:-4]
+        fake_name2 = os.path.basename(fake_abs_name2)
         with open(fake_abs_name2+'.tex','w') as f_:
             f_.write(f_html)
         rh = plastex_engine(blobs_dir, fake_name2, save_name, environ, lang, options,
