@@ -114,7 +114,7 @@ ColDoc_environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_p
 # Before compiling with latex a file, these files are copied back from 
 # blobs/UUID/N/N/N/YYYY_LLL.XXX 
 # (where YYYY is `main` or `view`  and `LLL` is the language code)
-ColDoc_pdflatex_fakemain_reuse_extensions = ['.aux','.toc','.idx','.ind','.bbl','.out']
+ColDoc_pdflatex_fakemain_reuse_extensions = ['.aux','.toc','.idx','.ind','.bbl','.brf','.out']
 
 # after compiling with latex a file, these files are saved as 
 # blobs/UUID/N/N/N/YYYY_LLL.XXX
