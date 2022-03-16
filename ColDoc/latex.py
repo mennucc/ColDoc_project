@@ -654,12 +654,14 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
     " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
+    _lang = ('_'+lang) if lang else ''
     #
     plastex_theme = options.get('plastex_theme','green')
     #
     fake_support=[]
     for es,ed in ColDoc.config.ColDoc_plastex_fakemain_reuse_extensions:
-        a = osjoin(blobs_dir,'main'+es)
+        f = 'main' + _lang + es
+        a = osjoin(blobs_dir,f)
         if os.path.exists(a):
             logger.debug("Re-using %r as %r",a,fake_abs_name+ed)
             shutil.copy2(a,fake_abs_name+ed)
