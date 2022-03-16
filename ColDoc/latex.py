@@ -546,7 +546,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         except:
             logger.exception('while symlinking')
         #
-        for e in ('.aux','.bbl','_plastex.paux'):
+        for e in ('.aux','.bbl','.ind','_plastex.paux'):
             # keep a copy of the aux file
             a,b = osjoin(blobs_dir,save_name+e), osjoin(blobs_dir,'main'+_lang+e)
             if os.path.isfile(a):
