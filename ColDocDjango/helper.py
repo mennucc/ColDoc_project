@@ -602,10 +602,10 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
         if env and env in ColDoc_environments_sectioning:
             D = osjoin(blobs_dir, uuid_to_dir(uuid, blobs_dir))
             try:
-                for j in os.listdir(D):
-                    if j.startswith('blob') and j.endswith('.tex'):
-                        l = open( osjoin(D,j) ).readline(32)
-                        if not l.startswith('\\'+ env):
+                for lang in M.get_languages():
+                    j = 'blob_' + lang + '.tex'
+                    l = open( osjoin(D,j) ).readline(32)
+                    if not l.startswith('\\'+ env):
                             s = _('UUID %r file %r environ %r first line %r')
                             a = (uuid, j, env, l)
                             logger.warning(s % a)
