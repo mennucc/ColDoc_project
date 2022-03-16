@@ -696,9 +696,11 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, options,
     if os.path.exists(save_abs_name+'_html') :
         shutil.rmtree(save_abs_name+'_html')
     os.rename(save_name_tmp, save_abs_name+'_html')
-    extensions = '.log','.paux','.tex','.bbl'
+    #
     if ret :
         logger.warning('Failed: cd %r ; plastex %s',blobs_dir,' '.join(argv))
+    #
+    extensions = ColDoc.config.ColDoc_plastex_fakemain_preserve_extension
     for e in extensions:
         if os.path.exists(save_abs_name+'_plastex'+e):
             os.rename(save_abs_name+'_plastex'+e,save_abs_name+'_plastex'+e+'~')
