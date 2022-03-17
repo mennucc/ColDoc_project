@@ -538,6 +538,11 @@ def postlang(request, NICK, UUID):
     D = uuid_to_dir(UUID, blobs_dir)
     D = osjoin(blobs_dir, D)
     #
+    try:
+        os.unlink(osjoin(D,'.check_ok'))
+    except OSError:
+        pass
+    #
     Blangs = metadata.get_languages()
     if prefix == 'manual':
         assert len(Blangs) == 1 and 'mul' in Blangs
@@ -719,6 +724,11 @@ def postupload(request, NICK, UUID):
                                                          blobs_dir = blobs_dir, coldoc = NICK,
                                                          metadata_class=DMetadata)
     #    
+    try:
+        os.unlink(osjoin(blobs_dir,uuid_dir,'.check_ok'))
+    except OSError:
+        pass
+    #
     env = metadata.environ
     file_ = form.cleaned_data['file']
     uuid_ = form.cleaned_data['UUID']
@@ -900,6 +910,7 @@ def postedit(request, NICK, UUID):
                                  metadata = metadata,
                                  ext = ext_, lang = lang_, 
                                  metadata_class=DMetadata, coldoc=NICK)
+    assert lang == lang_
     env = metadata.environ
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
@@ -924,6 +935,11 @@ def postedit(request, NICK, UUID):
         a = "The file was changed on disk: compile aborted"
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
+    #
+    try:
+        os.unlink(osjoin(os.path.dirname(filename),'.check_ok'))
+    except OSError:
+        pass
     #
     normalize_errors = []
     if 'normalize' in request.POST:
@@ -1142,6 +1158,12 @@ def postmetadataedit(request, NICK, UUID):
     uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
                                                    blobs_dir = blobs_dir, coldoc = NICK,
                                                    metadata_class=DMetadata)
+    #
+    try:
+        os.unlink(osjoin(blobs_dir,uuid_dir,'.check_ok'))
+        print(uuid)
+    except OSError:
+        pass
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     if not request.user.has_perm('UUID.change_dmetadata'):

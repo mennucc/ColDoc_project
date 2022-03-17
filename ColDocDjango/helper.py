@@ -588,6 +588,10 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
     from ColDoc.config import ColDoc_environments_sectioning
     for uuid, M in all_metadata.items() :
         env = environments.get(uuid)
+        D = osjoin(blobs_dir, uuid_to_dir(uuid, blobs_dir))
+        if os.path.exists(osjoin(D,'.check_ok')):
+            continue
+        problems_len=len(problems)
         # check protection
         if private_environment:
             if (env[:2] == 'E_') and ( bool(env[2:] in private_environment) != bool( M.access == 'private')):
@@ -599,7 +603,6 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
         Blangs = M.get_languages()
         env = environments.get(uuid)
         if env and env in ColDoc_environments_sectioning:
-            D = osjoin(blobs_dir, uuid_to_dir(uuid, blobs_dir))
             try:
                 for lang in Blangs:
                     j = 'blob_' + lang + '.tex'
@@ -655,6 +658,9 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                         problems.append(('MISSING_INPUT', uuid, s, a))
         except:
             logger.exception('while checking input maps in %r', uuid)
+        # mark as checked for these controls
+        if problems_len == len(problems):
+            open( osjoin(D,'.check_ok') , 'w+' ).write('ok')
     #
     if untranslated:
         s = 'There are %d untranslated UUIDs' 
