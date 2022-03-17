@@ -794,9 +794,11 @@ def reparse_metadata(inp, metadata, lang, blobs_dir, options, load_uuid=None):
     inp_f.close()
     #
     a = osjoin(os.path.dirname(inp),'.back_map.pickle')
-    f = open(a,'wb')
-    pickle.dump(helper.back_map,f)
-    f.close()
+    with open(a,'wb') as f:
+        pickle.dump(helper.back_map,f)
+    a = osjoin(os.path.dirname(inp),'.back_map_'+lang+'.pickle')
+    with open(a,'wb') as f:
+        pickle.dump(helper.back_map,f)
     a = osjoin(os.path.dirname(inp),'.input_map_'+lang+'.pickle')
     with open(a,'wb') as f:
         pickle.dump(helper.all_inputs,f)
