@@ -11,7 +11,7 @@
 ############## system modules
 
 import  sys, os, io, re, json, pickle, enum, tempfile, unicodedata, subprocess, inspect
-import itertools, copy, string, argparse, importlib, shutil, pathlib
+import itertools, copy, string, argparse, importlib, shutil, pathlib, copy
 import os.path
 from os.path import join as osjoin
 
@@ -350,27 +350,33 @@ class squash_input_uuid(squash_helper_stack):
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
                     continue
                 if os.path.isabs(inputfile):
-                    a = _('Macro %(macroname)r %(argSource)r %(inputfile)r  points to an absolute filename')
-                    logger.warning(a % locals())
-                    self.errors.append(( a, locals()))
+                    s = _('Macro \\%(macroname)s %(argSource)s {%(inputfile)r}  points to an absolute filename')
+                    locals_ = copy.copy(locals())
+                    logger.warning(s % locals_)
+                    self.errors.append(( s, locals_))
                 try:
                     uuid, blob = ColDoc.utils.file_to_uuid(inputfile, self.blobs_dir)
                     # this checks if uuid is valid
                     ColDoc.utils.uuid_to_int(uuid)
                 except Exception as error:
-                    a =  _('Macro %(macroname)r %(argSource)r %(inputfile)r could not be parsed: %(error)r')
-                    logger.warning(a % locals())
-                    self.errors.append(( a, locals()))
+                    s =  _('Macro \\%(macroname)s %(argSource)s {%(inputfile)r} could not be parsed: %(error)r')
+                    locals_ = copy.copy(locals())
+                    logger.warning(s % locals_)
+                    self.errors.append(( s, locals_))
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
                     continue
                 if blob is None:
-                    logger.warning('Macro %r %r { %r } does not point to a file', macroname, argSource, inputfile)
-                    self.errors.append(( _('Macro %(macroname)r %(argSource)r %(inputfile)r does not point to a file'), locals()))
+                    s = _('Macro \\%(macroname)s %(argSource)s {%(inputfile)r} does not point to a file')
+                    locals_ = copy.copy(locals())
+                    logger.warning(s % locals_)
+                    self.errors.append(( s,locals_))
                 else:
                     blob_base, blob_ext = os.path.splitext(blob)
                     if blob_base not in self.allowed_blob_names:
-                        logger.warning(( _('Macro %(macroname)r %(argSource)r %(inputfile)r is including an incorrect blob %(blob)s'), locals()))
-                        self.errors.append(( _('Macro %(macroname)r %(argSource)r %(inputfile)r is including an incorrect blob %(blob)s'), locals()))
+                        s = _('Macro \\%(macroname)s %(argSource)s {%(inputfile)r} is including an incorrect blob %(blob)s')
+                        locals_ = copy.copy(locals())
+                        logger.warning( s % locals_)
+                        self.errors.append(( s, locals_))
                 if inputfile[:5] == 'UUID/':
                     text = uuid
                 elif inputfile[:4] == 'SEC/':
@@ -396,8 +402,9 @@ class squash_input_uuid(squash_helper_stack):
                         logger.exception('For uuid %r child %r optarg %r ', uuid, child, optarg)
                     if child is None:
                         a = _('Macro %(macroname)r %(argSource)r %(inputfile)r references a non-existant UUID %(uuid)r')
-                        self.errors.append( (a,locals()) )
-                        logger.warning( a % locals())
+                        locals_ = copy.copy(locals())
+                        self.errors.append( (a,locals_) )
+                        logger.warning( a % locals_)
                 placeholder += (r'\uuidplaceholder{' + uuid + '}{' + text + '}')
             return placeholder
         else:
