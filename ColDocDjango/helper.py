@@ -563,16 +563,6 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
             problems.append(("WRONG environ", uuid, s, a))
             continue
         environments[uuid] = env[0]
-    # check protection
-    private_environment = options.get("private_environment",[])
-    if private_environment:
-        for uuid in all_metadata :
-            env = environments.get(uuid)
-            M = all_metadata[uuid]
-            if (env[:2] == 'E_') and ( bool(env[2:] in private_environment) != bool( M.access == 'private')):
-                s, a = _('UUID %r environ %r access %r') ,  (uuid, env, M.access)
-                logger.warning(s % a)
-                problems.append(('WRONG access', uuid, s, a))
     # check that the environment of the child corresponds to the LaTex \begin/\end used in the parent
     split_graphic = options.get("split_graphic",[])
     allowed_parenthood = options.get("allowed_parenthood",{})
@@ -595,8 +585,17 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                 logger.warning(s % a)
                 problems.append(('CMD_PARENT_CHILD', uuid, s, a))
     #
+    private_environment = options.get("private_environment",[])
     from ColDoc.config import ColDoc_environments_sectioning
     for uuid, M in all_metadata.items() :
+        env = environments.get(uuid)
+        # check protection
+        if private_environment:
+            if (env[:2] == 'E_') and ( bool(env[2:] in private_environment) != bool( M.access == 'private')):
+                s, a = _('UUID %r environ %r access %r') ,  (uuid, env, M.access)
+                logger.warning(s % a)
+                problems.append(('WRONG access', uuid, s, a))
+
         # check that header is consistent
         Blangs = M.get_languages()
         env = environments.get(uuid)
