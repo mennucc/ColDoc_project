@@ -38,7 +38,7 @@ This program does some actions that `manage` does not. Possible commands:
         ditto
 """
 
-import os, sys, argparse, json, pickle, io
+import os, sys, argparse, json, pickle, io, copy
 from os.path import join as osjoin
 
 
@@ -613,6 +613,51 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                             problems.append(('WRONG_HEADER', uuid, s, a))
             except:
                 logger.exception('while checking headers in %r', uuid)
+        # check inputs
+        try:
+            abm =  ['blob']
+            IMs = {}
+            for lang in Blangs:
+                a = osjoin(blobs_dir, uuid_to_dir(uuid), '.input_map_'+lang+'.pickle')
+                if os.path.exists(a):
+                    IMs[lang] = pickle.load(open(a,'rb'))
+            Umaps = {}
+            for lang, IM in IMs.items():
+                more_langs = [lang] + ['zxx','und']
+                allowed_blob_lang = set( (a+'_'+l) for a in abm  for l in more_langs)
+                Uset = set()
+                for macroname, argSource, inputfile, thisuuid, thisblob in IM:
+                    if thisblob is not None:
+                        blob_base, blob_ext = os.path.splitext(thisblob)
+                        if blob_base not in allowed_blob_lang:
+                            s = _('In language %(lang)s macro \\%(macroname)s %(argSource)s {%(inputfile)r} is including an incorrect blob %(thisblob)s')
+                            locals_ = copy.copy(locals())
+                            logger.warning( s % locals_)
+                            problems.append(('WRONG_INPUT', uuid, s, locals_))
+                    if thisuuid is None or thisblob is None:
+                        s = _('Unparsable input  \\%s %s {%r} -> uuid %r blob %r')
+                        a = (macroname, argSource, inputfile, thisuuid, thisblob)
+                        logger.warning(s % a)
+                        problems.append(('WRONG_INPUT', uuid, s, a))
+                    elif thisuuid in Uset:
+                        s = _('inputs UUID %r filename %r twice')
+                        a = (thisuuid,inputfile)
+                        logger.warning(s % a)
+                        problems.append(('DUP_INPUT', uuid, s, a))
+                    if thisuuid:
+                        Uset.add(thisuuid)
+                Umaps[lang]=Uset
+            if len(IMs) > 1:
+                Uall = set( u for l in Umaps for u in Umaps[l])
+                for lang , Uset in Umaps.items():
+                    if Uset != Uall:
+                        s = _('language %r does not input UUIDs: %r')
+                        a = (lang , Uall.symmetric_difference(Uset))
+                        logger.warning(s % a)
+                        problems.append(('MISSING_INPUT', uuid, s, a))
+        except:
+            logger.exception('while checking input maps in %r', uuid)
+    #
     if untranslated:
         s = 'There are %d untranslated UUIDs' 
         a = (len(untranslated),)
