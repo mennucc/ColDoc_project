@@ -576,8 +576,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
     # check that the environment of the child corresponds to the LaTex \begin/\end used in the parent
     split_graphic = options.get("split_graphic",[])
     allowed_parenthood = options.get("allowed_parenthood",{})
-    for uuid in all_metadata :
-        M = all_metadata[uuid]
+    for uuid, M in all_metadata.items() :
         parents = M.get('parent_uuid')
         child_env = environments.get(uuid)
         if  child_env is None:
@@ -595,15 +594,16 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                 a =  (parent_uuid, uuid, cmd, parent_uses_env, uuid , child_env)
                 logger.warning(s % a)
                 problems.append(('CMD_PARENT_CHILD', uuid, s, a))
-    # check that header is consistent
+    #
     from ColDoc.config import ColDoc_environments_sectioning
-    for uuid in all_metadata :
-        M = all_metadata[uuid]
+    for uuid, M in all_metadata.items() :
+        # check that header is consistent
+        Blangs = M.get_languages()
         env = environments.get(uuid)
         if env and env in ColDoc_environments_sectioning:
             D = osjoin(blobs_dir, uuid_to_dir(uuid, blobs_dir))
             try:
-                for lang in M.get_languages():
+                for lang in Blangs:
                     j = 'blob_' + lang + '.tex'
                     l = open( osjoin(D,j) ).readline(32)
                     if not l.startswith('\\'+ env):
