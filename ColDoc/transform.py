@@ -322,7 +322,9 @@ class squash_input_uuid(squash_helper_stack):
         # it is up to the caller to add other macros such as 'includegraphics'
         #
         self.lang = k.pop('lang','und')
-        self.allowed_blob_names = [ (a+'_'+self.lang) for a in  k.pop('allowed_blob_names',['blob']) ]
+        more_langs = [self.lang] + ['zxx','und']
+        self.allowed_blob_names = abm =  k.pop('allowed_blob_names',['blob'])
+        self.allowed_blob_lang = set( (a+'_'+l) for a in abm  for l in more_langs)
         #
         super().__init__(options = options, **k)
     #
@@ -371,9 +373,10 @@ class squash_input_uuid(squash_helper_stack):
                     locals_ = copy.copy(locals())
                     logger.warning(s % locals_)
                     self.errors.append(( s,locals_))
+                    #blob_base = blob_ext = None
                 else:
                     blob_base, blob_ext = os.path.splitext(blob)
-                    if blob_base not in self.allowed_blob_names:
+                    if blob_base not in self.allowed_blob_lang:
                         s = _('Macro \\%(macroname)s %(argSource)s {%(inputfile)r} is including an incorrect blob %(blob)s')
                         locals_ = copy.copy(locals())
                         logger.warning( s % locals_)
