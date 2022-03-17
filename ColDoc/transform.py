@@ -309,7 +309,7 @@ class squash_helper_accents_to_unicode(squash_helper_stack):
 class squash_input_uuid(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
     def __init__(self, blobs_dir, blob, options, load_uuid=None, **k):
-        self.forw_map = OrderedDict()
+        self.all_inputs = []
         self.back_map = OrderedDict()
         self.blobs_dir =  blobs_dir
         self.blob = blob
@@ -364,6 +364,7 @@ class squash_input_uuid(squash_helper_stack):
                     logger.warning(s % locals_)
                     self.errors.append(( s, locals_))
                     placeholder += '\\' + macroname + argSource + '{' + inputfile + '}'
+                    self.all_inputs.append(( macroname, argSource, inputfile, None, None))
                     continue
                 if blob is None:
                     s = _('Macro \\%(macroname)s %(argSource)s {%(inputfile)r} does not point to a file')
@@ -388,7 +389,7 @@ class squash_input_uuid(squash_helper_stack):
                 if uuid in self.back_map:
                     self.errors.append( ( _('UUID %(uuid)r is input more than once'), {'uuid':uuid} ) )
                 self.back_map[uuid] = macroname, inputfile, context
-                self.forw_map[inputfile] = macroname, uuid
+                self.all_inputs.append(( macroname, argSource, inputfile, uuid, blob))
                 #
                 if self.load_uuid is not None:
                     child = optarg = None
@@ -796,6 +797,9 @@ def reparse_metadata(inp, metadata, lang, blobs_dir, options, load_uuid=None):
     f = open(a,'wb')
     pickle.dump(helper.back_map,f)
     f.close()
+    a = osjoin(os.path.dirname(inp),'.input_map_'+lang+'.pickle')
+    with open(a,'wb') as f:
+        pickle.dump(helper.all_inputs,f)
     #
     return helper.back_map, helper.metadata, helper.errors
 
