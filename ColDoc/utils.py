@@ -1080,14 +1080,15 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
                 if os.path.islink(src):
                     k = os.readlink(src)
                     r += 1
-                    logger.debug('symlink %s -> %s',src,k)
+                    logger.debug('symlink %s -> %s',k,dst)
                     os.symlink(k,dst)
                 elif os.path.isfile(src) and j in  ColDoc_anon_copy_paths:
                     shutil.copy2(src,dst, follow_symlinks=False)
                 #else:
                 #    logger.debug('not symlink %s',src)
         # preserve certain files when rebuilding anon tree
-        extensions = ColDoc_anon_keep_extensions
+        assert all(isinstance(j,str)  for j in ColDoc_anon_keep_extensions)
+        extensions = set(ColDoc_anon_keep_extensions)
         for dirpath, dirnames, filenames in os.walk(anon_dir,followlinks=False):
             tmp_path = osjoin(temp_dir,dirpath[1+len(anon_dir):])
             os.makedirs(tmp_path, exist_ok=True)
@@ -1194,11 +1195,12 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
         del metadata['child_uuid']
         new_children_set = set()
         for childuuid in parsed_back_map:
-            if childuuid in new_children_set:
-                warn(_('In UUID %(uuid)r the child %(childuuid)r is referenced twice') ,
-                     {'uuid':uuid,'childuuid':childuuid})
-            else:
-                metadata.add('child_uuid',childuuid)
+            # TODO fixme this is useless, parsed_back_map is a dict
+            #if childuuid in new_children_set:
+            #    warn(_('In UUID %(uuid)r the child %(childuuid)r is referenced twice') ,
+            #         {'uuid':metadata.uuid,'childuuid':childuuid})
+            #else:
+            metadata.add('child_uuid',childuuid)
             new_children_set.add(childuuid)
     else:
         new_children_set = set(parsed_back_map)
