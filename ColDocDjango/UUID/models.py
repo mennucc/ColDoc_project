@@ -290,7 +290,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             raise NotImplementedError()
         if key == 'child_uuid':
             UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid).delete()
-        elif key == 'child_uuid': 
+        elif key == 'parent_uuid':
+            logger.warning('delete all parent relationship for %r ',self)
             UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid).delete()
         else:
             ExtraMetadata.objects.filter(blob=self, key=key).delete()
@@ -301,7 +302,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             raise NotImplementedError()
         if key == 'child_uuid':
             UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid, child=value).delete()
-        elif key == 'child_uuid': 
+        elif key == 'parent_uuid': 
             UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, child = self.uuid, parent=value).delete()
         else:
             ExtraMetadata.objects.filter(blob=self, key=key, value=value).delete()
