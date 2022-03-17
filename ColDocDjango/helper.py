@@ -456,7 +456,7 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
                 reparse_blob(filename, metadata, lang, blobs_dir, warn, act=act)
 
 
-def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
+def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
     " returns `problems`, a list of problems found in tree; `warn(s,a)` is a function where `s` is a translatable string, `a` its arguments"
     #
     from functools import partial
@@ -465,7 +465,8 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, lang = None):
     #
     from ColDoc.utils import slug_re
     assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
-    assert ((isinstance(lang,str) and slug_re.match(lang)) or lang is None), lang
+    # this is currently unused
+    assert ((isinstance(checklang,str) and slug_re.match(checklang)) or checklang is None), checklang
     #
     coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
     assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
