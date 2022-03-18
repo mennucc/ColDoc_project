@@ -30,7 +30,7 @@ class squash_helper_ref(transform.squash_input_uuid):
         logger.debug('searching label %r',label)
         for j in ExtraMetadata.objects.filter(value=label):
             if j.blob.coldoc == self.coldoc and j.key.endswith('M_label') and\
-               self.blob.uuid != j.blob.uuid : # no need to rewrite refs inside the same blob
+               self.metadata.uuid != j.blob.uuid : # no need to rewrite refs inside the same blob
                 if blob is not None:
                     logger.warning('duplicate label %r in %r and in %r',
                                    label,blob,j.blob)
@@ -45,7 +45,7 @@ class squash_helper_ref(transform.squash_input_uuid):
             # w/o specifying if it is the main label of the blob,
             # or if it is a label inside another envi the blob
             logger.warning('TODO cannot properly reference from [%s] \\%s%s to key %r inside [%s]',
-                           self.blob.uuid , macroname, label ,
+                           self.metadata.uuid , macroname, label ,
                            key , blob.uuid)
         a = '\\uuidplaceholder{%s}{%s}' % (blob.uuid, blob.uuid)
         logger.debug('convert %s%s  to %s',macroname,label,a)

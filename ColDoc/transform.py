@@ -308,11 +308,11 @@ class squash_helper_accents_to_unicode(squash_helper_stack):
 
 class squash_input_uuid(squash_helper_stack):
     " replaces \\input and similar with placeholders; delete comments"
-    def __init__(self, blobs_dir, blob, options, load_uuid=None, **k):
+    def __init__(self, blobs_dir, metadata, options, load_uuid=None, **k):
         self.all_inputs = []
         self.back_map = OrderedDict()
         self.blobs_dir =  blobs_dir
-        self.blob = blob
+        self.metadata = metadata
         self.options = options
         self.load_uuid = load_uuid
         self.input_macros = ['input','include','input_preamble','include_preamble','bibliography']
