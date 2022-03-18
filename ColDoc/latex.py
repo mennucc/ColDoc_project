@@ -1020,6 +1020,7 @@ def main(argv):
 
 def main_by_args(args,options):
     argv = args.command
+    lang = args.lang
     blobs_dir = args.blobs_dir
     coldoc_dir = args.coldoc_dir
     logger.setLevel(logging.WARNING)
@@ -1037,21 +1038,18 @@ def main_by_args(args,options):
     #
     ret = True
     if argv[0] == 'blob':
-        lang = None
-        if len(argv)>2:
-            lang = argv[2]
-        ret = latex_uuid(blobs_dir,UUID,lang=lang, options=options)
+        ret = latex_uuid(blobs_dir, uuid=UUID, lang=lang, options=options)
         ret = all(ret.values())
     elif argv[0] == 'tree':
-        ret = latex_tree(blobs_dir,UUID, options=options)
+        ret = latex_tree(blobs_dir, uuid=UUID, lang=lang, options=options)
     elif argv[0] == 'main_private':
-        ret = latex_main(blobs_dir, uuid=UUID, options=options, access='private')
+        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private')
     elif argv[0] == 'main_public':
-        ret = latex_anon(coldoc_dir, uuid=UUID, options=options, access='public')
+        ret = latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public')
     elif argv[0] == 'all':
-        ret = latex_main(blobs_dir, uuid=UUID, options=options, access='private')
-        ret &= latex_anon(coldoc_dir, uuid=UUID, options=options, access='public')
-        ret &= latex_tree(blobs_dir,UUID, options=options)
+        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private')
+        ret &= latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public')
+        ret &= latex_tree(blobs_dir, uuid=UUID, lang=lang, options=options)
     else:
         sys.stderr.write('Unknown command, see --help')
         return False
