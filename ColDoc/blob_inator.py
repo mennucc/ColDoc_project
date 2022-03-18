@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+
+def _(s):
+    "mark translatable strings; no attempt is made to translate them, since most code here is a library"
+    return s
+
+
 """ the Blob Inator
 splits the input into blobs
 
