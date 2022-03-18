@@ -56,7 +56,7 @@ except ImportError:
     logger.warning('Please install `unicode2latex` ')
     latex2unicodemath = {}
     latexaccents2unicode = {}
-    latex2greek = {}
+    latex2mathgreek = {}
 else:
     latex2unicodemath = unicode2latex.math_latex2unicode
     latexaccents2unicode = unicode2latex.accents_latex2unicode
