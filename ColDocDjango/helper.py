@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
+def _(s):
+    "mark translatable strings; no attempt is made to translate them, since part of this code is used as a library"
+    return s
 
-"""
+_("""
 This program does some actions that `manage` does not. Possible commands:
 
     deploy
@@ -36,15 +39,10 @@ This program does some actions that `manage` does not. Possible commands:
 
     send_test_email TO
         ditto
-"""
+""")
 
 import os, sys, argparse, json, pickle, io, copy
 from os.path import join as osjoin
-
-
-def _(s):
-    "mark translatable strings; no attempt is made to translate them, since part of this code is used as a library"
-    return s
 
 
 if __name__ == '__main__':
