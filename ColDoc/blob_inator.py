@@ -1328,22 +1328,15 @@ def main(args, metadata_class, coldoc = None):
         pycountry = None
     #
     languages = args.language.split(',') if args.language is not None else []
-    if pycountry :
-      for  n,l in enumerate(languages):
-        if len(l) == 2:
-            L = pycountry.languages.get(alpha_2=l) 
-        elif len(l) == 3:
-            L = pycountry.languages.get(alpha_3=l)
-        else:
-            print('Use a 2 or 3 letter code for the language, not %r' % l)
-            sys.exit(2)
-        if L is None:
+    for  n,l in enumerate(languages):
+        # normalize to alpha_3
+        alpha_3 = normalize_iso3(l)
+        if alpha_3 is None or len(alpha_3) != 3:
             print('--language %r is not a recognized language code',l)
             print(' Please use ISO_639-3 codes, see https://en.wikipedia.org/wiki/ISO_639-3')
             sys.exit(2)
-        # normalize to alpha_3
-        languages[n] = l = L.alpha_3
-        logger.info('Selected language %d: %s (%s)', n, l, L.name)
+        languages[n] = l = alpha_3
+        logger.info('Selected language %d: %s (%s)', n, l, iso3lang2word(l))
     #
     if languages and 'mul' == languages[0]:
         args.languages = languages[1:]
