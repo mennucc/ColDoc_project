@@ -31,6 +31,7 @@ from django.contrib.auth.models import Group
 from django.core.validators import FileExtensionValidator
 
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
+from django.utils.text import format_lazy
 if django.VERSION[0] >= 4 :
     _ = gettext_lazy
 else:
@@ -1110,20 +1111,25 @@ def postedit(request, NICK, UUID):
                                _('Orig'),_('New'), True)
         try:
             j  = blobdiff.index('<body>') + 6
-            blobdiff = blobdiff[:j] + '<ul><li>' + '\n<li>'.join(all_messages) + \
+            l = len(all_messages)
+            a = format_lazy('<li>{}\n' * l  , *all_messages)
+            blobdiff = blobdiff[:j] + '<ul>\n' + a + \
                 '</ul>\n<h1>' + _('File differences for') + ' ' + uuid_as_html + '</h1>\n' + blobdiff[j:]
         except:
             logger.exception('While preparing ')
         else:
             E.attach_alternative(blobdiff, 'text/html')
         # text version
+        message = ''
         try:
-            all_messages = map(html2text, all_messages)
+            l = len(all_messages)
+            a = map(html2text, map(str, all_messages))
+            message = ('*) {}\n' * l).format(*a)
         except:
             logger.exception('While preparing ')
         P = subprocess.run(['diff', '-u', filename + '~~', filename, ], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                            check=False, universal_newlines=True )
-        message = '*) ' +  '\n*) '.join(all_messages) + '\n\n*** File differences ***\n\n' +  P.stdout
+        message += '\n*** File differences ***\n\n' +  P.stdout
         E.attach_alternative(message, 'text/plain')
         # send it
         try:
