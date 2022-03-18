@@ -1023,11 +1023,10 @@ def main_by_args(args,options):
     lang = args.lang
     blobs_dir = args.blobs_dir
     coldoc_dir = args.coldoc_dir
-    logger.setLevel(logging.WARNING)
-    if args.verbose > 1 :
-        logger.setLevel(logging.DEBUG)
-    elif args.verbose > 0 :
-        logger.setLevel(logging.INFO)
+    loggerU = logging.getLogger('ColDoc.utils')
+    level = 30 - 10 * args.verbose
+    logger.setLevel(level)
+    loggerU.setLevel(level)
     #
     if args.uuid is not None:
         UUID = args.uuid
