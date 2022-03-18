@@ -614,6 +614,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                 logger.exception('while checking headers in %r', uuid)
         # check inputs
         try:
+          if '.tex' in env:
             abm =  ['blob']
             IMs = {}
             for lang in Blangs:
