@@ -983,6 +983,7 @@ def prepare_parser(cmd_help=cmd_help):
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--verbose','-v',action='count',default=0)
     parser.add_argument('--uuid',help='UUID to work on/start from')
+    parser.add_argument('--lang',help='language to work on')
     parser.add_argument('command', help='specific command',nargs='+')
     return parser
 
@@ -995,6 +996,14 @@ def main(argv):
                         help='URL of the website that will show the UUIDs, used by my \\uuid macro in PDF',
                         required=True)
     args = parser.parse_args(argv[1:])
+    #
+    if args.lang:
+        lang = ColDoc.utils.normalize_iso3(args.lang)
+        if lang is None or len(lang) != 3:
+            print(_('--language %r is not a recognized language code') % args.lang)
+            print(_(' Please use ISO_639-3 codes, see https://en.wikipedia.org/wiki/ISO_639-3'))
+            sys.exit(2)
+        args.lang = lang
     #
     blobs_dir = args.blobs_dir
     assert os.path.isdir(blobs_dir), blobs_dir

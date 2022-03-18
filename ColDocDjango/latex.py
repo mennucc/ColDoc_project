@@ -48,6 +48,14 @@ def main(argv):
                         help='URL of the website that will show the UUIDs, used by my \\uuid macro in PDF')
     args = parser.parse_args(argv[1:])
     #
+    if args.lang:
+        lang = ColDoc.utils.normalize_iso3(args.lang)
+        if lang is None or len(lang) != 3:
+            print(_('--language %r is not a recognized language code') % args.lang)
+            print(_(' Please use ISO_639-3 codes, see https://en.wikipedia.org/wiki/ISO_639-3'))
+            sys.exit(2)
+        args.lang = lang
+    #
     COLDOC_SITE_ROOT = args.coldoc_site_root
     os.environ['COLDOC_SITE_ROOT'] = args.coldoc_site_root
     assert os.path.isdir(COLDOC_SITE_ROOT), COLDOC_SITE_ROOT
