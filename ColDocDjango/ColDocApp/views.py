@@ -328,7 +328,11 @@ def check_tree(request, NICK):
     c = DColDoc.objects.filter(nickname = NICK).get()
     try:
         from helper import check_tree
-        problems = check_tree(logger.warning, settings.COLDOC_SITE_ROOT, NICK)
+        def warn(s,a):
+            pass 
+            ## avoid clobbering logs
+            #logger.warning(s % a)
+        problems = check_tree(warn, settings.COLDOC_SITE_ROOT, NICK)
     except Exception:
         logger.exception('on check_tree')
         return HttpResponse("Internal error on check_tree", status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
