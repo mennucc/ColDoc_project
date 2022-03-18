@@ -39,10 +39,10 @@ ColDoc_write_UUID = 'auto'
 ColDoc_environments = ('main_file','preamble','input','include','input_preamble',
                        'graphic_file',
                        'usepackage','bibliography',
-                       'part','chapter','section','subsection','paragraph')
+                       'part','chapter','section','subsection','subsubsection','paragraph')
 
 # list of sectioning environments, in decreasing order
-ColDoc_environments_sectioning = ('part','chapter','section','subsection')
+ColDoc_environments_sectioning = ('part','chapter','section','subsection','subsubsection')
 
 # when squashing a blob to create its view, add the above sectioning commands
 ColDoc_add_env_when_squashing = True
@@ -65,14 +65,15 @@ ColDoc_environments_parent_child = {
     'main_file' : ('preamble','E_document'),
     'preamble' : ('input_preamble','usepackage'),
     'input_preamble' : ('input_preamble','usepackage'),
-    'input' :   ('chapter','section','subsection','paragraph','graphic_file','E_thebibliography','E_*'),
-    'include' : ('chapter','section','subsection','paragraph','graphic_file','E_thebibliography','E_*'),
+    'input' :   ('chapter','section','subsection','subsubsection','paragraph','graphic_file','E_thebibliography','E_*'),
+    'include' : ('chapter','section','subsection','subsubsection','paragraph','graphic_file','E_thebibliography','E_*'),
     'usepackage' : (),
     'bibliography': (),
     'part' : ('input','chapter','section','paragraph','graphic_file','E_thebibliography','E_*'),
     'chapter' : ('input','section','paragraph','graphic_file','E_thebibliography','E_*'),
     'section' : ('input','subsection','paragraph','graphic_file','E_thebibliography','E_*'),
-    'subsection' : ('input','paragraph','graphic_file','E_thebibliography','E_*'),
+    'subsection' : ('input','subsubsection','paragraph','graphic_file','E_thebibliography','E_*'),
+    'subsubsection' : ('input','paragraph','graphic_file','E_thebibliography','E_*'),
     'paragraph' : ('graphic_file',),
     'E_document' : ('include','input','part','chapter','section','subsection','paragraph','bibliography','E_thebibliography','graphic_file','E_*',),
     'E_thebibliography' : (),
@@ -82,7 +83,7 @@ ColDoc_environments_parent_child = {
 # maps extension to environments
 # any extension not listed here is necessarily a `graphic_file`
 ColDoc_latex_mime = {
-    '.tex': ('main_file','preamble','input','include','input_preamble','part','chapter','section','subsection','paragraph','E_document','E_thebibliography','E_*'),
+    '.tex': ('main_file','preamble','input','include','input_preamble','part','chapter','section','subsection','subsubsection','paragraph','E_document','E_thebibliography','E_*'),
     '.sty': ('usepackage',), 
     '.bbl': ('E_thebibliography',), # this appears also with '.tex' extension
     '.bib': ('bibliography',),
