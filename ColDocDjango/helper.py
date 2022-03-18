@@ -419,7 +419,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
 
 
 def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
-    " `warnlog(s,a)` is a function where `s` is a translatable string, `a` its arguments "
+    " `writelog(s,a)` is a function where `s` is a translatable string, `a` its arguments "
     #
     from ColDoc.utils import slug_re, get_blobinator_args
     assert isinstance(coldoc_nick,str) and slug_re.match(coldoc_nick), coldoc_nick
@@ -540,7 +540,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
         warn(s, a)
         s = _("Disconnected node %r")
         for j in available:
-            problems.append(('DISCONNECTED', j, s, [j]))
+            problems.append(('DISCONNECTED', j, s, (j,) ))
     # load back_maps
     from ColDoc.utils import uuid_to_dir, parent_cmd_env_child
     back_maps = {}
@@ -622,6 +622,8 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                 a = osjoin(blobs_dir, uuid_to_dir(uuid), '.input_map_'+lang+'.pickle')
                 if os.path.exists(a):
                     IMs[lang] = pickle.load(open(a,'rb'))
+                else:
+                    logger.warning('UUID %r does not have input_map',uuid)
             Umaps = {}
             for lang, IM in IMs.items():
                 more_langs = [lang] + ['zxx','und']
