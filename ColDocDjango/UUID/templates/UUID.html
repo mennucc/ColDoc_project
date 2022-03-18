@@ -258,6 +258,8 @@ var blob_uncompiled={{ uncompiled }};
 
   {% if buy_download_link or buy_download_form or perms.UUID.download %}
    <h2>{% translate "Download" %}</h2>
+   <span data-toggle="tooltip" class="border fill m-2 p-3">
+   {% translate  'Download blob' %}:
     {% if buy_download_link %} <a href="{{ buy_download_link | safe }}" class="btn btn-outline-primary"
             data-toggle="tooltip" title="{{ buy_download_tooltip }}">{{ buy_download_label }}</a>
     {% endif %}
@@ -275,7 +277,8 @@ var blob_uncompiled={{ uncompiled }};
    <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ view_lang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm p-2"
              data-toggle="tooltip" title="Download this blob as {{ view_language }}.">{{ view_language }}</a>
-  {% endif %}
+  {% endif %} {# ends blob_lang != view_lang #}
+  </span>
    {% if its_something_we_would_latex %}
    <span data-toggle="tooltip" class="border fill m-2 p-3"
      title="Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.">
