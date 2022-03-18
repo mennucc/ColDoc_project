@@ -422,7 +422,7 @@ class squash_helper_reparse_metadata(squash_input_uuid):
     "reparse metadata"
     def __init__(self, blobs_dir, metadata, options, *v, **k):
         self.metadata_command = options['metadata_command']
-        self.metadata = []
+        self.metadata_list = []
         super().__init__(blobs_dir, metadata, options, *v, **k)
     #
     def process_macro(self, tok, environ=None):
@@ -449,7 +449,7 @@ class squash_helper_reparse_metadata(squash_input_uuid):
         a = '' if not self.stack else ('S_'+self.stack[-1]+'_')
         for j in args:
             j =  j.translate({10:32})
-            self.metadata.append((a+'M_'+macroname,j))
+            self.metadata_list.append((a+'M_'+macroname,j))
 
 class squash_helper_token2unicode(squash_helper_stack):
     " replaces all LaTeX with unicode placeholders, and back (used to protect LaTeX during translations) "
@@ -806,7 +806,7 @@ def reparse_metadata(inp, metadata, lang, blobs_dir, options, load_uuid=None):
     with open(a,'wb') as f:
         pickle.dump(helper.all_inputs,f)
     #
-    return helper.back_map, helper.metadata, helper.errors
+    return helper.back_map, helper.metadata_list, helper.errors
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1:
