@@ -58,7 +58,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'replace_with_hash_symlink',
             'parent_cmd_env_child',
             'html2text',
-            'iso3lang2word', 'iso3lang_to_iso2',
+            'iso3lang2word', 'iso3lang_to_iso2', 'normalize_iso3',
             'replace_language_in_inputs','strip_language_lines', 'gen_lang_coldoc', 'gen_lang_metadata',
             'multimerge', 'multimerge_lookahead',
             'text_linechar2pos', 'text_pos2linechar',
@@ -96,12 +96,25 @@ try:
 except ImportError:
     pycountry = None
     iso3lang2word = lambda x : x
+    normalize_iso3 = lambda x : x
 else:
     def iso3lang2word(val):
         L = pycountry.languages.get(alpha_3=val)
         if L:
             return( L.name)
         return val
+    #
+    def normalize_iso3(l):
+        if len(l) == 2:
+            L = pycountry.languages.get(alpha_2=l) 
+        elif len(l) == 3:
+            L = pycountry.languages.get(alpha_3=l)
+        else:
+            return None
+        if L is None:
+            return None
+        return L.alpha_3
+
 
 def iso3lang_to_iso2(l):
     if len(l) == 2:
