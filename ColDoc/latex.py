@@ -2,7 +2,12 @@
 
 __all__ = ('main_by_args','latex_main','latex_uuid','latex_tree')
 
-cmd_help="""
+def _(s):
+    "mark translatable strings; no attempt is made to translate them, since most code here is a library"
+    return s
+
+
+cmd_help=_("""
 Command help:
 
     blob
@@ -19,7 +24,7 @@ Command help:
 
     all
        all of the above
-"""
+""")
 
 import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm
 
