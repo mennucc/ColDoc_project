@@ -581,7 +581,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                 #a = 'child env %r parent_env %r parent_cmd %r' %(child_env,parent_uses_env,cmd))
                 s = _('Parent %r includes child %r using cmd %r environ %r but child %r thinks it is environ %r')
                 a =  (parent_uuid, uuid, cmd, parent_uses_env, uuid , child_env)
-                logger.warning(s % a)
+                warn(s, a)
                 problems.append(('CMD_PARENT_CHILD', uuid, s, a))
     #
     private_environment = options.get("private_environment",[])
@@ -596,7 +596,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
         if private_environment:
             if (env[:2] == 'E_') and ( bool(env[2:] in private_environment) != bool( M.access == 'private')):
                 s, a = _('UUID %r environ %r access %r') ,  (uuid, env, M.access)
-                logger.warning(s % a)
+                warn(s, a)
                 problems.append(('WRONG access', uuid, s, a))
 
         # check that header is consistent
@@ -610,7 +610,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                     if not l.startswith('\\'+ env):
                             s = _('UUID %r file %r environ %r first line %r')
                             a = (uuid, j, env, l)
-                            logger.warning(s % a)
+                            warn(s, a)
                             problems.append(('WRONG_HEADER', uuid, s, a))
             except:
                 logger.exception('while checking headers in %r', uuid)
@@ -633,17 +633,17 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                         if blob_base not in allowed_blob_lang:
                             s = _('In language %(lang)s macro \\%(macroname)s %(argSource)s {%(inputfile)r} is including an incorrect blob %(thisblob)s')
                             locals_ = copy.copy(locals())
-                            logger.warning( s % locals_)
+                            warn(s, locals_)
                             problems.append(('WRONG_INPUT', uuid, s, locals_))
                     if thisuuid is None or thisblob is None:
                         s = _('Unparsable input  \\%s %s {%r} -> uuid %r blob %r')
                         a = (macroname, argSource, inputfile, thisuuid, thisblob)
-                        logger.warning(s % a)
+                        warn(s, a)
                         problems.append(('WRONG_INPUT', uuid, s, a))
                     elif thisuuid in Uset:
                         s = _('inputs UUID %r filename %r twice')
                         a = (thisuuid,inputfile)
-                        logger.warning(s % a)
+                        warn(s, a)
                         problems.append(('DUP_INPUT', uuid, s, a))
                     if thisuuid:
                         Uset.add(thisuuid)
@@ -654,7 +654,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
                     if Uset != Uall:
                         s = _('language %r does not input UUIDs: %r')
                         a = (lang , Uall.symmetric_difference(Uset))
-                        logger.warning(s % a)
+                        warn(s, a)
                         problems.append(('MISSING_INPUT', uuid, s, a))
         except:
             logger.exception('while checking input maps in %r', uuid)
