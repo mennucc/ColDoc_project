@@ -1280,6 +1280,17 @@ def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata):
     from ColDoc import latex   
     return latex.latex_uuid(blobs_dir, metadata=metadata, options=options)
 
+##############################################################
+
+def _html_replace_not_bs(html, url, uuid):
+    html = html.replace(ColDoc.config.ColDoc_url_placeholder,url)
+    # help plasTeX find its images
+    html = html.replace('src="images/','src="html/images/')
+    #
+    return html
+
+_html_replace = _html_replace_not_bs
+
 
 ###############################################################
 
@@ -1719,9 +1730,8 @@ def index(request, NICK, UUID):
                 view_mtime = str(os.path.getmtime(a))
                 html = open(a).read()
                 a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
-                html = html.replace(ColDoc.config.ColDoc_url_placeholder,a[:-4])
-                # help plasTeX find its images
-                html = html.replace('src="images/','src="html/images/')
+                #
+                html = _html_replace(html, a[:-4], uuid)
             except:
                 logger.exception('Problem when preparing HTML for %r',UUID)
                 messages.add_message(request, messages.WARNING,_("HTML preview not available"))
