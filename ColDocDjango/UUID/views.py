@@ -1112,7 +1112,7 @@ def postedit(request, NICK, UUID):
         try:
             j  = blobdiff.index('<body>') + 6
             l = len(all_messages)
-            a = format_lazy('<li>{}\n' * l  , *all_messages)
+            a = ( '<li>{}\n' * l ).format(* map(str,all_messages))
             blobdiff = blobdiff[:j] + '<ul>\n' + a + \
                 '</ul>\n<h1>' + _('File differences for') + ' ' + uuid_as_html + '</h1>\n' + blobdiff[j:]
         except:
