@@ -655,7 +655,8 @@ def postlang(request, NICK, UUID):
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
                 m = _('A blob with language %(newlang)r extension %(ext)r was created copying from %(oldlang)r.')%\
-                    {'newlang':iso3lang2word(langchoice_),'ext':ext_, 'oldlang':iso3lang2word(lang_)}  + '\n' + _('Please check it.')
+                    {'newlang':iso3lang2word(langchoice_),'ext':ext_, 'oldlang':iso3lang2word(lang_)}
+                m = format_lazy('{}\n{}', m, _('Please check it.'))
                 if settings.TRANSLATOR is not None and  prefix == 'translate':
                     try:
                         from ColDoc.latex import prepare_options_for_latex
