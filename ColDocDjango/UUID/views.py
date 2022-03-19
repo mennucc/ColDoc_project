@@ -1312,6 +1312,14 @@ def _html_replace_bs(html, url, uuid, expandbuttons=True):
             identP = 'UUID_' + uuid + '_PARkbz_' + str(ids)
             # link
             a['href'] = h = a['href'].replace(ColDoc.config.ColDoc_url_placeholder,url)
+            # parent
+            p = a.parent 
+            #p['class'] = "border border-info m-2 p-1"
+            # set or get ids
+            if 'id'  in p.attrs:
+                identP = p['id']
+            else:
+                p['id'] = identP
             if 'id'  in a.attrs:
                 identA = a['id']
             else:
@@ -1321,13 +1329,6 @@ def _html_replace_bs(html, url, uuid, expandbuttons=True):
             b = soup.new_tag('button', id=identB, onClick=r)
             b.string='↺'
             b['class'] = "btn btn-outline-primary btn-sm"
-            # parent
-            p = a.parent 
-            p['class'] = "border border-info m-2 p-1"
-            if 'id'  in p.attrs:
-                identP = p['id']
-            else:
-                p['id'] = identP
             p.append(b)
             #d = soup.new_tag('span', id=identD)
             #d['class'] = class_

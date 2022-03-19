@@ -20,10 +20,12 @@ function html_retrieve_substitute(url, identA, identP, identB)
 	   type: "GET",
 	   url: url,
 	   success: function(response)  {
-	     A.style.display = "none";
 	     B.style.display = "none";
-	     P.innerHTML = response;
-	     //P.replaceWith(response);
+	     D = document.createElement('div');
+             D.innerHTML = response;
+	     D.className = "border border-info m-2 p-1";
+	     A.parentNode.replaceChild(D, A);
+	     //D.prepend(A);
 	     },
 	   error: function(){
 	     B.style.display = "none";
