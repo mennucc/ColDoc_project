@@ -25,6 +25,10 @@ function html_retrieve_substitute(url, identA, identP, identB)
 	     P.innerHTML = response;
 	     //P.replaceWith(response);
 	     },
+	   error: function(){
+	     B.style.display = "none";
+	     alert('Cannot access element');
+           },
 	}
    );
 };
