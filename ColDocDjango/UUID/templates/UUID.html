@@ -27,6 +27,7 @@ function html_retrieve_substitute(url, identA, identP, identB)
 	     if(A) {
 	      A.parentNode.replaceChild(D, A);
 	     } else P.append(D);
+	     MathJax.typeset();
 	     },
 	   error: function(){
 	     B.style.display = "none";
