@@ -1288,7 +1288,7 @@ def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata):
 
 ##############################################################
 
-def _html_replace_not_bs(html, url, uuid):
+def _html_replace_not_bs(html, url, uuid, expandbuttons=True):
     html = html.replace(ColDoc.config.ColDoc_url_placeholder,url)
     # help plasTeX find its images
     html = html.replace('src="images/','src="html/images/')
@@ -1296,14 +1296,14 @@ def _html_replace_not_bs(html, url, uuid):
     return html
 
 
-def _html_replace_bs(html, url, uuid):
+def _html_replace_bs(html, url, uuid, expandbuttons=True):
     ids = 0
     skipuuid = ColDoc.config.ColDoc_url_placeholder + uuid
     soup = BeautifulSoup(html, features="html.parser")
     for a in soup.findAll('a'):
         ids += 1
         if 'href' in a.attrs and a['href'].startswith(ColDoc.config.ColDoc_url_placeholder):
-            if a['href'].startswith(skipuuid) :
+            if not expandbuttons or a['href'].startswith(skipuuid) :
                 a['href'] = a['href'].replace(ColDoc.config.ColDoc_url_placeholder,url)
                 continue
             identA = 'UUID_' + uuid + '_Ajlkab_' + str(ids)
@@ -1351,7 +1351,7 @@ def pdf(request, NICK, UUID):
 
 @xframe_options_sameorigin
 def html(request, NICK, UUID, subpath=None):
-    return view_(request, NICK, UUID, '_html', None, subpath)
+    return view_(request, NICK, UUID, '_html', None, subpath, expandbuttons = True)
 
 @xframe_options_sameorigin
 def show(request, NICK, UUID):
@@ -1361,7 +1361,7 @@ def log(request, NICK, UUID):
     return view_(request, NICK, UUID, None, None, None, prefix='log')
 
 
-def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view'):
+def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view', expandbuttons = True):
     #
     logger.debug('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r : entering',
                 request.META.get('REMOTE_ADDR'), request.user.username,
@@ -1516,7 +1516,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if _content_type == 'text/html':
             f = open(n).read()
             a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'001'})
-            f = f.replace(ColDoc.config.ColDoc_url_placeholder,a[:-4])
+            f = _html_replace(f, a[:-4], uuid, expandbuttons)
             response = HttpResponse(f, content_type=_content_type)
         else:
             fsock = open(n,'rb')
