@@ -10,6 +10,25 @@ var blob_uncompiled={{ uncompiled }};
 {% else %}
   var get_view_md5_url = "";
 {% endif %}
+
+function html_retrieve_substitute(url, identA, identP, identB)
+{
+  A = document.getElementById(identA);
+  P = document.getElementById(identP);
+  B = document.getElementById(identB);
+  $.ajax(B.action, {
+	   type: "GET",
+	   url: url,
+	   success: function(response)  {
+	     A.style.display = "none";
+	     B.style.display = "none";
+	     P.innerHTML = response;
+	     //P.replaceWith(response);
+	     },
+	}
+   );
+};
+
 </script>
 <script src="{% static 'UUID/js/unique.js' %}"></script>
 

@@ -1296,12 +1296,42 @@ def _html_replace_not_bs(html, url, uuid):
 
 
 def _html_replace_bs(html, url, uuid):
+    ids = 0
     skipuuid = ColDoc.config.ColDoc_url_placeholder + uuid
     soup = BeautifulSoup(html, features="html.parser")
     for a in soup.findAll('a'):
+        ids += 1
         if 'href' in a.attrs and a['href'].startswith(ColDoc.config.ColDoc_url_placeholder):
+            if a['href'].startswith(skipuuid) :
+                a['href'] = a['href'].replace(ColDoc.config.ColDoc_url_placeholder,url)
+                continue
+            identA = 'UUID_' + uuid + '_Ajlkab_' + str(ids)
+            identB = 'UUID_' + uuid + '_BUTkjb_' + str(ids)
+            identD = 'UUID_' + uuid + '_DIVkjl_' + str(ids)
+            identP = 'UUID_' + uuid + '_PARkbz_' + str(ids)
             # link
             a['href'] = h = a['href'].replace(ColDoc.config.ColDoc_url_placeholder,url)
+            if 'id'  in a.attrs:
+                identA = a['id']
+            else:
+                a['id'] = identA
+            # button
+            r = "html_retrieve_substitute('%s','%s','%s','%s')" % (h+'/html',identA,identP,identB)
+            b = soup.new_tag('button', id=identB, onClick=r)
+            b.string='↺'
+            b['class'] = "btn btn-outline-primary btn-sm"
+            # parent
+            p = a.parent 
+            p['class'] = "border border-info"
+            if 'id'  in p.attrs:
+                identP = p['id']
+            else:
+                p['id'] = identP
+            p.append(b)
+            #d = soup.new_tag('span', id=identD)
+            #d['class'] = class_
+            #print(d)
+            #a.insert_after(d)
     for a in soup.findAll('img'):
         a['src'] = 'html/' + a['src']
     return str(soup)
