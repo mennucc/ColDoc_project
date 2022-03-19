@@ -1323,7 +1323,7 @@ def _html_replace_bs(html, url, uuid):
             b['class'] = "btn btn-outline-primary btn-sm"
             # parent
             p = a.parent 
-            p['class'] = "border border-info"
+            p['class'] = "border border-info m-2 p-1"
             if 'id'  in p.attrs:
                 identP = p['id']
             else:
