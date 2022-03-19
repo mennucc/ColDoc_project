@@ -21,11 +21,12 @@ function html_retrieve_substitute(url, identA, identP, identB)
 	   url: url,
 	   success: function(response)  {
 	     B.style.display = "none";
-	     D = document.createElement('div');
+             D = document.createElement('div');
              D.innerHTML = response;
-	     D.className = "border border-info m-2 p-1";
-	     A.parentNode.replaceChild(D, A);
-	     //D.prepend(A);
+             D.className = "border border-info m-2 p-1";
+	     if(A) {
+	      A.parentNode.replaceChild(D, A);
+	     } else P.append(D);
 	     },
 	   error: function(){
 	     B.style.display = "none";
