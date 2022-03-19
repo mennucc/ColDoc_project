@@ -7,6 +7,11 @@ except:
     pycountry = None
 
 try:
+    from bs4 import BeautifulSoup
+except:
+    BeautifulSoup = None
+
+try:
     from pylatexenc.latex2text import LatexNodes2Text
 except:
     LatexNodes2Text = None
@@ -1289,7 +1294,22 @@ def _html_replace_not_bs(html, url, uuid):
     #
     return html
 
-_html_replace = _html_replace_not_bs
+
+def _html_replace_bs(html, url, uuid):
+    skipuuid = ColDoc.config.ColDoc_url_placeholder + uuid
+    soup = BeautifulSoup(html, features="html.parser")
+    for a in soup.findAll('a'):
+        if 'href' in a.attrs and a['href'].startswith(ColDoc.config.ColDoc_url_placeholder):
+            # link
+            a['href'] = h = a['href'].replace(ColDoc.config.ColDoc_url_placeholder,url)
+    for a in soup.findAll('img'):
+        a['src'] = 'html/' + a['src']
+    return str(soup)
+
+if BeautifulSoup is None:
+    _html_replace = _html_replace_not_bs
+else:
+    _html_replace = _html_replace_bs
 
 
 ###############################################################
