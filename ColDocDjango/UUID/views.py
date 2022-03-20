@@ -1288,7 +1288,7 @@ def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata):
 
 ##############################################################
 
-def _html_replace_not_bs(html, url, uuid, expandbuttons=True):
+def _html_replace_not_bs(html, url, uuid, expandbuttons=True, children = []):
     html = html.replace(ColDoc.config.ColDoc_url_placeholder,url)
     # help plasTeX find its images
     html = html.replace('src="images/','src="html/images/')
@@ -1296,9 +1296,10 @@ def _html_replace_not_bs(html, url, uuid, expandbuttons=True):
     return html
 
 
-def _html_replace_bs(html, url, uuid, expandbuttons=True):
+def _html_replace_bs(html, url, uuid, expandbuttons=True, children = []):
     ids = 0
     skipuuid = ColDoc.config.ColDoc_url_placeholder + uuid
+    children = set(children)
     soup = BeautifulSoup(html, features="html.parser")
     for a in soup.findAll('a'):
         ids += 1
@@ -1324,16 +1325,18 @@ def _html_replace_bs(html, url, uuid, expandbuttons=True):
                 identA = a['id']
             else:
                 a['id'] = identA
+            #
+            c_ = 'success' if thisuuid in children else 'dark'
             # button
             r = "html_retrieve_substitute('%s','%s','%s','%s')" % (h+'/html',identA,identP,identB)
             b = soup.new_tag('button', id=identB, onClick=r)
             b.string='↺'
-            b['class'] = "btn btn-outline-primary btn-sm"
             p.append(b)
             #d = soup.new_tag('span', id=identD)
             #d['class'] = class_
             #print(d)
             #a.insert_after(d)
+            b['class'] = "btn btn-outline-" + c_ + " btn-sm"
     for a in soup.findAll('img'):
         a['src'] = 'html/' + a['src']
     return str(soup)
@@ -1517,7 +1520,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if _content_type == 'text/html':
             f = open(n).read()
             a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'001'})
-            f = _html_replace(f, a[:-4], uuid, expandbuttons)
+            f = _html_replace(f, a[:-4], uuid, expandbuttons, metadata.get('child_uuid'))
             response = HttpResponse(f, content_type=_content_type)
         else:
             fsock = open(n,'rb')
@@ -1638,8 +1641,9 @@ def index(request, NICK, UUID):
     ###################################### navigation arrows
     #
     parent_metadata = parent_uuid = uplink = downlink = None
+    children = metadata.get('child_uuid')
     try:
-        j = metadata.get('child_uuid')
+        j = children
         if j:
             downlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[0]})
         j = metadata.get('parent_uuid')
@@ -1783,7 +1787,7 @@ def index(request, NICK, UUID):
                 html = open(a).read()
                 a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
                 #
-                html = _html_replace(html, a[:-4], uuid)
+                html = _html_replace(html, a[:-4], uuid, True, children)
             except:
                 logger.exception('Problem when preparing HTML for %r',UUID)
                 messages.add_message(request, messages.WARNING,_("HTML preview not available"))
