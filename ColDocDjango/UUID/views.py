@@ -1298,24 +1298,30 @@ def _html_replace_not_bs(html, url, uuid, expandbuttons=True, children = []):
 
 def _html_replace_bs(html, url, uuid, expandbuttons=True, children = []):
     ids = 0
-    skipuuid = ColDoc.config.ColDoc_url_placeholder + uuid
+    if url[-1] != '/':
+        url += '/'
     children = set(children)
+    CP = ColDoc.config.ColDoc_url_placeholder
+    lCP = len(CP)
+    skipuuid = CP + uuid
     soup = BeautifulSoup(html, features="html.parser")
     for a in soup.findAll('a'):
         ids += 1
-        if 'href' in a.attrs and a['href'].startswith(ColDoc.config.ColDoc_url_placeholder):
+        if 'href' in a.attrs and a['href'].startswith(CP):
+            thisuuid = a['href'][lCP:]
             if not expandbuttons or a['href'].startswith(skipuuid) :
-                a['href'] = a['href'].replace(ColDoc.config.ColDoc_url_placeholder,url)
+                a['href'] = url + thisuuid
                 continue
             identA = 'UUID_' + uuid + '_Ajlkab_' + str(ids)
             identB = 'UUID_' + uuid + '_BUTkjb_' + str(ids)
+            identC = 'UUID_' + uuid + '_CANqab_' + str(ids)
             identD = 'UUID_' + uuid + '_DIVkjl_' + str(ids)
             identP = 'UUID_' + uuid + '_PARkbz_' + str(ids)
+            identS = 'UUID_' + uuid + '_SPANkg_' + str(ids)
             # link
-            a['href'] = h = a['href'].replace(ColDoc.config.ColDoc_url_placeholder,url)
+            a['href'] = h = url + thisuuid
             # parent
-            p = a.parent 
-            #p['class'] = "border border-info m-2 p-1"
+            p = a.parent
             # set or get ids
             if 'id'  in p.attrs:
                 identP = p['id']
@@ -1327,18 +1333,34 @@ def _html_replace_bs(html, url, uuid, expandbuttons=True, children = []):
                 a['id'] = identA
             #
             c_ = 'success' if thisuuid in children else 'dark'
+            # span
+            s = soup.new_tag('span', id=identS)
+            s['class'] = "border border_" + c_
+            a = a.replaceWith(s)
+            s.append(a)
+            #
+            args = (h+'/html', identS, identA, identB, identC, identD)
             # button
-            r = "html_retrieve_substitute('%s','%s','%s','%s')" % (h+'/html',identA,identP,identB)
+            r = "html_retrieve_substitute('%s','%s','%s','%s','%s','%s')" % args
             b = soup.new_tag('button', id=identB, onClick=r)
             b.string='↺'
-            p.append(b)
-            #d = soup.new_tag('span', id=identD)
-            #d['class'] = class_
-            #print(d)
-            #a.insert_after(d)
             b['class'] = "btn btn-outline-" + c_ + " btn-sm"
+            s.append(b)
+            # cancel button
+            r = "html_hide_substitute('%s','%s','%s','%s','%s','%s')" % args
+            c = soup.new_tag('button', id=identC, onClick=r)
+            c.string='↻'
+            c['class'] = "btn btn-outline-warning btn-sm"
+            c['style'] = "display: none;"
+            s.append(c)
+            # div
+            d = soup.new_tag('div', id=identD)
+            d['class'] = "border border-" + c_ + " m-2 p-2"
+            d['style'] = "display: none;"
+            s.append(d)
+    #
     for a in soup.findAll('img'):
-        a['src'] = 'html/' + a['src']
+        a['src'] = url + uuid + '/html/' + a['src']
     return str(soup)
 
 if BeautifulSoup is None:

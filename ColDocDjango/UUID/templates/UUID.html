@@ -11,22 +11,36 @@ var blob_uncompiled={{ uncompiled }};
   var get_view_md5_url = "";
 {% endif %}
 
-function html_retrieve_substitute(url, identA, identP, identB)
+function html_hide_substitute(url, identP, identA, identB, identC, identD)
 {
-  A = document.getElementById(identA);
   P = document.getElementById(identP);
+  A = document.getElementById(identA);
   B = document.getElementById(identB);
+  C = document.getElementById(identC);
+  D = document.getElementById(identD);
+  A.style.display = "block";
+  B.style.display = "block";
+  C.style.display = "none";
+  D.style.display = "none";
+}
+
+function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
+{
+  P = document.getElementById(identP);
+  A = document.getElementById(identA);
+  B = document.getElementById(identB);
+  C = document.getElementById(identC);
+  D = document.getElementById(identD);
   $.ajax(B.action, {
 	   type: "GET",
 	   url: url,
 	   success: function(response)  {
+	     A.style.display = "none";
 	     B.style.display = "none";
-             D = document.createElement('div');
+	     C.style.display = "block";
              D.innerHTML = response;
-             D.className = "border border-info m-2 p-1";
-	     if(A) {
-	      A.parentNode.replaceChild(D, A);
-	     } else P.append(D);
+             D.style.display = "block";
+	     D.append(C);
 	     MathJax.typeset();
 	     },
 	   error: function(){
