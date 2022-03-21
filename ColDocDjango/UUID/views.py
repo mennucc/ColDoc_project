@@ -1506,10 +1506,10 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         for l in langs:
             assert l in (None,'') or slug_re.match(l)
             if l not in (None,''):
-                l='_'+l
+                _l = '_'+l
             else:
-                l=''
-            n = os.path.join(blobs_dir, uuid_dir, pref_ + l + _view_ext)
+                _l = ''
+            n = os.path.join(blobs_dir, uuid_dir, pref_ + _l + _view_ext)
             if subpath is not None:
                 n = os.path.join(n,subpath)
             if os.path.isfile(n):
