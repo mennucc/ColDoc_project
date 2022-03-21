@@ -1346,7 +1346,7 @@ def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = []):
             a = a.replaceWith(s)
             s.append(a)
             #
-            args = (h+'/html?lang=' + lang, identS, identA, identB, identC, identD)
+            args = (h+'/html?lang=' + lang + ',', identS, identA, identB, identC, identD)
             # button
             r = "html_retrieve_substitute('%s','%s','%s','%s','%s','%s')" % args
             b = soup.new_tag('button', id=identB, onClick=r)
