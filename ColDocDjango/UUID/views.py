@@ -1361,8 +1361,9 @@ def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = []):
             d['style'] = "display: none;"
             s.append(d)
     #
-    for a in soup.findAll('img'):
-        a['src'] = url + uuid + '/html/' + a['src']
+    if expandbuttons:
+        for a in soup.findAll('img'):
+            a['src'] = url + uuid + '/html/' + a['src']
     return str(soup)
 
 if BeautifulSoup is None:
