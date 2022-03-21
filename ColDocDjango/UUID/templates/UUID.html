@@ -38,6 +38,10 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
 	     A.style.display = "none";
 	     B.style.display = "none";
 	     C.style.display = "inline";
+	     // bootstrap 4 need these
+	     C.style.top = "0";
+	     C.style.right = "0";
+             //
              D.innerHTML = response;
              D.style.display = "block";
 	     D.append(C);
