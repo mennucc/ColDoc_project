@@ -557,6 +557,17 @@ def postlang(request, NICK, UUID):
     Blangs = metadata.get_languages()
     if prefix == 'manual':
         assert len(Blangs) == 1 and 'mul' in Blangs
+        for l in Clangs:
+            src = osjoin(D,'blob_' + l + ext_)
+            if os.path.isfile(src):
+                lines = open(src).readlines()
+                if lines and lines[0].startswith(ColDoc.config.ColDoc_auto_line1):
+                    lines.pop(0)
+                if lines and lines[0].startswith(ColDoc.config.ColDoc_auto_line2):
+                    lines.pop(0)
+                os.rename(src,src+'~auto~')
+                with open(src,'w') as f_:
+                    f_.write(''.join(lines))
         metadata.lang = '\n'.join(Clangs) + '\n'
         metadata.save()
         messages.add_message(request,messages.INFO,_('Converted to manual language management (non <tt>mul</tt>)'))
