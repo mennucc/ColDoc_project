@@ -1727,7 +1727,7 @@ def strip_language_lines(string, thelang , header = ColDoc_language_header_prefi
     assert len(thelang) == 3
     lines = string.splitlines()
     newlines = []
-    correctheader = header + thelang
+    correctheader = header + thelang + ' '
     N = len(correctheader)
     for l in lines:
         r = l.lstrip()
