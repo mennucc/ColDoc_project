@@ -236,26 +236,28 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     # note that extensions are missing
     save_name = os.path.join(uuid_dir, 'view' + _lang)
     save_abs_name = os.path.join(blobs_dir, save_name)
-    #
-    preamble = options.get('preamble')
-    if preamble is not None:
-        if '{lang}' in preamble:
-            preamble = preamble.format(lang=lang)
-        if not os.path.isfile(osjoin(blobs_dir, preamble)):
-            b = 'Cannot find preamble as in option: %s/%s' % (blobs_dir, preamble)
+    ####
+    # find a preamble
+    preambles = []
+    preamble_opt = options.get('preamble')
+    if preamble_opt is not None:
+        if '{lang}' in preamble_opt:
+            preamble_opt = preamble_opt.format(lang=lang)
+        preambles.append((preamble_opt, 'option'))
+    preambles.append(('preamble' + _lang + '.tex','lang'))
+    for l in metadata.coldoc.get_languages():
+        preambles.append(('preamble_' + l + '.tex','coldoc langs'))
+    preamble = None
+    for p,o in preambles:
+        if os.path.isfile(osjoin(blobs_dir, p)):
+            preamble = p
+            break
+        else:
+            b = 'Cannot find preamble from %s: %s/%s' % (o, blobs_dir, preamble)
             with open(save_abs_name+'.log','w') as f_:
                 f_.write(uuid_dir + ':0:' + b + '\n')
             logger.warning(b)
-            preamble = None
     if preamble is None:
-        preamble = 'preamble' + _lang + '.tex'
-        if not os.path.isfile(osjoin(blobs_dir, preamble)):
-            b = 'Cannot find preamble in %s/%s' %(blobs_dir, preamble)
-            logger.error(b)
-            preamble = None
-    if preamble is None:
-        with open(save_abs_name+'.log','w') as f_:
-            f_.write(uuid_dir + ':0:' + b + '\n')
         retcodes = ColDoc.utils.json_to_dict(metadata.latex_return_codes)
         j = (':'+lang) if (isinstance(lang,str) and lang) else ''
         ColDoc.utils.dict_save_or_del( retcodes, 'latex'+j, False)
