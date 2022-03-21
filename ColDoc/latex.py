@@ -253,7 +253,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
             preamble = p
             break
         else:
-            b = 'Cannot find preamble from %s: %s/%s' % (o, blobs_dir, preamble)
+            b = 'Cannot find preamble from %s: %s/%s' % (o, blobs_dir, p)
             with open(save_abs_name+'.log','w') as f_:
                 f_.write(uuid_dir + ':0:' + b + '\n')
             logger.warning(b)
