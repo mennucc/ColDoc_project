@@ -152,3 +152,7 @@ ColDoc_language_header_prefix = r'\CDL'
 # conditional for language headers , e.g. `\ifCDLeng` , `\ifCDLita` etc
 # in multilingual documents, only one will be set to true
 ColDoc_language_conditional_infix = r'CDL'
+
+# lines to advise that a .tex file was automatically generated
+ColDoc_auto_line1 = '% this content was automatically generated from '
+ColDoc_auto_line2 = '% ********** DO NOT EDIT ***********'
