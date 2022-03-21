@@ -1350,12 +1350,12 @@ def _html_replace_bs(html, url, uuid, expandbuttons=True, children = []):
             r = "html_hide_substitute('%s','%s','%s','%s','%s','%s')" % args
             c = soup.new_tag('button', id=identC, onClick=r)
             c.string='↻'
-            c['class'] = "btn btn-outline-warning btn-sm"
+            c['class'] = "btn btn-outline-warning btn-sm position-absolute top-0 end-0"
             c['style'] = "display: none;"
             s.append(c)
             # div
-            d = soup.new_tag('div', id=identD)
-            d['class'] = "border border-" + c_ + " m-2 p-2"
+            d = soup.new_tag('span', id=identD)
+            d['class'] = "border border-" + c_ + " m-2 p-2 position-relative"
             d['style'] = "display: none;"
             s.append(d)
     #

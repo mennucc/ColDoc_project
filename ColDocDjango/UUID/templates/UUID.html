@@ -18,8 +18,8 @@ function html_hide_substitute(url, identP, identA, identB, identC, identD)
   B = document.getElementById(identB);
   C = document.getElementById(identC);
   D = document.getElementById(identD);
-  A.style.display = "block";
-  B.style.display = "block";
+  A.style.display = "inline";
+  B.style.display = "inline";
   C.style.display = "none";
   D.style.display = "none";
 }
@@ -37,7 +37,7 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
 	   success: function(response)  {
 	     A.style.display = "none";
 	     B.style.display = "none";
-	     C.style.display = "block";
+	     C.style.display = "inline";
              D.innerHTML = response;
              D.style.display = "block";
 	     D.append(C);
