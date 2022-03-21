@@ -78,7 +78,10 @@ from .shop import encoded_contract_to_buy_permission, can_buy_permission
 
 wrong_choice_list = [('internal_error','internal_error')]
 
+langc_re = re.compile(r'^[a-z][a-z][a-z],?\Z')
+
 lang_re = re.compile(r'^[a-z][a-z][a-z]\Z')
+
 
 ##############################################################
 
@@ -1449,8 +1452,10 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     #
     lang = q.get('lang')
-    if lang is not None and  not lang_re.match(lang):
+    if lang is not None and  not langc_re.match(lang):
             raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
+    if lang:
+        lang, allow_lang_fallback = lang[:3],lang[3:]
     download='download' in q
     #for j in q:
     #    if j not in ('ext','lang'):
@@ -1459,6 +1464,8 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
     cookie = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
     accept_lang = ColDocDjango.utils.request_accept_language(accept, cookie)
+    if lang:
+        accept_lang[lang] = 3.0
     #
     try:
         uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
@@ -1492,7 +1499,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         Blangs = metadata.get_languages()
         if 'mul' in Blangs:
             Blangs = metadata.coldoc.get_languages()
-        langs = [lang] if (lang is not None) else ( Blangs + [None] )
+        langs = [lang] if (lang is not None) else []
+        if lang is None or allow_lang_fallback:
+            langs += ( Blangs + [None] )
         langs.sort(key = lambda x : accept_lang.get(x,0), reverse=True)
         pref_ = prefix
         # access to logs
