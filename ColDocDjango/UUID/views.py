@@ -1288,7 +1288,7 @@ def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata):
 
 ##############################################################
 
-def _html_replace_not_bs(html, url, uuid, expandbuttons=True, children = []):
+def _html_replace_not_bs(html, url, uuid, lang, expandbuttons=True, children = []):
     html = html.replace(ColDoc.config.ColDoc_url_placeholder,url)
     # help plasTeX find its images
     html = html.replace('src="images/','src="html/images/')
@@ -1296,8 +1296,10 @@ def _html_replace_not_bs(html, url, uuid, expandbuttons=True, children = []):
     return html
 
 
-def _html_replace_bs(html, url, uuid, expandbuttons=True, children = []):
+def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = []):
     ids = 0
+    assert isinstance(lang,str)
+    idp = 'UUID_lSa2q_' + uuid + '_' + lang + '_' 
     if url[-1] != '/':
         url += '/'
     children = set(children)
@@ -1312,12 +1314,12 @@ def _html_replace_bs(html, url, uuid, expandbuttons=True, children = []):
             if not expandbuttons or a['href'].startswith(skipuuid) :
                 a['href'] = url + thisuuid
                 continue
-            identA = 'UUID_' + uuid + '_Ajlkab_' + str(ids)
-            identB = 'UUID_' + uuid + '_BUTkjb_' + str(ids)
-            identC = 'UUID_' + uuid + '_CANqab_' + str(ids)
-            identD = 'UUID_' + uuid + '_DIVkjl_' + str(ids)
-            identP = 'UUID_' + uuid + '_PARkbz_' + str(ids)
-            identS = 'UUID_' + uuid + '_SPANkg_' + str(ids)
+            identA = idp + 'A' + str(ids)
+            identB = idp + 'B' + str(ids)
+            identC = idp + 'C' + str(ids)
+            identD = idp + 'D' + str(ids)
+            identP = idp + 'P' + str(ids)
+            identS = idp + 'S' + str(ids)
             # link
             a['href'] = h = url + thisuuid
             # parent
@@ -1542,7 +1544,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if _content_type == 'text/html':
             f = open(n).read()
             a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'001'})
-            f = _html_replace(f, a[:-4], uuid, expandbuttons, metadata.get('child_uuid'))
+            f = _html_replace(f, a[:-4], uuid, lang, expandbuttons, metadata.get('child_uuid'))
             response = HttpResponse(f, content_type=_content_type)
         else:
             fsock = open(n,'rb')
@@ -1809,7 +1811,7 @@ def index(request, NICK, UUID):
                 html = open(a).read()
                 a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
                 #
-                html = _html_replace(html, a[:-4], uuid, True, children)
+                html = _html_replace(html, a[:-4], uuid, ll, True, children)
             except:
                 logger.exception('Problem when preparing HTML for %r',UUID)
                 messages.add_message(request, messages.WARNING,_("HTML preview not available"))
