@@ -571,6 +571,9 @@ def postlang(request, NICK, UUID):
         metadata.lang = '\n'.join(Clangs) + '\n'
         metadata.save()
         messages.add_message(request,messages.INFO,_('Converted to manual language management (non <tt>mul</tt>)'))
+        dst = osjoin(D,'blob_mul'+ext_)
+        if os.path.exists(dst):
+            os.rename(dst,dst+'~disable~')
         ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?ext=%s'%(ext_) )
     #
@@ -584,6 +587,8 @@ def postlang(request, NICK, UUID):
         dst = osjoin(D,'blob_mul'+ext_)
         string = open(src).read()
         string = ColDoc.utils.replace_language_in_inputs(string, origlang, 'mul')
+        if os.path.exists(dst):
+            os.rename(dst,dst+'~old~')
         F = open(dst,'w')
         for line in string.splitlines():
             if LatexNodes2Text is not None:
