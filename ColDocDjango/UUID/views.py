@@ -605,7 +605,7 @@ def postlang(request, NICK, UUID):
         metadata.lang = 'mul\n'
         metadata.save()
         messages.add_message(request,messages.INFO, _('Converted to `mul` method'))
-        ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
+        gen_lang_metadata(metadata, blobs_dir, Clangs)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                         '?lang=mul&ext=%s'%(ext_) )
     #
@@ -625,12 +625,14 @@ def postlang(request, NICK, UUID):
             logger.exception('internal error')
             output = ColDoc.utils.multimerge(sources)
         output = [ (''.join(a)) for a in output ]
+        if os.path.exists(dst):
+            os.rename(dst,dst+'~old~')
         with open(dst,'w') as f_:
             f_.write('\n'.join(output) + '\n')
         metadata.lang = 'mul\n'
         metadata.save()
         messages.add_message(request,messages.INFO,_('Converted to `mul` method'))
-        ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
+        gen_lang_metadata(metadata, blobs_dir, Clangs)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                         '?lang=mul&ext=%s'%(ext_) )
     #
