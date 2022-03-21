@@ -278,6 +278,22 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     #
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
     s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
+    # 'compile' the bibliography by compiling the `.bib` file
+    if metadata.environ in  ('bibliography', 'E_thebibliography'):
+        b = None
+        b_bbls = [ 'main'+_lang+'.bbl' ] + [ ('main_'+l+'.bbl') for l in metadata.coldoc.get_languages() ]
+        for a in b_bbls:
+            if os.path.isfile(osjoin(blobs_dir, a)):
+                b = a
+                break
+        if b is None:
+            logger.warning('when compiling UUID %r , no file %r is available', uuid, b_bbls)
+            squash = False
+            b_temp = tempfile.NamedTemporaryFile(dir=blobs_dir,suffix='.tex')
+            b = b_temp.name
+            b_temp.write(b'Please compile the main private file and then recompile this UUID')
+            b_temp.flush()
+    #
     if squash:
         helper = options.get('squash_helper')(blobs_dir=blobs_dir, metadata=metadata, lang=lang, options=options)
         ColDoc.transform.squash_latex(open(osjoin(blobs_dir,b)), open(osjoin(blobs_dir,s),'w'), options,
@@ -287,7 +303,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         D['input'] = b
     #
     environ = metadata.environ
-    if environ[:2] == 'E_' and environ not in ( 'E_document', ):
+    if environ[:2] == 'E_' and environ not in ( 'E_document', 'E_thebibliography', ):
         env = environ[2:]
         D['begin'] = r'\begin{'+env+'}'
         D['end'] = r'\end{'+env+'}'

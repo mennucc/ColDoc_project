@@ -1091,7 +1091,7 @@ def postedit(request, NICK, UUID):
         messages.add_message(request,messages.INFO,msg)
     reparse_blob(filename, metadata, lang, blobs_dir, warn, load_uuid=load_uuid)
     #
-    if ext_ == '.tex':
+    if ext_ in  ('.tex', '.bib'):
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
         if metadata.environ not in environments_we_wont_latex:
             __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages, all_messages)

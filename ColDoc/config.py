@@ -110,7 +110,7 @@ ColDoc_invalid_nickname = ['static','static_collect','static_root','static_local
 
 
 ColDoc_environments_we_wont_latex = ( 'preamble' , 'input_preamble' , 'include_preamble',
-                               'usepackage', 'bibliography', 'E_thebibliography','graphic_file' )
+                               'usepackage', 'graphic_file' )
 
 # Before compiling with latex a file, these files are copied back from 
 # blobs/UUID/N/N/N/YYYY_LLL.XXX 
