@@ -1813,14 +1813,25 @@ def gen_lang_metadata(metadata, blobs_dir, coldoc_languages):
         string3 = replace_language_in_inputs(string2, 'mul', lang)
         dst = osjoin(blobs_dir, uuid_to_dir(uuid), 'blob_' + lang + '.tex')
         try:
+            if os.path.exists(dst):
+                os.unlink(dst)
+        except:
+            logger.exception(dst)
+        try:
             with open(dst,'w') as f_:
                 f_.write(ColDoc_auto_line1 + repr(src) + '\n')
                 f_.write(ColDoc_auto_line2 + '\n')
                 f_.write(string3)
+            set_file_readonly(dst)
         except:
             logger.exception(dst)
+            raise
         else:
             logger.debug(' src %r dst %r',src,dst)
+        try:
+            set_file_readonly(dst)
+        except:
+            logger.exception(dst)
 
 
 def gen_lang_coldoc(COLDOC_SITE_ROOT, coldoc_nick):
