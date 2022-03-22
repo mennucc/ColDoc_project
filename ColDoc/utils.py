@@ -1,4 +1,4 @@
-import itertools, sys, os, io, copy, logging, shelve, unicodedata
+import itertools, sys, os, stat, io, copy, logging, shelve, unicodedata
 import re, pathlib, subprocess, datetime, json
 import tempfile, shutil, json, hashlib, importlib
 import functools, inspect
@@ -66,7 +66,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'parse_latex_log',
             'recreate_symlinks',
             'TeX_add_packages',
-            'log_debug',
+            'log_debug', 'set_file_readonly',
             )
 
 class ColDocException(Exception):
@@ -125,6 +125,13 @@ def iso3lang_to_iso2(l):
 
 #####################
 
+def set_file_readonly(f):
+    S = os.stat(f)
+    m = stat.S_IMODE(S.st_mode)
+    m = m & 0o444
+    os.chmod(f,m)
+
+####################
 
 def TeX_add_packages(thetex,options):
     mydocument = thetex.ownerDocument
