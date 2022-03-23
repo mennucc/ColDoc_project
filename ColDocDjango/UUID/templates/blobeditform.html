@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <script>
 var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 {% if BLOB %}
@@ -48,6 +49,7 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 {% endif %}
 
 <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
+         <div id="{{ blobeditform.htmlid }}_topdiv" class="bg-warning" style="display: none;">{% translate 'This content is open in another tab: do not edit here' %}</div>
         {% csrf_token %}{{ blobeditform.non_field_errors }}
         {% for field in blobeditform %} {% if field.is_hidden %}  {{ field }}
         {% elif not field.name in blobform_filters %}

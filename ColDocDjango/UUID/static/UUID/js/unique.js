@@ -152,11 +152,19 @@ function textareaUpdate(isMain)
 {
    let classname = (isMain ? 'bg-light' : 'bg-warning');
    let textarea = document.getElementById("id_BlobEditTextarea");
+   //let form = $("#id_form_blobeditform");
+   let topdiv = document.getElementById("id_form_blobeditform_topdiv");
     if ( !  textarea ) {
         let its = isMain;
         setTimeout(function(){ textareaUpdate(its); }  , 100);
     } else {
-      textarea.className = "form-group w-100 "+classname;
+      //form.removeClass("bg-light");
+      //form.removeClass("bg-warning");
+      //form.addClass(classname);
+      topdiv.style.display = (isMain ? 'none' : 'block');
+      textarea.classList.remove("bg-light");
+      textarea.classList.remove("bg-warning");
+      textarea.classList.add(classname);
       textarea.readOnly = ! isMain;
       if ( ! isMain) text_was_locked = true;
    }
