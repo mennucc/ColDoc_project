@@ -109,7 +109,11 @@ var NICKUUID = NICK+'/'+UUID;
             }
         }
         //Update the local storage with the new array
-        localStorage.setItem(_LOCALSTORAGE_KEY, JSON.stringify(__windowArray));
+        if ( __windowArray.length === 0  ){
+          localStorage.removeItem(_LOCALSTORAGE_KEY);
+        } else {
+          localStorage.setItem(_LOCALSTORAGE_KEY, JSON.stringify(__windowArray));
+        }
     }
 
     //Bind unloading events  
