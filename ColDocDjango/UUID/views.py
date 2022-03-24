@@ -1311,7 +1311,7 @@ def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata):
 
 ##############################################################
 
-def _html_replace_not_bs(html, url, uuid, lang, expandbuttons=True, children = []):
+def _html_replace_not_bs(html, url, uuid, lang, expandbuttons=True, children = [], highlight=None):
     html = html.replace(ColDoc.config.ColDoc_url_placeholder,url)
     # help plasTeX find its images
     html = html.replace('src="images/','src="html/images/')
@@ -1319,7 +1319,7 @@ def _html_replace_not_bs(html, url, uuid, lang, expandbuttons=True, children = [
     return html
 
 
-def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = []):
+def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = [], highlight=None):
     ids = 0
     assert isinstance(lang,str)
     idp = 'UUID_lSa2q_' + uuid + '_' + lang + '_' 
@@ -1360,7 +1360,7 @@ def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = []):
             c_ = 'success' if thisuuid in children else 'dark'
             # span
             s = soup.new_tag('span', id=identS)
-            s['class'] = "border border_" + c_
+            s['class'] = "border border-" + c_ + (' bg-warning' if (highlight == thisuuid) else '' )
             a = a.replaceWith(s)
             s.append(a)
             #
@@ -1648,8 +1648,11 @@ def index(request, NICK, UUID):
     lang = q.get('lang')
     if lang is not None and not lang_re.match(lang):
             raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
+    highlight = q.get('highlight')
+    if highlight is not None and not slug_re.match(highlight):
+            raise SuspiciousOperation("Invalid highlight %r in query." % (highlight,))
     for j in q:
-        if j not in ('ext','lang'):
+        if j not in ('ext','lang','highlight'):
             messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
             logger.warning( 'Ignored query %r'%(j,) )
     #
@@ -1705,6 +1708,7 @@ def index(request, NICK, UUID):
             parent_uuid = j[0]
             parent_metadata = DMetadata.load_by_uuid(parent_uuid, metadata.coldoc)
             uplink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':parent_uuid})
+            uplink += '?highlight=' + UUID
         elif env != 'main_file':
             logger.warning('no parent for UUID %r',UUID)
     except:
@@ -1841,7 +1845,7 @@ def index(request, NICK, UUID):
                 html = open(a).read()
                 a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
                 #
-                html = _html_replace(html, a[:-4], uuid, ll, True, children)
+                html = _html_replace(html, a[:-4], uuid, ll, True, children, highlight)
             except:
                 logger.exception('Problem when preparing HTML for %r',UUID)
                 messages.add_message(request, messages.WARNING,_("HTML preview not available"))
