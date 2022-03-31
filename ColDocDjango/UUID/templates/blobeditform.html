@@ -101,7 +101,7 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 </form>
 <script>
 var BlobEditCodeMirror = undefined;
-{% if USE_CODEMIRROR %}
+{% if USE_CODEMIRROR and can_change_blob %}
 
 function activate_BlobEditCodeMirror(e) {
 let textarea = document.getElementById("id_BlobEditTextarea");
