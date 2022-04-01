@@ -405,6 +405,14 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
                 f_.write(b)
         except Exception as e:
             logger.warning(e)
+    #
+    if metadata.environ in environments_we_wont_latex:
+        try:
+            os.unlink(save_abs_name + '.pdf')
+            shutil.rmtree(save_abs_name + '_html')
+        except:
+            logger.exception('While removing compiled placeholders')
+    #
     if not forked:
         # when forked, cannot update metadata here, it would clash with other processes
         _update_metadata(metadata, lang, rh, rp)
