@@ -1170,8 +1170,8 @@ def postedit(request, NICK, UUID):
         D = {}
         D['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
         D['split_selection'] = False
-        D['selection_start'] = str(selection_start_)
-        D['selection_end'] = str(selection_start_)
+        D['selection_start'] = selection_start_
+        D['selection_end'] = selection_end_
         D['lang'] = lang
         D['UUID'] = uuid
         D['ext'] = ext
