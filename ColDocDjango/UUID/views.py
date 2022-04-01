@@ -1797,7 +1797,7 @@ def index(request, NICK, UUID):
             html = '[NO HTML preview for %r]'%(env,)
             pdfurl = ''
             all_views = [( view_lang, iso3lang2word(view_lang), html, '')]
-        elif env == 'main_file':
+        elif env == 'main_file' and uuid == coldoc.root_uuid:
             pdfurl = ''
             html = ''
             try:
