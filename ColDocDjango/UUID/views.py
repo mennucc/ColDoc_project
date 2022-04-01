@@ -1110,7 +1110,7 @@ def postedit(request, NICK, UUID):
                 messages.add_message(request,messages.INFO, _('In new blob') + ': ' + msg)
             reparse_blob(addfilename, addmetadata, lang, blobs_dir, warn, load_uuid=load_uuid)
             # compile it
-            if split_environment_ not in environments_we_wont_latex:
+            if True:
                 ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
                 ret = all(ret.values())
                 if ret:
@@ -1130,8 +1130,7 @@ def postedit(request, NICK, UUID):
     #
     if ext_ in  ('.tex', '.bib'):
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
-        if metadata.environ not in environments_we_wont_latex:
-            __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages, all_messages)
+        __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, messages, all_messages)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     email_to = _interested_emails(coldoc,metadata)
@@ -1257,8 +1256,7 @@ def postmetadataedit(request, NICK, UUID):
     from ColDoc.latex import environments_we_wont_latex
     if ext_ == '.tex':
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
-        if metadata.environ not in environments_we_wont_latex:
-            __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang_, messages, [])
+        __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang_, messages, [])
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     #

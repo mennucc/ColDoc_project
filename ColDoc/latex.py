@@ -160,11 +160,6 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     assert uuid is None or uuid == uuid_
     uuid = uuid_
     #
-    if metadata.environ in environments_we_wont_latex :
-        ## 'include_preamble' is maybe illegal LaTeX; 'usepackage' is not yet implemented
-        logger.log(warn, 'Cannot `pdflatex` environ=%r',metadata.environ)
-        return {l:True for l in metadata.get_languages()}
-    #
     if metadata.environ == 'main_file':
         logger.log(log_level, 'Do not need to `pdflatex` the main_file')
         return {l:True for l in metadata.get_languages()}
@@ -293,6 +288,13 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
             b = b_temp.name
             b_temp.write(b'Please compile the main private file and then recompile this UUID')
             b_temp.flush()
+    # 'compile' the preamble files by compiling an empty file
+    elif metadata.environ in environments_we_wont_latex:
+        b_temp = tempfile.NamedTemporaryFile(dir=blobs_dir,suffix='.tex')
+        b = b_temp.name
+        b_temp.write(b'Placeholder')
+        b_temp.flush()
+        squash = False
     #
     if squash:
         helper = options.get('squash_helper')(blobs_dir=blobs_dir, metadata=metadata, lang=lang, options=options)
