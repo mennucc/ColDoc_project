@@ -123,6 +123,8 @@ function activate_BlobEditCodeMirror_once(e) {
 };
 $('a[href="#blob"]').on('shown.bs.tab',activate_BlobEditCodeMirror_once);
 {% else %}
+ {# non CodeMirror #}
+window.addEventListener('ready', restore_editform_non_cm() );
 $('#id_BlobEditTextarea').on('input propertychange change keyup paste', update_blobedit_timestamp );
 {% endif %}
 </script>

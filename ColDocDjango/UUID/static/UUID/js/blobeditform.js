@@ -47,16 +47,15 @@ function update_editform(){
   }
 };
 
-function restore_editform(){
+function restore_editform_non_cm(){
     let blobeditform = document.getElementById("id_form_blobeditform");
     let textarea = document.getElementById("id_BlobEditTextarea");
     if ( ! blobeditform ) {
 	setTimeout(restore_editform, 200);
 	return;
     }
-    // FIXME
-    if (  use_CodeMirror )    { return ; } 
-    // FIXME
+    
+    // Non CodeMirror code
     if ( blobeditform.selection_start.value  >= 0 ) {
       textarea.selectionStart = blobeditform.selection_start.value ;
       
@@ -71,7 +70,6 @@ function restore_editform(){
     }
 };
 
-window.addEventListener('ready', restore_editform() );
 
 function hide_and_show(){
     let blobeditform = document.getElementById("id_form_blobeditform");
