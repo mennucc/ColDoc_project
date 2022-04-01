@@ -1169,7 +1169,6 @@ def postedit(request, NICK, UUID):
     if can_change_blob:
         D = {}
         D['file_md5'] = hashlib.md5(open(filename,'rb').read()).hexdigest()
-        D.pop('blobcontent', None) #= open(filename).read()
         D['split_selection'] = False
         D['selection_start'] = str(selection_start_)
         D['selection_end'] = str(selection_start_)
