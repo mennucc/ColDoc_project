@@ -37,7 +37,7 @@ function prevent_unload_add() {
 
 function update_editform(){
     let blobeditform = document.getElementById("id_form_blobeditform");
- if ( use_CodeMirror ) {
+ if ( use_CodeMirror && BlobEditCodeMirror != undefined ) {
      blobeditform.selection_start.value = JSON.stringify(BlobEditCodeMirror.getCursor('from'));
      blobeditform.selection_end.value = JSON.stringify(BlobEditCodeMirror.getCursor('to'));
     } else {
