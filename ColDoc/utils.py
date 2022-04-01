@@ -35,7 +35,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from ColDoc.config import *
-from ColDoc.classes import MetadataBase
+from ColDoc.classes import MetadataBase, DuplicateLabel
 
 
 __all__ = ( "slugify", "slug_re", "slugp_re",
@@ -1257,6 +1257,7 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
             if key.startswith('M_') or key.startswith('S_'):
                 del metadata[key]
         for key, value in parsed_metadata:
+          try:
             if key == 'M_uuid':
                 if value != ('{'+metadata.uuid+'}'):
                     warn(_('Warning: there is a `uuid` command with value %(value)s instead of {%(uuid)s}'),
@@ -1265,6 +1266,14 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
                     metadata.add(key,value)
             else:
                 metadata.add(key,value)
+          except DuplicateLabel:
+                o = {'key':key, "value":value}
+                warn(_('Warning: duplicated metadata with key = %(key)r  value = %(value)r'), o)
+          except:
+                o = {'key':key, "value":value}
+                a = _('Exception when processing key = %(key)r value = %(value)r')
+                logger.exception(a % o)
+                warn(a, o)
     metadata.save()
 
 ############################
