@@ -1960,8 +1960,11 @@ def index(request, NICK, UUID):
         ## restrict to allowed choices
         if parent_metadata is not None:
             choices = teh.list_allowed_choices(parent_metadata.environ, extensions)
-        else:
+        elif uuid == coldoc.root_uuid:
             choices = [('main_file','main_file')]
+        else: # disconnected node
+            choices = [(a,a) for a in ColDoc.config.ColDoc_environments]
+            choices += teh.E_choices
         # useless
         metadataform.fields['environ'].choices = choices
         # useful
