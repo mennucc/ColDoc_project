@@ -336,6 +336,15 @@ def _build_blobeditform_data(metadata,
                           _('Your saved changes are yet uncompiled') ))
         D.update(N)
     #
+    if settings.USE_CODEMIRROR:
+        lines = blobeditdata.splitlines(keepends = True)
+        a = int(D.get('selection_start',0))
+        line , ch = ColDoc.utils.text_pos2linechar(lines, a)
+        D['selection_start'] = json.dumps({'line': line, 'ch': ch })
+        a = int(D.get('selection_end',0))
+        line , ch = ColDoc.utils.text_pos2linechar(lines, a)
+        D['selection_end'] = json.dumps({'line': line, 'ch': ch })
+    #
     blobeditform = BlobEditForm(initial=D, latex_filters=latex_filters) #, prefix='BlobEditForm')
     blobeditform.fields['split_environment'].choices = choices
     #
