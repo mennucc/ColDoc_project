@@ -1081,6 +1081,11 @@ def postedit(request, NICK, UUID):
             add_blob(logger, request.user, settings.COLDOC_SITE_ROOT, nick_, uuid_, 
                  split_environment_, lang_, c_lang, selection_start_ , selection_end_, split_add_beginend_)
         if addsuccess:
+            # len of \input{UUID/0/1/1/blob_eng.tex} , plus optionally begin..end
+            selection_end_  = selection_start_ + 32 
+            if split_environment_[:2] == 'E_' and split_add_beginend_:
+                selection_end_ += 10 + 2 * len(split_environment_)
+            #
             new_uuid_as_html = '<a href="%s">%s</a>' %(
                 request.build_absolute_uri(django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':addnew_uuid})),
                 addnew_uuid)
