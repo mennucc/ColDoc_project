@@ -104,8 +104,8 @@ var BlobEditCodeMirror = undefined;
 {% if USE_CODEMIRROR and can_change_blob %}
 
 function activate_BlobEditCodeMirror(e) {
-let textarea = document.getElementById("id_BlobEditTextarea");
-BlobEditCodeMirror = CodeMirror.fromTextArea(textarea, {
+  let textarea = document.getElementById("id_BlobEditTextarea");
+  BlobEditCodeMirror = CodeMirror.fromTextArea(textarea, {
       mode: "text/x-stex",
       matchBrackets: true,
       extraKeys: {"Alt-F": "findPersistent"},
@@ -113,7 +113,7 @@ BlobEditCodeMirror = CodeMirror.fromTextArea(textarea, {
       showTrailingSpace : true,
       // FIXME gutters: ["CodeMirror-linenumbers", "breakpoints"]
       });
-BlobEditCodeMirror.on("change", update_blobedit_timestamp );
+  BlobEditCodeMirror.on("change", update_blobedit_timestamp );
 };
 //
 function activate_BlobEditCodeMirror_once(e) {
