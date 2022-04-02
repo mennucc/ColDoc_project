@@ -636,7 +636,7 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
     if lang is not None:
         if lang not in L:
             logger.error('Language %r is not available for uuid %r',lang, uuid)
-            raise ColDocException()
+            raise FileNotFoundError('Language %r is not available for uuid %r' % (lang, uuid))
         L = [lang]
     #
     for l in L:
@@ -648,7 +648,7 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
             if os.path.exists(input_file):
                 return input_file,uuid,m,l,e
     logger.error('Blob `%r` not available for lang in %r, ext in %r', uuid, L, E)
-    raise ColDocException('Blob `%r` not available for lang in %r, ext in %r'%(uuid, L, E))
+    raise FileNotFoundError('Blob `%r` not available for lang in %r, ext in %r'%(uuid, L, E))
 
 #####################
 
