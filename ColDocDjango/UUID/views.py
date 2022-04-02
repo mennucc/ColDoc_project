@@ -1682,7 +1682,7 @@ def index(request, NICK, UUID):
         return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
-        logger.error('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
+        logger.exception('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: exception',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
