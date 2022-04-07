@@ -93,6 +93,7 @@ standalone_template=r"""\documentclass[varwidth=%(width)s]{standalone}
 \input{%(preamble)s}
 \usepackage{ColDocUUID}
 \begin{document}
+%(checkpoint)s
 %(begin)s
 \input{%(input)s}
 %(end)s
@@ -108,6 +109,7 @@ preview_template=r"""\documentclass %(documentclass_options)s {%(documentclass)s
 \usepackage{hyperref}
 \usepackage{ColDocUUID}
 \begin{document}
+%(checkpoint)s
 %(begin)s
 \input{%(input)s}
 %(end)s
@@ -126,6 +128,7 @@ plastex_template=r"""\documentclass{article}
 \usepackage{hyperref}
 \usepackage{ColDocUUID}
 \begin{document}
+%(checkpoint)s
 %(begin)s
 \input{%(input)s}
 %(end)s
@@ -270,6 +273,12 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
          'language_conditionals' : '\n'.join(lang_conditionals(lang, metadata = metadata)),
          'preamble' : preamble,
          }
+    #
+    a = os.path.join(blobs_dir,uuid_dir,'blob'+_lang+'.tex.checkpoint')
+    if os.path.exists(a):
+        D['checkpoint'] = open(a).read()
+    else:
+        D['checkpoint'] = ''
     #
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
     s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
