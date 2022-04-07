@@ -604,10 +604,16 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
             try:
                 for lang in Blangs:
                     j = 'blob_' + lang + '.tex'
-                    l = open( osjoin(D,j) ).readline(32)
-                    if not l.startswith('\\'+ env):
+                    l = open( osjoin(D,j) ).readlines(4096)
+                    while l :
+                        a = l[0].strip()
+                        if a.startswith('%') or a == '\\ColDocUUIDcheckpoint':
+                            l.pop(0)
+                        else:
+                            break
+                    if l and not l[0].startswith('\\'+ env):
                             s = _('UUID %r file %r environ %r first line %r')
-                            a = (uuid, j, env, l)
+                            a = (uuid, j, env, l[0])
                             warn(s, a)
                             problems.append(('WRONG_HEADER', uuid, s, a))
             except:
