@@ -823,6 +823,14 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
         else:
             logger.debug("No %r file for this job",e)
     #
+    f = 'main' + _lang + '.aux'
+    a = os.path.join(blobs_dir,f)
+    if os.path.exists(a):
+        with open(fake_abs_name+'.aux', 'a') as f_:
+            for l in open(a):
+                if l.startswith(r'\bibcite'):
+                    f_.write(l)
+    #
     extensions = ColDoc.config.ColDoc_pdflatex_fakemain_preserve_extensions
     #
     ## dunno what this may be useful for
