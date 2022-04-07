@@ -231,6 +231,9 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
         warnings.append(_('Internal error when parsing optarg %r for  blob %r ') % (optarg,uuid))
         optarg = []
     if env in ColDoc.config.ColDoc_environments_sectioning:
+        a = '\\ColDocUUIDcheckpoint\n'
+        if blobcontent.startswith(a):
+            blobcontent = blobcontent[len(a):]
         if blobcontent.startswith('\\'+env):
             try:
                 j = blobcontent.index('\n')
@@ -418,6 +421,8 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     while b and not b[0].strip():
         # remove empty lines
         b.pop(0)
+    if b and b[0].strip() == r'\ColDocUUIDcheckpoint':
+        b.pop(0)
     while b and b[0].strip():
         # add up to next empty line
         initial += b[0] + '\n'
@@ -502,6 +507,7 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
             newprologue, b, sources = _parse_for_section(blobeditarea, env, uuid, weird_prologue)
             displacement = len(b)- len(blobeditarea)
             blobeditarea = b
+            newprologue = '\\ColDocUUIDcheckpoint\n' + newprologue
         except:
             logger.exception('While parsing \\section')
             weird_prologue.append(_('Internal error while parsing for \\%s{...}.') % (env,))
