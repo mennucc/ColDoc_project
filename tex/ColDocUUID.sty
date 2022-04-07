@@ -1,5 +1,14 @@
 \ifdefined\uuidbaseurl\else\def\uuidbaseurl{@URLPLACEHOLDER91HDLP@}\fi%
 
+%%% uuid checkpoint
+
+\def\ColDocUUIDcheckpoint{
+  \immediate\openout\@partaux\@curr@file.checkpoint
+  \immediate\write\@partaux{\relax}%
+  {\let\@elt\@wckptelt \cl@@ckpt}%
+ \immediate\closeout\@partaux
+}
+
 %%% you may customize the formatting of the UUID marker
 \ifdefined\uuidformatter\else
 \newcommand{\uuidformatter}[1]{{\texttt{\scriptsize[#1]}}}%
