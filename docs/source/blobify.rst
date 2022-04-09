@@ -197,7 +197,7 @@ Then try to import your document in the portal
 
 .. code:: shell
 
-	  ColDocDjango/blob_inator.py --coldoc-site-root ${COLDOC_SITE_ROOT} --coldoc-nick=testdoc --ZS --SAT  --split-sections --editor=ed_itor --author=jsmith  yourdir/yourdocument.tex
+	  ColDocDjango/blob_inator.py --coldoc-site-root ${COLDOC_SITE_ROOT} --coldoc-nick=testdoc --ZS --SAT  --split-sections --editor=ed_itor --author=jsmith --lang=eng yourdir/yourdocument.tex
 
 note that:
 
@@ -249,7 +249,24 @@ Note that the data structure can be compiled from the command line, using
 .. code:: shell
 
 	  cd ${COLDOC_SITE_ROOT}/coldocs/testdoc/blobs/
-	  pdflatex main.tex
-	  plastex -d main_html main.tex
+	  pdflatex main_eng.tex
+	  plastex -d main_html main_eng.tex
 
+where *eng* may be replaced by the desired language.
 
+Multilingual documents
+----------------------
+
+In this regard, to be able to compute a
+multilingual document from the command line,
+you may also add in the preamble the snippet of code
+
+.. code:: TeX
+
+	  %%% this part will be skipped when compiled inside ColDoc
+	  \ifdefined\ColDocAPI\else
+	  \usepackage{coldoc_standalone}
+	  \fi
+
+and copy that file `coldoc_standalone.sty` to
+the directory of your main LaTeX file, and adapt it to your needs.
