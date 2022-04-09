@@ -934,10 +934,10 @@ def postedit(request, NICK, UUID):
     # CodeMirror returns  {line, ch}
     if isinstance(selection_start_, dict):
         line , ch = selection_start_['line'] , selection_start_['ch']
-        selection_start_ = ColDoc.utils.text_linechar2pos(blobeditarea, line, ch)
+        form.cleaned_data['selection_start'] = selection_start_ =  ColDoc.utils.text_linechar2pos(blobeditarea, line, ch)
     if isinstance(selection_end_, dict):
         line , ch = selection_end_['line'] , selection_end_['ch']
-        selection_end_ = ColDoc.utils.text_linechar2pos(blobeditarea, line, ch)
+        form.cleaned_data['selection_end']  = selection_end_ = ColDoc.utils.text_linechar2pos(blobeditarea, line, ch)
     split_add_beginend_ = form.cleaned_data['split_add_beginend']
     assert UUID == uuid_ and NICK == nick_
     assert lang_re.match(lang_)
