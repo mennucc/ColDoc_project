@@ -30,16 +30,18 @@ Then, right after the `documentclass` statement, add
 .. code:: TeX
 
           \newif\ifplastex\plastexfalse
-	  \ifplastex
-	  \newif\ifstandalone\relax\standalonefalse\relax
-	  \else
-	  \usepackage{standalone}
-	  \fi
+	  %
+	  \ifplastex\else
+	  \ifdefined\CurrentFile\else
+	  \usepackage{currfile}
+	  \fi\fi
 
-This will load the package `standalone` only when compiling
-with standard LaTeX; it will also define
-the conditional `\ifstandalone` to be true only when compiling
-a PDF in standalone mode.
+The conditional `\ifplastex` will be forcibly set to true when compiling using
+`plastex`.
+	  
+This snippet will also load the package `currfile` only when compiling
+with older LaTeX (older than 2019); it will be used for internal
+checkpointing.
 
 Plastex tweaks
 --------------
@@ -85,7 +87,7 @@ work well with `plastex`, as in this example
 Standalone tweaks
 -----------------
 
-You should also wrap all the code that modifies
+You should also wrap all the code in the preamble that modifies
 page geometry so that it is ignored in standalone mode,
 as in this example:
 
