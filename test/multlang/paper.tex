@@ -4,11 +4,18 @@
 
 \documentclass[a4paper]{article}
 
+%define this conditional; plasTeX will override it and set it to `true`
+\newif\ifplastex\plastexfalse
+
 %%%% define some stuff for independent compilation
 %%% this part will be skipped when compiled inside ColDoc
 \ifdefined\ColDocAPI\else
 \usepackage{coldoc_standalone}
 \fi
+%% fallback for older LaTeX
+\ifplastex\else\ifdefined\CurrentFile\else
+\usepackage{currfile}
+\fi\fi
 
 %%%%%%%%% early packages that for some reason must be loaded before
 
@@ -23,8 +30,6 @@
 % you need a recent version
 \usepackage{iftex}
 
-%define this conditional; plasTeX will override it and set it to `true`
-\newif\ifplastex\plastexfalse
 %
 %%%%%%%%% use conditionals to load some engine-specific packages
 \ifplastex

@@ -2,12 +2,30 @@
 
 %%% uuid checkpoint
 
-\def\ColDocUUIDcheckpoint{
-  \immediate\openout\@partaux\@curr@file.checkpoint
-  \immediate\write\@partaux{\relax}%
-  {\let\@elt\@wckptelt \cl@@ckpt}%
- \immediate\closeout\@partaux
-}
+\ifplastex%
+ \def\ColDocUUIDcheckpoint{}%
+\else%
+ \ifdefined\CurrentFile%
+  \def\ColDocUUIDcheckpoint{%
+   \immediate\openout\@partaux\CurrentFilePath/\CurrentFile.checkpoint
+   \immediate\write\@partaux{\relax}%
+   {\let\@elt\@wckptelt \cl@@ckpt}%
+  \immediate\closeout\@partaux%
+  }
+ \else% no \CurrentFile
+  \ifdefined\currfilepath%
+   \def\ColDocUUIDcheckpoint{%
+    \immediate\openout\@partaux\currfilepath.checkpoint%
+    \immediate\write\@partaux{\relax}%
+    {\let\@elt\@wckptelt \cl@@ckpt}%
+   \immediate\closeout\@partaux%
+   }
+  \else% no \CurrentFile and no \currfilepath
+   \typeout{Please use package currfile}
+   \def\ColDocUUIDcheckpoint{}
+  \fi% no \CurrentFile and no \currfilepath
+ \fi % no \CurrentFile
+\fi % no plastex
 
 %%% you may customize the formatting of the UUID marker
 \ifdefined\uuidformatter\else
