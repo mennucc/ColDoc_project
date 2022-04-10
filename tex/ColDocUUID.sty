@@ -4,6 +4,11 @@
 
 \newwrite\@uuidaux
 
+\def\CD@wckptelt#1{%
+  \immediate\write\@uuidaux{%
+    \string\setcounter{#1}{\the\@nameuse{c@#1}}}}
+
+
 \ifplastex%
  \def\ColDocUUIDcheckpoint{}%
 \else%
@@ -11,7 +16,7 @@
   \def\ColDocUUIDcheckpoint{%
    \immediate\openout\@uuidaux\CurrentFilePath/\CurrentFile.checkpoint
    \immediate\write\@uuidaux{\relax}%
-   {\let\@elt\@wckptelt \cl@@ckpt}%
+   {\let\@elt\CD@wckptelt \cl@@ckpt}%
   \immediate\closeout\@uuidaux%
   }
  \else% no \CurrentFile
@@ -19,7 +24,7 @@
    \def\ColDocUUIDcheckpoint{%
     \immediate\openout\@uuidaux\currfilepath.checkpoint%
     \immediate\write\@uuidaux{\relax}%
-    {\let\@elt\@wckptelt \cl@@ckpt}%
+    {\let\@elt\CD@wckptelt \cl@@ckpt}%
    \immediate\closeout\@uuidaux%
    }
   \else% no \CurrentFile and no \currfilepath
