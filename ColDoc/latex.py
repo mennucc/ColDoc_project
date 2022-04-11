@@ -220,6 +220,9 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     """ `latex` the blob identified by the `metadata`, for the given language `lang`.
     ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )
     Optionally squashes all sublevels, replacing with \\uuidplaceholder """
+    #
+    environ = metadata.environ
+    #
     uuid = metadata.uuid
     if uuid_dir is None:
         uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
@@ -283,7 +286,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
     s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
     # 'compile' the bibliography by compiling the `.bib` file
-    if metadata.environ in  ('bibliography', 'E_thebibliography'):
+    if environ in  ('bibliography', 'E_thebibliography'):
         b = None
         b_bbls = [ 'main'+_lang+'.bbl' ] + [ ('main_'+l+'.bbl') for l in metadata.coldoc.get_languages() ]
         for a in b_bbls:
@@ -298,7 +301,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
             b_temp.write(b'Please compile the main private file and then recompile this UUID')
             b_temp.flush()
     # 'compile' the preamble files by compiling an empty file
-    elif metadata.environ in environments_we_wont_latex:
+    elif environ in environments_we_wont_latex:
         b_temp = tempfile.NamedTemporaryFile(dir=blobs_dir,suffix='.tex')
         b = b_temp.name
         b_temp.write(b'Placeholder')
@@ -313,7 +316,6 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     else:
         D['input'] = b
     #
-    environ = metadata.environ
     if environ[:2] == 'E_' and environ not in ( 'E_document', 'E_thebibliography', ):
         env = environ[2:]
         D['begin'] = r'\begin{'+env+'}'
@@ -323,8 +325,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     ##
     ## create pdf
     logger.debug('create pdf for %r',save_abs_name)
-    env = metadata.environ
-    if env == 'main_file':
+    if environ == 'main_file':
         # never used, the main_file is compiled with the latex_main() function
         logger.error("should never reach this line")
         assert False
@@ -336,7 +337,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         ltclsch = ltclsch[0] if ltclsch else 'auto'
         ltcls = options.get('documentclass')
         if ltclsch == 'auto':
-            if env in  ColDoc.config.ColDoc_environments_sectioning or  env == 'E_document':
+            if environ in  ColDoc.config.ColDoc_environments_sectioning or  environ == 'E_document':
                 ltclsch = 'main'
             else:
                 ltclsch = 'standalone'
@@ -415,7 +416,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         except Exception as e:
             logger.warning(e)
     #
-    if metadata.environ in environments_we_wont_latex:
+    if environ in environments_we_wont_latex:
         try:
             os.unlink(save_abs_name + '.pdf')
             shutil.rmtree(save_abs_name + '_html')
