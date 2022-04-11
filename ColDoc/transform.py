@@ -400,7 +400,8 @@ class squash_input_uuid(squash_helper_stack):
                         child = self.load_uuid(uuid)
                         if config.ColDoc_add_env_when_squashing and child and child.environ in config.ColDoc_environments_sectioning:
                             optarg = json.loads(child.optarg)
-                            optarg[0] = '*'
+                            ## nope, let it be numbered if it was
+                            #optarg[0] = '*'
                             placeholder +=  '\\' + child.environ + ''.join(optarg)
                     except:
                         logger.exception('For uuid %r child %r optarg %r ', uuid, child, optarg)
