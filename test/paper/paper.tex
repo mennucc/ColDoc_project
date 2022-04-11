@@ -53,53 +53,16 @@
 \emph{et al}
 }
 \title{That papert}
+
 \maketitle
-\section*{Introduction}
-The introduction
 
-\begin{abstract}
-  This simple \LaTeX\ tests some features
-  of \texttt{plasTeX} and \texttt{ColDoc}.
 
-  \ifetex Using  \TeX \fi ;
-  \ifxetex Using \texttt{XeTeX} \fi ;
-  \ifluatex Using \texttt{LuaTeX} \fi ;
-  \iftutex Using \texttt{XeTeX} or \texttt{LuaTeX} \fi ;
-  \ifplastex Using \texttt{plasTeX} \fi .
-
-  %% this works only inside the portal
-  %\ifColDocPublic Public \else Private \fi version, compiled
-  %\ifColDocOneUUID only this UUID \else as a whole \fi.
-\end{abstract}
-
-Stress test  \texttt{plasTeX} embedding \texttt{HTML}
-\begin{verbatim}
-<a href="http://www.debian.org">Debian</a>
-\end{verbatim}
-\[ \hbox{<a href="http://www.debian.org">Debian</a>} \]
-
-BBM test for bold ``1''
-\[f={\mathbbm{1}}_A\]
-\index{BBM test}
-
-\begin{buyablecontent}
-  This content is reserved but it may be bought
-\end{buyablecontent}
-
-\begin{privateremark}
-  This is a private remark that only the author will see
-\end{privateremark}
+\include{sec0}
 
 \include{sec1}
 
 \include{sec2}
 
-\begin{description}
-  % a nasty comment
-\item[one] 1
-\item[two] 2 %due
-\item[three] 3
-\end{description}
 
 \section*{Table of contents}
 \tableofcontents
