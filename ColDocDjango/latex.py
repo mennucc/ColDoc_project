@@ -94,8 +94,10 @@ def main(argv):
     for k in 'server_url', 'hostname':
         options[k] = config['django'][k]
     #
+    from  UUID.models import DMetadata
     import functools
-    options["squash_helper"] = functools.partial(squash_helper_ref, coldoc)
+    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
+    options["squash_helper"] = functools.partial(squash_helper_ref, coldoc=coldoc, load_uuid=load_uuid)
     options['metadata_class'] = blob_models.DMetadata
     #
     if args.command[0] == 'dedup_html':
