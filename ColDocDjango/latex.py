@@ -56,11 +56,10 @@ def main(argv):
             sys.exit(2)
         args.lang = lang
     #
-    COLDOC_SITE_ROOT = args.coldoc_site_root
-    os.environ['COLDOC_SITE_ROOT'] = args.coldoc_site_root
+    os.environ['COLDOC_SITE_ROOT'] = COLDOC_SITE_ROOT = args.coldoc_site_root = os.path.realpath(args.coldoc_site_root)
     assert os.path.isdir(COLDOC_SITE_ROOT), COLDOC_SITE_ROOT
     #
-    args.blobs_dir = blobs_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs')
+    args.blobs_dir = blobs_dir = os.path.realpath(osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick,'blobs'))
     assert os.path.isdir(args.blobs_dir) , args.blobs_dir
     #
     args.coldoc_dir = coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs',args.coldoc_nick)
