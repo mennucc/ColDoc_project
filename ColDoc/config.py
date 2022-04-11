@@ -44,6 +44,8 @@ ColDoc_environments = ('main_file','preamble','input','include','input_preamble'
 # list of sectioning environments, in decreasing order
 ColDoc_environments_sectioning = ('part','chapter','section','subsection','subsubsection')
 
+ColDoc_dont_decrement_counters = list(ColDoc_environments_sectioning) + ['equation']
+
 # when squashing a blob to create its view, add the above sectioning commands
 ColDoc_add_env_when_squashing = True
 

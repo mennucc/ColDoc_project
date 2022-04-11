@@ -59,6 +59,8 @@ logger = logging.getLogger(__name__)
 
 ############## ColDoc stuff
 
+re_setcounter = re.compile(r'\\setcounter\s*{\s*([a-zA-Z@]*)\s*}\s*{\s*([0-9-]*)\s*}')
+
 #
 ColDoc_latex_engines=[
         ('pdflatex','LaTeX'),
@@ -279,7 +281,21 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     #
     a = os.path.join(blobs_dir,uuid_dir,'blob'+_lang+'.tex.checkpoint')
     if os.path.exists(a):
-        D['checkpoint'] = open(a).read()
+        if environ.startswith('E_'):
+            ckp = ''
+            for l in open(a):
+                c = None
+                for c,n in re_setcounter.findall(l):
+                    n = int(n)
+                    if '@' not in c and c not in ColDoc.config.ColDoc_dont_decrement_counters and n>0:
+                        n -= 1
+                    ckp += '\\setcounter{%s}{%d}\n' % (c,n)
+                # now this just copies "relax"
+                if c is None:
+                    ckp += l
+            D['checkpoint'] = ckp
+        else:
+            D['checkpoint'] = open(a).read()
     else:
         D['checkpoint'] = ''
     #
