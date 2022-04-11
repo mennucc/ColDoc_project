@@ -171,7 +171,8 @@ def latex(request, NICK):
     options['dedup_url'] = settings.DEDUP_URL
     # needed by `latex_tree`
     if typ_ == 'tree':
-        options["squash_helper"] =  functools.partial(squash_helper_ref, coldoc)
+        load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
+        options["squash_helper"] = functools.partial(squash_helper_ref, coldoc=coldoc, load_uuid=load_uuid)
     # this signals `latex_main` to run `prepare_options_for_latex()` 
     options['coldoc_dir'] = coldoc_dir
     options = base64.b64encode(pickle.dumps(options)).decode()
