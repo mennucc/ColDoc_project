@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, pathlib, pickle, base64
+import os, sys, mimetypes, http, pathlib, pickle, base64, functools
 from os.path import join as osjoin
 
 import logging
@@ -12,6 +12,8 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib import messages
 from django.forms import ModelForm
 from django.core.exceptions import SuspiciousOperation
+from django.conf import settings
+from django.shortcuts import get_object_or_404, render
 
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
 if django.VERSION[0] >= 4 :
@@ -21,18 +23,14 @@ else:
     _ = gettext
 
 import ColDoc.utils, ColDocDjango
-
 from ColDoc.utils import slug_re, get_blobinator_args
-
-from django.conf import settings
-
-from UUID import views as UUIDviews
-
-from django.shortcuts import get_object_or_404, render
-
 from .models import DColDoc
-
 from UUID.models import DMetadata, ExtraMetadata
+from UUID import views as UUIDviews
+from ColDocDjango.transform import squash_helper_ref
+
+
+
 
 class ColDocForm(ModelForm):
     class Meta:
@@ -173,8 +171,6 @@ def latex(request, NICK):
     options['dedup_url'] = settings.DEDUP_URL
     # needed by `latex_tree`
     if typ_ == 'tree':
-        import functools
-        from ColDocDjango.transform import squash_helper_ref
         options["squash_helper"] =  functools.partial(squash_helper_ref, coldoc)
     # this signals `latex_main` to run `prepare_options_for_latex()` 
     options['coldoc_dir'] = coldoc_dir
