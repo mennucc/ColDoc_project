@@ -1319,6 +1319,14 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     options['coldoc_site_root']  = settings.COLDOC_SITE_ROOT
     options['dedup_root'] = settings.DEDUP_ROOT
     options['dedup_url'] = settings.DEDUP_URL
+    #
+    f = osjoin(coldoc_dir, 'math_to_unicode.json')
+    if os.path.isfile(f):
+        try:
+            d = json.load(open(f))
+            options['unicode_to_latex'] = {b:a for (a,b) in d.items()}
+        except:
+            logger.exception('while loading %r',f)
     # floating preamble
     try:
         m = DMetadata.objects.filter(original_filename = '/preamble.tex').filter(coldoc = coldoc).get()

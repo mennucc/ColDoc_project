@@ -800,7 +800,8 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
             s = open(a).read()
             s = ColDoc.utils.html2text(s)
             if unicode2latex:
-                s = unicode2latex.uni2tex(s, add_font_modifiers=False)
+                extra = options.get('unicode_to_latex')
+                s = unicode2latex.uni2tex(s, extra, add_font_modifiers=False, convert_accents=False)
             with open(save_abs_name + '_html.txt','w') as f_:
                 f_.write(s)
             logger.debug('created txt version of %r from html ',save_abs_name)
