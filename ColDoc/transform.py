@@ -423,6 +423,7 @@ class squash_helper_reparse_metadata(squash_input_uuid):
     "reparse metadata"
     def __init__(self, blobs_dir, metadata, options, *v, **k):
         self.metadata_command = options['metadata_command']
+        self.extra = options.get('unicode_to_latex')
         self.metadata_list = []
         super().__init__(blobs_dir, metadata, options, *v, **k)
     #
@@ -450,6 +451,8 @@ class squash_helper_reparse_metadata(squash_input_uuid):
         a = '' if not self.stack else ('S_'+self.stack[-1]+'_')
         for j in args:
             j =  j.translate({10:32})
+            if unicode2latex:
+                j = unicode2latex.uni2tex(j, extra = self.extra, add_font_modifiers=False, convert_accents=False)
             self.metadata_list.append((a+'M_'+macroname,j))
 
 class squash_helper_token2unicode(squash_helper_stack):
