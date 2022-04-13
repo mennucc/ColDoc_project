@@ -785,8 +785,16 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
             s, d = fake_abs_name+e,save_abs_name+'_plastex'+e
             os.rename(s,d)
             if ret: logger.warning(' rename %r to %r',s,d)
-    if os.path.isfile(osjoin(blobs_dir, save_name+'_html','index.html')):
+    #
+    a = osjoin(blobs_dir, save_name+'_html','index.html')
+    if os.path.isfile(a):
         logger.info('created html version of %r ',save_abs_name)
+        try:
+            with open(save_abs_name + '_html.txt','w') as f_:
+                f_.write(ColDoc.utils.html2text(open(a).read()))
+            logger.debug('created txt version of %r from html ',save_abs_name)
+        except:
+            logger.exception('while creating txt version of %r from html ',save_abs_name)
     else:
         logger.warning('no "index.html" in %r',save_name+'_html')
         return False
