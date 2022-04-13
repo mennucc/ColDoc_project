@@ -261,7 +261,7 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
           <ul>
             {% for val,link in vals %}
             <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
-                {{ val }}
+                <code>{{ val }}</code>
                 {% if link %}  </a>   {% endif %}
               {% endfor %}
           </ul>
