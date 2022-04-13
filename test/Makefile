@@ -127,7 +127,7 @@ django_multlang: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	test  -f $(COLDOC_SITE_ROOT)/config.ini
 	if  ./django_tester.py --coldoc-nick=multlang isthere ; then  ./django_tester.py  --coldoc-nick=multlang delete ; fi
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/multlang/blobs ; then  rm -r  $(COLDOC_SITE_ROOT)/coldocs/multlang ; fi
-	../ColDocDjango/blob_inator.py --lang mul,eng,ita --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=multlang  --ZS --SP --SE=figure --SL=description  --editor=ed_itor --author=jsmith --private-environment=privateremark  --private-environment=buyablecontent --SAT   multlang/paper.tex
+	../ColDocDjango/blob_inator.py --lang mul,eng,ita --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=multlang  --ZS --SP --SE=figure --SL=description  --editor=ed_itor --author=jsmith --private-environment=privateremark  --private-environment=buyablecontent --latex-engine xelatex --SAT   multlang/paper.tex
 	./django_tester.py --coldoc-nick=multlang isthere
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --parent-uuid 007  --user jsmith --p_lang mul --c_lang mul --environ E_description add_blob
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --parent-uuid 007  --user jsmith --p_lang mul --c_lang mul --environ E_privateremark add_blob
