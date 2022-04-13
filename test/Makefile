@@ -129,6 +129,7 @@ django_multlang: $(COLDOC_SITE_ROOT)/.__deployed_timestamp
 	if test -d $(COLDOC_SITE_ROOT)/coldocs/multlang/blobs ; then  rm -rf  $(COLDOC_SITE_ROOT)/coldocs/multlang ; fi
 	../ColDocDjango/blob_inator.py --lang mul,eng,ita --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=multlang  --ZS --SP --SE=figure --SL=description  --editor=ed_itor --author=jsmith --private-environment=privateremark  --private-environment=buyablecontent --latex-engine xelatex --SAT   multlang/paper.tex
 	./django_tester.py --coldoc-nick=multlang isthere
+	cp math_to_unicode.json tmp/test_site/coldocs/multlang
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --parent-uuid 007  --user jsmith --p_lang mul --c_lang mul --environ E_description add_blob
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --parent-uuid 007  --user jsmith --p_lang mul --c_lang mul --environ E_privateremark add_blob
 	../ColDocDjango/helper.py --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick multlang --parent-uuid 007  --user jsmith --p_lang mul --c_lang zxx --environ graphic_file add_blob
