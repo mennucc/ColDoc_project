@@ -117,3 +117,13 @@ def get_email_for_user(user):
     return email
 
 
+def load_unicode_to_latex(coldoc_dir):
+    f = osjoin(coldoc_dir, 'math_to_unicode.json')
+    if os.path.isfile(f):
+        try:
+            d = json.load(open(f))
+            return {b:a for (a,b) in d.items()}
+        except:
+            logger.exception('while loading %r',f)
+    return {}
+
