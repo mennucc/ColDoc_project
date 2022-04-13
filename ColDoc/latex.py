@@ -56,6 +56,13 @@ if __name__ == '__main__':
 import logging
 logger = logging.getLogger(__name__)
 
+####
+
+try:
+    import unicode2latex
+except ImportError:
+    logger.warning('Please install `unicode2latex` ')
+    unicode2latex = None
 
 ############## ColDoc stuff
 
@@ -790,8 +797,12 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
     if os.path.isfile(a):
         logger.info('created html version of %r ',save_abs_name)
         try:
+            s = open(a).read()
+            s = ColDoc.utils.html2text(s)
+            if unicode2latex:
+                s = unicode2latex.uni2tex(s, add_font_modifiers=False)
             with open(save_abs_name + '_html.txt','w') as f_:
-                f_.write(ColDoc.utils.html2text(open(a).read()))
+                f_.write(s)
             logger.debug('created txt version of %r from html ',save_abs_name)
         except:
             logger.exception('while creating txt version of %r from html ',save_abs_name)
