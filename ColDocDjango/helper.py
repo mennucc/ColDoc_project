@@ -441,6 +441,8 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
     #if not coldoc:
     #    return HttpResponse("No such ColDoc %r." % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     from ColDoc.utils import reparse_blob, choose_blob
+    from ColDocDjango.utils import load_unicode_to_latex
+    reparse_options = {'unicode_to_latex' : load_unicode_to_latex(coldoc_dir)}
     from UUID.models import DMetadata
     for metadata in DMetadata.objects.filter(coldoc = coldoc, extension='.tex\n'):
         for avail_lang in metadata.get('lang'):
@@ -451,7 +453,7 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
             else:
                 def warn(msg, args):
                     writelog( _('Parsing uuid %r lang %r : %s'), (uuid, lang, msg%args))
-                reparse_blob(filename, metadata, lang, blobs_dir, warn, act=act)
+                reparse_blob(filename, metadata, lang, blobs_dir, warn, act=act, options=reparse_options)
 
 
 def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):

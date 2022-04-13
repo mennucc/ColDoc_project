@@ -896,6 +896,7 @@ def postedit(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
+    reparse_options = {'unicode_to_latex' : load_unicode_to_latex(coldoc_dir)}
     #
     actions = 'compile', 'save', 'save_no_reload', 'normalize', 'revert'
     s = sum (int( a in request.POST ) for a in actions)
@@ -1121,7 +1122,7 @@ def postedit(request, NICK, UUID):
                 msg =  _(msg) % args
                 all_messages.append(_('Metadata change in new blob') + ': ' + msg)
                 messages.add_message(request,messages.INFO, _('In new blob') + ': ' + msg)
-            reparse_blob(addfilename, addmetadata, lang, blobs_dir, warn, load_uuid=load_uuid)
+            reparse_blob(addfilename, addmetadata, lang, blobs_dir, warn, load_uuid=load_uuid, options=reparse_options)
             # compile it
             if True:
                 ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
@@ -1139,7 +1140,7 @@ def postedit(request, NICK, UUID):
         msg = _(msg) % args
         all_messages.append(_('Metadata change in blob') + ': ' + msg)
         messages.add_message(request,messages.INFO,msg)
-    reparse_blob(filename, metadata, lang, blobs_dir, warn, load_uuid=load_uuid)
+    reparse_blob(filename, metadata, lang, blobs_dir, warn, load_uuid=load_uuid, options=reparse_options)
     #
     if ext_ in  ('.tex', '.bib'):
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
