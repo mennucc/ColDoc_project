@@ -75,6 +75,13 @@ from .models import DMetadata, DColDoc
 
 from .shop import encoded_contract_to_buy_permission, can_buy_permission
 
+def int_(v):
+    try:
+        return int(v)
+    except:
+        logger.exception('Problem with %r',v)
+    return 0
+
 
 wrong_choice_list = [('internal_error','internal_error')]
 
@@ -341,10 +348,10 @@ def _build_blobeditform_data(metadata,
     #
     if settings.USE_CODEMIRROR:
         lines = blobeditdata.splitlines(keepends = True)
-        a = int(D.get('selection_start',0))
+        a = int_(D.get('selection_start',0))
         line , ch = ColDoc.utils.text_pos2linechar(lines, a)
         D['selection_start'] = json.dumps({'line': line, 'ch': ch })
-        a = int(D.get('selection_end',0))
+        a = int_(D.get('selection_end',0))
         line , ch = ColDoc.utils.text_pos2linechar(lines, a)
         D['selection_end'] = json.dumps({'line': line, 'ch': ch })
     #
