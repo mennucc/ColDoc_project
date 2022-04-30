@@ -28,7 +28,7 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} — search results</h1>
     <ul>
     {% for extra in index_list %}
         <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=extra.blob.uuid %}">
-        {{ extra.blob.uuid }}</a>: {{extra.key}} = {{extra.value}}</li>
+        {{ extra.blob.uuid }}</a>: {{extra.key}} = <code> {{extra.value}} </code></li>
     {% endfor %}
     </ul>
 {% else %}
@@ -44,7 +44,7 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} — search results</h1>
     <ul>
     {% for extra in meta_list %}
         <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=extra.blob.uuid %}">
-        {{ extra.blob.uuid }}</a>: {{extra.key}} = {{extra.value}}</li>
+        {{ extra.blob.uuid }}</a>: {{extra.key}} = <code> {{extra.value}} </code></li>
     {% endfor %}
     </ul>
 {% else %}
