@@ -86,5 +86,17 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} — search results</h1>
     <p><i>You do not have permissions to search this catalog.</i></p>
 {% endif %}
 
+<h2>Blob text</h2>
+{% if text_list %}
+    <ul>
+    {% for uuid, lang, link, text in text_list %}
+        <li><a href="{{ link }}">
+        {{ uuid }}/{{ lang }}</a>: <code> {{text}} </code></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p><i>The query does not match any text content.</i></p>
+{% endif %}
+
 
 {% endblock %}

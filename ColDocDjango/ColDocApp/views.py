@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, pathlib, pickle, base64, functools
+import os, sys, mimetypes, http, pathlib, pickle, base64, functools, copy, re
 from os.path import join as osjoin
 
 import logging
@@ -233,6 +233,37 @@ def pdf(request, NICK, subpath=None):
     c = DColDoc.objects.filter(nickname = NICK).get()
     return UUIDviews.view_(request, c, c.root_uuid, '.pdf', None, subpath, prefix='main')
 
+def search_text_list(request, coldoc, searchtoken):
+    NICK = coldoc.nickname
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs', NICK)
+    blobs_dir = osjoin(coldoc_dir,'blobs')
+    accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
+    cookie = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+    accept_lang = ColDocDjango.utils.request_accept_language(accept, cookie)
+    can_p = coldoc.anonymous_can_view and request.user.is_authenticated 
+    username_ = request.user.username
+    text_list = []
+    Clangs = copy.copy(coldoc.get_languages())
+    for blob in DMetadata.objects.filter(coldoc=coldoc) :
+        access = blob.access
+        if access == 'public' or (can_p and access != 'private') or blob.author.filter(username = username_).exists():
+            langs = copy.copy(blob.get_languages())
+            if 'mul' in langs:
+                langs = Clangs
+            langs.sort(key = lambda x : accept_lang.get(x,0), reverse=True)
+            d =  ColDoc.utils.uuid_to_dir(blob.uuid, blobs_dir)
+            for lang in langs:
+                a = osjoin(blobs_dir,d,'view_' + lang + '_html.txt')
+                if os.path.isfile(a):
+                    text = open(a).read()
+                    text = re.split('[.,;:\[\]\(\)]',text)
+                    for line in text:
+                        if searchtoken in line:
+                            link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':blob.uuid}) + '?lang=' + lang
+                            text_list.append((blob.uuid, lang, link, line))
+                            break
+    return text_list
+
 def search(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
@@ -315,7 +346,8 @@ def search(request, NICK):
                                                       Q(value__contains=searchtoken)))
         if not coldoc.anonymous_can_view :
             meta_list = filter(is_author, meta_list)
-    # TODO search in text
+    # search in text
+    text_list = search_text_list(request, coldoc, searchtoken)
     # shortcut
     if len(uuid_list)==1 and not label_list and not index_list and not ref_list and not meta_list:
         return redirect(django.urls.reverse('UUID:index',
@@ -325,6 +357,7 @@ def search(request, NICK):
                   {'coldoc':coldoc, 'NICK':coldoc.nickname, 'maybe_uuid':maybe_uuid,
                    'uuid_list':uuid_list,'label_list':label_list,'ref_list':ref_list,
                    'index_list':index_list, 'meta_list':meta_list,
+                   'text_list': text_list,
                    })
 
 
