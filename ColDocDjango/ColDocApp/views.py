@@ -378,6 +378,13 @@ def check_tree(request, NICK):
         return HttpResponse("Internal error on check_tree", status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     if problems:
         s = '<h3>' + _('Problems in tree of blobs') + '</h3><ul>'
+        disconnected = set()
+        try:
+            for problem in problems:
+                if problem[0] == 'DISCONNECTED':
+                    disconnected.add(problem[1])
+        except:
+            logger.exception('when scanning msg %r args %r',msg,args)
         for problem in problems:
             try:
                 code, uuid, msg, args = problem
@@ -386,13 +393,17 @@ def check_tree(request, NICK):
                 except:
                     logger.exception('when formatting msg %r args %r',msg,args)
                     desc = repr((msg,args))
+                if uuid in disconnected:
+                    s += '<li class="font-italic font-weight-light" >'
+                else:
+                    s += '<li>'
                 if isinstance(uuid,str):
                     url = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid})
-                    s += ('<li><a href="%s">'%(url,)) + uuid + '</a> →' + desc + '</li>'
+                    s += ('<a href="%s">'%(url,)) + uuid + '</a> →' + desc + '</li>'
                 elif uuid:
-                    s += '<li>' + repr(uuid) + ' →' + desc + '</li>'
+                    s += repr(uuid) + ' →' + desc + '</li>'
                 else:
-                    s += '<li>' + desc + '</li>'
+                    s += desc + '</li>'
             except Exception as e:
                 logger.exception('when formatting %r',problem)
                 s += '<li>' + repr(problem) + '</li>\n'
