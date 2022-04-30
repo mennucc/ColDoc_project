@@ -40,6 +40,8 @@ Disallow: /logout/
 Disallow: /accounts/
 Disallow: /admin/
 Disallow: /wallet/
+Disallow: /captcha/
+Disallow: /select2/
 """, content_type="text/plain")
 
 if settings.USE_SIMPLE_CAPTCHA:
