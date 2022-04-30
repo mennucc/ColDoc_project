@@ -55,7 +55,7 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} — search results</h1>
 {% endif %}
 
 <h2>Blob label</h2>
-{% if perms.UUID.view_blob %}
+{% if user.is_authenticated %}
 {% if label_list %}
     <ul>
     {% for extra in label_list %}
@@ -71,7 +71,7 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} — search results</h1>
 {% endif %}
 
 <h2>Blob reference</h2>
-{% if perms.UUID.view_blob %}
+{% if user.is_authenticated %}
 {% if ref_list %}
     <ul>
     {% for extra in ref_list %}

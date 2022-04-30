@@ -272,6 +272,11 @@ def search(request, NICK):
         maybe_uuid = False
         uuid_list = []
     #
+    
+    def is_author_(extra, username_):
+        return extra.blob.author.filter(username = username_).exists()
+    is_author = functools.partial(is_author_, username_ = request.user.username)
+    #
     if request.user.is_authenticated and coldoc.anonymous_can_view :
         # FIXME , would like to use `has_perm('UUID.view_view')`
         # but this currently works only on a per-blob basis:
@@ -281,7 +286,7 @@ def search(request, NICK):
                                                   Q(value__contains=searchtoken))
     else:
         index_list = []
-    if request.user.has_perm('UUID.view_blob'):
+    if request.user.is_authenticated :
         label_list = ExtraMetadata.objects.filter(Q(key__endswith='M_label') & 
                                                   Q(blob__coldoc=coldoc) &
                                                   Q(value__contains=searchtoken))
@@ -290,11 +295,14 @@ def search(request, NICK):
                                                  Q(key__endswith='M_pageref') )   & 
                                                 Q(blob__coldoc=coldoc) &
                                                 Q(value__contains=searchtoken))
+        if not request.user.has_perm('UUID.view_blob'):
+            label_list = list(filter(is_author, label_list))
+            ref_list   = list(filter(is_author, ref_list))
     else:
         label_list = ref_list = []
     #
     meta_list = []
-    if request.user.is_authenticated and coldoc.anonymous_can_view :
+    if request.user.is_authenticated :
         # FIXME , would like to use `has_perm('UUID.view_view')`
         # but this currently works only on a per-blob basis:
         # so we should filter this list accordingly
@@ -305,6 +313,8 @@ def search(request, NICK):
                 meta_list += list(ExtraMetadata.objects.filter(Q(key__endswith=('M_'+j)) & 
                                                       Q(blob__coldoc=coldoc) &
                                                       Q(value__contains=searchtoken)))
+        if not coldoc.anonymous_can_view :
+            meta_list = filter(is_author, meta_list)
     # TODO search in text
     # shortcut
     if len(uuid_list)==1 and not label_list and not index_list and not ref_list and not meta_list:
