@@ -255,8 +255,9 @@ def search_text_list(request, coldoc, searchtoken):
             for lang in langs:
                 a = osjoin(blobs_dir,d,'view_' + lang + '_html.txt')
                 if os.path.isfile(a):
-                    text = open(a).read()
-                    text = re.split('[.,;:\[\]\(\)]',text)
+                    # already formatted
+                    text = open(a)
+                    #text = re.split('[.,;:\[\]\(\)]',text)
                     for line in text:
                         if searchtoken in line:
                             link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':blob.uuid}) + '?lang=' + lang

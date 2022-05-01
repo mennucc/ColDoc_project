@@ -798,10 +798,19 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
         logger.info('created html version of %r ',save_abs_name)
         try:
             s = open(a).read()
-            s = ColDoc.utils.html2text(s)
+            s = ColDoc.utils.html2text(s).lower()
             if unicode2latex:
                 extra = options.get('unicode_to_latex')
                 s = unicode2latex.uni2tex(s, extra, add_font_modifiers=False, convert_accents=False)
+            #s = s.replace('\n\t',' ')
+            s = re.sub('\s+',' ',s)
+            l = re.split('([.;\]\)}])', s)
+            s = ''
+            while len(l) > 1:
+                s += l[0] + l[1] + '\n'
+                l = l[2:]
+            if l:
+                s += l[0] + '\n'
             with open(save_abs_name + '_html.txt','w') as f_:
                 f_.write(s)
             logger.debug('created txt version of %r from html ',save_abs_name)
