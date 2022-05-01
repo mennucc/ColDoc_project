@@ -317,6 +317,7 @@ def search(request, NICK):
                                                   Q(value__contains=searchtoken))
     else:
         index_list = []
+    #
     if request.user.is_authenticated :
         label_list = ExtraMetadata.objects.filter(Q(key__endswith='M_label') & 
                                                   Q(blob__coldoc=coldoc) &
@@ -349,7 +350,7 @@ def search(request, NICK):
     # search in text
     text_list = search_text_list(request, coldoc, searchtoken)
     # shortcut
-    if len(uuid_list)==1 and not label_list and not index_list and not ref_list and not meta_list:
+    if len(uuid_list)==1 and not label_list and not index_list and not ref_list and not meta_list and not text_list:
         return redirect(django.urls.reverse('UUID:index',
                                             kwargs={'NICK':NICK,'UUID':uuid_list[0].uuid}))
     
