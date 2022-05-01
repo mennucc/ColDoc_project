@@ -305,8 +305,8 @@ def search(request, NICK):
         maybe_uuid = False
         uuid_list = []
     ## permissions
-    user_can_view = functools.partial( user_has_perm, request.user, UUID_view_view , coldoc , object_ = None )
-    user_can_blob = functools.partial( user_has_perm, request.user, UUID_view_blob , coldoc , object_ = None )
+    user_can_view = lambda extra :  user_has_perm ( request.user, UUID_view_view , coldoc , extra.blob,  None )
+    user_can_blob = lambda extra :  user_has_perm ( request.user, UUID_view_blob , coldoc , extra.blob,  None )
     #
     
     def is_author_(extra, username_):
