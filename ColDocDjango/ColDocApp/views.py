@@ -31,6 +31,7 @@ from ColDocDjango.transform import squash_helper_ref
 
 
 
+from ColDocDjango.users import user_has_perm , UUID_view_view , UUID_view_blob #, UUID_download  #, user_has_perm_uuid_blob
 
 class ColDocForm(ModelForm):
     class Meta:
@@ -244,6 +245,7 @@ def search_text_list(request, coldoc, searchtoken):
     username_ = request.user.username
     text_list = []
     Clangs = copy.copy(coldoc.get_languages())
+    user_can_view = functools.partial( user_has_perm, request.user, UUID_view_view , coldoc , object_ = None )
     for blob in DMetadata.objects.filter(coldoc=coldoc) :
         access = blob.access
         if access == 'public' or (can_p and access != 'private') or blob.author.filter(username = username_).exists():
@@ -302,6 +304,9 @@ def search(request, NICK):
     else:
         maybe_uuid = False
         uuid_list = []
+    ## permissions
+    user_can_view = functools.partial( user_has_perm, request.user, UUID_view_view , coldoc , object_ = None )
+    user_can_blob = functools.partial( user_has_perm, request.user, UUID_view_blob , coldoc , object_ = None )
     #
     
     def is_author_(extra, username_):
