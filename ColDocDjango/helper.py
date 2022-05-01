@@ -165,7 +165,7 @@ def create_fake_users(COLDOC_SITE_ROOT):
     from django.conf import settings
     import django.contrib.auth as A
     UsMo = A.get_user_model()
-    for U,P in ('foobar', 'barfoo'), ('jsmith',"123456"), ('jdoe',"345678"), ('ed_itor','345678'), ('reviewer','marvel'):
+    for U,P in ('buyer', 'barfoo'), ('jsmith',"123456"), ('jdoe',"345678"), ('ed_itor','345678'), ('reviewer','marvel'):
         print('*** creating user %r password %r' % (U,P))
         E=_build_fake_email(U)
         try:
@@ -189,10 +189,11 @@ def create_fake_users(COLDOC_SITE_ROOT):
             user.save()
     #
     if settings.USE_WALLET:
+        import wallet, wallet.utils
         from wallet.models import Wallet, Transaction
         wallet_content_type = ContentType.objects.get_for_model(Wallet)
         transaction_content_type = ContentType.objects.get_for_model(Transaction)
-        for U in  'foobar', :
+        for U in  'buyer', :
             user = UsMo.objects.filter(username=U).get()
             Per = (wallet_content_type, "operate"), (wallet_content_type , "view_wallet") , (transaction_content_type, "view_transaction")
             print('*** adding permissions to user %r: %s' % (U,Per))
@@ -202,6 +203,8 @@ def create_fake_users(COLDOC_SITE_ROOT):
                 user.user_permissions.add(permission)
                 permission.save()
                 user.save()
+            print('*** giving 200 coins to %r' % (U,))
+            wallet.utils.deposit(200, U)
     #
     print('*** creating superuser "napoleon" password "adrian"')
     try:
