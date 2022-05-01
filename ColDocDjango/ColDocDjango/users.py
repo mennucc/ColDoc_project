@@ -104,6 +104,11 @@ def user_has_perm(user, perm, coldoc, blob, object_):
         ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,perm,coldoc,blob,obj)
         # takes care of superuser
         return True
+    assert not isinstance(user,ColDocAnonymousUser)
+    assert not isinstance(user,ColDocUser)
+    assert blob is None or 'UUID.models.DMetadata' in str(type(blob)) # unfortunately isinstance(obj, DMetadata) will break because of circular imports
+    perm_uuid   = perm.startswith('UUID.')
+    perm_coldoc = perm.startswith('ColDocApp.')
     #
     if obj is not None and perm.startswith('UUID.')  and user.has_perm(perm):
         logger.debug("Granting %r to %s, false on %r but true globally", perm, user.username, obj)
@@ -117,7 +122,7 @@ def user_has_perm(user, perm, coldoc, blob, object_):
     if coldoc is None:
         logger.warning("Should not reach this point")
         return False
-    if perm.startswith('UUID.') and perm[5:] in permissions_for_blob:
+    if perm_uuid and perm[5:] in permissions_for_blob:
         n = name_of_permission_for_blob(coldoc.nickname, perm[5:])
         if user.has_perm('UUID.'+n, obj):
             return True
@@ -129,7 +134,7 @@ def user_has_perm(user, perm, coldoc, blob, object_):
         if blob is not None: 
             return user_has_perm_uuid_blob(user.username, perm, blob)
         return False
-    if perm.startswith('ColDocApp.') and perm[10:] in permissions_for_coldoc:
+    if perm_coldoc and perm[10:] in permissions_for_coldoc:
         n = 'ColDocApp.' + name_of_permission_for_coldoc(coldoc.nickname, perm[10:])
         if user.has_perm(n, obj):
             ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,n,coldoc,blob,obj)
