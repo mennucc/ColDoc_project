@@ -356,7 +356,7 @@ def search(request, NICK):
                   {'coldoc':coldoc, 'NICK':coldoc.nickname, 'maybe_uuid':maybe_uuid,
                    'uuid_list':uuid_list,'label_list':label_list,'ref_list':ref_list,
                    'index_list':index_list, 'meta_list':meta_list,
-                   'text_list': text_list,
+                   'text_list': text_list, 'searchpreset' : searchtoken,
                    })
 
 
