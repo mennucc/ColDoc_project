@@ -66,7 +66,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'parse_latex_log',
             'recreate_symlinks',
             'TeX_add_packages',
-            'log_debug', 'set_file_readonly',
+            'log_debug', 'set_file_readonly', 'print_fun_call',
             )
 
 class ColDocException(Exception):
@@ -87,6 +87,16 @@ def log_debug(fun):
         return fun(*args, **kwds)
     return log_call
 
+def print_fun_call(fun):
+    @functools.wraps(fun)
+    def log_call(*args, **kwds):
+        S=inspect.signature(fun)
+        B=S.bind(*args, **kwds)
+        B.apply_defaults()
+        ret = fun(*args, **kwds)
+        print('Called function %s  %s -> %r ' %(  fun, B, ret))
+        return ret
+    return log_call
 
 
 #####################
