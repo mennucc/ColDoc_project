@@ -233,12 +233,13 @@ class ColDocAnonymousUser(DjangoAnonymousUser, BaseColDocUser):
         self._blob = None
         super().__init__(*v, **k)
     def has_perm(self, perm, obj=None):
-        if self._coldoc is None or self._blob is None:
+        if  self._coldoc is None :
             return super().has_perm(perm, obj)
         if perm in  (UUID_view_view,):
             if not self._coldoc.anonymous_can_view:
                 return False
-            r = (self._blob.access in ('open','public'))
-            return r
+            blob = obj if ( obj is not None and hasattr(obj, 'access') ) else self._blob
+            if blob is not None:
+                return (blob.access in ('open','public'))
         return super().has_perm(perm, obj)
 
