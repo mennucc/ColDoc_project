@@ -272,8 +272,7 @@ def search(request, NICK):
         searchtoken = request.POST.get('searchtoken')
         if searchtoken is None:
             logger.error('Search POST with not "searchtoken" : hacking attemp?')
-            return HttpResponse("Bad ... bad ..."%(request.method,),
-                                status=http.HTTPStatus.BAD_REQUEST)
+            raise SuspiciousOperation("Search POST with not 'searchtoken'  ...")
     else:
         assert request.method == 'GET'
         searchtoken = request.GET.get('searchtoken')
