@@ -229,7 +229,8 @@ class ColDocUser(AbstractUser, BaseColDocUser):
             logger.debug('check user %s perm "%s" coldoc "%s" blob "%s" obj %r -> %r',
                        self, perm, self._coldoc, self._blob, obj, v)
         except:
-            logger.exception('failed check on permission, set to False')
+            logger.exception('failed check on permission, set to False ; user %s perm "%s" coldoc "%s" blob "%s" obj %r',
+                             self, perm, self._coldoc, self._blob, obj)
         return v
     # https://docs.djangoproject.com/en/dev/ref/models/instances/#django.db.models.Model.get_absolute_url
     def get_absolute_url(self):
