@@ -316,13 +316,11 @@ def search(request, NICK):
         return extra.blob.author.filter(username = username_).exists()
     is_author = functools.partial(is_author_, username_ = request.user.username)
     #
-    if request.user.is_authenticated and coldoc.anonymous_can_view :
-        # FIXME , would like to use `has_perm('UUID.view_view')`
-        # but this currently works only on a per-blob basis:
-        # so we should filter this list accordingly
+    if True :
         index_list = ExtraMetadata.objects.filter(Q(key__contains='M_index') & 
                                                   Q(blob__coldoc=coldoc) &
                                                   Q(value__contains=searchtoken))
+        index_list = list(filter(user_can_view, index_list))
     else:
         index_list = []
     #
