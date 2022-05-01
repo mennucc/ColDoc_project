@@ -246,6 +246,8 @@ def search_text_list(request, coldoc, searchtoken):
     text_list = []
     Clangs = copy.copy(coldoc.get_languages())
     user_can_view = functools.partial( user_has_perm, request.user, UUID_view_view , coldoc , object_ = None )
+    searchtoken = searchtoken.lower()
+    searchtoken = re.sub('\s+',' ',searchtoken)
     for blob in DMetadata.objects.filter(coldoc=coldoc) :
         access = blob.access
         if access == 'public' or (can_p and access != 'private') or blob.author.filter(username = username_).exists():
@@ -284,6 +286,7 @@ def search(request, NICK):
                                                 kwargs={'NICK':NICK,})) 
         #return HttpResponse("Method %r not allowed"%(request.method,),status=http.HTTPStatus.BAD_REQUEST)
     #
+    searchtoken = searchtoken.strip()
     if len(searchtoken) <= 1:
         messages.add_message(request, messages.WARNING, "Search key is too short.")
         return index(request, NICK)
