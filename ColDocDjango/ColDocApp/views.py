@@ -241,16 +241,13 @@ def search_text_list(request, coldoc, searchtoken):
     accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
     cookie = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
     accept_lang = ColDocDjango.utils.request_accept_language(accept, cookie)
-    can_p = coldoc.anonymous_can_view and request.user.is_authenticated 
-    username_ = request.user.username
     text_list = []
     Clangs = copy.copy(coldoc.get_languages())
     user_can_view = functools.partial( user_has_perm, request.user, UUID_view_view , coldoc , object_ = None )
     searchtoken = searchtoken.lower()
     searchtoken = re.sub('\s+',' ',searchtoken)
     for blob in DMetadata.objects.filter(coldoc=coldoc) :
-        access = blob.access
-        if access == 'public' or (can_p and access != 'private') or blob.author.filter(username = username_).exists():
+        if user_can_view(blob):
             langs = copy.copy(blob.get_languages())
             if 'mul' in langs:
                 langs = Clangs
@@ -333,17 +330,13 @@ def search(request, NICK):
                                                  Q(key__endswith='M_pageref') )   & 
                                                 Q(blob__coldoc=coldoc) &
                                                 Q(value__contains=searchtoken))
-        if not request.user.has_perm('UUID.view_blob'):
-            label_list = list(filter(is_author, label_list))
-            ref_list   = list(filter(is_author, ref_list))
+        label_list = list(filter(user_can_blob, label_list))
+        ref_list   = list(filter(user_can_blob, ref_list))
     else:
         label_list = ref_list = []
     #
     meta_list = []
     if request.user.is_authenticated :
-        # FIXME , would like to use `has_perm('UUID.view_view')`
-        # but this currently works only on a per-blob basis:
-        # so we should filter this list accordingly
         blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
         blobinator_args = get_blobinator_args(blobs_dir)
         for j in blobinator_args["metadata_command"]:
@@ -351,8 +344,7 @@ def search(request, NICK):
                 meta_list += list(ExtraMetadata.objects.filter(Q(key__endswith=('M_'+j)) & 
                                                       Q(blob__coldoc=coldoc) &
                                                       Q(value__contains=searchtoken)))
-        if not coldoc.anonymous_can_view :
-            meta_list = filter(is_author, meta_list)
+        meta_list = list(filter(user_can_blob, meta_list))
     # search in text
     text_list = search_text_list(request, coldoc, searchtoken)
     # shortcut
