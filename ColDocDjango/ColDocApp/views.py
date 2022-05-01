@@ -243,11 +243,12 @@ def search_text_list(request, coldoc, searchtoken):
     accept_lang = ColDocDjango.utils.request_accept_language(accept, cookie)
     text_list = []
     Clangs = copy.copy(coldoc.get_languages())
-    user_can_view = functools.partial( user_has_perm, request.user, UUID_view_view , coldoc , object_ = None )
     searchtoken = searchtoken.lower()
     searchtoken = re.sub('\s+',' ',searchtoken)
+    user = request.user
     for blob in DMetadata.objects.filter(coldoc=coldoc) :
-        if user_can_view(blob):
+        user.associate_coldoc_blob_for_has_perm(coldoc, blob)
+        if user.has_perm(UUID_view_view):
             langs = copy.copy(blob.get_languages())
             if 'mul' in langs:
                 langs = Clangs
@@ -290,7 +291,8 @@ def search(request, NICK):
     #
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
     #
-    request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
+    user = request.user
+    user.associate_coldoc_blob_for_has_perm(coldoc, None)
     # UUID
     if len(searchtoken) <= 8 and len(searchtoken) >= 3 :
         maybe_uuid = True
@@ -305,8 +307,8 @@ def search(request, NICK):
         maybe_uuid = False
         uuid_list = []
     ## permissions
-    user_can_view = lambda extra :  user_has_perm ( request.user, UUID_view_view , coldoc , extra.blob,  None )
-    user_can_blob = lambda extra :  user_has_perm ( request.user, UUID_view_blob , coldoc , extra.blob,  None )
+    user_can_view = lambda extra :  user.has_perm (  UUID_view_view ,  extra.blob )
+    user_can_blob = lambda extra :  user.has_perm (  UUID_view_blob ,  extra.blob )
     #
     
     def is_author_(extra, username_):
