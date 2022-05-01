@@ -1,3 +1,4 @@
+import sys
 import logging
 logger = logging.getLogger(__name__)
 
@@ -70,6 +71,22 @@ def add_permissions_for_coldoc(nickname):
                 gr.permissions.add(p)
         gr.save()
 
+UUID_view_view = sys.intern('UUID.view_view')
+UUID_view_blob = sys.intern('UUID.view_blob')
+UUID_download  = sys.intern('UUID.download')
+
+def user_has_perm_uuid_blob(username_, perm, blob):
+    if blob.author.filter(username = username_).exists():
+        #allow complete access to authors
+        return True
+    s = blob.access
+    if s == 'open' and perm in (UUID_view_view, UUID_view_blob, UUID_download):
+        return True
+    elif s == 'public' and perm in (UUID_view_view,):
+        return True
+    return False
+
+
 def user_has_perm(user, perm, coldoc, blob, object_):
     """ when calling this, make sure that `user` is not an instance of `ColDocUser` ; in case, user `super`.
     This is used only for authenticated users. For anonymous users, see
@@ -110,14 +127,7 @@ def user_has_perm(user, perm, coldoc, blob, object_):
             return True
         #        
         if blob is not None: 
-            if blob.author.filter(username=user.username).exists():
-                #allow complete access to authors
-                return True
-            s = blob.access
-            if s == 'open' and perm in ('UUID.view_view', 'UUID.view_blob', 'UUID.download'):
-                return True
-            elif s == 'public' and perm in ('UUID.view_view',):
-                return True
+            return user_has_perm_uuid_blob(user.username, perm, blob)
         return False
     if perm.startswith('ColDocApp.') and perm[10:] in permissions_for_coldoc:
         n = 'ColDocApp.' + name_of_permission_for_coldoc(coldoc.nickname, perm[10:])
@@ -225,7 +235,7 @@ class ColDocAnonymousUser(DjangoAnonymousUser, BaseColDocUser):
     def has_perm(self, perm, obj=None):
         if self._coldoc is None or self._blob is None:
             return super().has_perm(perm, obj)
-        if perm in  ('UUID.view_view',):
+        if perm in  (UUID_view_view,):
             if not self._coldoc.anonymous_can_view:
                 return False
             r = (self._blob.access in ('open','public'))
