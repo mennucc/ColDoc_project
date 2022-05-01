@@ -136,7 +136,8 @@ def user_has_perm(user, perm, coldoc, blob, object_):
         return False
     if perm_coldoc and perm[10:] in permissions_for_coldoc:
         n = 'ColDocApp.' + name_of_permission_for_coldoc(coldoc.nickname, perm[10:])
-        if user.has_perm(n, obj):
+        # we already checked user.has_perm(perm, object_) when object_ is not None
+        if user.has_perm(n):
             ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,n,coldoc,blob,obj)
             return True
         if perm == 'ColDocApp.add_blob' and coldoc.author_can_add_blob and \
