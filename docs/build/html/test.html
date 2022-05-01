@@ -55,10 +55,18 @@ so you can open the main file
 <cite>${COLDOC_SRC_ROOT}/test/tmp/test_site/coldocs/paper/blobs/main.tex</cite>
 with an editor, or compile it with <cite>pdflatex</cite> ; otherwise you can access
 the web portal at <cite>http://localhost:8000</cite>.
-and edit it thru the web interface.
-(Usernames and passwords for interacting with the test web server are printed when
-issuing <cite>make django_deploy</cite> )
-Note that if you edit the latex files on disk, then
+and edit it thru the web interface.</p>
+<p>Usernames and passwords for interacting with the test web server are printed when
+issuing <cite>make django_deploy</cite> ; in particular there are users</p>
+<ul class="simple">
+<li><p><cite>napoleon</cite> with administrative rights,</p></li>
+<li><p><cite>jsmith</cite> that is the author of the paper</p></li>
+<li><p><cite>ed_itor</cite> that has editor priviledges</p></li>
+<li><p><cite>reviewer</cite> that has viewing priviledges</p></li>
+<li><p><cite>buyer</cite> that has a wallet to buy reserved stuff (but you need to uncomment
+the function <cite>PRICE_FOR_PERMISSION</cite> in <cite>test_site/settings.py</cite> )</p></li>
+</ul>
+<p>Note that if you edit the latex files on disk, then
 you will need to issue some commands to keep web interface
 in sync: see the section on
 <a class="reference internal" href="editing.html"><span class="doc">editing</span></a></p>

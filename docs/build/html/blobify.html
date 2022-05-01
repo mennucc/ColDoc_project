@@ -52,17 +52,18 @@ want to see in the directory <cite>test/paper</cite> for a complete working exam
 </div>
 <p>Then, right after the <cite>documentclass</cite> statement, add</p>
 <div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\newif\ifplastex\plastexfalse</span>
-<span class="k">\ifplastex</span>
-<span class="k">\newif\ifstandalone\relax\standalonefalse\relax</span>
-<span class="k">\else</span>
-<span class="k">\usepackage</span><span class="nb">{</span>standalone<span class="nb">}</span>
-<span class="k">\fi</span>
+<span class="c">%</span>
+<span class="k">\ifplastex\else</span>
+<span class="k">\ifdefined\CurrentFile\else</span>
+<span class="k">\usepackage</span><span class="nb">{</span>currfile<span class="nb">}</span>
+<span class="k">\fi\fi</span>
 </pre></div>
 </div>
-<p>This will load the package <cite>standalone</cite> only when compiling
-with standard LaTeX; it will also define
-the conditional <cite>ifstandalone</cite> to be true only when compiling
-a PDF in standalone mode.</p>
+<p>The conditional <cite>ifplastex</cite> will be forcibly set to true when compiling using
+<cite>plastex</cite>.</p>
+<p>This snippet will also load the package <cite>currfile</cite> only when compiling
+with older LaTeX (older than 2019); it will be used for internal
+checkpointing.</p>
 <div class="section" id="plastex-tweaks">
 <h2>Plastex tweaks<a class="headerlink" href="#plastex-tweaks" title="Permalink to this headline">¶</a></h2>
 <p>Then wrap all code that
@@ -100,7 +101,7 @@ work well with <cite>plastex</cite>, as in this example</p>
 </div>
 <div class="section" id="standalone-tweaks">
 <h2>Standalone tweaks<a class="headerlink" href="#standalone-tweaks" title="Permalink to this headline">¶</a></h2>
-<p>You should also wrap all the code that modifies
+<p>You should also wrap all the code in the preamble that modifies
 page geometry so that it is ignored in standalone mode,
 as in this example:</p>
 <div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="k">\ifplastex\else\ifstandalone\else</span>
@@ -184,7 +185,7 @@ make -C <span class="nb">test</span> django_deploy
 </pre></div>
 </div>
 <p>Then try to import your document in the portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ColDocDjango/blob_inator.py --coldoc-site-root <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span> --coldoc-nick<span class="o">=</span>testdoc --ZS --SAT  --split-sections --editor<span class="o">=</span>ed_itor --author<span class="o">=</span>jsmith  yourdir/yourdocument.tex
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ColDocDjango/blob_inator.py --coldoc-site-root <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span> --coldoc-nick<span class="o">=</span>testdoc --ZS --SAT  --split-sections --editor<span class="o">=</span>ed_itor --author<span class="o">=</span>jsmith --lang<span class="o">=</span>eng yourdir/yourdocument.tex
 </pre></div>
 </div>
 <p>note that:</p>
@@ -222,10 +223,25 @@ you can also change the document <em>inside the portal</em>
 by editing the files inside <cite>${COLDOC_SITE_ROOT}/coldocs/testdoc/blobs/</cite>.
 Note that the data structure can be compiled from the command line, using</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>/coldocs/testdoc/blobs/
-pdflatex main.tex
-plastex -d main_html main.tex
+pdflatex main_eng.tex
+plastex -d main_html main_eng.tex
 </pre></div>
 </div>
+<p>where <em>eng</em> may be replaced by the desired language.</p>
+</div>
+<div class="section" id="multilingual-documents">
+<h2>Multilingual documents<a class="headerlink" href="#multilingual-documents" title="Permalink to this headline">¶</a></h2>
+<p>In this regard, to be able to compute a
+multilingual document from the command line,
+you may also add in the preamble the snippet of code</p>
+<div class="highlight-TeX notranslate"><div class="highlight"><pre><span></span><span class="c">%%% this part will be skipped when compiled inside ColDoc</span>
+<span class="k">\ifdefined\ColDocAPI\else</span>
+<span class="k">\usepackage</span><span class="nb">{</span>coldoc<span class="nb">_</span>standalone<span class="nb">}</span>
+<span class="k">\fi</span>
+</pre></div>
+</div>
+<p>and copy that file <cite>coldoc_standalone.sty</cite> to
+the directory of your main LaTeX file, and adapt it to your needs.</p>
 </div>
 </div>
 
@@ -262,6 +278,7 @@ plastex -d main_html main.tex
 <li class="toctree-l2"><a class="reference internal" href="#multiple-latex-format">Multiple LaTeX format</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#downloading-and-compiling-single-uuids">Downloading, and compiling single UUIDs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#check-it-all">Check it all</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multilingual-documents">Multilingual documents</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>

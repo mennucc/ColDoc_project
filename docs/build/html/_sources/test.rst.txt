@@ -28,8 +28,21 @@ so you can open the main file
 with an editor, or compile it with `pdflatex` ; otherwise you can access
 the web portal at `http://localhost:8000`.
 and edit it thru the web interface.
-(Usernames and passwords for interacting with the test web server are printed when
-issuing `make django_deploy` )
+
+Usernames and passwords for interacting with the test web server are printed when
+issuing `make django_deploy` ; in particular there are users
+
+- `napoleon` with administrative rights,
+
+- `jsmith` that is the author of the paper
+
+- `ed_itor` that has editor priviledges
+
+- `reviewer` that has viewing priviledges
+
+- `buyer` that has a wallet to buy reserved stuff (but you need to uncomment
+  the function `PRICE_FOR_PERMISSION` in `test_site/settings.py` )
+
 Note that if you edit the latex files on disk, then
 you will need to issue some commands to keep web interface
 in sync: see the section on
