@@ -94,45 +94,56 @@ def user_has_perm(user, perm, coldoc, blob, object_):
     """
     if not user.is_active:
         return False
-    if object_ is None and perm.startswith('UUID.') and blob is not None:
-        # django-guardian will check for specific permissions for this blob
-        obj = blob
-    else:
-        obj = object_
     #
-    if user.has_perm(perm, obj):
-        ##logger.debug('Indeed %r has permission %r, coldoc %r ,blob, %r, obj %r ',user.username,perm,coldoc,blob,obj)
-        # takes care of superuser
-        return True
     assert not isinstance(user,ColDocAnonymousUser)
     assert not isinstance(user,ColDocUser)
     assert blob is None or 'UUID.models.DMetadata' in str(type(blob)) # unfortunately isinstance(obj, DMetadata) will break because of circular imports
     perm_uuid   = perm.startswith('UUID.')
     perm_coldoc = perm.startswith('ColDocApp.')
     #
-    if obj is not None and perm.startswith('UUID.')  and user.has_perm(perm):
-        logger.debug("Granting %r to %s, false on %r but true globally", perm, user.username, obj)
+    if object_ is not None:
+        # object_ has precedence
+        if blob is not None and blob != object_ and perm_uuid :
+            logger.warning('Evaluating user %s  permission %r on obj %r and not on blob %r  ', user.username, perm, object_, blob)
+        if user.has_perm(perm, object_):
+            # django-guardian will check for specific permissions for this object
+            logger.debug('Indeed %r has permission %r, object %r ', user.username, perm, object_)
+            return True
+        obj = object_
+    else:
+        if blob is not None and  perm_uuid  and user.has_perm(perm, blob):
+            # django-guardian will check for specific permissions for this blob
+            logger.debug('Indeed %r has permission %r, blob %r ', user.username, perm, blob)
+            return True
+        obj = blob
+    # django-guardian does not check "global permission"
+    if user.has_perm(perm):
+        if obj is not None:
+            logger.debug("Granting %r to %s, false on %r but true globally", perm, user.username, obj)
+        # takes care of superuser
         return True
     #
-    if object_ is not None and object_ != blob:
-        # the code following checks permissions for blobs only
-        logger.debug('Bail out %r  permission %r since blob %r != obj %r ',user.username,perm,blob,object_)
+    if coldoc is None:
+        if perm_coldoc or perm_uuid:
+            logger.warning("Should not reach this point")
         return False
     #
-    if coldoc is None:
-        logger.warning("Should not reach this point")
-        return False
     if perm_uuid and perm[5:] in permissions_for_blob:
+        # we can assume that when object_ is None, then obj==blob , that was a Dmetadata instance or None
+        if object_ is not None and 'UUID.models.DMetadata' not in str(type(obj)): 
+            # the code following checks permissions for blobs only
+            logger.warning('Bail out %r  permission %r since obj %r is not DMetadata  ', user.username, perm, obj)
+            return False
         n = name_of_permission_for_blob(coldoc.nickname, perm[5:])
         if user.has_perm('UUID.'+n, obj):
             return True
-        #
+        # django-guardian does not check "global permission"
         if obj is not None and user.has_perm('UUID.'+n):
             logger.debug("Granting %r to %s, false on %r but true on coldoc %r", perm, user.username, obj, coldoc)
             return True
-        #        
-        if blob is not None: 
-            return user_has_perm_uuid_blob(user.username, perm, blob)
+        #
+        if obj is not None:
+            return user_has_perm_uuid_blob(user.username, perm, obj)
         return False
     if perm_coldoc and perm[10:] in permissions_for_coldoc:
         n = 'ColDocApp.' + name_of_permission_for_coldoc(coldoc.nickname, perm[10:])
