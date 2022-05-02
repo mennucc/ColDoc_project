@@ -1429,6 +1429,11 @@ def pdf(request, NICK, UUID):
     return view_(request, NICK, UUID, '.pdf', 'application/pdf')
 
 @xframe_options_sameorigin
+def txt(request, NICK, UUID):
+    return view_(request, NICK, UUID, '_html.txt', 'text/plain')
+
+
+@xframe_options_sameorigin
 def html(request, NICK, UUID, subpath=None):
     return view_(request, NICK, UUID, '_html', None, subpath, expandbuttons = True)
 
@@ -1447,7 +1452,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
                 NICK,UUID,_view_ext,_content_type,subpath,prefix)
     # do not allow subpaths for non html
     assert _view_ext == '_html' or subpath is None
-    assert _view_ext in ('_html','.pdf',None)
+    assert _view_ext in ('_html','_html.txt','.pdf',None)
     assert prefix in ('main','view','blob','log')
     assert ( isinstance(NICK,str) and slug_re.match(NICK) )  or isinstance(NICK,DColDoc)
     assert ( isinstance(UUID,str) and slug_re.match(UUID) )

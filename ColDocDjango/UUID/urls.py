@@ -5,6 +5,7 @@ from . import views
 app_name = 'UUID'
 urlpatterns = [
     path('<str:NICK>/<str:UUID>/pdf', views.pdf, name='pdf'),
+    path('<str:NICK>/<str:UUID>/txt', views.txt, name='txt'),
     #
     path('<str:NICK>/<str:UUID>/html/<path:subpath>', views.html),
     path('<str:NICK>/<str:UUID>/html/', views.html, name='html'),
