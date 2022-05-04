@@ -21,6 +21,7 @@
       tex: {  tags: 'ams' ,}, // should be 'ams', 'none', or 'all'
       tex2jax: {inlineMath: [ ['\\(','\\)'] ] },
   };
+  var COLDOC_COOKIE_CONSENT_NAME = 'coldoc_cookie_consent';
   </script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Custom styles for this template -->
@@ -148,12 +149,17 @@
        |
        {% get_current_language as LANGUAGE_CODE %}
        Interface language: {{ LANGUAGE_CODE|language_name_local }}
-       <button type="button" class="btn btn-outline-success my-0 my-sm-0" data-toggle="modal" data-target="#languageModal">
+       <button type="button" class="btn btn-sm btn-outline-success my-0 my-sm-0" data-toggle="modal" data-target="#languageModal">
          Change
+      </button>
+      |
+      <button type="button" class="btn btn-sm btn-outiline-success my-0 my-sm-0" data-toggle="modal" data-target="#CookieModal">
+        Privacy settings
       </button>
   </span>
    </footer>
  {% include "language_choice_modal.html" %}
+ {% include "cookie_modal.html" %}
 
     <!-- Optional JavaScript -->
     <script> $(function () { $('[data-toggle="tooltip"]').tooltip()}) </script>

@@ -1,0 +1,23 @@
+{% load i18n %}
+<div class="modal" id="CookieModal" role="dialog" aria-labelledby="cookieModalLabel" aria-hidden="true">
+ <div class="modal-dialog">
+  <div class="modal-content">
+   <!-- Modal Header -->
+   <div class="modal-header">
+    <h4 class="modal-title" id="cookieModalLabel">Privacy settings</h4>
+    <button type="button" class="close" data-dismiss="modal">&times;</button>
+   </div>
+   <!-- Modal body -->
+   <div class="modal-body">
+    <span>This site uses cookies to store preferences and for anonymouse usage statistics. See
+    <a href="/privacy.html" class="ml-1 text-decoration-none">Privacy policy</a> </span>
+    <div class="mt-2 d-flex align-items-center justify-content-center g-2">
+     <button  class="btn btn-success" data-dismiss="modal" class="allow-button mr-1"  
+      onclick="Cookies.set(COLDOC_COOKIE_CONSENT_NAME, 1, { expires : 90 });" >Allow tracking cookies</button>
+     <button  class="btn btn-alert" data-dismiss="modal"
+      onclick="Cookies.set(COLDOC_COOKIE_CONSENT_NAME, 0, { expires : 90 });" >Deny tracking cookies</button>
+    </div>
+   </div>
+  </div>
+ </div>
+</div>
