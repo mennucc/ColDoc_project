@@ -15,6 +15,15 @@ gtag('consent', 'default', {
 
 var COLDOC_COOKIE_CONSENT_VALUE = Cookies.get(COLDOC_COOKIE_CONSENT_NAME);
 
+// the Do Not Track feature is mostly abandonware but still we may use
+// https://en.wikipedia.org/wiki/Do_Not_Track
+var Do_Not_Track = navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack;
+
+if ( COLDOC_COOKIE_CONSENT_VALUE == undefined && Do_Not_Track == 1) {
+  Cookies.set(COLDOC_COOKIE_CONSENT_NAME, 0, { expires : 90 });
+  COLDOC_COOKIE_CONSENT_VALUE = 0;
+};
+
 function google_analytics_update_consent() {
   CONSENT_VALUE = Cookies.get(COLDOC_COOKIE_CONSENT_NAME);
   if ( CONSENT_VALUE == undefined ) {
