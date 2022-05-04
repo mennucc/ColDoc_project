@@ -26,6 +26,14 @@
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <!-- Custom styles for this template -->
     <link href="{% static 'ColDoc/css/sticky-footer-navbar.css' %}" rel="stylesheet">
+    <style>
+      .checkbeforetext:before {
+        content: '\2713';
+        display: inline-block;
+	color: red;
+        padding: 0 6px 0 0;
+       }
+    </style>
     {% include "analytics.html" %}
     {% endblock head %}
     {% block extrahead %}{% endblock extrahead %}
@@ -153,7 +161,8 @@
          Change
       </button>
       |
-      <button type="button" class="btn btn-sm btn-outiline-success my-0 my-sm-0" data-toggle="modal" data-target="#CookieModal">
+      <button type="button" class="btn btn-sm btn-outiline-success my-0 my-sm-0" data-toggle="modal"
+        onclick="cookieModal_update_icon(-1);" data-target="#CookieModal">
         Privacy settings
       </button>
   </span>

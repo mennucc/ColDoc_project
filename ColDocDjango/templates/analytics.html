@@ -38,7 +38,7 @@ function google_analytics_update_consent() {
 
 
 if ( COLDOC_COOKIE_CONSENT_VALUE == undefined ) {
-    setTimeout( () => { $('#CookieModal').modal('show'); } , 3500);
+    setTimeout( () => { $('#CookieModal').modal('show'); cookieModal_update_icon(-5); } , 3500);
 } else { 
     google_analytics_update_consent();
 };
