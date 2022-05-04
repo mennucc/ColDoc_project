@@ -13,9 +13,9 @@
     <a href="/privacy.html" class="ml-1 text-decoration-none">Privacy policy</a> </span>
     <div class="mt-2 d-flex align-items-center justify-content-center g-2">
      <button  class="btn btn-success" data-dismiss="modal" class="allow-button mr-1"  
-      onclick="Cookies.set(COLDOC_COOKIE_CONSENT_NAME, 1, { expires : 90 });" >Allow tracking cookies</button>
-     <button  class="btn btn-alert" data-dismiss="modal"
-      onclick="Cookies.set(COLDOC_COOKIE_CONSENT_NAME, 0, { expires : 90 });" >Deny tracking cookies</button>
+      onclick="Cookies.set(COLDOC_COOKIE_CONSENT_NAME, 1, { expires : 90 });google_analytics_update_consent();" >Allow tracking cookies</button>
+     <button  class="btn btn-primary" data-dismiss="modal"
+      onclick="Cookies.set(COLDOC_COOKIE_CONSENT_NAME, 0, { expires : 90 });google_analytics_update_consent();" >Deny tracking cookies</button>
     </div>
    </div>
   </div>

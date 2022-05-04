@@ -1,10 +1,50 @@
  {% if GOOGLE_ANALYTICS4 %}
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS4 }}"></script>
-<script>
+<script defer>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', '{{ GOOGLE_ANALYTICS4 }}');
+// https://developers.google.com/tag-platform/devguides/consent
+gtag('consent', 'default', {
+       // currently there are no ads
+       'ad_storage': 'denied',
+       'analytics_storage': 'denied'
+     });
+
+var COLDOC_COOKIE_CONSENT_VALUE = Cookies.get(COLDOC_COOKIE_CONSENT_NAME);
+
+function google_analytics_update_consent() {
+  CONSENT_VALUE = Cookies.get(COLDOC_COOKIE_CONSENT_NAME);
+  if ( CONSENT_VALUE == undefined ) {
+     // maybe it is not ready...
+     setTimeout(google_analytics_update_consent, 500);
+  } else {
+    // update global variable as well
+    COLDOC_COOKIE_CONSENT_VALUE = CONSENT_VALUE;
+    // update GA settings
+    analytics_storage =  (CONSENT_VALUE == 1 )? 'granted' : 'denied';
+    consent = {
+       // currently there are no ads
+       'ad_storage': 'denied',
+       'analytics_storage':  analytics_storage
+     };
+     gtag('consent', 'update', consent);
+ };
+};
+
+
+
+
+if ( COLDOC_COOKIE_CONSENT_VALUE == undefined ) {
+    setTimeout( () => { $('#CookieModal').modal('show'); } , 3500);
+} else { 
+    google_analytics_update_consent();
+};
+</script>
+{% else %}
+<script>
+function google_analytics_update_consent() {};
 </script>
 {% endif %}
