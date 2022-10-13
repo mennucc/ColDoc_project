@@ -726,6 +726,25 @@ def dedup_html(src, options):
                             replacements.append( ( o, (dedup_url + '/' + dedup + '/' + r) ) )
     return replacements
 
+def convert_html_to_text(IN,OUT, options):
+    s = open(IN).read()
+    s = ColDoc.utils.html2text(s).lower()
+    if unicode2latex:
+        extra = options.get('unicode_to_latex')
+        s = unicode2latex.uni2tex(s, extra, add_font_modifiers=False, convert_accents=False)
+    #s = s.replace('\n\t',' ')
+    s = re.sub('\s+',' ',s)
+    l = re.split('([.;\]\)}])', s)
+    s = ''
+    while len(l) > 1:
+        s += l[0] + l[1] + '\n'
+        l = l[2:]
+    if l:
+        s += l[0] + '\n'
+    with open(OUT,'w') as f_:
+        f_.write(s)
+    logger.debug('created txt version of %r', IN)
+
 @ColDoc.utils.log_debug
 def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
                    levels = False, tok = False, strip_head = True, plastex_theme=None):
@@ -797,23 +816,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
     if os.path.isfile(a):
         logger.info('created html version of %r ',save_abs_name)
         try:
-            s = open(a).read()
-            s = ColDoc.utils.html2text(s).lower()
-            if unicode2latex:
-                extra = options.get('unicode_to_latex')
-                s = unicode2latex.uni2tex(s, extra, add_font_modifiers=False, convert_accents=False)
-            #s = s.replace('\n\t',' ')
-            s = re.sub('\s+',' ',s)
-            l = re.split('([.;\]\)}])', s)
-            s = ''
-            while len(l) > 1:
-                s += l[0] + l[1] + '\n'
-                l = l[2:]
-            if l:
-                s += l[0] + '\n'
-            with open(save_abs_name + '_html.txt','w') as f_:
-                f_.write(s)
-            logger.debug('created txt version of %r from html ',save_abs_name)
+            convert_html_to_text(a, save_abs_name + '_html.txt', options)
         except:
             logger.exception('while creating txt version of %r from html ',save_abs_name)
     else:
