@@ -416,7 +416,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     D['url_UUID'] = ColDoc.config.ColDoc_url_placeholder
     main_file.write(plastex_template % D)
     main_file.close()
-    rh = plastex_engine(blobs_dir, fake_name2, save_name, environ, lang, options)
+    rh = plastex_engine(blobs_dir, fake_name2, save_name, environ, uuid, lang, options)
     # paux is quite large and it will not be used after this line
     if os.path.isfile(save_abs_name+'_plastex.paux'):
         os.unlink(save_abs_name+'_plastex.paux')
@@ -588,7 +588,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         fake_name2 = os.path.basename(fake_abs_name2)
         with open(fake_abs_name2+'.tex','w') as f_:
             f_.write(f_html)
-        rh = plastex_engine(blobs_dir, fake_name2, save_name, environ, lang, options,
+        rh = plastex_engine(blobs_dir, fake_name2, save_name, environ, uuid, lang, options,
                             levels = True, tok = True, strip_head = False)
         parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'), save_abs_name+'_plastex.paux')
         # paux is quite large and it will not be used after this line
@@ -746,7 +746,7 @@ def convert_html_to_text(IN,OUT, options):
     logger.debug('created txt version of %r', IN)
 
 @ColDoc.utils.log_debug
-def plastex_engine(blobs_dir, fake_name, save_name, environ, lang, options,
+def plastex_engine(blobs_dir, fake_name, save_name, environ, uuid, lang, options,
                    levels = False, tok = False, strip_head = True, plastex_theme=None):
     " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
     save_abs_name = os.path.join(blobs_dir, save_name)
