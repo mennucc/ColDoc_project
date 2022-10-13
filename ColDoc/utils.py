@@ -83,8 +83,9 @@ def log_debug(fun):
         S=inspect.signature(fun)
         B=S.bind(*args, **kwds)
         B.apply_defaults()
-        globals()['logger'].debug('Calling function %s  %s ', fun, B)
-        return fun(*args, **kwds)
+        ret = fun(*args, **kwds)
+        globals()['logger'].debug('Called function %s  %s -> %r', fun, B, ret)
+        return ret
     return log_call
 
 def print_fun_call(fun):
