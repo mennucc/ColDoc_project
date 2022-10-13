@@ -95,9 +95,14 @@ def user_has_perm(user, perm, coldoc, blob, object_):
     if not user.is_active:
         return False
     #
+    DMetadata = None
+    if blob is not None:
+        from UUID.models import DMetadata
+        assert isinstance(blob, DMetadata)
+    #
     assert not isinstance(user,ColDocAnonymousUser)
     assert not isinstance(user,ColDocUser)
-    assert blob is None or 'UUID.models.DMetadata' in str(type(blob)) # unfortunately isinstance(obj, DMetadata) will break because of circular imports
+    #assert blob is None or 'UUID.models.DMetadata' in str(type(blob)) # unfortunately isinstance(obj, DMetadata) will break because of circular imports
     perm_uuid   = perm.startswith('UUID.')
     perm_coldoc = perm.startswith('ColDocApp.')
     #
