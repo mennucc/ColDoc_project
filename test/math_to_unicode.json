@@ -6,8 +6,8 @@
     "\\integers" : 8484,
     "\\rational" : 8474,
     "\\rationals" : 8474,
-    "\\reals" : 8477,
     "\\real" : 8477,
-    "\\complexes" : 8450,
-    "\\complex" : 8450
+    "\\reals" : 8477,
+    "\\complex" : 8450,
+    "\\complexes" : 8450
 }
