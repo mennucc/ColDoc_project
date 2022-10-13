@@ -4,7 +4,7 @@ def _(s):
     "mark translatable strings; no attempt is made to translate them, since part of this code is used as a library"
     return s
 
-_("""
+__doc__  = _("""
 This program does some actions that `manage` does not. Possible commands:
 
     deploy
@@ -792,7 +792,7 @@ def count_untranslated_chars(COLDOC_SITE_ROOT, coldoc_nick, messages=[]):
 
 def main(argv):
     doc = __doc__
-    parser = argparse.ArgumentParser(description=doc,
+    parser = argparse.ArgumentParser(description=_("helper functions"),        epilog=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     COLDOC_SITE_ROOT = os.environ.get('COLDOC_SITE_ROOT')
     parser.add_argument('--coldoc-site-root',type=str,\
