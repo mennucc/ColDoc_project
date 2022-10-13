@@ -726,7 +726,7 @@ def dedup_html(src, options):
                             replacements.append( ( o, (dedup_url + '/' + dedup + '/' + r) ) )
     return replacements
 
-def convert_html_to_text(IN,OUT, options):
+def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
     s = open(IN).read()
     s = ColDoc.utils.html2text(s).lower()
     if unicode2latex:
@@ -816,7 +816,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, uuid, lang, options
     if os.path.isfile(a):
         logger.info('created html version of %r ',save_abs_name)
         try:
-            convert_html_to_text(a, save_abs_name + '_html.txt', options)
+            convert_html_to_text(a, save_abs_name + '_html.txt', blobs_dir, uuid, lang, options)
         except:
             logger.exception('while creating txt version of %r from html ',save_abs_name)
     else:
