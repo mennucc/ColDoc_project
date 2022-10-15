@@ -28,8 +28,7 @@ from .models import DColDoc
 from UUID.models import DMetadata, ExtraMetadata
 from UUID import views as UUIDviews
 from ColDocDjango.transform import squash_helper_ref
-
-
+from ColDocApp import text_catalog
 
 from ColDocDjango.users import user_has_perm , UUID_view_view , UUID_view_blob #, UUID_download  #, user_has_perm_uuid_blob
 
@@ -170,6 +169,8 @@ def latex(request, NICK):
     options['coldoc_site_root']  = settings.COLDOC_SITE_ROOT
     options['dedup_root'] = settings.DEDUP_ROOT
     options['dedup_url'] = settings.DEDUP_URL
+    #
+    options['html_to_text_callback'] =  functools.partial(text_catalog.update_text_catalog_for_uuid, coldoc=coldoc)
     # needed by `latex_tree`
     if typ_ == 'tree':
         load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
