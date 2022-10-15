@@ -39,6 +39,10 @@ This program does some actions that `manage` does not. Possible commands:
 
     send_test_email TO
         ditto
+    
+    create_text_catalogs COLDOC
+        recreate the text catalogs
+    
 """)
 
 import os, sys, argparse, json, pickle, io, copy
@@ -789,7 +793,28 @@ def count_untranslated_chars(COLDOC_SITE_ROOT, coldoc_nick, messages=[]):
             n_chars += l * len(Mlangs)
     return n_chars
 
+###################################
 
+def create_text_catalogs(COLDOC_SITE_ROOT, coldoc, coldoc_nick):
+    assert coldoc is not None or coldoc_nick is not None
+    if coldoc is not None:
+        if coldoc_nick is None:
+            coldoc_nick = coldoc.nick
+        else:
+            assert  coldoc_nick == coldoc.nick
+    else:
+        from ColDocApp.models import DColDoc
+        coldoc = DColDoc.objects.get(nickname = coldoc_nick)
+    #
+    coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
+    assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
+    blobs_dir = osjoin(coldoc_dir, 'blobs')
+    #
+    from ColDocApp.text_catalog import create_text_catalog
+    for lang in Clangs:
+        create_text_catalog(coldoc, blobs_dir)
+
+#####################################
 def main(argv):
     doc = __doc__
     parser = argparse.ArgumentParser(description=_("helper functions"),        epilog=__doc__,
@@ -799,7 +824,8 @@ def main(argv):
                         help='root of the coldoc portal (default from env `COLDOC_SITE_ROOT`)', default=COLDOC_SITE_ROOT,
                         required=(COLDOC_SITE_ROOT is None))
     parser.add_argument('--verbose','-v',action='count',default=0)
-    if any([j in sys.argv for j in ( 'add_blob' , 'reparse_all' , 'check_tree' , 'list_authors' , 'gen_lang', 'count_untranslated_chars') ]):
+    if any([j in sys.argv for j in ( 'add_blob' , 'reparse_all' , 'check_tree' , 'list_authors' , 'gen_lang',\
+                                     'count_untranslated_chars', 'create_text_catalogs') ]):
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
     if 'reparse_all' in sys.argv or 'check_tree' in sys.argv:
@@ -903,6 +929,9 @@ does not contain the file `config.ini`
     elif argv[0] == 'count_untranslated_chars':
         n_chars = count_untranslated_chars(COLDOC_SITE_ROOT, args.coldoc_nick)
         print('total %d' % n_chars)
+        return True
+    elif argv[0] == 'create_text_catalogs':
+        create_text_catalogs(COLDOC_SITE_ROOT, None, args.coldoc_nick)
         return True
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
