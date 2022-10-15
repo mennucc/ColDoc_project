@@ -810,6 +810,7 @@ def create_text_catalogs(COLDOC_SITE_ROOT, coldoc, coldoc_nick):
     assert os.path.exists(coldoc_dir), ('Does not exist coldoc_dir=%r\n'%(coldoc_dir))
     blobs_dir = osjoin(coldoc_dir, 'blobs')
     #
+    Clangs = coldoc.get_languages()
     from ColDocApp.text_catalog import create_text_catalog
     for lang in Clangs:
         create_text_catalog(coldoc, blobs_dir)
