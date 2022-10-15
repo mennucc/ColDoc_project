@@ -247,25 +247,14 @@ def search_text_list(request, coldoc, searchtoken):
     searchtoken = searchtoken.lower()
     searchtoken = re.sub('\s+',' ',searchtoken)
     user = request.user
-    for blob in DMetadata.objects.filter(coldoc=coldoc) :
+    for result in text_catalog.search_text_catalog(searchtoken, coldoc):
+        uuid = result.uuid
+        blob = DMetadata.objects.filter(uuid=uuid).get()
         user.associate_coldoc_blob_for_has_perm(coldoc, blob)
         if user.has_perm(UUID_view_view):
-            langs = copy.copy(blob.get_languages())
-            if 'mul' in langs:
-                langs = Clangs
-            langs.sort(key = lambda x : accept_lang.get(x,0), reverse=True)
-            d =  ColDoc.utils.uuid_to_dir(blob.uuid, blobs_dir)
-            for lang in langs:
-                a = osjoin(blobs_dir,d,'view_' + lang + '_html.txt')
-                if os.path.isfile(a):
-                    # already formatted
-                    text = open(a)
-                    #text = re.split('[.,;:\[\]\(\)]',text)
-                    for line in text:
-                        if searchtoken in line:
-                            link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':blob.uuid}) + '?lang=' + lang
-                            text_list.append((blob.uuid, lang, link, line))
-                            break
+            lang = result.lang 
+            link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid}) + '?lang=' + lang
+            text_list.append((blob.uuid, lang, link, result.text)) 
     return text_list
 
 def search(request, NICK):
