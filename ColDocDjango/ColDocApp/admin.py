@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.conf import settings
-from .models import DColDoc
+from .models import DColDoc, Text_Catalog
 from UUID.models import UUID_Tree_Edge
 
 class UUID_Tree_Edge_Admin(admin.TabularInline):
@@ -74,6 +74,11 @@ class ColDocUserAdmin(UserAdmin):
 
 admin.site.register(ColDocUser, ColDocUserAdmin)
 
+class Text_Catalog_Admin(admin.ModelAdmin):
+    model = Text_Catalog
+    readonly_fields = ('uuid','coldoc','lang')
+
+admin.site.register(Text_Catalog, Text_Catalog_Admin)
 
 ## group convenient interface
 from .admingroup import *
