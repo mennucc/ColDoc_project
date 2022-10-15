@@ -65,7 +65,7 @@ from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, uuid_to_di
 from ColDocDjango.utils import get_email_for_user, load_unicode_to_latex
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
-
+from ColDocApp import text_catalog
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 
 def iso3lang2word(*v , **k):
@@ -1320,6 +1320,8 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     options['coldoc_site_root']  = settings.COLDOC_SITE_ROOT
     options['dedup_root'] = settings.DEDUP_ROOT
     options['dedup_url'] = settings.DEDUP_URL
+    #
+    options['html_to_text_callback'] =  functools.partial(text_catalog.update_text_catalog_for_uuid, coldoc=coldoc)
     #
     options['unicode_to_latex'] = load_unicode_to_latex(coldoc_dir)
     # floating preamble
