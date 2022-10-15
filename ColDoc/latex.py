@@ -743,6 +743,9 @@ def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
         s += l[0] + '\n'
     with open(OUT,'w') as f_:
         f_.write(s)
+    callback =  options.get('html_to_text_callback')
+    if  callback:
+        callback(html_input = IN, text_output = OUT, blobs_dir = blobs_dir, uuid = uuid, lang = lang)
     logger.debug('created txt version of %r', IN)
 
 @ColDoc.utils.log_debug
