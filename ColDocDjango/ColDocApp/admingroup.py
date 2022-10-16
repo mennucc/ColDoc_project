@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
+from django.contrib.auth.admin import GroupAdmin as OrigGroupAdmin
 
 User = get_user_model()
 
@@ -28,7 +29,7 @@ class GroupAdminForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             self.fields['users'].initial = self.instance.user_set.all()
 
-class GroupAdmin(admin.ModelAdmin):
+class GroupAdmin(OrigGroupAdmin):
     form = GroupAdminForm
 
     def save_model(self, request, obj, form, change):
