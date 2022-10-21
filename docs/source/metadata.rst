@@ -119,6 +119,10 @@ but are not changed when the blob content is subsequently edited.
     (this does not distinguish which language version was edited - the system
     automatically recompiles the language last edited).
 
+- `replaces` ; the list of UUID (comma separated) that this blob replaces; to be used to mark
+    duplicate material.
+
+    
 These keys are derived from the content of the blob.  Any direct
 change to this database would be lost as soon as the blob is changed.
 (In Django, they are stored in a SQL database for convenience; this

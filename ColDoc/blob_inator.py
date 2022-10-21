@@ -13,7 +13,7 @@ splits the input into blobs
 """
 
 default_metadata = [ 'label', 'uuid', 'index', 'author', 'date',
-                                    'title', 'ref', 'eqref', 'pageref', 'cite' ]
+                     'replaces', 'title', 'ref', 'eqref', 'pageref', 'cite' ]
 
 # these keys are parameters used when first calling blob_inator
 # that are then shadowed (prepending 'orig_') when saving 

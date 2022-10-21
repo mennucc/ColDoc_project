@@ -34,9 +34,10 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives, send_mail
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib.auth.models import Group
 from django.core.validators import FileExtensionValidator
-
+from django.db.models import Q as advanced_query
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
 from django.utils.text import format_lazy
+
 if django.VERSION[0] >= 4 :
     _ = gettext_lazy
 else:
@@ -71,7 +72,7 @@ from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 def iso3lang2word(*v , **k):
     return gettext_lazy(iso3lang2word_untranslated(*v, **k))
 
-from .models import DMetadata, DColDoc
+from .models import DMetadata, DColDoc, ExtraMetadata
 
 from .shop import encoded_contract_to_buy_permission, can_buy_permission
 
@@ -2063,6 +2064,22 @@ def index(request, NICK, UUID):
     blob_language = iso3lang2word(blob_lang)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
+    #
+    def reverse_uuid(u):
+        l = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':u}) 
+        return '<a href="%s">%s</a>' %(l,u)
+    #
+    replaces = metadata.get('M_replaces')
+    # flatten by punctuation
+    replaces = [ a for u in replaces for a in re.split(',|;|/|\n|\t| ',u)]
+    replaces = [ a.rstrip('} \n').lstrip('\n {') for a in replaces ]
+    replaces = [ a for a in replaces if a]
+    replaces = ',\n'.join([reverse_uuid(u)  for u in  replaces ])
+    #
+    replacedby =  ExtraMetadata.objects.filter(key = 'M_replaces').filter( advanced_query(value__contains = UUID )).all()
+    replacedby = [r  for r in replacedby if r.blob.coldoc == coldoc]
+    replacedby = ',\n'.join([reverse_uuid(r.blob.uuid)  for r in  replacedby ])
+    #
     return render(request, 'UUID.html', locals() )
 
 

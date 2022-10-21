@@ -150,6 +150,11 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
  {% if perms.UUID.view_view %}
   <div class="tab-pane fade show active" id="view" role="tabpanel" aria-labelledby="view-tab">
     <h2>{% translate "View" %}</h2>
+     {% if replacedby %}
+      <div class="border border-warning mt-2">
+       {% translate "This element was replaced by" %} &nbsp;{{ replacedby  | safe }}
+      </div>
+     {% endif %}
      {% if blobcontenttype == 'text' %}
      <div class="container">
      <div class="row">
@@ -182,6 +187,12 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
            {% if u == A.last %} . {% else %} ; {% endif %} {% endfor %}
       {% endwith %}
       </div>
+     {% if replaces %}
+     <div class="border border-info mt-2">
+      {% translate "This element replaces" %}  &nbsp;{{ replaces | safe }}
+     </div>
+     {% endif %}
+      
   </div>
  {% endif %}
 
