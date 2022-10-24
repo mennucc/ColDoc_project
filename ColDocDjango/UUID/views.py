@@ -2072,7 +2072,7 @@ def index(request, NICK, UUID):
     # flatten by punctuation
     replaces = [ a for u in replaces for a in re.split(',|;|/|\n|\t| ',u)]
     replaces = [ a.rstrip('} \n').lstrip('\n {') for a in replaces ]
-    replaces = [ a for a in replaces if a]
+    replaces = [ a for a in replaces if (a and ColDoc.utils.uuid_valid_symbols.match(a) )]
     replaces = ',\n'.join([reverse_uuid(u)  for u in  replaces ])
     #
     replacedby = ',\n'.join([reverse_uuid(blob.uuid)  for blob in  uuid_replaced_by(coldoc, UUID) ])
