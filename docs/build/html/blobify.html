@@ -4,11 +4,12 @@
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Blobify &#8212; ColDoc 0.1 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -32,7 +33,7 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="blobify">
+  <section id="blobify">
 <h1>Blobify<a class="headerlink" href="#blobify" title="Permalink to this headline">¶</a></h1>
 <p>This section explains how to import a LaTeX document
 into a ColDoc portal.</p>
@@ -64,7 +65,7 @@ want to see in the directory <cite>test/paper</cite> for a complete working exam
 <p>This snippet will also load the package <cite>currfile</cite> only when compiling
 with older LaTeX (older than 2019); it will be used for internal
 checkpointing.</p>
-<div class="section" id="plastex-tweaks">
+<section id="plastex-tweaks">
 <h2>Plastex tweaks<a class="headerlink" href="#plastex-tweaks" title="Permalink to this headline">¶</a></h2>
 <p>Then wrap all code that
 is not compatible with plastex (code that sets fonts etc etc)
@@ -98,8 +99,8 @@ work well with <cite>plastex</cite>, as in this example</p>
 </pre></div>
 </div>
 <p><a class="reference external" href="http://plastex.sourceforge.net/plastex/sect0008.html">See plastex docs for details</a></p>
-</div>
-<div class="section" id="standalone-tweaks">
+</section>
+<section id="standalone-tweaks">
 <h2>Standalone tweaks<a class="headerlink" href="#standalone-tweaks" title="Permalink to this headline">¶</a></h2>
 <p>You should also wrap all the code in the preamble that modifies
 page geometry so that it is ignored in standalone mode,
@@ -112,8 +113,8 @@ as in this example:</p>
 </pre></div>
 </div>
 <p><a class="reference external" href="https://ctan.org/pkg/standalone">See standalone docs for details</a></p>
-</div>
-<div class="section" id="multiple-latex-format">
+</section>
+<section id="multiple-latex-format">
 <h2>Multiple LaTeX format<a class="headerlink" href="#multiple-latex-format" title="Permalink to this headline">¶</a></h2>
 <p>It is possible to prepare a LaTeX document
 that can be compiled using different engines:
@@ -140,8 +141,8 @@ as follows:</p>
 <p>Then put in the file <cite>preamble_xelatex.tex</cite> all
 commands to setup fonts for <cite>xelatex</cite> or <cite>lualatex</cite>;
 and similarly in <cite>preamble_pdflatex.tex</cite> for <cite>pdflatex</cite>.</p>
-</div>
-<div class="section" id="downloading-and-compiling-single-uuids">
+</section>
+<section id="downloading-and-compiling-single-uuids">
 <h2>Downloading, and compiling single UUIDs<a class="headerlink" href="#downloading-and-compiling-single-uuids" title="Permalink to this headline">¶</a></h2>
 <p>You should also move all your favorite customizations
 in a file <cite>preamble_definitions.tex</cite></p>
@@ -164,8 +165,8 @@ so that the user will have
 a copy of all the needed macros and definitions,</p></li>
 </ul>
 <p>to be able to compile that blob.</p>
-</div>
-<div class="section" id="check-it-all">
+</section>
+<section id="check-it-all">
 <h2>Check it all<a class="headerlink" href="#check-it-all" title="Permalink to this headline">¶</a></h2>
 <p>Check that the document compiles fine to HTML
 by invoking PlasTeX on your document using</p>
@@ -228,8 +229,8 @@ plastex -d main_html main_eng.tex
 </pre></div>
 </div>
 <p>where <em>eng</em> may be replaced by the desired language.</p>
-</div>
-<div class="section" id="multilingual-documents">
+</section>
+<section id="multilingual-documents">
 <h2>Multilingual documents<a class="headerlink" href="#multilingual-documents" title="Permalink to this headline">¶</a></h2>
 <p>In this regard, to be able to compute a
 multilingual document from the command line,
@@ -242,8 +243,8 @@ you may also add in the preamble the snippet of code</p>
 </div>
 <p>and copy that file <cite>coldoc_standalone.sty</cite> to
 the directory of your main LaTeX file, and adapt it to your needs.</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -299,7 +300,7 @@ the directory of your main LaTeX file, and adapt it to your needs.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -321,7 +322,7 @@ the directory of your main LaTeX file, and adapt it to your needs.</p>
       &copy;2019, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

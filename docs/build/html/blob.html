@@ -4,11 +4,12 @@
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Blob and UUID &#8212; ColDoc 0.1 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -32,9 +33,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="blob-and-uuid">
+  <section id="blob-and-uuid">
 <h1>Blob and UUID<a class="headerlink" href="#blob-and-uuid" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="tree-of-uuids">
+<section id="tree-of-uuids">
 <h2>Tree of UUIDs<a class="headerlink" href="#tree-of-uuids" title="Permalink to this headline">¶</a></h2>
 <p>Any content in ColDoc is identified by an UUID, an unique identifier.</p>
 <p>Each UUID has associated to it a list of metadata
@@ -44,8 +45,8 @@ relationship.</p>
 <p>There is a special UUID called <cite>root_uuid</cite> usually 001. It is the root
 of the tree.  (The <cite>root_uuid</cite> may be changed, it is stored as field
 <cite>root_uuid</cite> in the <cite>DColDoc</cite> model, but this is untested and may break the portal.)</p>
-</div>
-<div class="section" id="relationship-between-blobs-and-uuid">
+</section>
+<section id="relationship-between-blobs-and-uuid">
 <h2>Relationship between blobs and UUID<a class="headerlink" href="#relationship-between-blobs-and-uuid" title="Permalink to this headline">¶</a></h2>
 <p>Any blob is identified by an UUID.</p>
 <p>Vice versa, an UUID may refer to many blobs that have the
@@ -75,8 +76,8 @@ extensions explains all available content type; the list of
 languages is empty.  (TODO it may be useful to have a graphical file
 available in different languages)</p></li>
 </ul>
-</div>
-<div class="section" id="blobs-and-views">
+</section>
+<section id="blobs-and-views">
 <h2>Blobs and views<a class="headerlink" href="#blobs-and-views" title="Permalink to this headline">¶</a></h2>
 <p>The ColDoc portal also will convert the <cite>blobs</cite> into <cite>views</cite>:
 for each UUID (but not the <cite>root_uuid</cite>) that contains LaTeX,
@@ -101,8 +102,8 @@ and <cite>views</cite>, so an user that has <cite>view_view</cite> access will
 be able to view the blobs.
 (The precise definition of <cite>graphical content</cite> is encoded in
 <cite>ColDoc.utils.is_image_blob</cite>)</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -155,7 +156,7 @@ be able to view the blobs.
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -177,7 +178,7 @@ be able to view the blobs.
       &copy;2019, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
