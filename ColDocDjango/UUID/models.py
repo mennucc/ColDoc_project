@@ -1,5 +1,6 @@
 import os
 from os.path import join as osjoin
+import re
 
 import logging
 logger = logging.getLogger(__name__)
@@ -8,6 +9,7 @@ logger = logging.getLogger(__name__)
 from django.utils import timezone as DT
 
 from django.db import models
+from django.db.models import Q as advanced_query
 #from django.core.validators  import RegexValidator
 from django.urls import reverse
 #from django.templatetags.static import static
@@ -389,3 +391,18 @@ class ExtraMetadata(models.Model):
     key = models.SlugField(max_length=80, db_index = True)
     value = models.CharField(max_length=120, db_index = True, blank=True)
 
+
+def uuid_replaced_by(coldoc, UUID):
+    " returns list of blobs in `coldoc` that replace `UUID` "
+    L =  ExtraMetadata.objects.filter(key = 'M_replaces').filter( advanced_query(value__contains = UUID )).all()
+    if not L:
+        return []
+    L = [r  for r in L if r.blob.coldoc == coldoc]
+    R = []
+    for r in L:
+        v = r.value
+        v = re.split(',|;|/|\n|\t| ',v)
+        v = [ a.rstrip('} \n').lstrip('\n {') for a in v ]
+        if UUID in v:
+            R.append(r.blob)
+    return R

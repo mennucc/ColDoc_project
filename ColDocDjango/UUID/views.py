@@ -34,7 +34,6 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives, send_mail
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.contrib.auth.models import Group
 from django.core.validators import FileExtensionValidator
-from django.db.models import Q as advanced_query
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
 from django.utils.text import format_lazy
 
@@ -72,7 +71,7 @@ from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 def iso3lang2word(*v , **k):
     return gettext_lazy(iso3lang2word_untranslated(*v, **k))
 
-from .models import DMetadata, DColDoc, ExtraMetadata
+from .models import DMetadata, DColDoc, uuid_replaced_by
 
 from .shop import encoded_contract_to_buy_permission, can_buy_permission
 
@@ -2076,9 +2075,7 @@ def index(request, NICK, UUID):
     replaces = [ a for a in replaces if a]
     replaces = ',\n'.join([reverse_uuid(u)  for u in  replaces ])
     #
-    replacedby =  ExtraMetadata.objects.filter(key = 'M_replaces').filter( advanced_query(value__contains = UUID )).all()
-    replacedby = [r  for r in replacedby if r.blob.coldoc == coldoc]
-    replacedby = ',\n'.join([reverse_uuid(r.blob.uuid)  for r in  replacedby ])
+    replacedby = ',\n'.join([reverse_uuid(blob.uuid)  for blob in  uuid_replaced_by(coldoc, UUID) ])
     #
     return render(request, 'UUID.html', locals() )
 
