@@ -490,7 +490,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc) 
     #
-    from UUID.models import DMetadata
+    from UUID.models import DMetadata, uuid_replaced_by
     #
     seen = set()
     available = set()
@@ -546,8 +546,14 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
         s,a = _("Disconnected nodes %r") , available
         warn(s, a)
         s = _("Disconnected node %r")
+        r = _("Disconnected node %r, replaced by %r")
         for j in available:
-            problems.append(('DISCONNECTED', j, s, (j,) ))
+            rep = uuid_replaced_by(coldoc, j)
+            if rep:
+                rep = [a.uuid for a in rep]
+                problems.append(('DISCONNECTED_REPLACED', j, r, (j,rep) ))
+            else:
+                problems.append(('DISCONNECTED', j, s, (j,) ))
     # load back_maps
     from ColDoc.utils import uuid_to_dir, parent_cmd_env_child
     back_maps = {}
