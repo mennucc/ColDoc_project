@@ -2280,14 +2280,14 @@ def download(request, NICK, UUID):
             z = ColDoc.utils.choose_blob(blobs_dir = blobs_dir, ext=None, lang = lang, metadata=m)
             f = z[0]
             ext = z[-1]
-        except ColDoc.utils.ColDocException as e:
+        except FileNotFoundError as e:
             logger.debug('No choice for filename=%r lang=%r error=%r, retrying w/o lang',a,lang,e)
         if z is None:
             try:
                 z = ColDoc.utils.choose_blob(blobs_dir = blobs_dir, lang=None, ext=None, metadata=m)
                 f = z[0]
                 ext = z[-1]
-            except ColDoc.utils.ColDocException as e:
+            except FileNotFoundError as e:
                 logger.error('Could not find content for filename=%r metadata=%r error=%r',a,m,e)
         if z is None:
             continue
