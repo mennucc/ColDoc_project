@@ -632,7 +632,7 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
     if ext is not None:
         if ext not in E:
             logger.error('Extension %r is not available for uuid %r',ext, uuid)
-            raise ColDocException('Extension %r is not available for uuid %r'%(ext, uuid))
+            raise FileNotFoundError('Extension %r is not available for uuid %r'%(ext, uuid))
         E = [ext]
     #
     L = copy.copy(m.get_languages())
