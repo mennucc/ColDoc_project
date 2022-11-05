@@ -8,7 +8,9 @@
   \immediate\write\@uuidaux{%
     \string\setcounter{#1}{\the\@nameuse{c@#1}}}}
 
-
+\ifColDocOneUUID
+ \def\ColDocUUIDcheckpoint{}%
+\else
 \ifplastex%
  \def\ColDocUUIDcheckpoint{}%
 \else%
@@ -33,6 +35,7 @@
   \fi% no \CurrentFile and no \currfilepath
  \fi % no \CurrentFile
 \fi % no plastex
+\fi % no ColDocOneUUID
 
 %%% you may customize the formatting of the UUID marker
 \ifdefined\uuidformatter\else
