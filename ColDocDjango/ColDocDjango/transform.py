@@ -40,13 +40,26 @@ class squash_helper_ref(transform.squash_input_uuid):
             # fixme, you cannot stack other actions over this
             # maybe should push back tokens in thetex
             return '\\'+macroname+label
+        uuid=blob.uuid
         if key != 'M_label':
-            # TODO this will link to any label inside the blob,
-            # w/o specifying if it is the main label of the blob,
-            # or if it is a label inside another envi the blob
-            logger.warning('TODO cannot properly reference from [%s] \\%s%s to key %r inside [%s]',
+            # this will recover the value given to the label
+            value=None
+            try:
+                for j in ExtraMetadata.objects.filter(key='AUX_label',value=label):
+                    # prefer label information from that specific blob
+                    if j.second_value and (value is None or j.blob == blob):
+                        value = j.second_value.split('\t')[0]
+                        if macroname == 'eqref':
+                            value = '(' + value + ')'
+            except:
+                logger.exception('for AUX_label %r',label)
+            if value is None:
+                value=uuid
+                logger.warning('TODO cannot properly reference from [%s] \\%s%s to key %r inside [%s]',
                            self.metadata.uuid , macroname, label ,
-                           key , blob.uuid)
-        a = '\\uuidplaceholder{%s}{%s}' % (blob.uuid, blob.uuid)
+                           key , uuid)
+        else:
+            value = uuid
+        a = '\\uuidplaceholder{%s}{%s}' % (uuid, value)
         logger.debug('convert %s%s  to %s',macroname,label,a)
         return a
