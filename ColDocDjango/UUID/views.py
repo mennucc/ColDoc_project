@@ -1310,11 +1310,7 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
     #
     from ColDocDjango.transform import squash_helper_ref
     load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
-    def foobar(*v, **k):
-        " helper factory"
-        k['load_uuid'] = load_uuid 
-        return squash_helper_ref(coldoc, *v, **k)
-    options["squash_helper"] = foobar
+    options["squash_helper"] = functools.partial(squash_helper_ref, coldoc=coldoc, load_uuid=load_uuid)
     options['metadata_class'] = DMetadata
     # used by the deduping mechanism
     options['coldoc_site_root']  = settings.COLDOC_SITE_ROOT
