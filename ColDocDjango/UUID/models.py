@@ -390,6 +390,7 @@ class ExtraMetadata(models.Model):
     blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)
     key = models.SlugField(max_length=80, db_index = True)
     value = models.CharField(max_length=120, db_index = True, blank=True)
+    second_value = models.CharField(max_length=250, blank=True, null=True)
 
 
 def uuid_replaced_by(coldoc, UUID):
