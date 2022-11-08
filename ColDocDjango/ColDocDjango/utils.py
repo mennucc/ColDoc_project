@@ -127,3 +127,77 @@ def load_unicode_to_latex(coldoc_dir):
             logger.exception('while loading %r',f)
     return {}
 
+#################### parse for labels
+
+from plasTeX.TeX import TeX
+import ColDoc
+
+re_newlabel = re.compile(r'\\newlabel\s*{\s*([^}]*)\s*}\s*{\s*(.*)\s*}')
+
+def  parse_for_labels_workhorse(aux_name, labels=None, mytex = None):
+    " parse a LaTeX auxfile for labels"
+    if labels is None:
+        labels={}
+    for l in open(aux_name):
+        a='\\@input{'
+        if l.startswith(a):
+            l = l[len(a):-1]
+            if  l.endswith('.aux'):
+                if  os.path.isfile(l):
+                    parse_for_labels_workhorse(l, labels, mytex = mytex)
+                else:
+                    logger.warning('File %r does not exists', l)
+        if l.startswith('\\newlabel'):
+            ## may use
+            #mytex.input(l[9:])
+            #c=mytex.readArgumentAndSource(type=str)[1]
+            #n=mytex.readArgumentAndSource()[1]
+            #print('a',a)
+            #print('b',b)
+            ## but we use the regexp
+            for c,n in re_newlabel.findall(l):
+                # metadata usually keep delimiters in the database
+                c='{'+c+'}'
+                ## using info from https://tex.stackexchange.com/questions/512148/reference-for-newlabel
+                o = []
+                # create JIT
+                if mytex is None:
+                    mytex = TeX()
+                mytex.input(n)
+                for i in range(5): #in mytex.readToken():
+                    a=mytex.readArgumentAndSource()[1]
+                    if a:
+                        o.append(a)
+                    else:
+                        break
+                o  = ('\t'.join(o))
+                labels[c] = c, n, o, aux_name
+    return labels
+
+def   parse_for_labels_all_aux(coldoc_dir, blobs_dir, coldoc, metadata):
+    "parse for latex labels all aux files (currently unused)"
+    uuid_dir = ColDoc.utils.uuid_to_dir(metadata.uuid, blobs_dir=blobs_dir)
+    langs = metadata.get_languages()
+    if 'mul' in langs:
+        langs = coldoc.get_languages()
+    labels={}
+    mytex = TeX()
+    for base in 'blob','view':
+        for lang in langs:
+            aux_name = os.path.join(blobs_dir, uuid_dir , base + '_' + lang + '.aux')
+            if os.path.exists(aux_name):
+                parse_for_labels_workhorse(aux_name, labels, mytex)
+    #
+    metadata.delete2(key='AUX_label')
+    for c,n,o,a in labels.values():
+        metadata.add2( key =  'AUX_label', value = c, second_value = o)
+
+def   parse_for_labels_callback(coldoc_dir, coldoc, #partialized
+                                 return_values, blobs_dir, metadata,lang, save_name):
+    aux_name = osjoin(blobs_dir, save_name + '.aux')
+    metadata.delete2(key='AUX_label')
+    if os.path.exists(aux_name):
+        labels = parse_for_labels_workhorse(aux_name)
+        for t in labels.values():
+            c,n,o,a = t
+            metadata.add2( key =  'AUX_label', value = c, second_value = o)
