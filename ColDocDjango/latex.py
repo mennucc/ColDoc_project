@@ -72,7 +72,7 @@ def main(argv):
     import ColDocApp.models as coldocapp_models
     import UUID.models as  blob_models
     from ColDocDjango.transform import squash_helper_ref
-    from ColDoc.latex import prepare_options_for_latex
+    from UUID.views import _prepare_latex_options
     #
     matches = list(coldocapp_models.DColDoc.objects.filter(nickname = args.coldoc_nick))
     if len(matches) > 1 :
@@ -80,12 +80,10 @@ def main(argv):
     coldoc = matches[0]
     #
     # read options
-    options = prepare_options_for_latex(coldoc_dir, blobs_dir, blob_models.DMetadata, coldoc)
+    options = _prepare_latex_options(None, coldoc_dir, blobs_dir, coldoc)
     options['coldoc'] = coldoc
     options['url_UUID'] = args.url_UUID
     options['coldoc_site_root']  = args.coldoc_site_root
-    options['dedup_root'] = django_settings.DEDUP_ROOT
-    options['dedup_url'] = django_settings.DEDUP_URL
     #
     a = osjoin(COLDOC_SITE_ROOT,'config.ini')
     import configparser
@@ -93,12 +91,6 @@ def main(argv):
     config.read([a])
     for k in 'server_url', 'hostname':
         options[k] = config['django'][k]
-    #
-    from  UUID.models import DMetadata
-    import functools
-    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
-    options["squash_helper"] = functools.partial(squash_helper_ref, coldoc=coldoc, load_uuid=load_uuid)
-    options['metadata_class'] = blob_models.DMetadata
     #
     if args.command[0] == 'dedup_html':
         known = set()
