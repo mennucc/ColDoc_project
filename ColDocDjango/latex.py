@@ -3,7 +3,7 @@
 """See ColDocDjango/latex.py
 """
 
-import os, sys, shutil, subprocess, argparse, json, glob
+import os, sys, shutil, subprocess, argparse, json, glob, urllib
 
 from os.path import join as osjoin
 
@@ -83,7 +83,19 @@ def main(argv):
     # read options
     options = _prepare_latex_options(None, coldoc_dir, blobs_dir, coldoc)
     options['coldoc'] = coldoc
-    options['url_UUID'] = args.url_UUID
+    ### normalzile URL, add path
+    url = args.url_UUID
+    p =  urllib.parse.urlparse(url)
+    a = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
+    if p.scheme not in ('http','https') or not p.netloc:
+        logger.error('Url seems broken: %r',url)
+        sys.exit(1)
+    if p.path in ( '/', '' ):
+        p = p._replace(path=a)
+    elif p.path != a:
+        logger.warning('Incompatible path in url : %r does not end with %r',url,a)
+    options['url_UUID'] = urllib.parse.urlunparse(p)
+    #
     options['coldoc_site_root']  = args.coldoc_site_root
     #
     a = osjoin(COLDOC_SITE_ROOT,'config.ini')
