@@ -439,6 +439,10 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         except Exception as e:
             logger.warning(e)
     #
+    callback =  options.get('callback_after_blob_compiled')
+    if  callback:
+        callback(return_values=(rh,rp), blobs_dir = blobs_dir, metadata=metadata, lang = lang, save_name=save_name)
+    #
     if environ in environments_we_wont_latex:
         try:
             os.unlink(save_abs_name + '.pdf')
@@ -634,6 +638,11 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             coldoc.latex_time_update()
         coldoc.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
         coldoc.save()
+    #
+    callback =  options.get('callback_after_blob_compiled')
+    if  callback and access != 'public':
+        callback(return_values=(rh,rp), blobs_dir = blobs_dir, metadata=metadata, lang = lang, save_name=save_name)
+    #
     return ret
 
 def parse_plastex_paux(paux):

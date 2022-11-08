@@ -1321,6 +1321,9 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc, url=None):
     #
     options['html_to_text_callback'] =  functools.partial(text_catalog.update_text_catalog_for_uuid, coldoc=coldoc)
     #
+    from ColDocDjango.utils import parse_for_labels_callback
+    options['callback_after_blob_compiled'] = functools.partial(parse_for_labels_callback,  coldoc_dir=coldoc_dir, coldoc=coldoc)
+    #
     options['unicode_to_latex'] = load_unicode_to_latex(coldoc_dir)
     # floating preamble
     try:
