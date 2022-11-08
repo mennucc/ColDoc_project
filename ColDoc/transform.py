@@ -54,6 +54,7 @@ try:
     import unicode2latex
 except ImportError:
     logger.warning('Please install `unicode2latex` ')
+    unicode2latex = None
     latex2unicodemath = {}
     latexaccents2unicode = {}
     latex2mathgreek = {}
