@@ -45,6 +45,7 @@ def main(argv):
                         help='root of the coldoc portal', default=COLDOC_SITE_ROOT,
                         required=(COLDOC_SITE_ROOT is None))
     parser.add_argument('--url-UUID',type=str,\
+                        required=True,
                         help='URL of the website that will show the UUIDs, used by my \\uuid macro in PDF')
     args = parser.parse_args(argv[1:])
     #
