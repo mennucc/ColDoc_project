@@ -1299,14 +1299,16 @@ def postmetadataedit(request, NICK, UUID):
     #
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID})  + '?lang=%s&ext=%s'%(lang_,ext_))
 
-def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc):
+def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc, url=None):
     from ColDoc.latex import prepare_options_for_latex
     options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc)
     #
-    url = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
-    url = request.build_absolute_uri(url)
     # used for PDF
-    options['url_UUID'] = url
+    if url is None and request is not None:
+        url = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
+        url = request.build_absolute_uri(url)
+    if url is not None:
+        options['url_UUID'] = url
     #
     from ColDocDjango.transform import squash_helper_ref
     load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
