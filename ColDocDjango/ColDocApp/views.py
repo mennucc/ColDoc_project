@@ -157,7 +157,7 @@ def latex(request, NICK):
     assert slug_re.match(typ_)
     #
     from ColDoc.latex import prepare_options_for_latex
-    options = {} # prepare_options_for_latex() will be called by latex_main
+    options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc)
     #
     url = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
     url = request.build_absolute_uri(url)
