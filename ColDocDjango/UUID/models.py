@@ -309,6 +309,20 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         else:
             ExtraMetadata.objects.filter(blob=self, key=key, value=value).delete()
     #
+    def get2(self, key, withvalue=None, default = None):
+        " get extrametadata with two values, such as AUX_label ; filter by `withvalue` if present ; return list of pairs"
+        o = ExtraMetadata.objects.filter(blob=self, key=key)
+        if withvalue:
+            o = o.filter(value=withvalue)
+        return o.values_list('value', 'second_value')
+    def delete2(self,key,withvalue=None):
+        o = ExtraMetadata.objects.filter(blob=self, key=key)
+        if withvalue:
+            o = o.filter(value=withvalue)
+        o.delete()
+    def add2(self, key, value, second_value):
+        ExtraMetadata(blob = self, key =  key, value = value, second_value = second_value).save()
+    #
     def get(self, key, default = None):
         """returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"""
         if default is not None:
