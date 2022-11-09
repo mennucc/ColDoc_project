@@ -135,19 +135,26 @@ import ColDoc
 
 re_newlabel = re.compile(r'\\newlabel\s*{\s*([^}]*)\s*}\s*{\s*(.*)\s*}')
 
-def  parse_for_labels_workhorse(aux_name, labels=None, mytex = None):
+def  parse_for_labels_workhorse(aux_name, blobs_dir, labels=None, mytex = None):
     " parse a LaTeX auxfile for labels"
     if labels is None:
         labels={}
+    if not os.path.isabs(aux_name):
+        aux_name = osjoin(blobs_dir, aux_name)
+    if not  os.path.isfile(aux_name):
+        logger.warning('File %r does not exists', aux_name)
+        return {}
     for l in open(aux_name):
+        l = l.strip()
         a='\\@input{'
         if l.startswith(a):
             l = l[len(a):-1]
-            if  l.endswith('.aux'):
-                if  os.path.isfile(l):
-                    parse_for_labels_workhorse(l, labels, mytex = mytex)
-                else:
-                    logger.warning('File %r does not exists', l)
+            if not l.endswith('.aux'):
+                logger.warning('Skipping input of file %r', l)
+            else:
+                if not os.path.isabs(l):
+                    l = osjoin(blobs_dir, l)
+                parse_for_labels_workhorse(l, blobs_dir, labels, mytex = mytex)
         if l.startswith('\\newlabel'):
             ## may use
             #mytex.input(l[9:])
@@ -187,7 +194,7 @@ def   parse_for_labels_all_aux(coldoc_dir, blobs_dir, coldoc, metadata):
         for lang in langs:
             aux_name = os.path.join(blobs_dir, uuid_dir , base + '_' + lang + '.aux')
             if os.path.exists(aux_name):
-                parse_for_labels_workhorse(aux_name, labels, mytex)
+                parse_for_labels_workhorse(aux_name, blobs_dir, labels, mytex)
     #
     with transaction.atomic():
         metadata.delete2(key='AUX_label_'+lang)
@@ -198,7 +205,7 @@ def   parse_for_labels_callback(coldoc_dir, coldoc, #partialized
                                  return_values, blobs_dir, metadata,lang, save_name):
     aux_name = osjoin(blobs_dir, save_name + '.aux')
     if os.path.exists(aux_name):
-        labels = parse_for_labels_workhorse(aux_name)
+        labels = parse_for_labels_workhorse(aux_name, blobs_dir)
         with transaction.atomic():
             metadata.delete2(key='AUX_label_'+lang)
             for t in labels.values():
