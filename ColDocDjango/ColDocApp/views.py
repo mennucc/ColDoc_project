@@ -156,9 +156,15 @@ def latex(request, NICK):
     #
     assert slug_re.match(typ_)
     #
-    from UUID.views import _prepare_latex_options
-    options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
-    options = base64.b64encode(pickle.dumps(options)).decode()
+    if settings.USE_BACKGROUND_TASKS:
+        url = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
+        url = request.build_absolute_uri(url)
+        # hack: in this case 'options' is a list not a dict
+        # and _prepare_latex_options() will be called in the task
+        options = [coldoc_dir, blobs_dir, coldoc.nickname, url]
+    else:
+        from UUID.views import _prepare_latex_options
+        options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     #
     ret = False
     if typ_ == 'tree':

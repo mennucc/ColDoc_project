@@ -17,11 +17,16 @@ from ColDoc.latex import latex_main , latex_anon, latex_tree
 from background_task import background
 
 def latex_generic_sched(subject_prefix, cmd,*v,**k):
+    ## create the real options
     options = k['options']
-    if isinstance(options, (str,bytes) ):
-        # base64 accepts both bytes and str
-        options = pickle.loads(base64.b64decode(options))
+    assert isinstance(options, list)
+    coldoc_dir, blobs_dir, coldoc_nick, url = options
+    from ColDocApp.models import DColDoc
+    coldoc = DColDoc.objects.filter(nickname = coldoc_nick).get()
+    from UUID.views import _prepare_latex_options
+    options = _prepare_latex_options(None, coldoc_dir, blobs_dir, coldoc, url)
     k['options'] = options
+    ##
     if 'verbose_name' in k: del k['verbose_name']
     a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
     logger.debug('Starting scheduled %s ( %s , %s)' , cmd.__name__, ' , '.join(v), a)
