@@ -45,7 +45,7 @@ class squash_helper_ref(transform.squash_input_uuid):
             # this will recover the value given to the label
             value=None
             try:
-                for j in ExtraMetadata.objects.filter(key='AUX_label',value=label):
+                for j in ExtraMetadata.objects.filter(key='AUX_label_'+self.lang, value=label):
                     # prefer label information from that specific blob
                     if j.second_value and (value is None or j.blob == blob):
                         value = j.second_value.split('\t')[0]

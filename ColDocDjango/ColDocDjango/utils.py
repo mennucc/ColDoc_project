@@ -188,16 +188,16 @@ def   parse_for_labels_all_aux(coldoc_dir, blobs_dir, coldoc, metadata):
             if os.path.exists(aux_name):
                 parse_for_labels_workhorse(aux_name, labels, mytex)
     #
-    metadata.delete2(key='AUX_label')
+    metadata.delete2(key='AUX_label_'+lang)
     for c,n,o,a in labels.values():
-        metadata.add2( key =  'AUX_label', value = c, second_value = o)
+        metadata.add2( key =  'AUX_label_'+lang, value = c, second_value = o)
 
 def   parse_for_labels_callback(coldoc_dir, coldoc, #partialized
                                  return_values, blobs_dir, metadata,lang, save_name):
     aux_name = osjoin(blobs_dir, save_name + '.aux')
-    metadata.delete2(key='AUX_label')
+    metadata.delete2(key='AUX_label_'+lang)
     if os.path.exists(aux_name):
         labels = parse_for_labels_workhorse(aux_name)
         for t in labels.values():
             c,n,o,a = t
-            metadata.add2( key =  'AUX_label', value = c, second_value = o)
+            metadata.add2( key =  'AUX_label_'+lang, value = c, second_value = o)
