@@ -535,6 +535,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
     if coldoc is not None:
         retcodes = ColDoc.utils.json_to_dict(coldoc.latex_return_codes)
     #
+    callback =  options.get('callback_after_blob_compiled')
+    #
     for lang in  langs:
         #
         _lang = ('_'+lang) if (isinstance(lang,str) and lang) else ''
@@ -627,6 +629,9 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             else:
                 logger.debug('No such file %r , did not copy to %r',a,b)
         #
+        if  callback and access != 'public':
+            callback(return_values=(rh,rp), blobs_dir = blobs_dir, metadata=metadata, lang = lang, save_name=save_name)
+        #
         ret = ret and rh and rp
     #
     if coldoc is not None:
@@ -635,10 +640,6 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             coldoc.latex_time_update()
         coldoc.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
         coldoc.save()
-    #
-    callback =  options.get('callback_after_blob_compiled')
-    if  callback and access != 'public':
-        callback(return_values=(rh,rp), blobs_dir = blobs_dir, metadata=metadata, lang = lang, save_name=save_name)
     #
     return ret
 
