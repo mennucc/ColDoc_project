@@ -19,6 +19,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 from django.conf import settings
 from django.utils.translation.trans_real import parse_accept_lang_header
+from django.db import transaction
 
 try:
     import pycountry
@@ -188,16 +189,20 @@ def   parse_for_labels_all_aux(coldoc_dir, blobs_dir, coldoc, metadata):
             if os.path.exists(aux_name):
                 parse_for_labels_workhorse(aux_name, labels, mytex)
     #
-    metadata.delete2(key='AUX_label_'+lang)
-    for c,n,o,a in labels.values():
-        metadata.add2( key =  'AUX_label_'+lang, value = c, second_value = o)
+    with transaction.atomic():
+        metadata.delete2(key='AUX_label_'+lang)
+        for c,n,o,a in labels.values():
+            metadata.add2( key =  'AUX_label_'+lang, value = c, second_value = o)
 
 def   parse_for_labels_callback(coldoc_dir, coldoc, #partialized
                                  return_values, blobs_dir, metadata,lang, save_name):
     aux_name = osjoin(blobs_dir, save_name + '.aux')
-    metadata.delete2(key='AUX_label_'+lang)
     if os.path.exists(aux_name):
         labels = parse_for_labels_workhorse(aux_name)
-        for t in labels.values():
-            c,n,o,a = t
-            metadata.add2( key =  'AUX_label_'+lang, value = c, second_value = o)
+        with transaction.atomic():
+            metadata.delete2(key='AUX_label_'+lang)
+            for t in labels.values():
+                c,n,o,a = t
+                metadata.add2( key =  'AUX_label_'+lang, value = c, second_value = o)
+    else:
+        logger.warning('Aux file does not exist: %r', aux_name)
