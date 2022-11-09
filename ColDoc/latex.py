@@ -28,6 +28,8 @@ Command help:
 
 import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm
 
+use_fork = (sys.platform == 'linux')
+
 if sys.version_info >= (3,9):
     from os import waitstatus_to_exitcode
 else:
@@ -189,7 +191,7 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     res = {}
     langpids = []
     for l in langs:
-        if sys.platform == 'linux' and len(langs)>1:
+        if use_fork and len(langs)>1:
             other_pid_ = os.fork()
             if other_pid_ == 0:
                 rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
@@ -394,7 +396,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     fake_texfile.close()
     #
     other_pid_ = rp = None
-    if sys.platform == 'linux':
+    if use_fork:
         # forking
         other_pid_ = os.fork()
         if other_pid_ == 0:
@@ -572,7 +574,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             f_.write(f_pdf)
         #
         other_pid_ = rp = None
-        if sys.platform == 'linux':
+        if use_fork:
             # forking
             other_pid_ = os.fork()
             if other_pid_ == 0:
