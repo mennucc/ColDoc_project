@@ -156,27 +156,8 @@ def latex(request, NICK):
     #
     assert slug_re.match(typ_)
     #
-    from ColDoc.latex import prepare_options_for_latex
-    options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, coldoc)
-    #
-    url = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname,'UUID':'000'})[:-4]
-    url = request.build_absolute_uri(url)
-    # used for PDF
-    options['url_UUID'] = url
-    options['coldoc'] = coldoc
-    options['metadata_class'] = DMetadata
-    # used to dedup plastex stuff
-    options['coldoc_site_root']  = settings.COLDOC_SITE_ROOT
-    options['dedup_root'] = settings.DEDUP_ROOT
-    options['dedup_url'] = settings.DEDUP_URL
-    #
-    options['html_to_text_callback'] =  functools.partial(text_catalog.update_text_catalog_for_uuid, coldoc=coldoc)
-    # needed by `latex_tree`
-    if typ_ == 'tree':
-        load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
-        options["squash_helper"] = functools.partial(squash_helper_ref, coldoc=coldoc, load_uuid=load_uuid)
-    # this signals `latex_main` to run `prepare_options_for_latex()` 
-    options['coldoc_dir'] = coldoc_dir
+    from UUID.views import _prepare_latex_options
+    options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
     options = base64.b64encode(pickle.dumps(options)).decode()
     #
     ret = False
