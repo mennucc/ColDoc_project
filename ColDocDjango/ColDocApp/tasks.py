@@ -16,8 +16,7 @@ from ColDoc.latex import latex_main , latex_anon, latex_tree
 
 from background_task import background
 
-@background()
-def latex_main_sched(*v,**k):
+def latex_generic_sched(subject_prefix, cmd,*v,**k):
     options = k['options']
     if isinstance(options, (str,bytes) ):
         # base64 accepts both bytes and str
@@ -25,15 +24,15 @@ def latex_main_sched(*v,**k):
     k['options'] = options
     if 'verbose_name' in k: del k['verbose_name']
     a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
-    logger.debug('Starting scheduled latex_main ( %s , %s)' , ' , '.join(v), a)
+    logger.debug('Starting scheduled %s ( %s , %s)' , cmd.__name__, ' , '.join(v), a)
     email_to = k.pop('email_to',None)
     coldoc = options.get('coldoc')
     time_ = -time.time()
-    ret = latex_main(*v,**k)
+    ret = cmd(*v,**k)
     time_ += time.time()
     time_ = datetime.timedelta(seconds=int(time_))
     if email_to:
-        E = EmailMessage(subject='latex whole private version of '+str(coldoc),
+        E = EmailMessage(subject=subject_prefix+str(coldoc),
                          from_email=settings.DEFAULT_FROM_EMAIL,
                          to=[email_to],)
         E.body = 'Run for %s, %s' %( time_ , 'success' if ret else 'failed')
@@ -41,58 +40,19 @@ def latex_main_sched(*v,**k):
             E.send()
         except:
             logger.exception('While sending email')
+
+
+@background()
+def latex_main_sched(*v,**k):
+    return latex_generic_sched('latex whole private version of ', latex_main, *v, **k)
 
 @background()
 def latex_anon_sched(*v,**k):
-    options = k['options']
-    if isinstance(options, (str,bytes) ):
-        # base64 accepts both bytes and str
-        options = pickle.loads(base64.b64decode(options))
-    k['options'] = options
-    if 'verbose_name' in k: del k['verbose_name']
-    a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
-    logger.debug('Starting scheduled latex_anon ( %s , %s)' , ' , '.join(v), a)
-    email_to = k.pop('email_to',None)
-    coldoc = options.get('coldoc')
-    time_ = -time.time()
-    ret = latex_anon(*v,**k)
-    time_ += time.time()
-    time_ = datetime.timedelta(seconds=int(time_))
-    if email_to:
-        E = EmailMessage(subject='latex whole public version of '+str(coldoc),
-                         from_email=settings.DEFAULT_FROM_EMAIL,
-                         to=[email_to],)
-        E.body = 'Run for %s, %s' %( time_ , 'success' if ret else 'failed')
-        try:
-            E.send()
-        except:
-            logger.exception('While sending email')
+    return latex_generic_sched('latex whole public version of ', latex_anon, *v, **k)
 
 @background()
 def latex_tree_sched(*v,**k):
-    options = k['options']
-    if isinstance(options, (str,bytes) ):
-        # base64 accepts both bytes and str
-        options = pickle.loads(base64.b64decode(options))
-    k['options'] = options
-    if 'verbose_name' in k: del k['verbose_name']
-    a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )
-    logger.debug('Starting scheduled latex_tree ( %s , %s)' , ' , '.join(v), a)
-    email_to = k.pop('email_to',None)
-    coldoc = options.get('coldoc')
-    time_ = -time.time()
-    ret = latex_tree(*v,**k)
-    time_ += time.time()
-    time_ = datetime.timedelta(seconds=int(time_))
-    if email_to:
-        E = EmailMessage(subject='latex whole tree of blobs of '+str(coldoc),
-                         from_email=settings.DEFAULT_FROM_EMAIL,
-                         to=[email_to],)
-        E.body = 'Run for %s, %s' %( time_ , 'success' if ret else 'failed')
-        try:
-            E.send()
-        except:
-            logger.exception('While sending email')
+    return latex_generic_sched('latex whole tree of blobs of ', latex_tree, *v, **k)
 
 
 from background_task.models import Task, CompletedTask
