@@ -1,0 +1,26 @@
+From 942b13e6def2cc3731c4c4a4d876b288e80b6ee1 Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Fri, 11 Nov 2022 13:33:14 +0100
+Subject: [PATCH] pass `argv` to parser.parse_args (otherwise sys.argv is
+ parsed)
+
+---
+ plasTeX/plastex | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plasTeX/plastex b/plasTeX/plastex
+index cd8189e..0dc7bf4 100755
+--- a/plasTeX/plastex
++++ b/plasTeX/plastex
+@@ -41,7 +41,7 @@ def main(argv):
+ 
+     parser.add_argument("file", help="File to process")
+ 
+-    data = parser.parse_args()
++    data = parser.parse_args(argv)
+     data = vars(data)
+     if data["config"] is not None:
+         config.read(data["config"])
+-- 
+2.34.1
+
