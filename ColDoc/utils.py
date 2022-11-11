@@ -1,5 +1,5 @@
 import itertools, sys, os, stat, io, copy, logging, shelve, unicodedata
-import re, pathlib, subprocess, datetime, json
+import re, pathlib, subprocess, datetime, json, time
 import tempfile, shutil, json, hashlib, importlib
 import functools, inspect
 import traceback, contextlib
@@ -954,12 +954,14 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
         f_.write('start at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
     #
     exception = None
+    t = time.time()
     if True:
         stdout_d = open(stdout_,'a')
         p = subprocess.Popen(['plastex']+argv_, cwd=cwd_, stdin=open(os.devnull),
                              stdout=stdout_d, stderr=subprocess.STDOUT)
         p.wait()
         stdout_d.write('end at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
+        stdout_d.write('Elapsed: %.3f\n' %  (time.time() - t))
         return p.returncode
     # unfortunately this code is unstable, it crashes on long runs
     # (probably the plastex library uses too much memory on repeated calls)
@@ -982,6 +984,7 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
         traceback.print_exception(*exception, file = L)
         L.close()
     F.write('end at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now())))
+    F.write('Elapsed: %.3f\n' %  (time.time()-t))
     F.close()
     os.chdir(cwdO)
     return 0 if (exception is None) else 1
