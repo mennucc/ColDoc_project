@@ -322,6 +322,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         o.delete()
     def add2(self, key, value, second_value):
         ExtraMetadata(blob = self, key =  key, value = value, second_value = second_value).save()
+    def items2(self):
+        " yields key,[(a1,a2),(b1,b2),(c1,c2),...] "
+        seen = set()
+        for key in ExtraMetadata.objects.filter(blob=self).values_list('key', flat=True):
+            if key not in seen:
+                yield key, ExtraMetadata.objects.filter(blob=self, key=key).exclude(second_value=None).values_list('value', 'second_value')
+            seen.add(key)
     #
     def get(self, key, default = None):
         """returns a list of all values associated to `key` ; it returns the list even when `key` is known to be singlevalued"""
@@ -381,7 +388,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         seen = set()
         for key in ExtraMetadata.objects.filter(blob=self).values_list('key', flat=True):
             if key not in seen:
-                yield key, ExtraMetadata.objects.filter(blob=self, key=key).values_list('value', flat=True)
+                yield key, ExtraMetadata.objects.filter(blob=self, key=key).filter(second_value=None).values_list('value', flat=True)
             seen.add(key)
     #
     def htmlitems(self):
