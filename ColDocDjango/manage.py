@@ -55,7 +55,7 @@ if __name__ == '__main__':
     logger.addHandler(handler)
     #
     for j in ('','.'):
-        if j in sys.path:
+        while j in sys.path:
             logger.warning('del %r from sys.path',j)
             del sys.path[sys.path.index(j)]
     #

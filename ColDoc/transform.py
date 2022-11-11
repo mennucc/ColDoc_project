@@ -24,7 +24,7 @@ from collections import OrderedDict
 
 if __name__ == '__main__':
     for j in ('','.'):
-        if j in sys.path:
+        while j in sys.path:
             sys.stderr.write('Warning: deleting %r from sys.path\n',j)
             del sys.path[sys.path.index(j)]
     #
