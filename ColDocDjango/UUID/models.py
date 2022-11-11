@@ -179,6 +179,9 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 if isinstance(v, ColDocUser):
                     v = v.username
                 F.write( k + '=' + str(v) + '\n')
+        for k,vv in self.items2():
+            for v1,v2 in vv:
+                F.write( k + '=' + str(v1) + '\t' + str(v2) + '\n')
         F.write('saved_by_django=True')
         F.close()
     #
