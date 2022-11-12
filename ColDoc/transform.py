@@ -198,6 +198,22 @@ class squash_helper_stack(squash_helper_base):
                 logger.warning('file %r : disaligned stack, top is %r instead of %r, not popping', self.input_filename, top, end)
                 return top
 
+class squash_helper_item_begin_end(squash_helper_stack):
+    "add newlines after item or theorem"
+    present_to_GUI = True
+    def process_macro(self,tok):
+        macroname = str(tok.macroName)
+        if macroname == 'item':
+            s = self.thetex.readOptionalSpaces()
+            return '\\item\n'
+        return None
+    def process_begin(self, begin):
+        s = self.thetex.readOptionalSpaces()
+        return '\\begin{%s}\n' % begin
+    def process_end(self, end):
+        s = self.thetex.readOptionalSpaces()
+        return '\\end{%s}\n' % end
+
 class squash_helper_dedollarize(squash_helper_stack):
     " change $...$ to \(...\) and $$...$$ to \[...\] "
     remap = {
