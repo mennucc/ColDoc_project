@@ -706,7 +706,7 @@ def postlang(request, NICK, UUID):
                     try:
                         from ColDoc.latex import prepare_options_for_latex
                         options = prepare_options_for_latex(coldoc_dir, blobs_dir, DMetadata, metadata.coldoc)
-                        helper = transform.squash_helper_token2unicode()
+                        helper = transform.squash_helper_token2unicode
                         out = io.StringIO()
                         inp = io.StringIO(string)
                         inp.name = '%s / %s (%s)' %(nick_, uuid_, lang_)
@@ -866,24 +866,20 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
         if name.startswith('squash'):
             squash_helper.append(fun)
     if token_filters:
-        helper = transform.squash_helper_stack()
+        helper = transform.squash_helper_stack
         out = io.StringIO()
         inp = io.StringIO(blob)
         inp.name = filename
-        transform.squash_latex(inp, out, options, helper, token_filters)
-        errors += helper.errors
+        helper = transform.squash_latex(inp, out, options, helper, token_filters, errors)
         if helper == transform.squash_helper_token2unicode() :
             blob = transform.unsquash_unicode2token(out.getvalue(), helper)
         else:
             blob = out.getvalue()
     for helper in squash_helper:
-        if inspect.isclass(helper):
-            helper = helper() # helpers are classes, we need an instance
         out = io.StringIO()
         inp = io.StringIO(blob)
         inp.name = filename
-        transform.squash_latex(inp, out, options, helper)
-        errors += helper.errors
+        helper = transform.squash_latex(inp, out, options, helper, errors)
         if isinstance(helper, transform.squash_helper_token2unicode) :
             blob = transform.unsquash_unicode2token(out.getvalue(), helper)
         else:
