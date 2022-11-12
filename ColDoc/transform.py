@@ -129,9 +129,9 @@ class helper_command(enum.Enum):
 class squash_helper_base(object):
     "base class, does nothing"
     input_filename = None
-    def __init__(self, thetex=None, itertokens=None, options={}, input_filename=None, errors = None):
+    def __init__(self, thetex=None,  options={}, input_filename=None, errors = None):
         self.thetex = thetex
-        self.itertokens = itertokens
+        self.itertokens = thetex.itertokens() if thetex is not None else None
         self.options = options
         self.input_filename = input_filename
         # a list of pairs (s,a) where s is an error string that can be translate before rendering,
@@ -234,8 +234,8 @@ class squash_helper_dedollarize(squash_helper_stack):
 class filter_accents_to_unicode(object):
     ' Convert accents, e.g.: \'e  → é , \`a  → à , \"u  →  ü '
     active_in_GUI = True
-    def __init__(self,itertokens, thetex, errors = None):
-        self.itertokens = itertokens
+    def __init__(self, thetex, errors = None):
+        self.itertokens = thetex.itertokens()
         self.thetex = thetex
         self.errors = errors if errors is not None else []
     def __iter__(self):
@@ -266,9 +266,9 @@ class filter_accents_to_unicode(object):
 
 
 class filterdict(object):
-    def __init__(self, itertokens, thetex, errors = None, update = None):
+    def __init__(self, thetex, errors = None, update = None):
         " the `update` parameter is a dict { macro : unicode } that can be used to override part of the transform"
-        self.itertokens = itertokens
+        self.itertokens = thetex.itertokens()
         self.thetex = thetex
         if update:
             self.update(update)
@@ -538,7 +538,7 @@ class squash_helper_token2unicode(squash_helper_stack):
         basehelper.input_filename = 'SUB ' + str(self.input_filename)
         newout = io.StringIO()
         #print('recurse up to ',env_upto)
-        squash_recurse(newout, self.thetex, self.itertokens, self.options, basehelper, env_upto)
+        squash_recurse(newout, self.thetex, self.options, basehelper, env_upto)
         #print('recursed ended up to ',env_upto)
         s = newout.getvalue()
         #s = re.sub(" +", ' ',s)
@@ -629,7 +629,6 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
     # FIXME it is only useful for the token2unicode machinery 
     ColDoc.utils.TeX_add_packages(thetex, options)
     #
-    itertokens = thetex.itertokens()
     # stub tokenizer that reads the previous tokenizer
     class __stub__(TokenizerPassThru.TokenizerPassThru):
         def __init__(self,*args, **kwargs):
@@ -645,14 +644,14 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
     #
     for f in filters:
         # passing helper.errors makes sure that all errors are recorded into it
-        itertokens = iter(f(itertokens, thetex, errors = helper.errors))
+        itertokens = iter(f(thetex, errors = helper.errors))
         # replace original itertokens
         thetex = TeX()
         # this just sets the input name
         thetex.input('QQQZZZWWW', Tokenizer=functools.partial(__stub__,previous_iterator=itertokens))
     #
     helper.thetex = thetex
-    helper.itertokens = itertokens
+    helper.itertokens = thetex.itertokens()
     helper.options = options
     if helper.input_filename is None:
         helper.input_filename = getattr(inp,'name', '<unnamed_stream>')
