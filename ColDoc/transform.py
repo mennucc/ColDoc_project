@@ -838,7 +838,7 @@ def reparse_metadata(inp, metadata, lang, blobs_dir, options, load_uuid=None):
     itertokens = thetex.itertokens()
     #
     helper = squash_helper_reparse_metadata(blobs_dir, metadata, options,
-                                            thetex=thetex, itertokens=itertokens, load_uuid=load_uuid, lang=lang)
+                                            thetex=thetex, load_uuid=load_uuid, lang=lang)
     from ColDoc.latex import environments_we_wont_latex
     if metadata.environ not in environments_we_wont_latex:
         helper.input_macros_with_parameters += options['split_graphic']
