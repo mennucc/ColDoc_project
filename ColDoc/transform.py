@@ -10,7 +10,7 @@
 
 ############## system modules
 
-import  sys, os, io, re, json, pickle, enum, tempfile, unicodedata, subprocess, inspect
+import  sys, os, io, re, json, pickle, enum, tempfile, unicodedata, functools, inspect
 import itertools, copy, string, argparse, importlib, shutil, pathlib, copy
 import os.path
 from os.path import join as osjoin
@@ -614,9 +614,26 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
     ColDoc.utils.TeX_add_packages(thetex, options)
     #
     itertokens = thetex.itertokens()
+    # stub tokenizer that reads the previous tokenizer
+    class __stub__(TokenizerPassThru.TokenizerPassThru):
+        def __init__(self,*args, **kwargs):
+            self.previous_iterator = kwargs.pop('previous_iterator')
+            super().__init__(*args, **kwargs)
+        def __iter__(self):
+            mybuffer = self._tokBuffer
+            while True:
+                # Purge mybuffer first
+                while mybuffer:
+                    yield mybuffer.pop(0)
+                yield next(self.previous_iterator)
+    #
     for f in filters:
         # passing helper.errors makes sure that all errors are recorded into it
         itertokens = iter(f(itertokens, thetex, errors = helper.errors))
+        # replace original itertokens
+        thetex = TeX()
+        # this just sets the input name
+        thetex.input('QQQZZZWWW', Tokenizer=functools.partial(__stub__,previous_iterator=itertokens))
     #
     helper.thetex = thetex
     helper.itertokens = itertokens
