@@ -668,7 +668,7 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
         helper.options = options
     if helper.input_filename is None:
         helper.input_filename = getattr(inp,'name', '<unnamed_stream>')
-    squash_recurse(out, thetex, itertokens, options, helper)
+    squash_recurse(out, thetex, options, helper)
     if getattr(helper, 'stack', []):
         logger.warning('squash_latex : file %r : unterminated group, stack is %r', helper.input_filename, helper.stack)
     return helper
@@ -700,7 +700,8 @@ def process_helper_command(cmds, out, default_string):
     return []
 
 
-def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
+def squash_recurse(out, thetex, options, helper, popmacro=None):
+    itertokens = thetex.itertokens()
     for tok in itertokens:
         # detect $ and $$
         if isinstance(tok, TokenizerPassThru.MathShift):
@@ -740,7 +741,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                     r = helper.process_begin(begin)
                     r = process_helper_command(r, out, '\\begin{'+begin+'}')
                     if  helper_command.NORECURSE not in r:
-                        squash_recurse(out, thetex, itertokens, options, helper, 'E_'+begin)
+                        squash_recurse(out, thetex, options, helper, 'E_'+begin)
                     if  helper_command.POPSTACK in r: return
             elif macroname == 'end':
                 end = thetex.readArgument(type=str)
@@ -769,7 +770,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
                 if macroname in macros_begin_end and helper_command.NORECURSE not in r:
                     end = macros_begin_end[macroname]
                     helper.stack_push('\\'+end)
-                    squash_recurse(out, thetex, itertokens, options, helper, '\\'+end)
+                    squash_recurse(out, thetex, options, helper, '\\'+end)
                 elif ('\\'+macroname) == popmacro:
                     helper.stack_pop('\\'+macroname)
                     return macroname
@@ -790,7 +791,7 @@ def squash_recurse(out, thetex, itertokens, options, helper, popmacro=None):
             if tok == popmacro :
                 return
             elif  (helper_command.NORECURSE not in r) and tok in ('$','$$'):
-                squash_recurse(out, thetex, itertokens, options, helper, tok)
+                squash_recurse(out, thetex, options, helper, tok)
             if  helper_command.POPSTACK in r: return
 
 
@@ -842,7 +843,7 @@ def reparse_metadata(inp, metadata, lang, blobs_dir, options, load_uuid=None):
     if metadata.environ not in environments_we_wont_latex:
         helper.input_macros_with_parameters += options['split_graphic']
     #
-    squash_recurse(out, thetex, itertokens, options, helper)
+    squash_recurse(out, thetex, options, helper)
     #
     inp_f.close()
     #
