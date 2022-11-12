@@ -608,10 +608,14 @@ def unsquash_unicode2token(text, helper):
     return text
 
 def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
-                 helper=None, filters = []):
+                 helper=None, filters = [], errors = None):
     " transforms LaTeX file"
     if helper is None:
-        helper = squash_helper_base()
+        helper = squash_helper_base
+    if errors is None:
+        errors = []
+    else:
+        assert isinstance(errors,list)
     #
     assert isinstance(inp, io.IOBase)
     assert isinstance(out, io.IOBase)
@@ -649,15 +653,19 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
     #
     for f in filters:
         # passing helper.errors makes sure that all errors are recorded into it
-        itertokens = iter(f(thetex, errors = helper.errors))
+        itertokens = iter(f(thetex, errors = errors))
         # replace original itertokens
         thetex = TeX()
         # this just sets the input name
         thetex.input('QQQZZZWWW', Tokenizer=functools.partial(__stub__,previous_iterator=itertokens))
     #
-    helper.thetex = thetex
-    helper.itertokens = thetex.itertokens()
-    helper.options = options
+    if inspect.isclass(helper):
+        helper = helper(thetex, options, errors = errors) # helpers are classes, we need an instance
+    else:
+        assert isinstance(helper, squash_helper_base)
+        helper.thetex = thetex
+        helper.itertokens = thetex.itertokens()
+        helper.options = options
     if helper.input_filename is None:
         helper.input_filename = getattr(inp,'name', '<unnamed_stream>')
     squash_recurse(out, thetex, itertokens, options, helper)
