@@ -636,11 +636,16 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
             super().__init__(*args, **kwargs)
         def __iter__(self):
             mybuffer = self._tokBuffer
-            while True:
-                # Purge mybuffer first
-                while mybuffer:
-                    yield mybuffer.pop(0)
-                yield next(self.previous_iterator)
+            try:
+                while True:
+                    # Purge mybuffer first
+                    while mybuffer:
+                        a = mybuffer.pop(0)
+                        yield a
+                    a = next(self.previous_iterator)
+                    yield a
+            except StopIteration:
+                pass
     #
     for f in filters:
         # passing helper.errors makes sure that all errors are recorded into it
