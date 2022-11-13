@@ -2064,6 +2064,8 @@ def index(request, NICK, UUID):
     def reverse_uuid(u):
         l = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':u}) 
         return '<a href="%s">%s</a>' %(l,u)
+    def reverse_uuid_link(u):
+        return django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':u}) 
     #
     replaces = metadata.get('M_replaces')
     # flatten by punctuation
@@ -2073,6 +2075,17 @@ def index(request, NICK, UUID):
     replaces = ',\n'.join([reverse_uuid(u)  for u in  replaces ])
     #
     replacedby = ',\n'.join([reverse_uuid(blob.uuid)  for blob in  uuid_replaced_by(coldoc, UUID) ])
+    #
+    bibliofiles = DMetadata.objects.filter(environ__contains='bibliography').filter(coldoc=coldoc).all()
+    bibliolink = ''
+    if not bibliofiles:
+        bibliofiles = []
+    elif request.user.is_editor or request.user.is_author:
+        bibliofiles = [ ( (  (b.original_filename.strip() or b.uuid.strip()) + b.extension.strip())  ,\
+                          reverse_uuid_link(b.uuid) ) for b in bibliofiles]
+    else:
+        bibliolink = reverse_uuid_link(bibliofiles[0].uuid) if bibliofiles else ''
+        bibliofiles = []
     #
     return render(request, 'UUID.html', locals() )
 

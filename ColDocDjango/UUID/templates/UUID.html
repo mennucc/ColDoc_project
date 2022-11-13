@@ -192,6 +192,17 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
       {% translate "This element replaces" %}  &nbsp;{{ replaces | safe }}
      </div>
      {% endif %}
+
+     {% if bibliofiles or bibliolink %}
+     <div class="border border-info mt-2">
+         {% if bibliolink %} <a href="{{ bibliolink }}"> {% translate "Bibliography" %}</a>
+	 {% else %}  {% translate "Bibliography" %} {% endif %}
+         {% for val,link in bibliofiles %}
+                <a href="{{ link }}">  {{ val }}  </a>
+		{#% if u == bibliofiles.last %} . {% else %} ; {% endif %} {% endfor #}
+         {% endfor %}
+     </div>
+     {% endif %}
       
   </div>
  {% endif %}
