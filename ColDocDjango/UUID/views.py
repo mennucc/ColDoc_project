@@ -710,7 +710,7 @@ def postlang(request, NICK, UUID):
                         out = io.StringIO()
                         inp = io.StringIO(string)
                         inp.name = '%s / %s (%s)' %(nick_, uuid_, lang_)
-                        transform.squash_latex(inp, out, options, helper)
+                        helper = transform.squash_latex(inp, out, options, helper)
                         translated = settings.TRANSLATOR(out.getvalue(), lang_, langchoice_)
                         string = transform.unsquash_unicode2token(translated, helper)
                         m = _('A blob with language %(newlang)r extension %(ext)r was automatically translated (%(len)d chars) from %(oldlang)r.')%\
