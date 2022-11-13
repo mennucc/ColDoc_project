@@ -1,13 +1,27 @@
-import os, sys, io, unittest, tempfile
+"""
+run this as
+$ python3 ./unittests/test_transform.py
+or
+$ pytest-3 ./unittests/test_transform.py 
+"""
+
+import os, sys, io, unittest, tempfile, shutil
 from os.path import join as osjoin
 
 testdir = os.path.dirname(os.path.realpath(__file__))
 sourcedir = os.path.dirname(testdir)
 
-if __name__ == '__main__':
-    sys.path.append(osjoin(sourcedir,'ColDocDjango'))
+sys.path.append(osjoin(sourcedir,'ColDocDjango'))
 
 from ColDoc import transform as T
+
+
+if True:
+    myTestCase = unittest.TestCase
+else:
+    # FIXME  find a way to have it work with Django
+    import django, django.test
+    myTestCase = django.test.TestCase
 
 
 
@@ -45,7 +59,7 @@ Tabella verità
 \end{B}\end{A}
 """
 
-class TestTransform(unittest.TestCase):
+class TestTransform(myTestCase):
 
     def test_tokenizer(self):
         helper=T.squash_helper_token2unicode()
@@ -119,10 +133,10 @@ class TestTransform(unittest.TestCase):
     def test_closed_groups_no_log(self):
         inp = io.StringIO(latex_correct)
         out = io.StringIO()
-        helper=T.squash_helper_stack()
+        helper=T.squash_helper_stack
         with self.assertNoLogs() as cm:
-            T.squash_latex(inp,out,{},helper)
-        self.assertEqual(out.getvalue() , s)
+            helper=T.squash_latex(inp,out,{},helper)
+        #self.assertEqual(out.getvalue() , s)
         self.assertFalse(helper.stack)
 
     def test_closed_groups(self):
@@ -139,31 +153,32 @@ class TestTransform(unittest.TestCase):
         \endgroup
         \end{G}
         """
-        helper=T.squash_helper_stack()
+        helper=T.squash_helper_stack
         inp = io.StringIO(s)
         out = io.StringIO()
         with self.assertLogs() as cm:
-            T.squash_latex(inp,out,{},helper)
+            helper=T.squash_latex(inp,out,{},helper)
         for r in cm.records:
             if ( '-vv' in sys.argv):
                 sys.stdout.write('\n logs: ' + r.funcName + ' : ' + str(r.lineno) + ' : ' + r.msg % r.args + '\n')
             self.assertTrue('disaligned' in r.msg)
         self.assertEqual(out.getvalue() , s)
-        self.assertFalse(helper.stack)
+        stack=helper.stack
+        self.assertFalse(stack,'stack='+ repr(stack))
 
     def __test_tokenize_detokenize(self, text, willlog=False):
-        helper=T.squash_helper_token2unicode()
+        helper=T.squash_helper_token2unicode
         inp = io.StringIO(text)
         out = io.StringIO()
         if willlog:
             with self.assertLogs() as cm:
-                T.squash_latex(inp,out,{},helper)
+                helper=T.squash_latex(inp,out,{},helper)
             R = cm.records
         elif sys.version_info >= (3,10,0):
             with self.assertNoLogs() as cm:
-                T.squash_latex(inp,out,{},helper)
+                helper=T.squash_latex(inp,out,{},helper)
         else:
-            T.squash_latex(inp,out,{},helper)
+            helper=T.squash_latex(inp,out,{},helper)
             R = []
         #json.dump(helper.token_map, open(tokens,'w'), indent=2)
         detok=T.unsquash_unicode2token(out.getvalue(), helper)
@@ -175,11 +190,28 @@ class TestTransform(unittest.TestCase):
     def test_tokenize_detokenize(self):
         return self.__test_tokenize_detokenize(latex_correct)
 
-    def test_tokenize_detokenize_endgroup(self):
-        return self.__test_tokenize_detokenize(r'\endgroup' + latex_correct, willlog=True)
+    def __test_stack(self, text, willlog=False):
+        helper=T.squash_helper_stack
+        inp = io.StringIO(text)
+        out = io.StringIO()
+        if willlog:
+            with self.assertLogs() as cm:
+                helper=T.squash_latex(inp,out,{},helper)
+            R = cm.records
+        elif sys.version_info >= (3,10,0):
+            with self.assertNoLogs() as cm:
+                helper=T.squash_latex(inp,out,{},helper)
+        else:
+            helper=T.squash_latex(inp,out,{},helper)
+            R = []
+        self.assertFalse(helper.stack)
 
-    def test_tokenize_detokenize_end_itemize(self):
-        return self.__test_tokenize_detokenize(r'\end{itemize}' + latex_correct, willlog=True)
+
+    def test_stack_endgroup(self):
+        return self.__test_stack(r'\endgroup' + latex_correct, willlog=True)
+
+    def test_stack_end_itemize(self):
+        return self.__test_stack(r'\end{itemize}' + latex_correct, willlog=True)
 
     def test_reparse_metadata(self):
         d = tempfile.mkdtemp()
@@ -204,8 +236,7 @@ class TestTransform(unittest.TestCase):
         self.assertEqual(expected_backmap, back_map_)
         self.assertEqual(expected_metadata, metadata_)
         os.unlink(inp.name)
-        os.unlink(osjoin(d,'.back_map.pickle'))
-        os.rmdir(d)
+        shutil.rmtree(d)
 
     @unittest.skip('macros inside arguments of macros have an extra space at the end')
     def test_tokenize_detokenize_sec1(self):
