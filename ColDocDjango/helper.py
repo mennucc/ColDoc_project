@@ -162,7 +162,7 @@ def _build_fake_email(e):
     return a[:j] + '+' + e + a[j:]
 
 
-def create_fake_users(COLDOC_SITE_ROOT):
+def create_fake_users(COLDOC_SITE_ROOT=None, log=print):
     from django.db.utils import IntegrityError
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth.models import Permission
@@ -170,20 +170,20 @@ def create_fake_users(COLDOC_SITE_ROOT):
     import django.contrib.auth as A
     UsMo = A.get_user_model()
     for U,P in ('buyer', 'barfoo'), ('jsmith',"123456"), ('jdoe',"345678"), ('ed_itor','345678'), ('reviewer','marvel'):
-        print('*** creating user %r password %r' % (U,P))
+        log('*** creating user %r password %r' % (U,P))
         E=_build_fake_email(U)
         try:
             UsMo.objects.create_user(U,email=E,password=P).save()
         except IntegrityError as e:
             logger.debug("Already exists? %r",e)
         except Exception as e:
-            print('Cannot create user %r : %r' %(U,e))
+            log('Cannot create user %r : %r' %(U,e))
     #
     from UUID.models import DMetadata
     for U in  'reviewer', :
         user = UsMo.objects.filter(username=U).get()
         Per = "view_view", "view_blob" , "download"
-        print('*** adding permissions to user %r: %r' % (U,Per))
+        log('*** adding permissions to user %r: %r' % (U,Per))
         metadata_content_type = ContentType.objects.get_for_model(DMetadata)
         for pn in Per:
             permission = Permission.objects.get(content_type = metadata_content_type,
@@ -200,23 +200,23 @@ def create_fake_users(COLDOC_SITE_ROOT):
         for U in  'buyer', :
             user = UsMo.objects.filter(username=U).get()
             Per = (wallet_content_type, "operate"), (wallet_content_type , "view_wallet") , (transaction_content_type, "view_transaction")
-            print('*** adding permissions to user %r: %s' % (U,Per))
+            log('*** adding permissions to user %r: %s' % (U,Per))
             for ct, pn in Per:
                 permission = Permission.objects.get(content_type = ct,
                                                     codename=pn)
                 user.user_permissions.add(permission)
                 permission.save()
                 user.save()
-            print('*** giving 200 coins to %r' % (U,))
+            log('*** giving 200 coins to %r' % (U,))
             wallet.utils.deposit(200, U)
     #
-    print('*** creating superuser "napoleon" password "adrian"')
+    log('*** creating superuser "napoleon" password "adrian"')
     try:
         UsMo.objects.create_superuser('napoleon',email=_build_fake_email('napoleon'),password='adrian').save()
     except IntegrityError:
         pass
     except Exception as e:
-        print('Cannot create user %r : %r' %(U,e))    
+        log('Cannot create user %r : %r' %(U,e))    
     return True 
 
 def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, p_lang, c_lang, selection_start = None, selection_end = None, add_beginend = True):
