@@ -575,9 +575,10 @@ def postlang(request, NICK, UUID):
         logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation("Permission denied")
     #
-    return postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_ )
+    log = functools.partial(messages.add_message,request)
+    return postlang_no_http(log, metadata, prefix, lang_, ext_ , langchoice_ )
 
-def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
+def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
     coldoc = metadata.coldoc
     NICK = metadata.coldoc.nickname
     UUID = metadata.uuid
@@ -610,7 +611,7 @@ def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
                     f_.write(''.join(lines))
         metadata.lang = '\n'.join(Clangs) + '\n'
         metadata.save()
-        messages.add_message(request,messages.INFO,_('Converted to manual language management (non <tt>mul</tt>)'))
+        logmessage(messages.INFO,_('Converted to manual language management (non <tt>mul</tt>)'))
         dst = osjoin(D,'blob_mul'+ext_)
         if os.path.exists(dst):
             os.rename(dst,dst+'~disable~')
@@ -620,7 +621,7 @@ def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
     if prefix == 'multlang' and len(Blangs) == 1:
         if LatexNodes2Text is None:
             a='You may wish to install `pylatexenc` to improve the quality of these conversions'
-            messages.add_message(request,messages.WARNING, a)
+            logmessage(messages.WARNING, a)
             logger.warning(a)
         origlang = Blangs[0]
         src = osjoin(D,'blob_' + origlang + ext_)
@@ -649,7 +650,7 @@ def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
         #
         metadata.lang = 'mul\n'
         metadata.save()
-        messages.add_message(request,messages.INFO, _('Converted to `mul` method'))
+        logmessage(messages.INFO, _('Converted to `mul` method'))
         gen_lang_metadata(metadata, blobs_dir, Clangs)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                         '?lang=mul&ext=%s'%(ext_) )
@@ -676,7 +677,7 @@ def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
             f_.write('\n'.join(output) + '\n')
         metadata.lang = 'mul\n'
         metadata.save()
-        messages.add_message(request,messages.INFO,_('Converted to `mul` method'))
+        logmessage(messages.INFO,_('Converted to `mul` method'))
         gen_lang_metadata(metadata, blobs_dir, Clangs)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                         '?lang=mul&ext=%s'%(ext_) )
@@ -687,7 +688,7 @@ def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
     redirectlang_ = langchoice_
     #
     if not os.path.exists(src):
-        messages.add_message(request,messages.WARNING,
+        logmessage(messages.WARNING,
                              _('A blob with language %(lang)r extension %(ext)r does not exist') %
                              {'lang':iso3lang2word(lang_),'ext':ext_})
         logger.warning('A blob with language %r extension %r does not exist' % (lang_,ext_))
@@ -704,7 +705,7 @@ def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
             os.rename(dst+'~disable~', dst)
         #
         if os.path.exists(dst):
-            messages.add_message(request,messages.WARNING,
+            logmessage(messages.WARNING,
                                  _('A blob with language %(lang)r extension %(ext)r already exists') %
                                  {'lang':iso3lang2word(lang_),'ext':ext_})
         else:
@@ -735,11 +736,11 @@ def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
                             {'newlang':iso3lang2word(langchoice_),'ext':ext_, 'oldlang':iso3lang2word(lang_),
                              'len':len(out.getvalue())} + '\n' + _('Please check it.')
                     except:
-                        messages.add_message(request,messages.WARNING, _('The automatic translation failed'))
+                        logmessage(messages.WARNING, _('The automatic translation failed'))
                         logger.exception('Failed translation from %r to %r of %r', lang_, langchoice_, string)
                 with open(dst,'w') as f_:
                     f_.write(string)
-                messages.add_message(request,messages.INFO, m)
+                logmessage(messages.INFO, m)
             else:
                 logger.warning('rename %r to %r',src,dst)
                 string = open(src).read()
@@ -771,7 +772,7 @@ def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
         else:
             logger.warning(' lang %r not in %r',langchoice_,L)
     else:
-        messages.add_message(request,messages.ERROR, 'Unimplemented %r %r'%(prefix,langchoice_))
+        logmessage(messages.ERROR, 'Unimplemented %r %r'%(prefix,langchoice_))
     ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                     '?lang=%s&ext=%s'%(redirectlang_,ext_) )
