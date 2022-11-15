@@ -71,6 +71,13 @@ from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 def iso3lang2word(*v , **k):
     return gettext_lazy(iso3lang2word_untranslated(*v, **k))
 
+def iso3lang2word_H(*v , **k):
+    # do not show header 'Undetermined' or 'No linguistic content
+    if v[0] in ('zxx','und'):
+        return ''
+    return gettext_lazy(iso3lang2word_untranslated(*v, **k))
+
+
 from .models import DMetadata, DColDoc, uuid_replaced_by
 
 from .shop import encoded_contract_to_buy_permission, can_buy_permission
@@ -1827,7 +1834,7 @@ def index(request, NICK, UUID):
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
             pdfurl = ''
-            all_views = [( view_lang, iso3lang2word(view_lang), html, '')]
+            all_views = [( view_lang, iso3lang2word_H(view_lang), html, '')]
         elif env == 'main_file' and uuid == coldoc.root_uuid:
             pdfurl = ''
             html = ''
@@ -1857,7 +1864,7 @@ def index(request, NICK, UUID):
                 except:
                     logger.exception('cannot add blob %r to list',b)
             html+='</ul>'
-            all_views = [( view_lang, iso3lang2word(view_lang), html, '')]
+            all_views = [( view_lang, iso3lang2word_H(view_lang), html, '')]
         else:
           all_views = []
           for ll in  ([view_lang] if (lang != 'mul') else  CDlangs):
@@ -1881,7 +1888,7 @@ def index(request, NICK, UUID):
                 logger.exception('Problem when preparing HTML for %r',UUID)
                 messages.add_message(request, messages.WARNING,_("HTML preview not available"))
                 html = _('[NO HTML AVAILABLE]')
-            all_views.append(( ll, iso3lang2word(ll), html, pdfurl))
+            all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl))
     else:
         blobcontenttype = 'image' if (ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
         file = html = escapedfile = ''

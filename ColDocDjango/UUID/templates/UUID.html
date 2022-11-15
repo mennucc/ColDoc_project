@@ -160,7 +160,7 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
      <div class="row">
       {% for thislang,thislanguage,html,pdfurl in all_views %}
        <div class="col-sm border border-info mt-1">
-       {# if ('mul' == lang) or (len(Blangs) > 1) or (len(CDlangs) > 1) #} <h3> {% translate thislanguage %}</h3> {# endif #}
+       {# if thislanguage and ( ('mul' == lang) or (len(Blangs) > 1) or (len(CDlangs) > 1) ) #} <h3> {% translate thislanguage %}</h3> {# endif #}
         <div class="border border-info">
          {{ html|safe }}
         </div>
