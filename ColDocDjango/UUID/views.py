@@ -575,6 +575,17 @@ def postlang(request, NICK, UUID):
         logger.error('Hacking attempt %r',request.META)
         raise SuspiciousOperation("Permission denied")
     #
+    return postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_ )
+
+def postlang_no_http(request, metadata, prefix, lang_, ext_ , langchoice_):
+    coldoc = metadata.coldoc
+    NICK = metadata.coldoc.nickname
+    UUID = metadata.uuid
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    blobs_dir = osjoin(coldoc_dir,'blobs')
+    assert os.path.isdir(blobs_dir)
+    Clangs = coldoc.get_languages()
+    #
     D = uuid_to_dir(UUID, blobs_dir)
     D = osjoin(blobs_dir, D)
     #
@@ -716,7 +727,7 @@ def postlang(request, NICK, UUID):
                         helper = transform.squash_helper_token2unicode
                         out = io.StringIO()
                         inp = io.StringIO(string)
-                        inp.name = '%s / %s (%s)' %(nick_, uuid_, lang_)
+                        inp.name = '%s / %s (%s)' %(NICK, UUID, lang_)
                         helper = transform.squash_latex(inp, out, options, helper)
                         translated = settings.TRANSLATOR(out.getvalue(), lang_, langchoice_)
                         string = transform.unsquash_unicode2token(translated, helper)
