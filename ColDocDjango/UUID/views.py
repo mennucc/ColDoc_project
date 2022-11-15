@@ -1881,6 +1881,9 @@ def index(request, NICK, UUID):
           for ll in  ([view_lang] if (lang != 'mul') else  CDlangs):
             pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
                 '?lang=%s&ext=%s'%(ll,ext)
+            view_md5 =''
+            view_mtime = 0
+            html = _('[NO HTML AVAILABLE]')
             try:
                 d = os.path.dirname(filename) + '/'
                 a = 'view'
@@ -1895,10 +1898,12 @@ def index(request, NICK, UUID):
                 a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
                 #
                 html = _html_replace(html, a[:-4], uuid, ll, True, children, highlight)
+            except FileNotFoundError:
+                messages.add_message(request, messages.WARNING, _("HTML preview not available"))
             except:
                 logger.exception('Problem when preparing HTML for %r',UUID)
-                messages.add_message(request, messages.WARNING,_("HTML preview not available"))
-                html = _('[NO HTML AVAILABLE]')
+                messages.add_message(request, messages.ERROR ,_("HTML preview not available, internal error"))
+            #
             all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl))
     else:
         blobcontenttype = 'image' if (ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
