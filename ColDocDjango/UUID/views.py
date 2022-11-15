@@ -376,12 +376,17 @@ def _build_blobeditform_data(metadata,
         blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
     return blobeditform, uncompiled
 
+re_md5 = re.compile('^(blob|view)_[a-z][a-z][a-z]((\.[a-z][a-z]*)|_html/index.html)$')
 
 def md5(request, NICK, UUID, FILE):
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID, accept_anon=True)
-    assert  isinstance(FILE,str) and '..' not in FILE
-    assert ( FILE.startswith('blob') or FILE.startswith('view'))
+    assert  isinstance(FILE,str)
+    if not re_md5.match(FILE):
+        raise SuspiciousOperation("Malformed file: "+repr(FILE))
+    assert ( FILE.startswith('blob') or FILE.startswith('view')) # <- redundant
     metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+    if metadata is None:
+        return HttpResponse('UUID not found', status=http.HTTPStatus.NOT_FOUND)
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     if not request.user.has_perm('UUID.view_view') and FILE.startswith('view'):
         logger.error('Hacking attempt %r',request.META)
@@ -392,7 +397,7 @@ def md5(request, NICK, UUID, FILE):
     from ColDoc.utils import uuid_to_dir
     filename = osjoin(blobs_dir, uuid_to_dir(UUID), FILE)
     if not os.path.isfile(filename):
-        return HttpResponse(filename, status=http.HTTPStatus.NOT_FOUND)
+        return HttpResponse('File not found', status=http.HTTPStatus.NOT_FOUND)
     real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     real_file_mtime = str(os.path.getmtime(filename))
     return JsonResponse({'file_md5':real_file_md5, 'file_mtime': real_file_mtime})
