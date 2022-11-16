@@ -501,12 +501,11 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
     #
     callback =  options.get('callback_after_blob_compiled')
     #
+    subprocs = []
     for lang in  langs:
         #
         _lang = ('_'+lang) if (isinstance(lang,str) and lang) else ''
         lang_ = (':'+lang) if (isinstance(lang,str) and lang) else ''
-        #
-        uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
         # note that extensions are missing
         save_name = os.path.join(uuid_dir, 'main' + _lang)
         save_abs_name = os.path.join(blobs_dir, save_name)
@@ -544,8 +543,19 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         fake_name2 = os.path.basename(fake_abs_name2)
         with open(fake_abs_name2+'.tex','w') as f_:
             f_.write(f_html)
-        rh = plastex_engine(blobs_dir, fake_name2, save_name, environ, uuid, lang, options,
+        subproc2 = ColDoc.utils.fork_class()
+        subproc2.run(plastex_engine,blobs_dir, fake_name2, save_name, environ, uuid, lang, options,
                             levels = True, tok = True, strip_head = False)
+        subprocs.append((lang, subproc, subproc2))
+    # wait on all subprocesses and process results
+    for lang, subproc, subproc2, in subprocs:
+        #
+        _lang = ('_'+lang) if (isinstance(lang,str) and lang) else ''
+        lang_ = (':'+lang) if (isinstance(lang,str) and lang) else ''
+        # note that extensions are missing
+        save_name = os.path.join(uuid_dir, 'main' + _lang)
+        save_abs_name = os.path.join(blobs_dir, save_name)
+        rh = subproc2.wait()
         parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'), save_abs_name+'_plastex.paux')
         # paux is quite large and it will not be used after this line
         try:
