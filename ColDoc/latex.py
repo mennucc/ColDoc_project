@@ -28,8 +28,6 @@ Command help:
 
 import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm
 
-use_fork = (sys.platform == 'linux')
-
 if sys.version_info >= (3,9):
     from os import waitstatus_to_exitcode
 else:
@@ -191,34 +189,14 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     res = {}
     langpids = []
     for l in langs:
-        if use_fork and len(langs)>1:
-            other_pid_ = os.fork()
-            if other_pid_ == 0:
-                rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
-                                    uuid_dir=uuid_dir, options = options, forked=True)
-                rh = 0 if rh else 4
-                rp = 0 if rp else 8
-                os._exit(rh + rp)
-            else:
-                logger.debug('fork %r', other_pid_)
-                langpids.append((l, other_pid_))
-        else:
-            rh, rp = latex_blob(blobs_dir, metadata=metadata, lang=l,
-                                uuid_dir=uuid_dir, options = options)
-            res[l] = rh and rp
+        subproc = ColDoc.utils.fork_class(use_fork = (len(langs)>1) )
+        subproc.run(latex_blob, blobs_dir, metadata=metadata, lang=l,
+                    uuid_dir=uuid_dir, options = options, forked=subproc.use_fork)
+        langpids.append((l, subproc))
     #
-    for ll, other_pid_ in langpids:
-        logger.debug('wait %r', other_pid_)
-        pid_, exitstatus_ = os.waitpid(other_pid_, 0)
-        if pid_ != other_pid_:
-            logger.error('internal error lnkanla19')
-        exitstatus_ = waitstatus_to_exitcode(exitstatus_)
-        if exitstatus_ not in (0,4,8,12):
-            logger.error('internal error exitstatus_ %r', exitstatus_)
-        rh = (exitstatus_ & 4 ) == 0
-        rp = (exitstatus_ & 8 ) == 0
-        _update_metadata(metadata, ll, rh, rp)
-        res[ll] = (exitstatus_ == 0)
+    for ll, subproc in langpids:
+        rh, rp = subproc.wait()
+        res[ll] = rh and rp
     #
     if lang is None:
         # update only if all languages were recomputed
@@ -395,18 +373,8 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     fake_texfile.write(latextemplate % D)
     fake_texfile.close()
     #
-    other_pid_ = rp = None
-    if use_fork:
-        # forking
-        other_pid_ = os.fork()
-        if other_pid_ == 0:
-            rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
-            os._exit(0 if rp else 13)
-        else:
-            logger.debug('Forked pdflatex_engine to pid %r', other_pid_)
-    else:
-        logger.warning('FIXME no forking in your platform')
-        rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
+    subproc = ColDoc.utils.fork_class(use_fork = forked)
+    subproc.run(pdflatex_engine, blobs_dir, fake_name, save_name, environ, lang, options)
     ##
     ## create html
     logger.debug('create html for %r',save_abs_name)
@@ -424,13 +392,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         os.unlink(save_abs_name+'_plastex.paux')
     #
     # get child result
-    if other_pid_ is not None:
-        pid_, exitstatus_ = os.waitpid(other_pid_, 0)
-        if pid_ != other_pid_:
-            logger.error('internal error kjnbfi20a')
-        exitstatus_ = waitstatus_to_exitcode(exitstatus_)
-        rp = (exitstatus_ == 0)
-    #
+    rp = subproc.wait()
     # rewrite pdflatex log to replace temporary file name with final file name
     for ext in '.log','.fls':
         try:
@@ -573,19 +535,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         with open(fake_abs_name+'.tex','w') as f_:
             f_.write(f_pdf)
         #
-        other_pid_ = rp = None
-        if use_fork:
-            # forking
-            other_pid_ = os.fork()
-            if other_pid_ == 0:
-                rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
-                os._exit(0 if rp else 13)
-            else:
-                logger.debug('Forked pdflatex_engine to pid %r', other_pid_)
-        else:
-            logger.warning('FIXME no forking in your platform')
-            rp = pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options)
-        #
+        subproc = ColDoc.utils.fork_class()
+        subproc.run(pdflatex_engine, blobs_dir, fake_name, save_name, environ, lang, options)
         # plastex
         fake_texfile2 = tempfile.NamedTemporaryFile(prefix='fakelatex' + _lang + '_',
                                                suffix='.tex', dir = blobs_dir , mode='w+', delete=False)
@@ -608,12 +559,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         except:
             logger.exception('while symlinking')
         # get pdflatex child result
-        if other_pid_ is not None:
-            pid_, exitstatus_ = os.waitpid(other_pid_, 0)
-            if pid_ != other_pid_:
-                logger.error('internal error mnqwkqla9')
-            exitstatus_ = waitstatus_to_exitcode(exitstatus_)
-            rp = (exitstatus_ == 0)
+        rp = subproc.wait()
         #
         ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
         try:
