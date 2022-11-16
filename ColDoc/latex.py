@@ -455,7 +455,7 @@ def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'
         assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
         return latex_main(anon_dir, uuid=uuid, lang=lang, options = options, access='public', verbose_name=verbose_name, email_to=email_to)
     else:
-        return False
+        return False, {}
 
 
 @ColDoc.utils.log_debug
@@ -548,6 +548,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
                             levels = True, tok = True, strip_head = False)
         subprocs.append((lang, subproc, subproc2))
     # wait on all subprocesses and process results
+    return_values = {}
     for lang, subproc, subproc2, in subprocs:
         #
         _lang = ('_'+lang) if (isinstance(lang,str) and lang) else ''
@@ -570,6 +571,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             logger.exception('while symlinking')
         # get pdflatex child result
         rp, rp_details = subproc.wait()
+        return_values[lang] = rp_details
+        return_values[lang]['plastex'] = 'success' if rh else 'failed'
         #
         ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
         try:
@@ -599,7 +602,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         coldoc.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
         coldoc.save()
     #
-    return ret
+    return ret, return_values
 
 def parse_plastex_paux(paux):
     if isinstance(paux,str):
@@ -1108,12 +1111,12 @@ def main_by_args(args,options):
     elif argv[0] == 'tree':
         ret = latex_tree(blobs_dir, uuid=UUID, lang=lang, options=options)
     elif argv[0] == 'main_private':
-        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private')
+        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private')[0]
     elif argv[0] == 'main_public':
-        ret = latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public')
+        ret = latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public')[0]
     elif argv[0] == 'all':
-        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private')
-        ret &= latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public')
+        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private')[0]
+        ret &= latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public')[0]
         ret &= latex_tree(blobs_dir, uuid=UUID, lang=lang, options=options)
     else:
         sys.stderr.write('Unknown command, see --help')

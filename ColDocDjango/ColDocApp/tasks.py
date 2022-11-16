@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, pathlib, pickle, base64, tempfile, time, datetime
+import os, sys, mimetypes, http, pathlib, pickle, base64, tempfile, time, datetime, json
 from os.path import join as osjoin
 
 import django
@@ -40,7 +40,10 @@ def latex_generic_sched(subject_prefix, cmd,*v,**k):
         E = EmailMessage(subject=subject_prefix+str(coldoc),
                          from_email=settings.DEFAULT_FROM_EMAIL,
                          to=[email_to],)
-        E.body = 'Run for %s, %s' %( time_ , 'success' if ret else 'failed')
+        if isinstance(ret,tuple) and len(ret)==2:
+            ret, ret_details = ret
+            E.body += json.dumps(ret_details, indent=2) + '\n'
+        E.body += 'Run for %s, %s\n' %( time_ , 'success' if ret else 'failed')
         try:
             E.send()
         except:
