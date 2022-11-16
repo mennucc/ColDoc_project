@@ -1,6 +1,6 @@
 import itertools, sys, os, stat, io, copy, logging, shelve, unicodedata
 import re, pathlib, subprocess, datetime, json, time
-import tempfile, shutil, json, hashlib, importlib
+import tempfile, shutil, json, hashlib, importlib, pickle
 import functools, inspect
 import traceback, contextlib
 import os.path
@@ -67,6 +67,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'recreate_symlinks',
             'TeX_add_packages',
             'log_debug', 'set_file_readonly', 'print_fun_call',
+            'fork_class',
             )
 
 class ColDocException(Exception):
@@ -74,6 +75,75 @@ class ColDocException(Exception):
 
 class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
+
+#
+############ class for forking
+
+class fork_class(object):
+    "class that runs a job in a forked subprocess, and returns results or raises exception"
+    def __init__(self, use_fork = True):
+        self.can_fork = (sys.platform == 'linux')
+        self.tempfile = self.tempfile_name = None
+        self.other_pid_ = None
+        self.already_run = False
+        self.already_wait = False
+        self.__ret = None
+        self.__use_fork = use_fork and self.can_fork
+        # __del__ methods may be run after modules are gc
+        self.os = os
+    #
+    @property
+    def use_fork(self):
+        return self.__use_fork
+    @use_fork.setter
+    def use_fork(self,v):
+        assert self.already_run is False
+        self.__use_fork = v and self.can_fork
+    #
+    def run(self, cmd, *k, **v):
+        assert self.already_run is False
+        self.__cmd = cmd
+        self.__k = k
+        self.__v = v
+        #
+        if self.__use_fork:
+            self.tempfile = tempfile.NamedTemporaryFile(prefix='forkret',delete=False)
+            self.tempfile_name = self.tempfile.name
+            self.other_pid_ = os.fork()
+            if self.other_pid_ == 0:
+                try:
+                    ret = cmd(*k, **v)
+                    ret = (0,ret)
+                except Exception as e:
+                    ret = (1, e)
+                with open(self.tempfile_name,'wb') as f:
+                    pickle.dump(ret, f)
+                os._exit(0)
+            else:
+                logger.debug('forked %r as pid %r', cmd, self.other_pid_)
+        else:
+            try:
+                self.__ret = (0, cmd(*k, **v))
+            except Exception as e:
+                self.__ret = (1, e)
+        self.already_run = True
+    def wait(self):
+        assert self.already_run is True
+        if self.__use_fork and not self.already_wait:
+            logger.debug('wait %r', self.other_pid_)
+            pid_, exitstatus_ = os.waitpid(self.other_pid_, 0)
+            self.already_wait = True 
+            if pid_ != self.other_pid_:
+                logger.error('internal error lnkanla19')
+            with open(self.tempfile_name,'rb') as f:
+                self.__ret = pickle.load(f)
+        if self.__ret[0] == 1:
+            raise self.__ret[1]
+        return self.__ret[1]
+    def __del__(self):
+        if self.tempfile_name is not None:
+            self.os.unlink(self.tempfile_name)
+
 
 ######################
 # 
