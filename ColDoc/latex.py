@@ -392,7 +392,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
         os.unlink(save_abs_name+'_plastex.paux')
     #
     # get child result
-    rp = subproc.wait()
+    rp, rp_details = subproc.wait()
     # rewrite pdflatex log to replace temporary file name with final file name
     for ext in '.log','.fls':
         try:
@@ -405,7 +405,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     #
     callback =  options.get('callback_after_blob_compiled')
     if  callback:
-        callback(return_values=(rh,rp), blobs_dir = blobs_dir, metadata=metadata, lang = lang, save_name=save_name)
+        callback(return_values=(rh,rp,rp_details), blobs_dir = blobs_dir, metadata=metadata, lang = lang, save_name=save_name)
     #
     if environ in environments_we_wont_latex:
         try:
@@ -569,7 +569,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         except:
             logger.exception('while symlinking')
         # get pdflatex child result
-        rp = subproc.wait()
+        rp, rp_details = subproc.wait()
         #
         ColDoc.utils.dict_save_or_del(retcodes, 'latex'+lang_+':'+access, rp)
         try:
@@ -588,7 +588,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
                 logger.debug('No such file %r , did not copy to %r',a,b)
         #
         if  callback and access != 'public':
-            callback(return_values=(rh,rp), blobs_dir = blobs_dir, metadata=metadata, lang = lang, save_name=save_name)
+            callback(return_values=(rh, rp, rp_details), blobs_dir = blobs_dir, metadata=metadata, lang = lang, save_name=save_name)
         #
         ret = ret and rh and rp
     #
@@ -874,13 +874,14 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
             ## TODO for luatex may add --nosocket --safer
             fake_name+'.tex']
     #
+    return_values = {}
+    #
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                          stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
     r=p.wait()
+    return_values[engine] = 'success' if (r==0) else 'failed'
     logger.debug('Engine result %r',r)
     #
-    if r != 0:
-        logger.debug('LaTeX failed %r will not run BiBTeX',r)
     subcommands = []
     if environ in ( 'main_file', 'E_document') and os.path.isfile(fake_abs_name+'.aux'):
         if '\\bibdata' in open(fake_abs_name+'.aux').read():
@@ -899,12 +900,15 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
                              cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
         a = p.stdout.read()
-        if p.wait() != 0:
+        r2 = p.wait()
+        if r2 != 0:
             logger.warning('%s fails, see %r', cmd, save_abs_name+logext)
             logger.warning('%s output: %r', cmd, a)
+            return_values[cmd] = 'failed'
         else:
             if os.path.isfile(fake_abs_name+cmdext):
                 if file_md5 is None or file_md5 != hashlib.md5(open(fake_abs_name+cmdext,'rb').read()).hexdigest():
+                    return_values[cmd] = 'changed'
                     if repeat is None:
                         logger.debug('%s changed the %s file, will rerun',cmd,cmdext)
                         repeat = True
@@ -912,6 +916,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
                         logger.debug('%s changed the %s file',cmd,cmdext)
                 else:
                     logger.debug('%s did not change the %s file',cmd,cmdext)
+                    return_values[cmd] = 'unchanged'
             else:
                 logger.warning('%s failed to create the %s file',cmd,cmdext)
     #
@@ -928,6 +933,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
         p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
         r = p.wait()
+        return_values[engine+'_bis'] = 'success' if (r==0) else 'failed'
         logger.debug('Engine result %r',r)
     #
     res = r == 0
@@ -954,7 +960,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
             else:
                 logger.warning("Missing :%r"%(fake_abs_name+e,))
                 if e=='.pdf': res=False
-    return res
+    return res, return_values
 
 
 def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_name=None, email_to=None):
