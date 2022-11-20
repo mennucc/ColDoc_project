@@ -324,7 +324,7 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
    </div>
   {% endif %}
 
-  {% if buy_download_link or buy_download_form or perms.UUID.download %}
+  {% if buy_download_link or buy_download_form or perms.UUID.download or download_blob_buttons %}
    <h2>{% translate "Download" %}</h2>
    <span data-toggle="tooltip" class="border fill m-2 p-3">
    {% translate  'Download blob' %}:
@@ -338,14 +338,11 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
         <input type="submit"  data-toggle="tooltip" title="{{ buy_download_tooltip }}" value="{{ buy_download_label }}"  class="btn">
       </form>
     {% endif %}
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ blob_lang }}&ext={{ ext }}"
+    {% for dlang, dlanguage in download_blob_buttons %}
+       <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ dlang }}&ext={{ ext }}"
              class="btn btn-outline-primary btn-sm p-2" data-toggle="tooltip"
-             title="{% blocktranslate %}Download this blob as {{ blob_language }}.{% endblocktranslate %}">{{ blob_language }}</a>
-  {% if blob_lang != view_lang %}
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ view_lang }}&ext={{ ext }}"
-             class="btn btn-outline-primary btn-sm p-2" data-toggle="tooltip"
-             title="{% blocktranslate %} Download this blob as {{ view_language }}.{% endblocktranslate %}">{{ view_language }}</a>
-  {% endif %} {# ends blob_lang != view_lang #}
+             title="{% blocktranslate %}Download this blob in {{ dlanguage }}.{% endblocktranslate %}">{{ dlang }}</a>
+    {% endfor %}
   </span>
    {% if its_something_we_would_latex %}
    <span data-toggle="tooltip" class="border fill m-2 p-3"

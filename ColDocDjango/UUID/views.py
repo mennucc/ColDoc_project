@@ -1809,6 +1809,7 @@ def index(request, NICK, UUID):
         return render(request, 'UUID.html', locals() )
     #
     buy_download_link = buy_download_label = buy_download_tooltip = buy_download_form = None
+    download_blob_buttons = []
     if not request.user.has_perm('UUID.download'):
         ret = can_buy_permission(request.user, metadata, 'download')
         if isinstance(ret,(int,float)):
@@ -1821,6 +1822,11 @@ def index(request, NICK, UUID):
             buy_download_tooltip  = 'Buy permission to download this blob for %s' % (ret,)
         else:
             logger.warning('Cannot buy download, '+str(ret))
+    else:
+        a = Blangs
+        if 'mul' in a:
+            a += CDlangs
+        download_blob_buttons = [ (j, iso3lang2word(j)) for j in a ]
     # TODO
     show_comment = request.user.is_superuser
     #
