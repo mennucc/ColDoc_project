@@ -2215,6 +2215,7 @@ def download(request, NICK, UUID):
     # effective file served
     e_f = None
     if not request.user.has_perm('UUID.download'):
+        # FIXME this code path is currently unused, and it fails in Apache since URLs are too long
         a = _('Download denied for this content.')
         e_f = None
         ret = can_buy_permission(request.user, metadata, 'download')

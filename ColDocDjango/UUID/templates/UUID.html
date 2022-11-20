@@ -344,7 +344,7 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
              title="{% blocktranslate %}Download this blob in {{ dlanguage }}.{% endblocktranslate %}">{{ dlang }}</a>
     {% endfor %}
   </span>
-   {% if its_something_we_would_latex %}
+   {% if its_something_we_would_latex and perms.UUID.download %}
    <span data-toggle="tooltip" class="border fill m-2 p-3"
              title="{% blocktranslate %}Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.{% endblocktranslate %}">
        {% blocktranslate %}Download inside complete {{ view_language }} document{% endblocktranslate %}:
