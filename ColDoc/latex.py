@@ -197,6 +197,7 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     for ll, subproc in langpids:
         rh, rp = subproc.wait()
         res[ll] = rh and rp
+        _update_metadata(metadata, ll, rh, rp)
     #
     if lang is None:
         # update only if all languages were recomputed
