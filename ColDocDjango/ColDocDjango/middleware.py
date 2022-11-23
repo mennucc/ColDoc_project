@@ -1,4 +1,8 @@
-from django.utils.deprecation import MiddlewareMixin
+
+try:
+    from django.utils.deprecation import MiddlewareMixin
+except ImportError:
+    MiddlewareMixin = object
 
 ##  https://stackoverflow.com/a/9362519/5058564
 class RemoteUserMiddleware(MiddlewareMixin):
