@@ -41,7 +41,7 @@ class ColDocForm(ModelForm):
         fields = '__all__'
 
 def post_coldoc_edit(request, NICK):
-    assert slug_re.match(NICK)
+    if not slug_re.match(NICK) : raise SuspiciousOperation("Permission denied")
     if request.method != 'POST' :
         return redirect(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,}))
     #
@@ -137,10 +137,10 @@ else:
 
 
 def latex(request, NICK):
+    if not slug_re.match(NICK) : raise SuspiciousOperation("Permission denied")
     # in case the user login did timeout
     check_login_timeout(request, NICK)
     #
-    assert slug_re.match(NICK)
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
     #
     request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
@@ -186,10 +186,10 @@ def latex(request, NICK):
     return redirect(django.urls.reverse('ColDoc:index',kwargs={'NICK':NICK,}))
 
 def reparse(request, NICK):
+    if not slug_re.match(NICK) : raise SuspiciousOperation("Permission denied")
     # in case the user login did timeout
     check_login_timeout(request, NICK)
     #
-    assert slug_re.match(NICK)
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
     #
     request.user.associate_coldoc_blob_for_has_perm(coldoc, None)

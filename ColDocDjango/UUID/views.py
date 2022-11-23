@@ -1477,8 +1477,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     assert _view_ext == '_html' or subpath is None
     assert _view_ext in ('_html','_html.txt','.pdf',None)
     assert prefix in ('main','view','blob','log')
-    assert ( isinstance(NICK,str) and slug_re.match(NICK) )  or isinstance(NICK,DColDoc)
-    assert ( isinstance(UUID,str) and slug_re.match(UUID) )
+    if not ( ( isinstance(NICK,str) and slug_re.match(NICK) )  or isinstance(NICK,DColDoc) ):
+        raise SuspiciousOperation(repr(NICK))
+    if not ( ( isinstance(UUID,str) and slug_re.match(UUID) ) ) : raise SuspiciousOperation(repr(UUID))
     #
     if isinstance(NICK,DColDoc):
         coldoc = NICK
