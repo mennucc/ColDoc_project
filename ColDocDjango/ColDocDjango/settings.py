@@ -184,6 +184,7 @@ MIDDLEWARE = [
     # https://github.com/bugov/django-custom-anonymous
     'ColDocDjango.custom_anonymous.AuthenticationMiddleware',
     'ColDocDjango.middleware.RemoteUserMiddleware',
+    'ColDocDjango.middleware.RedirectMiddleware',
 ]
 
 USE_SELECT2 = False
