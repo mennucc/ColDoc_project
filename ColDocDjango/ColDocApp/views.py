@@ -31,6 +31,7 @@ from ColDocDjango.transform import squash_helper_ref
 from ColDocApp import text_catalog
 
 from ColDocDjango.users import user_has_perm , UUID_view_view , UUID_view_blob #, UUID_download  #, user_has_perm_uuid_blob
+from ColDocDjango.utils import check_login_timeout
 
 class ColDocForm(ModelForm):
     class Meta:
@@ -136,6 +137,9 @@ else:
 
 
 def latex(request, NICK):
+    # in case the user login did timeout
+    check_login_timeout(request, NICK)
+    #
     assert slug_re.match(NICK)
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
     #
@@ -182,6 +186,9 @@ def latex(request, NICK):
     return redirect(django.urls.reverse('ColDoc:index',kwargs={'NICK':NICK,}))
 
 def reparse(request, NICK):
+    # in case the user login did timeout
+    check_login_timeout(request, NICK)
+    #
     assert slug_re.match(NICK)
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
     #
