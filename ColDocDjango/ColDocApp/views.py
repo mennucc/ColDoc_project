@@ -351,6 +351,10 @@ def check_tree(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     c = DColDoc.objects.filter(nickname = NICK).get()
+    request.user.associate_coldoc_blob_for_has_perm(c, None)
+    if not request.user.is_editor:
+        raise SuspiciousOperation("Permission denied")
+    #
     try:
         from helper import check_tree
         def warn(s,a):
