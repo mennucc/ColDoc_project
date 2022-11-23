@@ -352,6 +352,10 @@ def check_tree(request, NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     c = DColDoc.objects.filter(nickname = NICK).get()
     request.user.associate_coldoc_blob_for_has_perm(c, None)
+    # maybe session timed out
+    if not request.user.is_authenticated:
+        return HttpResponse("Please login again.", status=http.HTTPStatus.FORBIDDEN)
+    #
     if not request.user.is_editor:
         raise SuspiciousOperation("Permission denied")
     #
