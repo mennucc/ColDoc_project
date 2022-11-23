@@ -14,12 +14,24 @@ logger = logging.getLogger(__name__)
 import django
 
 
+from django.contrib import messages
 #https://stackoverflow.com/questions/25967759/django-get-permpermision-string
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 from django.conf import settings
 from django.utils.translation.trans_real import parse_accept_lang_header
+from django.utils.translation import gettext, gettext_lazy, gettext_noop
 from django.db import transaction
+
+from ColDocDjango.middleware import redirect_by_exception
+
+
+if django.VERSION[0] >= 4 :
+    _ = gettext_lazy
+else:
+    # in django 3 you cannot concatenate strings to lazy-strings
+    _ = gettext
+
 
 try:
     import pycountry
@@ -213,3 +225,13 @@ def   parse_for_labels_callback(coldoc_dir, coldoc, #partialized
                 metadata.add2( key =  'AUX_label_'+lang, value = c, second_value = o)
     else:
         logger.warning('Aux file does not exist: %r', aux_name)
+
+
+#####
+
+
+def check_login_timeout(request, NICK):
+    " if the user is not authenticated, force a redirect to the coldoc index page"
+    if not request.user.is_authenticated:
+        messages.add_message(request,messages.WARNING, _('Session timeout, please login again'))
+        redirect_by_exception(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,} ))
