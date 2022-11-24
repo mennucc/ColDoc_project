@@ -537,14 +537,14 @@ class EnvStreamStack(object):
                 break
         self._set_math_mode()
         logger.debug(repr(self))
-    def pop_stream(self, add_as_child = True):
+    def pop_stream(self, add_as_child = True, checknonempty=True):
         " pops the topmost stream, w/o touching the non-stream elements of the stack"
         t = None
         for n,j in enumerate(self._stack):
             if isinstance(j,named_stream):
                 t=n
         assert t is not None
-        O = self.pop(index=t, add_as_child = add_as_child)
+        O = self.pop(index=t, add_as_child = add_as_child, checknonempty = checknonempty)
         self._set_math_mode()
         logger.debug(repr(self))
         return O
