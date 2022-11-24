@@ -788,6 +788,8 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         elif stack.topenv == 'section':
                             logger.warning("cannot zip the section %r, it is after a previous section in blob %r" %\
                                            (name,stack.topstream))
+                        elif stack.topenv not in ( 'input', 'include' ):
+                            logger.debug("cannot zip the section %r, it is after environ %r", name, stack.topstream)
                         elif len(stack.topstream) > 0:
                             logger.warning("cannot zip section %r , parent blob %r has length %d (try to remove cruft before \\section)" %\
                                            (name,stack.topstream,len(stack.topstream)))
