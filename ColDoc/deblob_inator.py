@@ -251,8 +251,8 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                         #                lang = None, ext = None)
                         orig_fln = sub_metadata['original_filename'][0]
                         #
-                        orig_lang = sub_metadata.get('lang')
-                        if orig_lang:
+                        orig_langs = sub_metadata.get('lang')
+                        if 'mul' in orig_langs:
                             logger.warning('Multiple languages not supported %r',orig_lang)
                         #
                         sub_input_file = osjoin(blobs_dir, sub_uuid_dir, 'blob')
@@ -271,7 +271,8 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                                 orig_fln = orig_fln[:-len(ext)]
                                 break
                         for ext in orig_ext:
-                            a = sub_input_file + ext
+                          for orig_lang in orig_langs:
+                            a = sub_input_file + '_' + orig_lang + ext
                             b = osjoin(cmdargs.latex_dir,orig_fln) + ext
                             if os.path.isfile(a):
                                 logger.info('Copy %r -> %r',a,b)
