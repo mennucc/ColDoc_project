@@ -23,9 +23,9 @@ echo '$' python3 ../ColDoc/blob_inator.py --blobs-dir=tmp/lt/b ${@} "$file"
 python3 ../ColDoc/blob_inator.py --blobs-dir=tmp/lt/b ${@} "$file"
 echo ========= check that it compiles
 cd tmp/lt/b
-if ! ${LATEX} main.tex ; then
-    echo '$ cd tmp/lt/b ' ${LATEX} main.tex
-    echo FAILED, look in  tmp/lt/b/main.log
+if ! ${LATEX} main_eng.tex ; then
+    echo '$ cd tmp/lt/b ' ${LATEX} main_eng.tex
+    echo FAILED, look in  tmp/lt/b/main_eng.log
     exit 1
 fi
 cd "$c"
