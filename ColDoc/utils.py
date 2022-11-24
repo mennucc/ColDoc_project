@@ -427,8 +427,11 @@ class FMetadata(dict, MetadataBase):
         for j in f:
             if j[-1] == '\n':
                 j = j[:-1]
-            i = j.index('=')
-            assert i > 0, "cannot parse '%r' as key=value " % j
+            try:
+                i = j.index('=')
+            except ValueError:
+                logger.error("in %r cannot parse '%r' as key=value " , self._filename, j )
+                continue
             k,v = j[:i], j[i+1:]
             if k == 'uuid':
                 self.uuid = v
