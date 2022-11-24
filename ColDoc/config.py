@@ -35,6 +35,15 @@ ColDoc_show_as_image = ('.svg', '.pdf', '.eps', '.png', '.jpeg', '.jpg')
 #- If `write_UUID` is `False`, no UUID will be written.
 ColDoc_write_UUID = 'auto'
 
+# the above needs that some extra code be added
+ColDoc_write_UUID_extra_code = r"""
+% added by blob_inator
+\newif\ifColDocOneUUID\ColDocOneUUIDfalse
+\newif\ifplastex\plastexfalse
+\usepackage{ColDocUUID}
+% end of code added by blob_inator
+"""
+
 # list of environments that are not coming from  \begin....\end statements
 ColDoc_environments = ('main_file','preamble','input','include','input_preamble',
                        'graphic_file',
