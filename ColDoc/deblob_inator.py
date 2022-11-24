@@ -92,7 +92,6 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                 output_file.write('%'+a)
             elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 macroname = str(tok.macroName)
-                #print('>>',macroname)
                 if macroname == 'ColDocUUIDcheckpoint':
                     continue
                 if  macroname in ("input","include"):
@@ -151,7 +150,7 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
                         s = submetadata.get('original_filename')
                         assert len(s)<=1, s
                         original_filename = s.pop() if len(s)==1 else None
-                        if original_filename[0] == '/':
+                        if original_filename and original_filename[0] == '/':
                             # when it is  '/preamble.tex' and '/document.tex', it is a marker, not really a filename
                             original_filename = '' 
                         if  not original_filename:
@@ -313,7 +312,7 @@ def deblob_inator(blob_uuid, thetex, cmdargs):
         oldargs = get_blobinator_args(cmdargs.blobs_dir)
         cmdargs.verbatim_environment = oldargs['verbatim_environment']
         cmdargs.split_graphic = oldargs['split_graphic']
-        filename = os.path.basename(oldargs['input_file'])
+        filename = os.path.basename(oldargs['orig_input_file'])
     except:
         cmdargs.verbatim_environment = ['verbatim']
         cmdargs.split_graphic = ["includegraphics"]
