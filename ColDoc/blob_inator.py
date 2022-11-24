@@ -809,7 +809,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         stack.topstream.write('\\ColDocUUIDcheckpoint\n')
                         stack.topstream.write(src + '\n')
                     else:
-                        stack.topstream.write('\\section'+argSource)
+                        stack.topstream.write(argSource)
                 elif macroname in ColDoc_environments_sectioning:
                     pop_paragraph()
                     pop_sections(macroname)
