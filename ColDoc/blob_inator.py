@@ -719,7 +719,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 fm.add('original_filename', fil)
                 fm.add('original_command', '\\'+macroname+'{'+fil+'}')
                 fm.add('parent_uuid', stack.topstream.uuid)
-                fm.lang='und\n'
+                fm.lang='und'
                 # alas we cannot split 'bibliography'
                 outlist.append(fo)
                 a,b=absinputfile,osjoin(blobs_dir,fo)+ext
@@ -980,7 +980,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         fm.add('environ','graphic_file')
                         fm.add('optarg', json.dumps(sources))
                         fm.add('parent_uuid', stack.topstream.uuid)
-                        fm.lang  = 'zxx\n'
+                        fm.lang  = 'zxx'
                         # will load the same extension, if specified
                         stack.topstream.write(cmd+'{'+fo+ei+'}')
                         #
