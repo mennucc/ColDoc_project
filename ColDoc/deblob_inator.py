@@ -93,6 +93,8 @@ def deblob_inator_recurse(blob_uuid, thetex, cmdargs, output_file, recreated_fil
             elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 macroname = str(tok.macroName)
                 #print('>>',macroname)
+                if macroname == 'ColDocUUIDcheckpoint':
+                    continue
                 if  macroname in ("input","include"):
                     if use_plastex_parse:
                         obj = Base.input()
