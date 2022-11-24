@@ -504,6 +504,7 @@ class EnvStreamStack(object):
         self._stack.append(o)
         if isinstance(o,named_stream):
             self._topstream = o
+        logger.debug('push, now stack %r ', [( getattr(a,'environ',a) ) for a in self._stack])
     def pop(self, index=-1, add_as_child = True, checknonempty=True):
         """ pops topmost element , or `index` element if given;
         if `add_as_child` and topmost element was a stream,
@@ -651,6 +652,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                 logger.exception('while deciding the order of sectionings %r %r', arg, stack.topstream.poppable)
                 return False
         if arg:
+            logger.debug(' pop section-like %r', stack.topstream)
             r = stack.pop_stream().writeout()
             input_it(r)
         return arg
@@ -885,6 +887,7 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         thetex.input(open(inputfileext), Tokenizer=TokenizerPassThru.TokenizerPassThru)
                     del inputfile, inputfileext
                 elif macroname == specialblobinatorEOFcommand:
+                    logger.debug('reached EOF')
                     pop_paragraph()
                     pop_sections(True)
                     # pops the output when it ends
@@ -1118,10 +1121,10 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                                         stack.topstream.write(s)
                                     t = None
                                 else:
-                                    logger.critical('cannot parse %r inside %r' % (t.source,name) )
+                                    logger.critical('cannot parse %r inside %r' % (str(t.source),name) )
                                     t = next(itertokens)
                             else:
-                                logger.debug('passing %r inside %r' % (t.source,name) )
+                                logger.debug('passing %r inside %r' % (str(t.source),name) )
                                 t = next(itertokens)
                         stack.push(named_stream('E_'+name,parent=stack.topstream))
                         stack.topstream.add_metadata('optarg', json.dumps([s]))
