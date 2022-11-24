@@ -68,4 +68,4 @@ Then open the main blob with an editor
 
 .. code:: shell
 
-	  editor ${tmpdir}/main.tex 
+	  editor ${tmpdir}/main_eng.tex
