@@ -36,9 +36,10 @@ echo ========= diff
 diff -ur `dirname ${file}` tmp/lt/c || true
 echo ========= check that it compiles
 cd tmp/lt/c
+ln -s ../../../../tex/ColDocUUID.sty 
 if ! ${LATEX} `basename ${file}` ; then
     echo '$ cd tmp/lt/c ; ' ${LATEX}  `basename ${file}`
-    echo FAILED, look in  tmp/lt/c/main.log
+    echo FAILED, look for logs in tmp/lt/c/
     exit 1
 fi
 cd "$c"
