@@ -837,6 +837,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, uuid, lang, options
 @ColDoc.utils.log_debug
 def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, repeat = None):
     " If repeat is None, it will be run twice if bib data or aux data changed"
+    assert (isinstance(repeat,int) and repeat >= 0)  or repeat is None
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
     _lang = ('_'+lang) if lang else ''
@@ -887,9 +888,11 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     logger.debug('Engine result %r',r)
     #
     subcommands = []
+    # TODO : support biblatex and/or biber
+    bibtex_cmd = 'bibtex'
     if environ in ( 'main_file', 'E_document') and os.path.isfile(fake_abs_name+'.aux'):
         if '\\bibdata' in open(fake_abs_name+'.aux').read():
-            subcommands.append( ('bibtex','.bbl','.blg') )
+            subcommands.append( (bibtex_cmd, '.bbl', '.blg') )
         #
         if os.path.isfile(fake_abs_name+'.idx'):
             subcommands.append( ('makeindex','.ind','.ilg') )
@@ -915,7 +918,7 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
                     return_values[cmd] = 'changed'
                     if repeat is None:
                         logger.debug('%s changed the %s file, will rerun',cmd,cmdext)
-                        repeat = True
+                        repeat = 2 if cmd == bibtex_cmd else 1
                     else:
                         logger.debug('%s changed the %s file',cmd,cmdext)
                 else:
@@ -928,17 +931,20 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     if r == 0:
         if repeat is None and a in  open(fake_abs_name+'.log').read():
             logger.debug('%r reports %r in log, will rerun',engine,a)
-            repeat = True
+            repeat = 1
         elif repeat is None:
             logger.debug('%r does not report %r in log, will not rerun',engine,a)
     #
-    if r == 0 and repeat:
+    j = 1
+    while isinstance(repeat,int) and j <= repeat:
         logger.debug('Rerunning engine %r',engine)
         p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
         r = p.wait()
-        return_values[engine+'_bis'] = 'success' if (r==0) else 'failed'
-        logger.debug('Engine result %r',r)
+        a = {1:'_bis',2:'_tris'}.get(j,'_BOH')
+        return_values[engine+a] = 'success' if (r==0) else 'failed'
+        logger.debug('Engine pass %s result %r', a, r)
+        j += 1
     #
     res = r == 0
     if not res:
