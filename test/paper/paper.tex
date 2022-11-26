@@ -7,12 +7,6 @@
 %define this conditional; plasTeX will override it and set it to `true`
 \newif\ifplastex\plastexfalse
 
-%% fallback for older LaTeX, to use checkpoints
-\ifplastex\else
- \ifdefined\CurrentFile\else
- \usepackage{currfile}
- \fi
-\fi
 %%%%%%%%% early packages that for some reason must be loaded before
 
 %% `unicode-math` will change some definitions in `amssymb`
