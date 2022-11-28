@@ -450,7 +450,6 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     thetex.input(initial,  Tokenizer=TokenizerPassThru.TokenizerPassThru)
     thetex.currentInput[0].pass_comments = True
     itertokens = thetex.itertokens()
-    eatspaces = False
     lang = None
     sources_by_langs = {}
     ccp = ColDoc.config.ColDoc_language_header_prefix
@@ -483,8 +482,6 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
                     weird_prologue.append(_('Keep the\\%s{...} command all in one line.') % (env,))
                     sources = list(map( lambda x : x.replace('\n',' '), sources ))
                 sources_by_langs[lang] = sources
-                # after the section, ignore spaces and newline
-                eatspaces = True
             else:
                 warn_dup_ = True
                 if str(tok).startswith('active::'):
@@ -494,11 +491,7 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
         else:
             if isinstance(tok, TokenizerPassThru.Space) and str(tok) == '\n':
                 lang = None
-            if tok.source not in (' ','\n','\t'):
-                output += tok.source
-                eatspaces = False
-            elif not eatspaces:
-                output += tok.source
+            output += tok.source
             if not isinstance(tok, TokenizerPassThru.Space) and not sources_by_langs :
                 warn_notfirst_ = True
     if not sources_by_langs :
@@ -535,8 +528,8 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     #
     # avoid duplicated spaces
     newprologue = re.sub(' +', ' ', newprologue)
-    if newprologue and newprologue[-1] != '\n':
-        newprologue += '\n'
+    newprologue = newprologue.rstrip('\n') + '\n'
+    output = output.lstrip()
     if output and output[-1] != '\n':
         logger.warning('missing new line %r',output)
         output += '\n'
