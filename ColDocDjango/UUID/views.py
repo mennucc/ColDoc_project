@@ -61,7 +61,7 @@ from plasTeX.TeX import TeX
 #from plasTeX.Packages import graphicx
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
-from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, uuid_to_dir, gen_lang_metadata
+from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, uuid_to_dir, gen_lang_metadata, strip_delimiters
 from ColDocDjango.utils import get_email_for_user, load_unicode_to_latex
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
@@ -430,11 +430,10 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
     sources = None
     warn_notfirst_ = False
     warn_dup_ = False
-    seen_one_sec_ = False
     # give it some context
     thetex = TeX()
     #thetex.ownerDocument.context.loadPackage(thetex, 'article.cls', {})
-    ## add lines up to the first empty line
+    ## add to `initial` lines up to the first empty line
     b = blobeditarea.splitlines()
     initial = ''
     while b and not b[0].strip():
@@ -447,11 +446,16 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
         initial += b[0] + '\n'
         b.pop(0)
     rest = '\n'.join(b) + ( '\n' if b else '')
-    #
+    # parse `initial` part for `env` macros , distinguishing for different languages
     thetex.input(initial,  Tokenizer=TokenizerPassThru.TokenizerPassThru)
     thetex.currentInput[0].pass_comments = True
     itertokens = thetex.itertokens()
     eatspaces = False
+    lang = None
+    sources_by_langs = {}
+    ccp = ColDoc.config.ColDoc_language_header_prefix
+    if ccp.startswith( '\\') :
+        ccp = ccp[1:]
     while itertokens is not None:
         try:
             tok = next(itertokens)
@@ -461,12 +465,16 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
         if isinstance(tok, TokenizerPassThru.Comment):
             output += '%' + str(tok)
         elif isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
-            if not str(tok.macroName) == env:
+            macroname = str(tok.macroName)
+            if macroname.startswith(ccp):
+                lang = macroname[len(ccp):]
+                output += '\\' + str(tok)
+            elif not macroname == env:
                 if str(tok).startswith('active::'):
                     output += tok.source
                 else:
                     output += '\\' + str(tok)
-            elif not seen_one_sec_ :
+            elif lang not in sources_by_langs :
                 obj = Base.section()
                 thetex.currentInput[0].pass_comments = False
                 src, sources, attributes = _parse_obj(obj, thetex)
@@ -474,8 +482,7 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
                 if any([ ('\n' in s) for s in sources]):
                     weird_prologue.append(_('Keep the\\%s{...} command all in one line.') % (env,))
                     sources = list(map( lambda x : x.replace('\n',' '), sources ))
-                ignoreme, newprologue = _rewrite_section(sources, uuid, env)
-                seen_one_sec_ = True
+                sources_by_langs[lang] = sources
                 # after the section, ignore spaces and newline
                 eatspaces = True
             else:
@@ -485,22 +492,47 @@ def _parse_for_section(blobeditarea, env, uuid, weird_prologue):
                 else:
                     output += '\\' + str(tok)
         else:
+            if isinstance(tok, TokenizerPassThru.Space) and str(tok) == '\n':
+                lang = None
             if tok.source not in (' ','\n','\t'):
                 output += tok.source
                 eatspaces = False
             elif not eatspaces:
                 output += tok.source
-            if not seen_one_sec_ :
+            if not isinstance(tok, TokenizerPassThru.Space) and not sources_by_langs :
                 warn_notfirst_ = True
-    if not seen_one_sec_ :
+    if not sources_by_langs :
         weird_prologue.append(_('Please add a \\%s{...} command in first line.') % (env,))
     elif warn_notfirst_:
         weird_prologue.append(_('The command \\%s{...} was moved to first line.') % (env,))
         newprologue += '%\n'
     if warn_dup_ :
         weird_prologue.append(_('The blob should contain only one occurrence of \\%s{...}.') % (env,))
-    if sources and sources[2][0] == '{' and sources[2][-1] != '}':
-        weird_prologue.append(_('Unterminated \\%s{} command') %(env,))
+    # combine all `env` for all languages in one and only one, using language conditionals
+    sources = ['', '', '']
+    d1l = ''
+    cci = ColDoc.config.ColDoc_language_conditional_infix
+    for k,v in sources_by_langs.items():
+        # process star argument
+        # note that only the last one will be effective
+        sources[0] = v[0]
+        # process [] and {} arguments
+        a1 = a2 = ''
+        d1l, v1 , d1r = strip_delimiters(v[1],'[]')
+        d2l, v2 , d2r = strip_delimiters(v[2])
+        if k is not None:
+            a2 = r'\fi '
+            a1 = r'\if' + cci + k + ' '
+        if v1:
+            sources[1] += a1 + v1 + a2
+        if v2:
+            sources[2] += a1 + v2 + a2
+    # FIXME an empty  [] option may be destroyed, the user should use [~]
+    if sources[1] or d1l:
+        sources[1]  = '[' + sources[1] + ']'
+    sources[2]  = '{' + sources[2] + '}'
+    ignoreme, newprologue = _rewrite_section(sources, uuid, env)
+    #
     # avoid duplicated spaces
     newprologue = re.sub(' +', ' ', newprologue)
     if newprologue and newprologue[-1] != '\n':
