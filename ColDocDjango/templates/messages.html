@@ -1,7 +1,9 @@
-<div aria-live="polite" aria-atomic="true" class="sticky-top">
+{% if messages %}
+<div aria-live="polite" aria-atomic="true"  class="sticky-top" style="position: relative">
+<div style="position: absolute; top: 20px; right: 20px;">
 {% for message in messages %}
     <div class="toast notification border-{% if message.tags == 'error' %}danger{% else %}{{message.tags}}{% endif %}"
-          role="alert" aria-live="polite" aria-atomic="true"   data-delay="15000">
+          role="alert" aria-live="polite" aria-atomic="true"   data-delay="25000">
         <div class="toast-header">
             <strong class="mr-auto">
                 {{message.tags|capfirst}}
@@ -16,3 +18,5 @@
     </div>
 {% endfor %}
 </div>
+</div>
+{% endif %}
