@@ -67,7 +67,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'recreate_symlinks',
             'TeX_add_packages',
             'log_debug', 'set_file_readonly', 'print_fun_call',
-            'fork_class',
+            'fork_class', 'strip_delimiters',
             )
 
 class ColDocException(Exception):
@@ -77,6 +77,24 @@ class ColDocFileNotFoundError (FileNotFoundError,ColDocException):
     pass
 
 #
+
+def strip_delimiters(src, delimiters='{}'):
+    "strip `delimiters` if present; return ( left_delimiter, stripped_src, right_delimiter ) "
+    assert len(delimiters) == 2
+    d1 = delimiters[0]
+    d2 = delimiters[1]
+    a = src.lstrip()
+    if a.startswith(d1):
+        src = a[1:]
+    else:
+        d1 = ''
+    a = src.rstrip()
+    if a.endswith(d2):
+        src = a[:-1]
+    else:
+        d2 = ''
+    return d1, src, d2
+
 ############ class for forking
 
 class fork_class(object):
