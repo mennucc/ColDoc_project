@@ -412,14 +412,20 @@ class squash_input_uuid(squash_helper_stack):
                 self.all_inputs.append(( macroname, argSource, inputfile, uuid, blob))
                 #
                 if self.load_uuid is not None:
-                    child = optarg = None
+                    child = None
                     try:
                         child = self.load_uuid(uuid)
+                    except:
+                        logger.exception('For uuid %r loding child %r', uuid, child)
+                    try:
                         if config.ColDoc_add_env_when_squashing and child and child.environ in config.ColDoc_environments_sectioning:
-                            optarg = json.loads(child.optarg)
-                            ## nope, let it be numbered if it was
-                            #optarg[0] = '*'
-                            placeholder +=  '\\' + child.environ + ''.join(optarg)
+                            if  child.optarg:
+                                optarg = json.loads(child.optarg)
+                                placeholder +=  '\\' + child.environ + ''.join(optarg)
+                            else:
+                                logger.warning('For uuid %r child %r , optarg is empty ', uuid, child)
+                    except json.decoder.JSONDecodeError:
+                        logger.warning('For uuid %r child %r cannot parse optarg %r ', uuid, child, optarg)
                     except:
                         logger.exception('For uuid %r child %r optarg %r ', uuid, child, optarg)
                     if child is None:
