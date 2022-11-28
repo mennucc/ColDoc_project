@@ -376,10 +376,17 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     if selection_start is not None and selection_end != selection_start:
         placeholder = parent_file[selection_start:selection_end]
     if environ in CC.ColDoc_environments_sectioning:
-        from ColDoc.blob_inator import _rewrite_section
         sources = ['','','{placeholder}']
-        ignore_me, src = _rewrite_section(sources, new_uuid, environ)
-        placeholder = src + '\n' + placeholder
+        if ('\\' + environ)  in placeholder:
+            from UUID.views import _parse_for_section
+            weird_prologue = []
+            p1, p2 , sources = _parse_for_section(placeholder, environ, child_metadata.uuid, weird_prologue)
+            placeholder = p1 + p2
+            # FIXME should pass back weird_prologue to caller
+        else:
+            from ColDoc.blob_inator import _rewrite_section
+            ignore_me, src = _rewrite_section(sources, new_uuid, environ)
+            placeholder = src + '\n' + placeholder
         child_metadata.add('optarg', json.dumps(sources))
         child_metadata.save()
     else:
