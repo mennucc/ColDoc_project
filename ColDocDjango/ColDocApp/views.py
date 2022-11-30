@@ -55,13 +55,20 @@ def post_coldoc_edit(request, NICK):
     form = ColDocForm(request.POST, instance=coldoc)
     #
     if not form.is_valid():
-        return HttpResponse("Invalid form: "+repr(form.errors),status=http.HTTPStatus.BAD_REQUEST)
+        messages.add_message(request,messages.ERROR,repr(form.errors))
+        # https://stackoverflow.com/a/70625499/5058564
+        k = 'class'
+        for field in form.errors:
+            a = form[field].field.widget.attrs
+            a[k] = a.get(k,'') + ' border-warning'
+        # FIXME should add `#settings` at the end of the URL
+        return index(request, NICK, coldocform=form)
     form.save()
     messages.add_message(request,messages.INFO,'Changes saved')
     return index(request, NICK)
 
 
-def index(request, NICK):
+def index(request, NICK, coldocform=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
@@ -79,12 +86,15 @@ def index(request, NICK):
     else:
         whole_button_class = 'btn-outline-primary'
     #
-    coldocform = None
+    assert coldocform is None or isinstance(coldocform, ColDocForm)
     if request.user.has_perm('ColDocApp.view_dcoldoc'):
-        coldocform = ColDocForm(instance=coldoc)
+        if coldocform is None:
+            coldocform = ColDocForm(instance=coldoc)
         coldocform.htmlid = 'id_coldocform'
         for a in 'nickname','root_uuid':
             coldocform.fields[a].widget.attrs['readonly'] = True
+    else:
+        coldocform = None
     #
     latex_error_logs = []
     failed_blobs = []
