@@ -724,7 +724,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
         logger.warning('A blob with language %r extension %r does not exist' % (lang_,ext_))
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
-    if prefix in ( 'add', 'translate' )  or prefix == 'relabel':
+    if prefix in ( 'add', 'translate', 'relabel'):
         L = metadata.get_languages()
         #
         if langchoice_ not in L and prefix in ( 'add', 'translate' ):
@@ -744,7 +744,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                 metadata.lang = '\n'.join(L) + '\n'
                 metadata.save()
             #
-            if prefix in ( 'add', 'translate' ) or langchoice_ == 'mul':
+            if prefix in ( 'add', 'translate' ): # this never happens or langchoice_ == 'mul':
                 logger.warning('copy %r to %r',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
@@ -771,7 +771,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                 with open(dst,'w') as f_:
                     f_.write(string)
                 logmessage(messages.INFO, m)
-            else:
+            elif prefix == 'relabel':
                 logger.warning('rename %r to %r',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
@@ -786,6 +786,8 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                             src = osjoin(D,j)
                             logger.warning('rename %r to %r',src,dst)
                             os.rename(src, dst)
+            else:
+                raise RuntimeError('')
     elif prefix == 'delete':
         L = metadata.get_languages()
         if langchoice_ in L:
