@@ -727,10 +727,6 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
     if prefix in ( 'add', 'translate', 'relabel'):
         L = metadata.get_languages()
         #
-        if langchoice_ not in L and prefix in ( 'add', 'translate' ):
-            metadata.lang = '\n'.join(L + [langchoice_]) + '\n'
-            metadata.save()
-        #
         if prefix == 'add' and os.path.exists(dst+'~disable~'):
             os.rename(dst+'~disable~', dst)
         #
@@ -745,6 +741,10 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                 metadata.save()
             #
             if prefix in ( 'add', 'translate' ): # this never happens or langchoice_ == 'mul':
+                if langchoice_ not in L:
+                    metadata.lang = '\n'.join(L + [langchoice_]) + '\n'
+                    metadata.save()
+                    L = metadata.get_languages()
                 logger.warning('copy %r to %r',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
