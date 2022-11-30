@@ -66,6 +66,9 @@ if COLDOC_SRC_ROOT != os.path.dirname(BASE_DIR):
 DEBUG = config['django'].getboolean('debug')
 
 
+AUTO_MUL = config['django'].getboolean('auto_mul')
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config.get('django','secret_key')
 if not SECRET_KEY :

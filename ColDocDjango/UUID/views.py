@@ -804,6 +804,9 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
             logger.warning(' lang %r not in %r',langchoice_,L)
     else:
         logmessage(messages.ERROR, 'Unimplemented %r %r'%(prefix,langchoice_))
+    if prefix == 'translate' and settings.AUTO_MUL and \
+       'mul' not in L and set(L) == set(coldoc.get_languages()):
+        return postlang_no_http(logmessage, metadata, 'multlang', lang_, ext_ , langchoice_ )
     ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
                     '?lang=%s&ext=%s'%(redirectlang_,ext_) )
