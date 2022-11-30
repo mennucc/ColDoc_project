@@ -778,8 +778,9 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                 os.unlink(src)
                 assert langchoice_ != 'mul'
                 for j in os.listdir(D):
-                        if j[:4] in ('blob','view') and j[5:8] == lang_:
-                            h = j[:5] + langchoice_ + j[8:]
+                    for p in ('blob_', 'view_','squash_'):
+                        if j.startswith(p + lang_):
+                            h = p + langchoice_ + j[(3+len(p)):]
                             dst = osjoin(D,h)
                             src = osjoin(D,j)
                             logger.warning('rename %r to %r',src,dst)
