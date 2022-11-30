@@ -735,11 +735,6 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                                  _('A blob with language %(lang)r extension %(ext)r already exists') %
                                  {'lang':iso3lang2word(lang_),'ext':ext_})
         else:
-            if prefix == 'relabel':
-                L[L.index(lang_)] = langchoice_
-                metadata.lang = '\n'.join(L) + '\n'
-                metadata.save()
-            #
             if prefix in ( 'add', 'translate' ): # this never happens or langchoice_ == 'mul':
                 if langchoice_ not in L:
                     metadata.lang = '\n'.join(L + [langchoice_]) + '\n'
@@ -772,6 +767,9 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                     f_.write(string)
                 logmessage(messages.INFO, m)
             elif prefix == 'relabel':
+                L[L.index(lang_)] = langchoice_
+                metadata.lang = '\n'.join(L) + '\n'
+                metadata.save()
                 logger.warning('rename %r to %r',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
