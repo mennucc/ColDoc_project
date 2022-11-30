@@ -2112,7 +2112,7 @@ def index(request, NICK, UUID):
             L = LangForm(choice_list = wrong_choice_list,
                          prefix = 'multlang', initial=initial_base)
             langforms.append( (L,'multlang',_('Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)'), bc) )
-        if len(Blangs) == 1 and 'mul' in Blangs:
+        if 'mul' in Blangs:
             L = LangForm(choice_list =  wrong_choice_list,
                          prefix = 'manual', initial=initial_base)
             langforms.append( (L,'manual',_('Change this UUID to manual language management (non <tt>mul</tt>)'), bc) )
