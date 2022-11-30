@@ -110,6 +110,10 @@ def validate_coldoc_nickname(value):
             params={'value': value},
         )
 
+def validate_languages(L):
+    if any([ (len(z)!=3) for z in L.splitlines()]):
+        raise ValidationError(  _('Malformed languages; insert one ISO_639-3 three letter code per line (and no blank lines)'), )
+
 class DColDoc(models.Model):
     "Collaborative Document"
     #
@@ -126,7 +130,9 @@ class DColDoc(models.Model):
                                 validators=[validate_coldoc_nickname],
                                 max_length=10,  db_index = True, primary_key=True)
     #
-    languages = models.TextField( _("languages supported (one ISO_639-3 three letter code per line)"), max_length=200, blank=True)
+    languages = models.TextField( _("languages supported (one ISO_639-3 three letter code per line)"),
+                                  validators = [validate_languages],
+                                  max_length=200, blank=True)
     #
     def get_languages(self):
         " return list of languages, correctly formatted"
