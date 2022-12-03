@@ -37,5 +37,5 @@ fi
 echo
 echo
 echo Now you may issue the command:
-echo "cd $b/plastex ; python3 setup.py install"
+echo "cd $b/plastex ; pip3 install ."
 

@@ -50,7 +50,7 @@ Installing `plastex` is somewhat complex, since ColDoc needs a patched version.
 
 The script `plastex/prepare.sh` can download and patch plastex for you: the patched
 version is then available in  `plastex/plastex`.
-So you can install it, using `python3 setup.py install` inside the directory `plastex/plastex`.
+So you can install it, using `pip3 install .` inside the directory `plastex/plastex`.
 
 Installing wallet
 -----------------
