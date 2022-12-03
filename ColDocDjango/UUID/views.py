@@ -776,7 +776,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                 L[L.index(lang_)] = langchoice_
                 metadata.lang = '\n'.join(L) + '\n'
                 metadata.save()
-                logger.warning('rename %r to %r',src,dst)
+                logger.warning('rename %r to %r (converting language inputs)',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
                 with open(dst,'w') as f_:
