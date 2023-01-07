@@ -39,6 +39,7 @@ from ColDoc.classes import MetadataBase, DuplicateLabel
 
 
 __all__ = ( "slugify", "slug_re", "slugp_re",
+            "lang_re", "langc_re",
             "absdict", "FMetadata", "uuid_to_dir",
             "dir_to_uuid", "file_to_uuid",
             "uuid_check_normalize", "uuid_to_int", "int_to_uuid",
@@ -930,6 +931,13 @@ slug_re = re.compile(r'^[-a-zA-Z0-9_]+\Z')
 
 # allow point as well
 slugp_re = re.compile(r'^[-a-zA-Z0-9_.]+\Z')
+
+# iso language
+lang_re = re.compile(r'^[a-z][a-z][a-z]\Z')
+
+# iso language, maybe with comma
+langc_re = re.compile(r'^[a-z][a-z][a-z],?\Z')
+
 
 # https://github.com/django/django/blob/master/django/utils/text.py
 def slugify(value, allow_unicode=False):

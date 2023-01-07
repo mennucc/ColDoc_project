@@ -68,6 +68,7 @@ from plasTeX.TeX import TeX
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
 from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, uuid_to_dir, gen_lang_metadata, strip_delimiters
+from ColDoc.utils import langc_re , lang_re
 from ColDocDjango.utils import get_email_for_user, load_unicode_to_latex
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
@@ -98,9 +99,6 @@ def int_(v):
 
 wrong_choice_list = [('internal_error','internal_error')]
 
-langc_re = re.compile(r'^[a-z][a-z][a-z],?\Z')
-
-lang_re = re.compile(r'^[a-z][a-z][a-z]\Z')
 
 
 ##############################################################
