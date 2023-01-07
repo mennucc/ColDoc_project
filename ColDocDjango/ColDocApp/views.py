@@ -14,6 +14,7 @@ from django.forms import ModelForm
 from django.core.exceptions import SuspiciousOperation
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
 if django.VERSION[0] >= 4 :
@@ -233,6 +234,7 @@ def html(request, NICK, subpath=None):
     c = DColDoc.objects.filter(nickname = NICK).get()
     return UUIDviews.view_(request, c, c.root_uuid, '_html', None, subpath, prefix='main', expandbuttons = False)
 
+@xframe_options_sameorigin
 def pdf(request, NICK, subpath=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
