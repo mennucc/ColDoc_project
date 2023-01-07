@@ -1876,8 +1876,8 @@ def index(request, NICK, UUID):
     its_something_we_would_latex = (env not in ColDoc.latex.environments_we_wont_latex)
     if its_something_we_would_latex:
         ll = view_lang if view_lang in CDlangs else CDlangs[0]
-        pdfUUIDurl = django.urls.reverse('ColDoc:pdf', kwargs={'NICK':NICK,}) +\
-            '?lang=%s#UUID:%s'%(ll, UUID)
+        pdfUUIDurl = django.urls.reverse('ColDoc:pdfframe', kwargs={'NICK':NICK,}) +\
+            '?lang=%s&uuid=%s#UUID:%s'%(ll, UUID, UUID)
         section, anchor = ColDoc.latex.get_specific_html_for_UUID(global_blobs_dir,UUID)
         htmlUUIDurl = django.urls.reverse('ColDoc:html', kwargs={'NICK':NICK,}) +\
              section + '?lang=%s%s'%(ll, anchor)

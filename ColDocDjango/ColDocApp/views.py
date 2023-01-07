@@ -24,7 +24,7 @@ else:
     _ = gettext
 
 import ColDoc.utils, ColDocDjango
-from ColDoc.utils import slug_re, get_blobinator_args
+from ColDoc.utils import slug_re, slugp_re, langc_re , lang_re, uuid_valid_symbols,  get_blobinator_args
 from .models import DColDoc
 from UUID.models import DMetadata, ExtraMetadata
 from UUID import views as UUIDviews
@@ -240,6 +240,38 @@ def pdf(request, NICK, subpath=None):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     c = DColDoc.objects.filter(nickname = NICK).get()
     return UUIDviews.view_(request, c, c.root_uuid, '.pdf', None, subpath, prefix='main')
+
+def pdfframe(request, NICK, subpath=None):
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+    c = DColDoc.objects.filter(nickname = NICK).get()
+    #
+    q = request.GET
+    a = []
+    ext = q.get('ext')
+    if ext is not None:
+        if not slugp_re.match(ext):
+            raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
+        a.append( "ext=%s" % ext )
+    lang = q.get('lang')
+    if lang is not None:
+        if not langc_re.match(lang):
+            raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
+        a.append( 'lang=%s' % lang )
+    uuid = q.get('uuid')
+    if uuid :
+        if not uuid_valid_symbols.match(uuid):
+            raise SuspiciousOperation("Invalid uuid %r in query." % (uuid,))
+        a.append( 'uuid=%s' % uuid )
+    #
+    pdfurl = django.urls.reverse('ColDoc:pdf', kwargs={'NICK':NICK,})
+    if a :
+        pdfurl += '?' + '&'.join(a)
+    if uuid:
+        pdfurl += "#UUID:%s" % uuid
+    del c,a
+    return render(request, 'pdfframe.html', locals() )
+
 
 def search_text_list(request, coldoc, searchtoken):
     NICK = coldoc.nickname
