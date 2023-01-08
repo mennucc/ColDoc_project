@@ -382,7 +382,7 @@ def _build_blobeditform_data(metadata,
 
 re_md5 = re.compile('^(blob|view)_[a-z][a-z][a-z]((\.[a-z][a-z]*)|_html/index.html)$')
 
-def md5(request, NICK, UUID, FILE):
+def md5(request, NICK, UUID, ACCESS, FILE):
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID, accept_anon=True)
     assert  isinstance(FILE,str)
     if not re_md5.match(FILE):

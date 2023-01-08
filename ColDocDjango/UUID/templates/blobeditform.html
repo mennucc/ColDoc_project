@@ -3,7 +3,7 @@
 <script>
 var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 {% if BLOB %}
-  var get_blob_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID FILE=BLOB %}";
+  var get_blob_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=BLOB %}";
 {% else %}
   var get_blob_md5_url = "";
 {% endif %}

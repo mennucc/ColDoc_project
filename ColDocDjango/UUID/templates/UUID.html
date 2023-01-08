@@ -6,7 +6,7 @@
 var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
 var blob_uncompiled={{ uncompiled }};
 {% if VIEW %}
-  var get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID FILE=VIEW %}";
+  var get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=VIEW %}";
 {% else %}
   var get_view_md5_url = "";
 {% endif %}
