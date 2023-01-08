@@ -1502,6 +1502,37 @@ def log(request, NICK, UUID):
 
 
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view', expandbuttons = True):
+    r = view_mul(request, NICK, UUID, _view_ext, _content_type, subpath, prefix, expandbuttons )
+    # some error
+    if not isinstance(r,tuple):
+        return r
+    #
+    download='download' in request.GET
+    #
+    n, _content_type, _content_encoding, _view_ext, coldoc, uuid, lang, child_uuid = r
+    #
+    try:
+        if _content_type == 'text/html':
+            f = open(n).read()
+            a = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname, 'UUID':'001'})
+            f = _html_replace(f, a[:-4], uuid, lang, expandbuttons, child_uuid )
+            response = HttpResponse(f, content_type=_content_type, charset=_content_encoding)
+        elif _content_type.startswith('text/'):
+            f = open(n)
+            response = HttpResponse(f, content_type=_content_type, charset=_content_encoding)
+        else:
+            fsock = open(n,'rb')
+            response = HttpResponse(fsock, content_type=_content_type)
+    except FileNotFoundError:
+        logger.warning('FileNotFoundError user=%r coldoc=%r uuid=%r ext=%r lang=%r',request.user.username,NICK,UUID,_view_ext,lang)
+        return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID, lang, _view_ext),
+                            status=http.HTTPStatus.NOT_FOUND)
+    if download:
+        response['Content-Disposition'] = "attachment; filename=ColDoc-%s%s" % (UUID,_view_ext)
+    return response
+
+
+def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view', expandbuttons = True):
     #
     logger.debug('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r : entering',
                 request.META.get('REMOTE_ADDR'), request.user.username,
@@ -1563,7 +1594,6 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
     if lang:
         lang, allow_lang_fallback = lang[:3],lang[3:]
-    download='download' in q
     #for j in q:
     #    if j not in ('ext','lang'):
     #        messages.add_message(request, messages.WARNING, 'Ignored query %r'%(j,) )
@@ -1661,21 +1691,14 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             return HttpResponse("Permission denied (blob)",
                                 status=http.HTTPStatus.UNAUTHORIZED)
         #
-        if _content_type == 'text/html':
-            f = open(n).read()
-            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'001'})
-            f = _html_replace(f, a[:-4], uuid, lang, expandbuttons, metadata.get('child_uuid'))
-            response = HttpResponse(f, content_type=_content_type)
-        else:
-            fsock = open(n,'rb')
-            response = HttpResponse(fsock, content_type=_content_type)
-        if download:
-            response['Content-Disposition'] = "attachment; filename=ColDoc-%s%s" % (UUID,_view_ext)
         logger.info('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r lang=%r pref_=%r blobs_subdir=%r : content served',
                     request.META.get('REMOTE_ADDR'), request.user.username,
                     NICK,UUID,_view_ext,_content_type,subpath,prefix,lang,pref_,blobs_subdir)
-        return response
-    
+        #
+        child_uuid = metadata.get('child_uuid')
+        #
+        return (n, _content_type, _content_encoding, _view_ext, coldoc, uuid, lang, child_uuid)
+    #
     except FileNotFoundError:
         logger.warning('FileNotFoundError user=%r coldoc=%r uuid=%r ext=%r lang=%r',request.user.username,NICK,UUID,_view_ext,lang)
         return HttpResponse("Cannot find UUID %r with langs=%r , extension=%r." % (UUID,langs,_view_ext),
