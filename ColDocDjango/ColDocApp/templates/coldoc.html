@@ -25,7 +25,7 @@ ColDoc  — {{ coldoc.nickname }} {% endif %}</h1>
  {% translate "View whole document" %}
 </a>
 
-<a href="{% url 'ColDoc:pdf' NICK=coldoc.nickname %}" class="btn {{ whole_button_class }} btn-sm">
+<a href="{% url 'ColDoc:pdfframe' NICK=coldoc.nickname %}" class="btn {{ whole_button_class }} btn-sm">
  {% translate "View whole document, as PDF" %}
 </a>
 
