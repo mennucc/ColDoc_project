@@ -1549,7 +1549,10 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
         coldoc = NICK
         NICK = coldoc.nickname
     else:
-        coldoc = DColDoc.objects.filter(nickname = NICK).get()
+        try:
+            coldoc = DColDoc.objects.filter(nickname = NICK).get()
+        except DColDoc.DoesNotExist:
+            return HttpResponse("No such ColDoc %r.\n" % (NICK,) , status=http.HTTPStatus.NOT_FOUND)
     #
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
