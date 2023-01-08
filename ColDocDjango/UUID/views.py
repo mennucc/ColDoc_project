@@ -1502,6 +1502,7 @@ def log(request, NICK, UUID):
 
 
 def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view', expandbuttons = True):
+    " UUID=True means UUID=root_uuid of coldoc "
     r = view_mul(request, NICK, UUID, _view_ext, _content_type, subpath, prefix, expandbuttons )
     # some error
     if not isinstance(r,tuple):
@@ -1533,6 +1534,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
 
 
 def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix='view', expandbuttons = True):
+    " UUID=True means UUID=root_uuid of coldoc "
     #
     logger.debug('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r prefix=%r : entering',
                 request.META.get('REMOTE_ADDR'), request.user.username,
@@ -1543,7 +1545,7 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
     assert prefix in ('main','view','blob','log')
     if not ( ( isinstance(NICK,str) and slug_re.match(NICK) )  or isinstance(NICK,DColDoc) ):
         raise SuspiciousOperation(repr(NICK))
-    if not ( ( isinstance(UUID,str) and slug_re.match(UUID) ) ) : raise SuspiciousOperation(repr(UUID))
+    if not ( ( isinstance(UUID,str) and slug_re.match(UUID) ) or ( UUID is True) ) : raise SuspiciousOperation(repr(UUID))
     #
     if isinstance(NICK,DColDoc):
         coldoc = NICK
@@ -1553,6 +1555,9 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
             coldoc = DColDoc.objects.filter(nickname = NICK).get()
         except DColDoc.DoesNotExist:
             return HttpResponse("No such ColDoc %r.\n" % (NICK,) , status=http.HTTPStatus.NOT_FOUND)
+    #
+    if UUID is True :
+        UUID = coldoc.root_uuid
     #
     try:
         a = ColDoc.utils.uuid_check_normalize(UUID)
