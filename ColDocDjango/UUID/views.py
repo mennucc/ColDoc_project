@@ -1646,10 +1646,11 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             return HttpResponse("Cannot find %s.....%s, subpath %r, for UUID %r , looking for languages in %r." %\
                                 (pref_,_view_ext,subpath,UUID,langs),
                                 content_type='text/plain', status=http.HTTPStatus.NOT_FOUND)
+        # we assume that all text files are in DEFAULT_CHARSET that usually is utf-8
+        _content_encoding = settings.DEFAULT_CHARSET
         if _content_type is None:
             if _view_ext in ColDoc.config.ColDoc_allowed_logs :
                 _content_type = 'text/plain'
-                _content_encoding = 'utf-8'
             else:
                 _content_type , _content_encoding = mimetypes.guess_type(n)
         #
