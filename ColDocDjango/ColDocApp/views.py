@@ -231,21 +231,13 @@ def reparse(request, NICK):
 def html(request, NICK, subpath=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    try:
-        c = DColDoc.objects.filter(nickname = NICK).get()
-    except DColDoc.DoesNotExist:
-        return HttpResponse("No such ColDoc %r.\n" % (NICK,) , status=http.HTTPStatus.NOT_FOUND)
-    return UUIDviews.view_(request, c, c.root_uuid, '_html', None, subpath, prefix='main', expandbuttons = False)
+    return UUIDviews.view_(request, NICK, True, '_html', None, subpath, prefix='main', expandbuttons = False)
 
 @xframe_options_sameorigin
 def pdf(request, NICK, subpath=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    try:
-        c = DColDoc.objects.filter(nickname = NICK).get()
-    except DColDoc.DoesNotExist:
-        return HttpResponse("No such ColDoc %r.\n" % (NICK,) , status=http.HTTPStatus.NOT_FOUND)
-    return UUIDviews.view_(request, c, c.root_uuid, '.pdf', None, subpath, prefix='main')
+    return UUIDviews.view_(request, NICK, True, '.pdf', None, subpath, prefix='main')
 
 def pdfframe(request, NICK, subpath=None):
     if not slug_re.match(NICK):
