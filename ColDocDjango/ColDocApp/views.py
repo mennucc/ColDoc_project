@@ -34,6 +34,12 @@ from ColDocApp import text_catalog
 from ColDocDjango.users import user_has_perm , UUID_view_view , UUID_view_blob #, UUID_download  #, user_has_perm_uuid_blob
 from ColDocDjango.utils import check_login_timeout
 
+from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
+
+def iso3lang2word(*v , **k):
+    return gettext_lazy(iso3lang2word_untranslated(*v, **k))
+
+
 class ColDocForm(ModelForm):
     class Meta:
         model = DColDoc
@@ -273,6 +279,7 @@ def pdfframe(request, NICK, subpath=None):
     if uuid:
         pdfurl += "#UUID:%s" % uuid
     del a
+    LANGUAGE = iso3lang2word(lang)
     return render(request, 'pdfframe.html', locals() )
 
 
