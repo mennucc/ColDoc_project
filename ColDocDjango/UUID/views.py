@@ -2003,15 +2003,21 @@ def index(request, NICK, UUID):
     if  request.user.has_perm('UUID.view_log'):
         d = os.path.dirname(filename)
         pref_ = 'main' if UUID == metadata.coldoc.root_uuid else 'view'
+        accs_ = ('public','private') if UUID == metadata.coldoc.root_uuid else (None,)
         for l in (Blangs if ('mul' not in Blangs) else CDlangs):
+          for ac_ in accs_:
             availablelogs2 = []
             lt_ = iso3lang2word(l)
+            if ac_ :
+                lt_ += ' ' + _(ac_)
             for e_ in ColDoc.config.ColDoc_allowed_logs:
                 a = osjoin(d, pref_ + '_' + l + e_)
                 if os.path.exists(a):
                     a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':NICK,'UUID':UUID})
                     if a[-1] != '/': a += '/'
                     a += '?lang=%s&ext=%s'  % (l,e_)
+                    if ac_ :
+                        a += '&access=%s' % ac_
                     availablelogs2.append(  (e_ , a ) )
             availablelogs.append( ( lt_ , availablelogs2 ) )
             del availablelogs2
