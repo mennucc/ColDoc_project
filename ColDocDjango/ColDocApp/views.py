@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, pathlib, pickle, base64, functools, copy, re
+import os, sys, mimetypes, http, pathlib, pickle, base64, functools, copy, re, hashlib
 from os.path import join as osjoin
 
 import logging
@@ -242,35 +242,37 @@ def pdf(request, NICK, subpath=None):
 def pdfframe(request, NICK, subpath=None):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    try:
-        c = DColDoc.objects.filter(nickname = NICK).get()
-    except DColDoc.DoesNotExist:
-        return HttpResponse("No such ColDoc %r.\n" % (NICK,) , status=http.HTTPStatus.NOT_FOUND)
     #
-    q = request.GET
-    a = []
-    ext = q.get('ext')
-    if ext is not None:
-        if not slugp_re.match(ext):
-            raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
-        a.append( "ext=%s" % ext )
-    lang = q.get('lang')
-    if lang is not None:
-        if not langc_re.match(lang):
-            raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
-        a.append( 'lang=%s' % lang )
-    uuid = q.get('uuid')
+    r = UUIDviews.view_mul(request, NICK, True, '.pdf', None, subpath, prefix='main')
+    # some error
+    if not isinstance(r,tuple):
+        return r
+    #
+    filename, ACCESS, _content_type, _content_encoding, _view_ext, coldoc, rootuuid, lang, child_uuid = r
+    #
+    FILENAME = os.path.basename(filename)
+    UUID = coldoc.root_uuid
+    view_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
+    view_mtime = str(os.path.getmtime(filename))
+    # use effective language
+    a = [ 'lang=%s' % lang ]
+    #
+    uuid = request.GET.get('uuid')
     if uuid :
         if not uuid_valid_symbols.match(uuid):
             raise SuspiciousOperation("Invalid uuid %r in query." % (uuid,))
+        # this is not really used
         a.append( 'uuid=%s' % uuid )
     #
+    if ACCESS:
+        a.append( 'access=%s' % ACCESS )
+    #
     pdfurl = django.urls.reverse('ColDoc:pdf', kwargs={'NICK':NICK,})
-    if a :
-        pdfurl += '?' + '&'.join(a)
+    pdfurl += '?' + '&'.join(a)
+    # but this is used to jump the uuid
     if uuid:
         pdfurl += "#UUID:%s" % uuid
-    del c,a
+    del a
     return render(request, 'pdfframe.html', locals() )
 
 
