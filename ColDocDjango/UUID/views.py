@@ -1669,6 +1669,7 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
         Blangs = metadata.get_languages()
         if 'mul' in Blangs:
             Blangs = metadata.coldoc.get_languages()
+        # FIXME having language '' or None is legacy, may be deleted
         langs = [lang] if (lang is not None) else []
         if lang is None or allow_lang_fallback:
             langs += ( Blangs + [None] )
@@ -1685,6 +1686,7 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
                 pref_ = 'view'
         #
         for l in langs:
+            # FIXME having language '' or None is legacy, may be deleted
             assert l in (None,'') or slug_re.match(l)
             if l not in (None,''):
                 _l = '_'+l
