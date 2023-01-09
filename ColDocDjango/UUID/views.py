@@ -1,4 +1,5 @@
 import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect, functools
+from html import escape as py_html_escape
 from os.path import join as osjoin
 
 try:
@@ -36,6 +37,11 @@ from django.contrib.auth.models import Group
 from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
 from django.utils.text import format_lazy
+from django.utils.functional import lazy
+
+full_escape_translate_lazy = lazy ( lambda s : py_html_escape(gettext_lazy (s ) , quote=True) , str )
+full_escape_lazy = lazy ( lambda s : py_html_escape(s , quote=True) , str )
+
 
 if django.VERSION[0] >= 4 :
     _ = gettext_lazy
@@ -1680,13 +1686,16 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e),
                             status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
 
+
 def get_access_icon(access):
+    H = full_escape_lazy
     ACCESS_ICONS = {'open':    ('<img src="%s" style="height: 12pt"  data-toggle="tooltip" title="%s">' % \
-                                (static('ColDoc/Open_Access_logo_PLoS_white.svg'),DMetadata.ACCESS_CHOICES[0][1])), #
+                                (static('ColDoc/Open_Access_logo_PLoS_white.svg'),
+                                 H(DMetadata.ACCESS_CHOICES[0][1]))), #
                     'public':  ('<span style="font-size: 12pt" data-toggle="tooltip" title="%s">%s</span>' %\
-                                (DMetadata.ACCESS_CHOICES[1][1],chr(0x1F513),)), # '🔓'
+                                (H(DMetadata.ACCESS_CHOICES[1][1]),chr(0x1F513),)), # '🔓'
                     'private': ('<span style="font-size: 12pt" data-toggle="tooltip" title="%s">%s</span>' %\
-                               (DMetadata.ACCESS_CHOICES[2][1],chr(0x1F512),)), # '🔒'
+                                (H(DMetadata.ACCESS_CHOICES[2][1]),chr(0x1F512),)), # '🔒'
                         }
     return ACCESS_ICONS[access]
 
