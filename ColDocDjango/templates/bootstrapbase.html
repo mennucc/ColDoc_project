@@ -138,7 +138,6 @@
 </nav>
 -->
 
-{% include 'messages.html' %}
 
  <main class="container">
     <!-- Content here -->
@@ -167,9 +166,10 @@
         Privacy settings
       </button>
   </span>
+  {% include 'messages.html' %}
+  {% include "language_choice_modal.html" %}
+  {% include "cookie_modal.html" %}
    </footer>
- {% include "language_choice_modal.html" %}
- {% include "cookie_modal.html" %}
 
     <!-- Optional JavaScript -->
     <script> $(function () { $('[data-toggle="tooltip"]').tooltip()}) </script>
