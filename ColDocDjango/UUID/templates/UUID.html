@@ -306,10 +306,15 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
   <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
     <div class="border border-info mt-2">
     <ul>
-    {% for val,link in availablelogs %}
+    {% for val1,availablelogs2 in availablelogs %}
+       <li> {{ val1 }}
+       <ul>
+       {% for val2,link in availablelogs2 %}
                 <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
-                {{ val }}
+                {{ val2 }}
                 {% if link %}  </a>   {% endif %}
+      {% endfor %}
+      </ul>
     {% endfor %}
     </ul>
     </div>
