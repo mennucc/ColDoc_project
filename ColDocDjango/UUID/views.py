@@ -1578,9 +1578,10 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
                 raise SuspiciousOperation("Invalid ext %r in query." % (_view_ext,))
         else:
             return HttpResponse("must specify extension", status=http.HTTPStatus.NOT_FOUND)
-    # used for main document logs
+    # used for main document logs, and cross checks
     access = q.get('access')
-    assert access is None or slugp_re.match(access)
+    if access not in (None, 'open', 'public', 'private', 'undefined'):
+        return HttpResponse("Wrong access request", status=http.HTTPStatus.BAD_REQUEST)
     #
     if prefix == 'log' and  _view_ext not in ColDoc.config.ColDoc_allowed_logs:
         return HttpResponse("Permission denied (log)", status=http.HTTPStatus.UNAUTHORIZED)
@@ -1590,10 +1591,16 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
     blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
     if prefix == 'main':
         request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
-        if not request.user.has_perm('UUID.view_view') :
-            # users.user_has_perm() will grant `public` access to editors
+        if access in ('public','open') or not request.user.has_perm('UUID.view_view'):
+            # users.user_has_perm() will grant `private` access to editors
             blobs_subdir = 'anon'
             blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
+            if access == 'private':
+                messages.add_message(request, messages.WARNING, _('Access to private document denied. Please login.'))
+            access = 'public'
+        else:
+            access = 'private'
+    #
     if not os.path.isdir(blobs_dir):
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     #
