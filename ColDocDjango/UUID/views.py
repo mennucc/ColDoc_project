@@ -1510,7 +1510,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
     #
     download='download' in request.GET
     #
-    n, _content_type, _content_encoding, _view_ext, coldoc, uuid, lang, child_uuid = r
+    n, access, _content_type, _content_encoding, _view_ext, coldoc, uuid, lang, child_uuid = r
     #
     try:
         if _content_type == 'text/html':
@@ -1712,7 +1712,7 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
         #
         child_uuid = metadata.get('child_uuid')
         #
-        return (n, _content_type, _content_encoding, _view_ext, coldoc, uuid, lang, child_uuid)
+        return (n, access, _content_type, _content_encoding, _view_ext, coldoc, uuid, lang, child_uuid)
     #
     except FileNotFoundError:
         logger.warning('FileNotFoundError user=%r coldoc=%r uuid=%r ext=%r lang=%r',request.user.username,NICK,UUID,_view_ext,lang)
