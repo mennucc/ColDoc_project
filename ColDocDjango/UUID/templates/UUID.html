@@ -304,19 +304,19 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
  
  {% if perms.UUID.view_log %}
   <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
-    <div class="border border-info mt-2">
-    <ul>
+    <div class="row border border-info m-1">
     {% for val1,availablelogs2 in availablelogs %}
-       <li> {{ val1 }}
+      <div class="col sm border border-info m-1">
+       {{ val1 }}
        <ul>
        {% for val2,link in availablelogs2 %}
                 <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
                 {{ val2 }}
                 {% if link %}  </a>   {% endif %}
       {% endfor %}
-      </ul>
+       </ul>
+      </div>
     {% endfor %}
-    </ul>
     </div>
   </div>
  {% endif %}
