@@ -1909,7 +1909,7 @@ def index(request, NICK, UUID):
     if its_something_we_would_latex:
         ll = view_lang if view_lang in CDlangs else CDlangs[0]
         pdfUUIDurl = django.urls.reverse('ColDoc:pdfframe', kwargs={'NICK':NICK,}) +\
-            '?lang=%s&uuid=%s#UUID:%s'%(ll, UUID, UUID)
+            '?lang=%s&uuid=%s#titlebeforepdf'%(ll, UUID)
         section, anchor = ColDoc.latex.get_specific_html_for_UUID(global_blobs_dir,UUID)
         htmlUUIDurl = django.urls.reverse('ColDoc:html', kwargs={'NICK':NICK,}) +\
              section + '?lang=%s%s'%(ll, anchor)
