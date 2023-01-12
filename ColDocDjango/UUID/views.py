@@ -1841,6 +1841,7 @@ def index(request, NICK, UUID):
     BLOB = os.path.basename(filename)
     blob_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
     blob_mtime = str(os.path.getmtime(filename))
+    uncompiled = 0;
     #
     envs = metadata.get('environ')
     env = envs[0] if envs else None     
@@ -2050,7 +2051,6 @@ def index(request, NICK, UUID):
             del availablelogs2
     #
     blobdiff = ''
-    uncompiled = 0;
     # just to be safe
     can_change_blob = request.user.has_perm('UUID.change_blob')
     if not request.user.has_perm('UUID.view_view', metadata):
