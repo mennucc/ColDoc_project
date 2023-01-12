@@ -110,6 +110,7 @@
 </header>
 
 
+{% include 'messages.html' %}
  <main class="{{ MAIN_CONTAINER_CLASS | default:"container" }} flex-grow-1" >
     <!-- Content here -->
         {% block content %}fake content{% endblock %}
@@ -137,7 +138,6 @@
         Privacy settings
       </button>
   </span>
-  {% include 'messages.html' %}
   {% include "language_choice_modal.html" %}
   {% include "cookie_modal.html" %}
    </footer>
