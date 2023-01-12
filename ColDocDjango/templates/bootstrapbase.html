@@ -110,7 +110,7 @@
 </header>
 
 
- <main class="container flex-grow-1" >
+ <main class="{{ MAIN_CONTAINER_CLASS | default:"container" }} flex-grow-1" >
     <!-- Content here -->
         {% block content %}fake content{% endblock %}
  </main>

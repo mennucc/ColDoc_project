@@ -280,6 +280,7 @@ def pdfframe(request, NICK, subpath=None):
         pdfurl += "#UUID:%s" % uuid
     del a
     LANGUAGE = iso3lang2word(lang)
+    MAIN_CONTAINER_CLASS = "container-fluid"
     return render(request, 'pdfframe.html', locals() )
 
 
