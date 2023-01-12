@@ -213,9 +213,9 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
     <h2>Blob</h2>
     <div class="border border-info p-1 m-1">
     <ul>
-    {% if env %}<li>{% translate "Environment:" %} {{ env }}{% endif %}
-    {% if blob_language %}<li>{% translate "Selected language:" %} {{ blob_language }}{% endif %}
-    {% if ext %}<li>{% translate "Selected extension:" %} {{ ext }} {% endif %}
+    {% if env %}<li>{% translate "Environment:" %} {{ env }} </li>{% endif %}
+    {% if blob_language %}<li>{% translate "Selected language:" %} {{ blob_language }}</li>{% endif %}
+    {% if ext %}<li>{% translate "Selected extension:" %} {{ ext }}</li> {% endif %}
     </ul>
     {% if blobcontenttype == 'text' %}
      {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
@@ -286,8 +286,10 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
                 <code>{{ val }}</code>
                 {% if link %}  </a>   {% endif %}
               {% endfor %}
+	    </li>
           </ul>
-          {% endfor %}
+	</li>
+	{% endfor %}
       </ul>
     </div>
   </div>
@@ -313,6 +315,7 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
                 <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
                 {{ val2 }}
                 {% if link %}  </a>   {% endif %}
+		</li>
       {% endfor %}
        </ul>
       </div>
