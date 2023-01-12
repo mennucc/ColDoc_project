@@ -40,7 +40,8 @@
     {% block extrahead %}{% endblock extrahead %}
   </head>
   <body>
-  
+    <div class="col vh-100">
+      <div class="d-flex flex-column h-100">
 <header>
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <a class="navbar-brand" href="/">
@@ -111,12 +112,12 @@
 </header>
 
 
- <main class="container">
+ <main class="container flex-grow-1" >
     <!-- Content here -->
         {% block content %}fake content{% endblock %}
  </main>
-<footer class="footer pull-right">
-  <span  class="container text-muted">
+ <footer class="bg-light">
+  <span  class="text-muted">
    <a href="https://github.com/mennucc/ColDoc_project">The <i>ColDoc</i> document management system</a> is 
    Copyright 2019-22 <a href="https://www.sns.it/it/persona/andrea-carlo-giuseppe-mennucci">A. Mennucci</a>
   </span>
@@ -142,6 +143,8 @@
   {% include "language_choice_modal.html" %}
   {% include "cookie_modal.html" %}
    </footer>
+  </div>
+  </div>
 
     <!-- Optional JavaScript -->
     <script> $(function () { $('[data-toggle="tooltip"]').tooltip()}) </script>
