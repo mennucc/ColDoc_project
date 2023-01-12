@@ -97,7 +97,7 @@ window.addEventListener('ready', hide_and_show() );
 
 var blob_polling = 240000;
 
-// check_changed_md5() is in unique.js
+// check_changed_md5() is in notifychange.js
 
 function check_blob_changed_md5() { 
    let blob_callback = (ret) => 
