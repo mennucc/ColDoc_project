@@ -1,3 +1,5 @@
+"use strict";
+
 // adapted from https://stackoverflow.com/a/23692090/5058564
 // noprotect
 

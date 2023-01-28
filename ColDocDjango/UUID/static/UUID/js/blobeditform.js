@@ -1,3 +1,4 @@
+"use strict";
 
 function copy() {
     let textarea = document.getElementById("id_BlobEditTextarea");

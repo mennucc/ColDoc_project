@@ -1,3 +1,4 @@
+"use strict";
 
 // from http://www.w3schools.com/Ajax/ 
 

@@ -1,3 +1,5 @@
+"use strict";
+
 function check_changed_md5(get_md5_url, callback) {
   if ( get_md5_url == '' ) { return undefined; };
   return  $.get( get_md5_url, function( response ) {

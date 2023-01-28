@@ -2,7 +2,9 @@
 {% load static %}
 {% load i18n %}
 {% block extrahead %}
-<script>var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var VIEW="{{VIEW}}"; 
+<script>
+"use strict";
+var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var VIEW="{{VIEW}}"; 
 var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
 var blob_uncompiled={{ uncompiled }};
 {% if VIEW %}
