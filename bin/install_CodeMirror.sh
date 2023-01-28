@@ -9,7 +9,7 @@ if ! test -d node_modules ; then mkdir node_modules  ; fi
 
 
 
-if which npmz ; then
+if which npm ; then
     echo Install CodeMirror using npm
     npm install codemirror
 else
