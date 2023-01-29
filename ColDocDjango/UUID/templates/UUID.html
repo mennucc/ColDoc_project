@@ -12,6 +12,14 @@ var blob_uncompiled={{ uncompiled }};
 {% else %}
   var get_view_md5_url = "";
 {% endif %}
+
+const python_main_class = "{{ MAIN_CONTAINER_CLASS }}";
+var previous_main_class = "{{ MAIN_CONTAINER_CLASS | default:"container" }}";
+
+$( document ).ready(function() {
+    mainClassUpdate(undefined);
+});
+
 </script>
 <script src="{% static 'UUID/js/UUID.js' %}"></script>
 <script src="{% static 'UUID/js/unique.js' %}"></script>
@@ -35,6 +43,7 @@ var blob_uncompiled={{ uncompiled }};
 
 <h1><a href="{% url 'ColDoc:index' NICK=NICK %}">{{ NICK  }}</a> — {{ UUID }}  {{ access_icon | safe }}</h1>
 
+<div>
  {% if uplink %}<a class="btn btn-outline-primary" href="{{uplink|safe}}">↑</a>
  {% else %}<div class="btn btn-outline-light disabled">↑</div>{% endif %}
  {% if leftlink %}<a class="btn btn-outline-primary" href="{{leftlink|safe}}">←</a>
@@ -64,7 +73,14 @@ var blob_uncompiled={{ uncompiled }};
  </form>
  {% endif %}
 
+  <button class="btn  float-right" id="button_width_small" onclick="mainClassUpdate('container');"> 
+    <img src="{% static 'ColDoc/close_fullscreen_FILL0_wght400_GRAD0_opsz48.svg' %}" style="height: 14pt" alt="shorter width">
+  </button>
+  <button class="btn  float-right" id="button_width_large" onclick="mainClassUpdate('container-fluid');"> 
+    <img src="{% static 'ColDoc/open_in_full_FILL0_wght400_GRAD0_opsz48.svg' %}" style="height: 14pt" alt="larger width">
+  </button>
 
+</div>
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
  {% if perms.UUID.view_view %}

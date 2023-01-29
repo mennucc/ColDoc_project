@@ -43,3 +43,32 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
 	}
    );
 };
+
+
+const main_width_cookie_name = 'main_width';
+
+function mainClassUpdate(classname)
+{
+   let c = Cookies.get(main_width_cookie_name);
+   if (classname == undefined) {
+    if ( python_main_class == "") {
+      if ( c=='large') { classname = 'container-fluid' ; }
+      if ( c=='small') { classname = 'container' ; }
+      if ( c==undefined) { return ; }
+     } else { classname == python_main_class ; }
+   }
+   let main = document.getElementsByTagName("main");
+   main = main[0];
+   main.classList.remove(previous_main_class);
+   main.classList.add(classname);
+   previous_main_class=classname;
+   if (classname == 'container') {
+     $('#button_width_small').addClass('disabled').removeClass('btn-outline-primary').hide();
+     $('#button_width_large').removeClass('disabled').addClass('btn-outline-primary').show();
+     Cookies.set(main_width_cookie_name, 'small', { expires: 180, SameSite: 'Lax'});
+   } else {
+     $('#button_width_large').addClass('disabled').removeClass('btn-outline-primary').hide();
+     $('#button_width_small').removeClass('disabled').addClass('btn-outline-primary').show();
+     Cookies.set(main_width_cookie_name, 'large', { expires: 180, SameSite: 'Lax'})
+   }
+}
