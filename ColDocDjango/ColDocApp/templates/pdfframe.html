@@ -22,11 +22,18 @@ var get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS=ACCESS FILE
         {% translate  'Access' %}  {{ ACCESS }} </a>
         </div>
         <div class="row justify-content-center flex-grow-1">
-          <iframe src="{{ pdfurl | safe }}" class="h-100 w-100"></iframe>
+          <object data="{{ pdfurl | safe }}" type="application/pdf" class="h-100 w-100" id="id_pdf_object">
+            <iframe src="{{ pdfurl | safe }}" class="h-100 w-100"></iframe>
+            <!--<iframe src="https://docs.google.com/viewer?url=your_url_to_pdf&embedded=true"></iframe>-->
+          </object>
         </div>
       </div>
     </div>
   </div>
 </div>
-
+<script>
+$( document ).ready(function() {
+    $('#id_pdf_object').focus();
+});
+</script>
 {% endblock %}
