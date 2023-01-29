@@ -54,9 +54,10 @@ function mainClassUpdate(classname)
     if ( python_main_class == "") {
       if ( c=='large') { classname = 'container-fluid' ; }
       if ( c=='small') { classname = 'container' ; }
-      if ( c==undefined) { return ; }
+      if ( c==undefined) { classname = 'container' ; }
      } else { classname == python_main_class ; }
    }
+   if (classname == undefined || classname == '' ) { return ; }
    let main = document.getElementsByTagName("main");
    main = main[0];
    main.classList.remove(previous_main_class);
