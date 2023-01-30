@@ -639,31 +639,21 @@ def squash_latex(inp : io.IOBase, out : io.IOBase, options : dict,
     # FIXME it is only useful for the token2unicode machinery 
     ColDoc.utils.TeX_add_packages(thetex, options)
     #
-    # stub tokenizer that reads the previous tokenizer
-    class __stub__(TokenizerPassThru.TokenizerPassThru):
-        def __init__(self,*args, **kwargs):
-            self.previous_iterator = kwargs.pop('previous_iterator')
-            super().__init__(*args, **kwargs)
-        def __iter__(self):
-            mybuffer = self._tokBuffer
-            try:
-                while True:
-                    # Purge mybuffer first
-                    while mybuffer:
-                        a = mybuffer.pop(0)
-                        yield a
-                    a = next(self.previous_iterator)
-                    yield a
-            except StopIteration:
-                pass
-    #
     for f in filters:
+        new = io.StringIO()
         # passing helper.errors makes sure that all errors are recorded into it
-        itertokens = iter(f(thetex, errors = errors))
-        # replace original itertokens
+        for tok in iter(f(thetex, errors = errors)):
+            s = tok.source
+            if s and isinstance(tok, plasTeX.Tokenizer.EscapeSequence) and s[-1] == ' ':
+                s = s[:-1]
+            elif isinstance(tok, TokenizerPassThru.Comment):
+                s = '%' + s
+            new.write(s)
+        inp = new.getvalue()
+        # reinput
         thetex = TeX()
-        # this just sets the input name
-        thetex.input('QQQZZZWWW', Tokenizer=functools.partial(__stub__,previous_iterator=itertokens))
+        thetex.input(inp, Tokenizer=TokenizerPassThru.TokenizerPassThru)
+        ColDoc.utils.TeX_add_packages(thetex, options)
     #
     if inspect.isclass(helper):
         helper = helper(thetex, options, errors = errors) # helpers are classes, we need an instance
