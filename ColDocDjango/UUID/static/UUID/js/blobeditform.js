@@ -165,15 +165,15 @@ function blob_post(type) {
 	   url: blobeditform.action,
 	   data: data,
 	   success: function(response)  {
-	       msg = response['message'];
-	       blob_uncompiled_ = response['uncompiled'];
+	       let msg = response['message'];
+	       let blob_uncompiled_ = response['uncompiled'];
 	       if ( msg ) {
 		 alert(msg); 
 	       }
 	       let blobeditform = document.getElementById("id_form_blobeditform");
 	       if ( 'blobdiff' in response ) {
-		 blobdiff = response['blobdiff'];
-		 blobdiffdiv = document.getElementById("id_blob_diff");
+		 let blobdiff = response['blobdiff'];
+		 let blobdiffdiv = document.getElementById("id_blob_diff");
 		 blobdiffdiv.innerHTML = '<pre>' + blobdiff + '</pre>';
 	       } else { console.log("Did not get blobdiff"); }
 	       if ( 'blob_md5' in response ) {
@@ -181,7 +181,7 @@ function blob_post(type) {
 		  blobeditform.file_md5.value = blob_md5;
 	       } else { console.log("Did not get blob_md5"); }
 	       if ( 'blobeditarea' in response ) {
-		  b = response['blobeditarea'];
+		  let b = response['blobeditarea'];
 		  blobeditform.BlobEditTextarea.value = b;
 		  if( BlobEditCodeMirror != undefined ){
 		     // trick 'setValue' will emit a 'change' but we inhibit it
