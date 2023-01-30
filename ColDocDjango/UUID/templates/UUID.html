@@ -4,13 +4,13 @@
 {% block extrahead %}
 <script>
 "use strict";
-var NICK="{{NICK}}"; var UUID="{{UUID}}"; var BLOB="{{BLOB}}"; var VIEW="{{VIEW}}"; 
+const NICK="{{NICK}}"; const UUID="{{UUID}}"; const BLOB="{{BLOB}}"; const VIEW="{{VIEW}}"; 
 var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
 var blob_uncompiled={{ uncompiled }};
 {% if VIEW %}
-  var get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=VIEW %}";
+  const get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=VIEW %}";
 {% else %}
-  var get_view_md5_url = "";
+  const get_view_md5_url = "";
 {% endif %}
 
 const python_main_class = "{{ MAIN_CONTAINER_CLASS }}";

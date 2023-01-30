@@ -3,8 +3,7 @@
 // adapted from https://stackoverflow.com/a/23692090/5058564
 // noprotect
 
-var NICKUUID = NICK+'/'+UUID;
-
+const NICKUUID = NICK+'/'+UUID;
 
 (function (win)
 {

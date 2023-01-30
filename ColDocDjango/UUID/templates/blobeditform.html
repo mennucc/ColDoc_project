@@ -3,14 +3,14 @@
 <script>
 var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 {% if BLOB %}
-  var get_blob_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=BLOB %}";
+  const get_blob_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=BLOB %}";
 {% else %}
-  var get_blob_md5_url = "";
+  const get_blob_md5_url = "";
 {% endif %}
 </script>
 
 {% if USE_CODEMIRROR %}
-<script> var use_CodeMirror = true; </script>
+<script> const use_CodeMirror = true; </script>
 <link href="{% static 'UUID/cm/lib/codemirror.css' %}" rel="stylesheet">
 <link href="{% static 'UUID/cm/addon/dialog/dialog.css' %}" rel="stylesheet">
 <link href="{% static 'UUID/cm/addon/search/matchesonscrollbar.css' %}" rel="stylesheet">
@@ -51,7 +51,7 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 {% include "CodeMirrorHelp.html" %}
 
 {% else %}
-<script> var use_CodeMirror = false; </script>
+<script> const use_CodeMirror = false; </script>
 {% endif %}
 
 <form action="{% url 'UUID:postedit' NICK=NICK UUID=UUID %}" id="{{ blobeditform.htmlid }}" method="post" class="w-100">
