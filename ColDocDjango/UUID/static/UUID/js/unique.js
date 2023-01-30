@@ -3,8 +3,6 @@
 // adapted from https://stackoverflow.com/a/23692090/5058564
 // noprotect
 
-var NICK;
-var UUID;
 var NICKUUID = NICK+'/'+UUID;
 
 
