@@ -28,12 +28,6 @@ Command help:
 
 import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm
 
-if sys.version_info >= (3,9):
-    from os import waitstatus_to_exitcode
-else:
-    def waitstatus_to_exitcode(status):
-        return os.WEXITSTATUS(status) if os.WIFEXITED(status) else \
-               ( - os.WTERMSIG(status) if os.WIFSIGNALED(status) else None)
 
 from os.path import join as osjoin
 
