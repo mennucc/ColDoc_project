@@ -98,9 +98,21 @@ def strip_delimiters(src, delimiters='{}'):
 
 ############ class for forking
 
+if (sys.platform != 'linux'):
+    def waitstatus_to_exitcode(status):
+        # FIXME  find a viable alternative
+        return 0
+elif sys.version_info >= (3,9):
+    from os import waitstatus_to_exitcode
+else:
+    def waitstatus_to_exitcode(status):
+        return os.WEXITSTATUS(status) if os.WIFEXITED(status) else \
+               ( - os.WTERMSIG(status) if os.WIFSIGNALED(status) else None)
+
 class fork_class(object):
     "class that runs a job in a forked subprocess, and returns results or raises exception"
     def __init__(self, use_fork = True):
+        # FIXME find a viable alternative
         self.can_fork = (sys.platform == 'linux')
         self.tempfile = self.tempfile_name = None
         self.other_pid_ = None
@@ -108,6 +120,7 @@ class fork_class(object):
         self.already_wait = False
         self.__ret = None
         self.__use_fork = use_fork and self.can_fork
+        self.__pickle_exception = None
         # __del__ methods may be run after modules are gc
         self.os = os
     #
@@ -118,6 +131,9 @@ class fork_class(object):
     def use_fork(self,v):
         assert self.already_run is False
         self.__use_fork = v and self.can_fork
+    @property
+    def subprocess_pid(self):
+        return  self.other_pid_
     #
     def run(self, cmd, *k, **v):
         assert self.already_run is False
@@ -154,8 +170,21 @@ class fork_class(object):
             self.already_wait = True 
             if pid_ != self.other_pid_:
                 logger.error('internal error lnkanla19')
-            with open(self.tempfile_name,'rb') as f:
-                self.__ret = pickle.load(f)
+            s = waitstatus_to_exitcode(exitstatus_)
+            a = [('Sub Process %r pid %r .' % (self.__cmd, self.other_pid_))]
+            if s < 0:
+                import signal
+                sig = signal.Signals(-s)
+                a.append('Got signal %r. ' % (sig,))
+            try:
+                with open(self.tempfile_name,'rb') as f:
+                    self.__ret = pickle.load(f)
+            except Exception as E:
+                self.__pickle_exception = E
+                a.append('Cannot read exit status: %s ' % (E,))
+                self.__ret = (1 , RuntimeWarning(' '.join(a)) )
+            if len(a)>1:
+                logger.error(' '.join(a))
         if self.__ret[0] == 1:
             raise self.__ret[1]
         return self.__ret[1]
@@ -2036,6 +2065,24 @@ if __name__ == '__main__':
         output = [ (''.join(a)) for a in output ]
         sys.stdout.write('\n'.join(output)+'\n')
         sys.exit(0)
+    elif len(sys.argv) > 1 and sys.argv[1] == 'fork':
+        f = fork_class()
+        f.run(str,3.14)
+        r = f.wait()
+        print('Returned %r ' % (r,))
+        #
+        f = fork_class()
+        if f.use_fork:
+            f.run(time.sleep,1)
+            import signal
+            os.kill(f.subprocess_pid, signal.SIGTERM)
+            r = None
+            try:
+                r = f.wait()
+            except RuntimeWarning as R:
+                print('As expected, raised: %r ' % (R,))
+            else:
+                print('WRONG: Returned  %r' % (r,))
     else:
         print(""" Commands:
 %s test_uuid
@@ -2047,6 +2094,8 @@ if __name__ == '__main__':
   multimerge  FILES
 
   multimerge_lookahead  FILES
+  
+  fork
 
 """ % (sys.argv[0],))
 
