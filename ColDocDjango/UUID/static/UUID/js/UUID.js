@@ -2,11 +2,11 @@
 
 function html_hide_substitute(url, identP, identA, identB, identC, identD)
 {
-  P = document.getElementById(identP);
-  A = document.getElementById(identA);
-  B = document.getElementById(identB);
-  C = document.getElementById(identC);
-  D = document.getElementById(identD);
+  let P = document.getElementById(identP);
+  let A = document.getElementById(identA);
+  let B = document.getElementById(identB);
+  let C = document.getElementById(identC);
+  let D = document.getElementById(identD);
   A.style.display = "inline";
   B.style.display = "inline";
   C.style.display = "none";
@@ -15,11 +15,11 @@ function html_hide_substitute(url, identP, identA, identB, identC, identD)
 
 function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
 {
-  P = document.getElementById(identP);
-  A = document.getElementById(identA);
-  B = document.getElementById(identB);
-  C = document.getElementById(identC);
-  D = document.getElementById(identD);
+  let P = document.getElementById(identP);
+  let A = document.getElementById(identA);
+  let B = document.getElementById(identB);
+  let C = document.getElementById(identC);
+  let D = document.getElementById(identD);
   $.ajax(B.action, {
 	   type: "GET",
 	   url: url,
