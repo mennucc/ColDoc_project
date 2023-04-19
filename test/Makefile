@@ -66,6 +66,7 @@ django_help:
 	@echo " django_deploy : to create a test portal in $(COLDOC_SITE_ROOT) "
 	@echo " django_paper  : to add paper/paper.tex to that portal"
 	@echo " django_book   : to add book/book.tex to that portal"
+	@echo " django_multlang : to add multlang/paper.tex to that portal"
 	@echo " django_latextest : to add latex/latex_test.tex to that portal (a stress test)"
 	@echo " django_run    : to run a local server to test django portal "
 	@echo " django_tasks  : to run the server for background tasks"
@@ -158,10 +159,22 @@ django_tasks:
 
 
 django_paper_clean:
-	-./django_tester.py delete
+	-./django_tester.py delete  --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=paper 
 	rm -rf  $(COLDOC_SITE_ROOT)/coldocs/paper
 
-django_clean: django_paper_clean
+django_multlang_clean:
+	-./django_tester.py delete  --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=multlang
+	rm -rf  $(COLDOC_SITE_ROOT)/coldocs/multlang
+
+django_book_clean:
+	-./django_tester.py delete  --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=book 
+	rm -rf  $(COLDOC_SITE_ROOT)/coldocs/book
+
+django_latextest_clean:
+	-./django_tester.py delete  --coldoc-site-root $(COLDOC_SITE_ROOT) --coldoc-nick=latextest
+	rm -rf  $(COLDOC_SITE_ROOT)/coldocs/latextest
+
+django_clean: django_paper_clean django_multlang_clean django_book_clean django_latextest_clean
 	if test -d $(COLDOC_SITE_ROOT)/var -a -f $(COLDOC_SITE_ROOT)/config.ini ; then trash-put -v $(COLDOC_SITE_ROOT) ; fi
 
 
