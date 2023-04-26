@@ -1293,7 +1293,6 @@ def postmetadataedit(request, NICK, UUID):
     #
     try:
         os.unlink(osjoin(blobs_dir,uuid_dir,'.check_ok'))
-        print(uuid)
     except OSError:
         pass
     #
