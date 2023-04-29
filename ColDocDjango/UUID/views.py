@@ -68,7 +68,7 @@ from plasTeX.TeX import TeX
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
 from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, uuid_to_dir, gen_lang_metadata, strip_delimiters
-from ColDoc.utils import langc_re , lang_re
+from ColDoc.utils import langc_re , lang_re, fork_class
 from ColDocDjango.utils import get_email_for_user, load_unicode_to_latex
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
@@ -1444,10 +1444,15 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc, url=None):
         logger.exception('While looking for   "/preamble.tex" ')
     return options
 
-def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata):
+def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata, fork=False):
     options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
-    from ColDoc import latex   
-    return latex.latex_uuid(blobs_dir, metadata=metadata, options=options)
+    from ColDoc import latex
+    if not fork:
+        return latex.latex_uuid(blobs_dir, metadata=metadata, options=options)
+    else:
+        fork = fork_class()
+        fork.run(latex.latex_uuid, blobs_dir, metadata=metadata, options=options)
+        return fork
 
 ##############################################################
 
