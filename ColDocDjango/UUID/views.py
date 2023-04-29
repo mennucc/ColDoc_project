@@ -1120,12 +1120,14 @@ def postedit(request, NICK, UUID):
         with open(file_editstate,'w') as f_:
             json.dump(form.cleaned_data, f_)
     #
-    a = '' if ( file_md5 == real_file_md5 ) else _("The file was changed on disk: check the diff")
+    ch__ = _("The file was changed on disk: check the diff")
+    #
     if the_action in ('save_no_reload' , 'normalize' , 'revert'):
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.splitlines(keepends=True),
                                 'Orig','New', True)
+        a = '' if ( file_md5 == real_file_md5 ) else ch__
         for wp in weird_prologue:
             a += '\n' + wp
         for string_,argument_ in normalize_errors:
@@ -1135,9 +1137,11 @@ def postedit(request, NICK, UUID):
     for wp in  weird_prologue:
         messages.add_message(request,messages.WARNING, wp)
     if 'save' == the_action:
+        if ( file_md5 != real_file_md5 ):
+            messages.add_message(request,messages.WARNING, ch__)
+        for string_,argument_ in normalize_errors:
+            messages.add_message(request,messages.WARNING, (gettext(string_) % argument_))
         messages.add_message(request,messages.INFO,'Saved')
-        if a:
-            messages.add_message(request,messages.WARNING, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     # diff
     file_lines_before = open(filename).readlines()
