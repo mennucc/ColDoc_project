@@ -891,8 +891,7 @@ def postupload(request, NICK, UUID):
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 
-def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, all_messages):
-    res = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata)
+def  __relatex_msg(res, all_messages):
     for thelang in res:
         if res[thelang]:
             a = _('Compilation of LaTeX succeded.') + '(%r)' % thelang
@@ -900,6 +899,15 @@ def  __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, all_messa
         else:
             a = _('Compilation of LaTeX failed') + '(%r)' % thelang
             all_messages.append( (messages.WARNING, a) )
+
+def __relatex_new_msg(ret, all_messages):
+    ret = all(ret.values())
+    if ret:
+        a = _('Compilation of new blob succeded')
+        all_messages.append((messages.INFO, a))
+    else:
+        a = _('Compilation of new blob failed')
+        all_messages.append((messages.WARNING, a))
 
 def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
     if not blob.strip():
@@ -1203,13 +1211,7 @@ def postedit(request, NICK, UUID):
             # compile it
             if True:
                 ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
-                ret = all(ret.values())
-                if ret:
-                    a = _('Compilation of new blob succeded')
-                    all_messages.append((messages.INFO, a))
-                else:
-                    a = _('Compilation of new blob failed')
-                    all_messages.append((messages.WARNING, a))
+                __relatex_new_msg(ret, all_messages)
     #
     # parse it to refresh metadata (after splitting)
     def warn(msg, args):
@@ -1219,7 +1221,8 @@ def postedit(request, NICK, UUID):
     #
     if ext_ in  ('.tex', '.bib'):
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
-        __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, all_messages)
+        ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata)
+        __relatex_msg(ret, all_messages)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     email_to = _interested_emails(coldoc,metadata)
@@ -1379,7 +1382,8 @@ def postmetadataedit(request, NICK, UUID):
     if ext_ == '.tex':
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
         m = []
-        __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang_, m)
+        res = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata)
+        __relatex_msg(res, m)
         for a,b in m: messages.add_message(request, a,b )
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
