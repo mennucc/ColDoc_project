@@ -972,6 +972,7 @@ def postedit(request, NICK, UUID):
     actions = 'compile', 'save', 'save_no_reload', 'normalize', 'revert'
     s = sum (int( a in request.POST ) for a in actions)
     assert 1 == s, request.POST.keys()
+    the_action = [a for a in actions if a in request.POST].pop()
     #
     form=BlobEditForm(request.POST)
     #
@@ -989,7 +990,7 @@ def postedit(request, NICK, UUID):
     #
     if not form.is_valid():
         a = "Invalid form: "+repr(form.errors)
-        if 'save_no_reload'  in request.POST or 'normalize' in request.POST:
+        if the_action in ajax_actions:
             return JsonResponse({"message":a})
         return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
     prologue = form.cleaned_data['prologue']
@@ -1055,7 +1056,7 @@ def postedit(request, NICK, UUID):
     if real_blobcontent and real_blobcontent[-1] != '\n':
             real_blobcontent += '\n'
     #
-    if file_md5 != real_file_md5 and 'compile' in request.POST:
+    if file_md5 != real_file_md5 and the_action.startswith('compile') :
         a = "The file was changed on disk: compile aborted"
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
@@ -1066,7 +1067,7 @@ def postedit(request, NICK, UUID):
         pass
     #
     normalize_errors = []
-    if 'normalize' in request.POST:
+    if 'normalize' == the_action:
         filters = []
         for name, label, help, val, fun in transform.get_latex_filters():
             if form.cleaned_data[name]:
@@ -1076,7 +1077,7 @@ def postedit(request, NICK, UUID):
         #for s,a in normalize_errors:
         #    messages.add_message(request,messages.ERROR, gettext(s) % a)
     #
-    if 'revert' not in request.POST:
+    if 'revert' != the_action:
         # put back prologue in place
         blobcontent, newprologue, sources , a, displacement = _put_back_prologue(prologue, blobeditarea, env, UUID)
         weird_prologue.extend(a)
@@ -1120,7 +1121,7 @@ def postedit(request, NICK, UUID):
             json.dump(form.cleaned_data, f_)
     #
     a = '' if ( file_md5 == real_file_md5 ) else _("The file was changed on disk: check the diff")
-    if 'save_no_reload' in request.POST or 'normalize' in request.POST or 'revert' in request.POST:
+    if the_action in ('save_no_reload' , 'normalize' , 'revert'):
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.splitlines(keepends=True),
@@ -1133,7 +1134,7 @@ def postedit(request, NICK, UUID):
                              'blobeditarea' : blobeditarea, 'uncompiled' : uncompiled})
     for wp in  weird_prologue:
         messages.add_message(request,messages.WARNING, wp)
-    if 'save'  in request.POST:
+    if 'save' == the_action:
         messages.add_message(request,messages.INFO,'Saved')
         if a:
             messages.add_message(request,messages.WARNING, a)
