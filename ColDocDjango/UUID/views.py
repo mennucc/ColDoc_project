@@ -1057,7 +1057,7 @@ def postedit(request, NICK, UUID):
             real_blobcontent += '\n'
     #
     if file_md5 != real_file_md5 and the_action.startswith('compile') :
-        a = "The file was changed on disk: compile aborted"
+        a = _("The file was changed on disk: compile aborted.")
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     #
