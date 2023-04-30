@@ -2026,7 +2026,8 @@ def index(request, NICK, UUID):
             all_views = [( view_lang, iso3lang2word_H(view_lang), html, '')]
         else:
           all_views = []
-          for ll in  ([view_lang] if (lang != 'mul') else  CDlangs):
+          llll = CDlangs if (lang == 'mul' or (lang is None and (request.user.is_editor or request.user.is_author ))) else  [view_lang] 
+          for ll in  llll:
             pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
                 '?lang=%s&ext=%s'%(ll,ext)
             view_md5 =''
