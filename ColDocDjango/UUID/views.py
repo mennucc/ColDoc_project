@@ -1132,7 +1132,7 @@ def postedit(request, NICK, UUID):
             a += '\n' + wp
         for string_,argument_ in normalize_errors:
             a += '\n' + (gettext(string_) % argument_)
-        return JsonResponse({"message":a, 'blobdiff':blobdiff, 'blob_md5': real_file_md5,
+        return JsonResponse({"message":a, 'blobdiff':json.dumps(blobdiff), 'blob_md5': real_file_md5,
                              'blobeditarea' : blobeditarea, 'uncompiled' : uncompiled})
     for wp in  weird_prologue:
         messages.add_message(request,messages.WARNING, wp)
