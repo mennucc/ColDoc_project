@@ -991,7 +991,7 @@ def postedit(request, NICK, UUID):
     if not form.is_valid():
         a = "Invalid form: "+repr(form.errors)
         if the_action in ajax_actions:
-            return JsonResponse({"message":a})
+            return JsonResponse({"message":json.dumps(a)})
         return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
     prologue = form.cleaned_data['prologue']
     shortprologue = form.cleaned_data['shortprologue']
@@ -1132,8 +1132,10 @@ def postedit(request, NICK, UUID):
             a += '\n' + wp
         for string_,argument_ in normalize_errors:
             a += '\n' + (gettext(string_) % argument_)
-        return JsonResponse({"message":a, 'blobdiff':json.dumps(blobdiff), 'blob_md5': real_file_md5,
-                             'blobeditarea' : blobeditarea, 'uncompiled' : uncompiled})
+        return JsonResponse({'blob_md5': real_file_md5, 'uncompiled' : uncompiled,
+                             'blobdiff':json.dumps(blobdiff),
+                             "message":json.dumps(str(a)),
+                             'blobeditarea' : json.dumps(blobeditarea),})
     if 'save' == the_action:
         if ( file_md5 != real_file_md5 ):
             messages.add_message(request,messages.WARNING, ch__)

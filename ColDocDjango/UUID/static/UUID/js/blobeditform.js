@@ -165,7 +165,6 @@ function blob_post(type) {
 	   url: blobeditform.action,
 	   data: data,
 	   success: function(response)  {
-	       let msg = response['message'];
 	       let blob_uncompiled_ = response['uncompiled'];
 	       let blobeditform = document.getElementById("id_form_blobeditform");
 	       if ( 'blobdiff' in response ) {
@@ -178,7 +177,7 @@ function blob_post(type) {
 		  blobeditform.file_md5.value = blob_md5;
 	       } else { console.log("Did not get blob_md5"); }
 	       if ( 'blobeditarea' in response ) {
-		  let b = response['blobeditarea'];
+		  let b = JSON.parse(response['blobeditarea']);
 		  blobeditform.BlobEditTextarea.value = b;
 		  if( BlobEditCodeMirror != undefined ){
 		     // trick 'setValue' will emit a 'change' but we inhibit it
@@ -193,6 +192,7 @@ function blob_post(type) {
 		}
 		set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		prevent_unload_remove();
+		let msg = JSON.parse(response['message']);
 		if ( msg ) {
 		 alert(msg); 
 	       }
