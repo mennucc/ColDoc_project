@@ -152,6 +152,11 @@ function blob_post(type) {
     if( BlobEditCodeMirror != undefined ){
     BlobEditCodeMirror.save();
   }
+  if ( type == "compile_no_reload" ) {
+    $("#id_view").addClass("bg-warning");
+    //$("#id_blobeditform_compile").addClass("bg-warning");
+    blob_polling = 0 ; view_polling = 0 ;
+   }
 
   update_editform();
   let blobeditform = document.getElementById("id_form_blobeditform");
@@ -188,10 +193,23 @@ function blob_post(type) {
 		     BlobEditCodeMirror.setValue(b);
 	            }
 	       } else { console.log("Did not get blobeditarea"); }
+	       if ( 'viewarea' in response ) {
+	          let b = JSON.parse(response['viewarea']);
+		  b.forEach( (v,i,a) => {
+		     let l=v[0];
+		     let h=v[1];
+		     let id="#id_view_html_" +  l;
+		     $(id).replaceWith(h);
+		     } );
+		  };
 		last_textarea_keypress = 0;
 		if ( type == 'save_no_reload') {
 		    $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
 		    $("#id_blobeditform_save_no_reload").addClass("btn-primary");
+		}
+		if ( type == 'compile_no_reload') {
+		 $("#id_view").removeClass("bg-warning");
+		 //$("#id_blobeditform_compile").removeClass("bg-warning");
 		}
 		set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		prevent_unload_remove();

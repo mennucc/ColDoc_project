@@ -132,11 +132,11 @@ $( document ).ready(function() {
       </div>
      {% endif %}
      {% if blobcontenttype == 'text' %}
-     <div class="row m-1">
+     <div class="row m-1" id="id_view">
       {% for thislang,thislanguage,html,pdfurl in all_views %}
        <div class="col border border-info  p-1 m-1">
        {# if thislanguage and ( ('mul' == lang) or (len(Blangs) > 1) or (len(CDlangs) > 1) ) #} <h3> {% translate thislanguage %}</h3> {# endif #}
-        <div class="border border-info p-1 m-1">
+        <div class="border border-info p-1 m-1" id="id_view_html_{{ thislang }}">
          {{ html|safe }}
         </div>
          {% if pdfurl %}

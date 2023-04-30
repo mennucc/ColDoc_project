@@ -1286,6 +1286,41 @@ def postedit(request, NICK, UUID):
         with open(file_editstate,'w') as f_:
             json.dump(D, f_)
     #
+    if the_action == 'compile_no_reload' :
+        a='\n'.join(map(str, all_messages))
+        for wp in weird_prologue:
+            a += '\n' + wp
+        for string_,argument_ in normalize_errors:
+            a += '\n' + str(gettext(string_) % argument_)
+        #
+        H = difflib.HtmlDiff()
+        blobdiff = H.make_table(file_lines_before,
+                               file_lines_after,
+                               _('Previous'),_('Current'), True)
+        #
+        views = []
+        Blangs = metadata.get_languages()
+        CDlangs = coldoc.get_languages()
+        d = os.path.dirname(filename)
+        # fixme this works fine only for TeX to HTML
+        for ll in  (Blangs if ( 'mul' not in Blangs) else  CDlangs):
+            f = os.path.join(d,'view_' + ll + '_html' , 'index.html')
+            if os.path.isfile(f):
+                #fixme filter somehow
+                h = open(f).read()
+                views.append( (ll,h) )
+        real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
+        blobcontent = open(filename).read()
+        if blobcontent and blobcontent[-1] != '\n' :
+            blobcontent += '\n'
+        # the first line contains the \uuid command or the \section{}\uuid{}
+        shortprologue, prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, metadata.optarg)
+        z =    {'uncompiled' : 0, 'blob_md5': real_file_md5,
+                'blobeditarea' : json.dumps(blobeditdata),
+                'blobdiff' : json.dumps(blobdiff),
+                "message"  : json.dumps(str(a)),
+                "viewarea" : json.dumps(views),  }
+        return JsonResponse(z)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 def postmetadataedit(request, NICK, UUID):
