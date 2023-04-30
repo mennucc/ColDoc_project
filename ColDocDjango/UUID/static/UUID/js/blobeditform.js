@@ -164,7 +164,10 @@ function blob_post(type) {
 	   type: "POST",
 	   url: blobeditform.action,
 	   data: data,
-	   success: function(response)  {
+	   error: function(jqXHR, error_code, exception_object)  {
+	         alert("While " + type + " , " + error_code + " : " + exception_object);
+	       },
+	   success: function(response, success_code, jqXHR) {
 	       let blob_uncompiled_ = response['uncompiled'];
 	       let blobeditform = document.getElementById("id_form_blobeditform");
 	       if ( 'blobdiff' in response ) {

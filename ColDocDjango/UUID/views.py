@@ -969,7 +969,8 @@ def postedit(request, NICK, UUID):
     load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
     reparse_options = {'unicode_to_latex' : load_unicode_to_latex(coldoc_dir)}
     #
-    actions = 'compile', 'save', 'save_no_reload', 'normalize', 'revert'
+    ajax_actions = ('compile_no_reload', 'save_no_reload', 'normalize' )
+    actions = 'compile', 'compile_no_reload', 'save', 'save_no_reload', 'normalize', 'revert'
     s = sum (int( a in request.POST ) for a in actions)
     assert 1 == s, request.POST.keys()
     the_action = [a for a in actions if a in request.POST].pop()
@@ -1058,6 +1059,8 @@ def postedit(request, NICK, UUID):
     #
     if file_md5 != real_file_md5 and the_action.startswith('compile') :
         a = _("The file was changed on disk: compile aborted.")
+        if the_action in ajax_actions:
+            return JsonResponse({"message":json.dumps(str(a))})
         messages.add_message(request,messages.ERROR, a)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     #
