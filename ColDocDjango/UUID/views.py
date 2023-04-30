@@ -1129,7 +1129,7 @@ def postedit(request, NICK, UUID):
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.splitlines(keepends=True),
-                                'Orig','New', True)
+                                _('Current'),_('Your version'), True)
         a = '' if ( file_md5 == real_file_md5 ) else ch__
         for wp in weird_prologue:
             a += '\n' + wp
@@ -1245,7 +1245,7 @@ def postedit(request, NICK, UUID):
         file_lines_after = open(filename).readlines()
         blobdiff = H.make_file(file_lines_before,
                                file_lines_after,
-                               _('Orig'),_('New'), True)
+                               _('Previous'),_('Current'), True)
         try:
             j  = blobdiff.index('<body>') + 6
             l = len(all_messages)
