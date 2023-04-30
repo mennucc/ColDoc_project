@@ -224,7 +224,7 @@ function blob_post(type) {
 		prevent_unload_remove();
 		let msg = JSON.parse(response['message']);
 		if ( msg ) {
-		 alert(msg); 
+		 setTimeout(function() { alert(msg);}, 100); 
 	       }
 	   }
 	 });
