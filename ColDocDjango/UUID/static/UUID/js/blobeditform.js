@@ -96,7 +96,8 @@ window.addEventListener('ready', hide_and_show() );
 
 //////////////////////////////////////////
 
-var blob_polling = 240000;
+const blob_polling_default = 240000;
+var blob_polling = blob_polling_default;
 
 // check_changed_md5() is in notifychange.js
 
@@ -210,6 +211,7 @@ function blob_post(type) {
 		if ( type == 'compile_no_reload') {
 		 $("#id_view").removeClass("bg-warning");
 		 $("#id_blobeditform_compile").removeClass("bg-warning progress-bar progress-bar-striped progress-bar-animated");
+		 blob_polling = blob_polling_default; setTimeout(poll_blob_changed_md5, blob_polling);
 		}
 		set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		prevent_unload_remove();
