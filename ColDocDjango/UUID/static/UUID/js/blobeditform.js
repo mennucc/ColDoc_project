@@ -154,7 +154,7 @@ function blob_post(type) {
   }
   if ( type == "compile_no_reload" ) {
     $("#id_view").addClass("bg-warning");
-    //$("#id_blobeditform_compile").addClass("bg-warning");
+    $("#id_blobeditform_compile").addClass("bg-warning progress-bar-striped progress-bar-animated");
     blob_polling = 0 ; view_polling = 0 ;
    }
 
@@ -209,7 +209,7 @@ function blob_post(type) {
 		}
 		if ( type == 'compile_no_reload') {
 		 $("#id_view").removeClass("bg-warning");
-		 //$("#id_blobeditform_compile").removeClass("bg-warning");
+		 $("#id_blobeditform_compile").removeClass("bg-warning progress-bar progress-bar-striped progress-bar-animated");
 		}
 		set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		prevent_unload_remove();
