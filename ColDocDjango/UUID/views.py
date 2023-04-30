@@ -1134,11 +1134,11 @@ def postedit(request, NICK, UUID):
             a += '\n' + (gettext(string_) % argument_)
         return JsonResponse({"message":a, 'blobdiff':json.dumps(blobdiff), 'blob_md5': real_file_md5,
                              'blobeditarea' : blobeditarea, 'uncompiled' : uncompiled})
-    for wp in  weird_prologue:
-        messages.add_message(request,messages.WARNING, wp)
     if 'save' == the_action:
         if ( file_md5 != real_file_md5 ):
             messages.add_message(request,messages.WARNING, ch__)
+        for wp in  weird_prologue:
+            messages.add_message(request,messages.WARNING, wp)
         for string_,argument_ in normalize_errors:
             messages.add_message(request,messages.WARNING, (gettext(string_) % argument_))
         messages.add_message(request,messages.INFO,'Saved')
