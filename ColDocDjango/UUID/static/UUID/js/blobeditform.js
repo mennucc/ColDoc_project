@@ -167,9 +167,6 @@ function blob_post(type) {
 	   success: function(response)  {
 	       let msg = response['message'];
 	       let blob_uncompiled_ = response['uncompiled'];
-	       if ( msg ) {
-		 alert(msg); 
-	       }
 	       let blobeditform = document.getElementById("id_form_blobeditform");
 	       if ( 'blobdiff' in response ) {
 		 let blobdiff = response['blobdiff'];
@@ -196,6 +193,9 @@ function blob_post(type) {
 		}
 		set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		prevent_unload_remove();
+		if ( msg ) {
+		 alert(msg); 
+	       }
 	   }
 	 });
    // avoid to execute the actual submit of the form.
