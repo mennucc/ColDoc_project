@@ -1138,13 +1138,13 @@ def postedit(request, NICK, UUID):
                              'blobdiff':json.dumps(blobdiff),
                              "message":json.dumps(str(a)),
                              'blobeditarea' : json.dumps(blobeditarea),})
+    # if we reach here we know that this is empty
+    del  normalize_errors
     if 'save' == the_action:
         if ( file_md5 != real_file_md5 ):
             messages.add_message(request,messages.WARNING, ch__)
         for wp in  weird_prologue:
             messages.add_message(request,messages.WARNING, wp)
-        for string_,argument_ in normalize_errors:
-            messages.add_message(request,messages.WARNING, (gettext(string_) % argument_))
         messages.add_message(request,messages.INFO,'Saved')
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     # diff
@@ -1289,8 +1289,6 @@ def postedit(request, NICK, UUID):
         a='\n'.join(map(str, all_messages))
         for wp in weird_prologue:
             a += '\n' + wp
-        for string_,argument_ in normalize_errors:
-            a += '\n' + str(gettext(string_) % argument_)
         #
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(file_lines_before,
