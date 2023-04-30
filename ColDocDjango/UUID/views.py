@@ -976,8 +976,6 @@ def postedit(request, NICK, UUID):
     #
     form=BlobEditForm(request.POST)
     #
-    weird_prologue = []
-    #
     metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
     env = metadata.environ
     from ColDoc.utils import tree_environ_helper
@@ -1079,6 +1077,7 @@ def postedit(request, NICK, UUID):
         #for s,a in normalize_errors:
         #    messages.add_message(request,messages.ERROR, gettext(s) % a)
     #
+    weird_prologue = []
     if 'revert' != the_action:
         # put back prologue in place
         blobcontent, newprologue, sources , a, displacement = _put_back_prologue(prologue, blobeditarea, env, UUID)
@@ -1111,8 +1110,6 @@ def postedit(request, NICK, UUID):
         file_md5 = form.cleaned_data['file_md5'] = real_file_md5
         sources = newprologue = None
     #
-    for wp in weird_prologue:
-        logger.warning(' in %r %s', UUID, wp)
     # save state of edit form
     uncompiled = 0
     if can_change_blob:
@@ -1129,11 +1126,11 @@ def postedit(request, NICK, UUID):
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.splitlines(keepends=True),
                                 _('Current'),_('Your version'), True)
-        a = '' if ( file_md5 == real_file_md5 ) else ch__
+        a = '' if ( file_md5 == real_file_md5 ) else str(ch__)
         for wp in weird_prologue:
-            a += '\n' + wp
+            a += '\n' + str(wp)
         for string_,argument_ in normalize_errors:
-            a += '\n' + (gettext(string_) % argument_)
+            a += '\n' + str(gettext(string_) % argument_)
         return JsonResponse({'blob_md5': real_file_md5, 'uncompiled' : uncompiled,
                              'blobdiff':json.dumps(blobdiff),
                              "message":json.dumps(str(a)),
@@ -1164,7 +1161,9 @@ def postedit(request, NICK, UUID):
     else:
         pass # may want to check that form was not changed...
     # TODO we should have two copies, for html and for text form of each message
-    all_messages = []
+    # this is a list of pairs (level, message)
+    all_messages = [ (messages.WARNING, a) for a in weird_prologue]
+    del weird_prologue
     #
     from ColDoc.latex import environments_we_wont_latex
     from ColDoc.utils import reparse_blob
@@ -1185,13 +1184,12 @@ def postedit(request, NICK, UUID):
                 addnew_uuid)
             addmessage = _("Created blob with UUID %(newuuid)s, please edit %(olduuid)s to properly input it (a stub \\input was inserted for your convenience)") %\
                           {'newuuid':new_uuid_as_html, 'olduuid':uuid_as_html}
-            messages.add_message(request,messages.INFO,addmessage)
+            all_messages.append( (messages.INFO, addmessage) )
             addmetadata = DMetadata.load_by_uuid(uuid=addnew_uuid,coldoc=coldoc)
             add_extension = addmetadata.get('extension')
         else:
             add_extension = []
-            messages.add_message(request,messages.WARNING,addmessage)
-        all_messages.append(addmessage)
+            all_messages.append( (messages.WARNING,addmessage) )
         if  '.tex' in add_extension:
             addfilename, adduuid, addmetadata, addlang, addext = \
                 ColDoc.utils.choose_blob(uuid=addnew_uuid, blobs_dir = blobs_dir,
@@ -1200,8 +1198,7 @@ def postedit(request, NICK, UUID):
             # parse it for metadata
             def warn(msg, args):
                 msg =  _(msg) % args
-                all_messages.append(_('Metadata change in new blob') + ': ' + msg)
-                messages.add_message(request,messages.INFO, _('In new blob') + ': ' + msg)
+                all_messages.append( ( messages.INFO, _('Metadata change in new blob') + ': ' + msg) )
             reparse_blob(addfilename, addmetadata, lang, blobs_dir, warn, load_uuid=load_uuid, options=reparse_options)
             # compile it
             if True:
@@ -1209,22 +1206,20 @@ def postedit(request, NICK, UUID):
                 ret = all(ret.values())
                 if ret:
                     a = _('Compilation of new blob succeded')
-                    messages.add_message(request,messages.INFO,a)
+                    all_messages.append((messages.INFO, a))
                 else:
                     a = _('Compilation of new blob failed')
-                    messages.add_message(request,messages.WARNING,a)
-                all_messages.append(a)
+                    all_messages.append((messages.WARNING, a))
     #
     # parse it to refresh metadata (after splitting)
     def warn(msg, args):
         msg = _(msg) % args
-        all_messages.append(_('Metadata change in blob') + ': ' + msg)
-        messages.add_message(request,messages.INFO,msg)
+        all_messages.append( (messages.INFO,  _('Metadata change in blob') + ': ' + msg) )
     reparse_blob(filename, metadata, lang, blobs_dir, warn, load_uuid=load_uuid, options=reparse_options)
     #
     if ext_ in  ('.tex', '.bib'):
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
-        __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, [])
+        __relatex(request, coldoc, metadata, coldoc_dir, blobs_dir, lang, all_messages)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     email_to = _interested_emails(coldoc,metadata)
@@ -1248,7 +1243,7 @@ def postedit(request, NICK, UUID):
         try:
             j  = blobdiff.index('<body>') + 6
             l = len(all_messages)
-            a = ( '<li>{}\n' * l ).format(* map(str,all_messages))
+            a = ( '<li>{}\n' * l ).format(* map(str,  [ a[1] for a in all_messages]  ))
             blobdiff = blobdiff[:j] + '<ul>\n' + a + \
                 '</ul>\n<h1>' + _('File differences for') + ' ' + uuid_as_html + '</h1>\n' + blobdiff[j:]
         except:
@@ -1259,7 +1254,7 @@ def postedit(request, NICK, UUID):
         message = ''
         try:
             l = len(all_messages)
-            a = map(html2text, map(str, all_messages))
+            a = [ html2text(str(a[1])) for a in all_messages ]
             message = ('*) {}\n' * l).format(*a)
         except:
             logger.exception('While preparing ')
@@ -1286,10 +1281,6 @@ def postedit(request, NICK, UUID):
             json.dump(D, f_)
     #
     if the_action == 'compile_no_reload' :
-        a='\n'.join(map(str, all_messages))
-        for wp in weird_prologue:
-            a += '\n' + wp
-        #
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(file_lines_before,
                                file_lines_after,
@@ -1312,12 +1303,17 @@ def postedit(request, NICK, UUID):
             blobcontent += '\n'
         # the first line contains the \uuid command or the \section{}\uuid{}
         shortprologue, prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, metadata.optarg)
+        #
+        a='\n'.join( [ html2text(str(v[1])) for v in all_messages] )
+        #
         z =    {'uncompiled' : 0, 'blob_md5': real_file_md5,
                 'blobeditarea' : json.dumps(blobeditdata),
                 'blobdiff' : json.dumps(blobdiff),
                 "message"  : json.dumps(str(a)),
                 "viewarea" : json.dumps(views),  }
         return JsonResponse(z)
+    for a,b in all_messages:
+        messages.add_message(request, a, b)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
 def postmetadataedit(request, NICK, UUID):
