@@ -199,8 +199,13 @@ function blob_post(type) {
 		  b.forEach( (v,i,a) => {
 		     let l=v[0];
 		     let h=v[1];
-		     let id="#id_view_html_" +  l;
-		     $(id).replaceWith(h);
+		     let id="id_view_html_" +  l;
+		     let e = document.getElementById(id);
+		     //$('#'+id).replaceWith(h);
+		     if(e) {
+		          e.innerHTML = h;
+		          //console.log("replace " + l);
+		        } //else //console.log("replacenot " + l);
 		     } );
 		  };
 		last_textarea_keypress = 0;
