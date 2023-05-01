@@ -1175,7 +1175,7 @@ def postedit(request, NICK, UUID):
     all_messages = [ (messages.WARNING, a) for a in weird_prologue]
     del weird_prologue
     #
-    do_fork = True
+    do_fork = fork_class.can_fork()
     fork1 = fork2 = None
     #
     from ColDoc.latex import environments_we_wont_latex
