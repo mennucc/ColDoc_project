@@ -169,11 +169,15 @@ class fork_class(object):
         assert self.already_run is True
         if self.__use_fork and not self.already_wait:
             logger.debug('wait %r', self.other_pid_)
-            pid_, exitstatus_ = os.waitpid(self.other_pid_, 0)
+            try:
+                pid_, exitstatus_ = os.waitpid(self.other_pid_, 0)
+                if pid_ != self.other_pid_:
+                    logger.error('internal error lnkanla19')
+                s = waitstatus_to_exitcode(exitstatus_)
+            except ChildProcessError:
+                logger.warning('Child %r has disappeared, unknown exit status', self.other_pid_ )
+                s = 0
             self.already_wait = True 
-            if pid_ != self.other_pid_:
-                logger.error('internal error lnkanla19')
-            s = waitstatus_to_exitcode(exitstatus_)
             a = [('Sub Process %r pid %r .' % (self.__cmd, self.other_pid_))]
             if s < 0:
                 import signal
@@ -196,7 +200,10 @@ class fork_class(object):
         return self.__ret[1]
     def __del__(self):
         if self.tempfile_name is not None:
-            self.os_unlink(self.tempfile_name)
+            try:
+                self.os_unlink(self.tempfile_name)
+            except FileNotFoundError:
+                pass
 
 
 ######################
