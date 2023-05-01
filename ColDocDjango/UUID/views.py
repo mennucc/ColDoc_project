@@ -1313,7 +1313,7 @@ def __prepare_views(metadata, blobs_dir):
     uuid_dir = uuid_to_dir(metadata.uuid)
     Blangs = metadata.get_languages()
     CDlangs = metadata.coldoc.get_languages()
-    d = os.path.join(uuid_dir, blobs_dir)
+    d = os.path.join( blobs_dir, uuid_dir)
     # fixme this works fine only for TeX to HTML
     views = []
     for ll in  (Blangs if ( 'mul' not in Blangs) else  CDlangs):
