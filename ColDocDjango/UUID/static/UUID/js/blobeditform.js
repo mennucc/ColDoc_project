@@ -194,7 +194,7 @@ function ajax_views_post() {
 		//
 	         _parse_response(response);
 		 $("#id_view").removeClass("bg-warning");
-		 $("#id_blobeditform_compile").removeClass("bg-warning progress-bar progress-bar-striped progress-bar-animated");
+		 $("#id_blobeditform_compile").removeClass("bg-warning bg-info progress-bar progress-bar-striped progress-bar-animated");
 	   },
 	});
  blob_polling = blob_polling_default; setTimeout(poll_blob_changed_md5, blob_polling);
@@ -264,6 +264,7 @@ function blob_post(type) {
 		    $("#id_blobeditform_save_no_reload").addClass("btn-primary");
 		}
 		if ( type == 'compile_no_reload') {
+		 $("#id_blobeditform_compile").removeClass("bg-warning").addClass("bg-info");
 		 blobeditform.split_selection.checked = false;
 		 hide_and_show();
 		 setTimeout(ajax_views_post, 100);
