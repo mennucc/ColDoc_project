@@ -137,6 +137,23 @@ function set_buttons_classes_on_uncompiled (b) {
     }
 };
 
+//////////////////////////////////////////
+function update_viewarea(b)
+{
+    b.forEach( (v,i,a) => {
+       let l=v[0];
+       let h=v[1];
+       let id="id_view_html_" +  l;
+       let e = document.getElementById(id);
+       //$('#'+id).replaceWith(h);
+       if(e) {
+	    e.innerHTML = h;
+	    //console.log("replace " + l);
+	  } //else //console.log("replacenot " + l);
+       }
+    );
+};
+
 
 //////////////////////////////////////////
 
@@ -198,18 +215,7 @@ function blob_post(type) {
 	            }
 	       } else { console.log("Did not get blobeditarea"); }
 	       if ( 'viewarea' in response ) {
-	          let b = JSON.parse(response['viewarea']);
-		  b.forEach( (v,i,a) => {
-		     let l=v[0];
-		     let h=v[1];
-		     let id="id_view_html_" +  l;
-		     let e = document.getElementById(id);
-		     //$('#'+id).replaceWith(h);
-		     if(e) {
-		          e.innerHTML = h;
-		          //console.log("replace " + l);
-		        } //else //console.log("replacenot " + l);
-		     } );
+		  update_viewarea(JSON.parse(response['viewarea']));
 		  };
 		last_textarea_keypress = 0;
 		if ( type == 'save_no_reload') {
