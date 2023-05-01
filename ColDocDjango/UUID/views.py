@@ -1340,11 +1340,13 @@ def __prepare_views(metadata, blobs_dir):
     d = os.path.join( blobs_dir, uuid_dir)
     # fixme this works fine only for TeX to HTML
     views = []
+    children = metadata.get('child_uuid')
+    url = django.urls.reverse('UUID:index', kwargs={'NICK':metadata.coldoc.nickname,'UUID':'000'})
     for ll in  (Blangs if ( 'mul' not in Blangs) else  CDlangs):
         f = os.path.join(d,'view_' + ll + '_html' , 'index.html')
         if os.path.isfile(f):
-            #fixme filter somehow
             h = open(f).read()
+            h = _html_replace(h, url[:-4], metadata.uuid, ll, True, children)
             views.append( (ll,h) )
     return views
 
