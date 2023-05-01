@@ -114,7 +114,7 @@ class fork_class(object):
     def __init__(self, use_fork = True):
         # FIXME find a viable alternative
         self.can_fork = (sys.platform == 'linux')
-        self.tempfile = self.tempfile_name = None
+        self.tempfile_name = None
         self.other_pid_ = None
         self.already_run = False
         self.already_wait = False
@@ -122,7 +122,7 @@ class fork_class(object):
         self.__use_fork = use_fork and self.can_fork
         self.__pickle_exception = None
         # __del__ methods may be run after modules are gc
-        self.os = os
+        self.os_unlink = os.unlink
     #
     @property
     def use_fork(self):
@@ -142,8 +142,8 @@ class fork_class(object):
         self.__v = v
         #
         if self.__use_fork:
-            self.tempfile = tempfile.NamedTemporaryFile(prefix='forkret',delete=False)
-            self.tempfile_name = self.tempfile.name
+            _tempfile = tempfile.NamedTemporaryFile(prefix='forkret',delete=False)
+            self.tempfile_name = _tempfile.name
             self.other_pid_ = os.fork()
             if self.other_pid_ == 0:
                 try:
@@ -181,8 +181,11 @@ class fork_class(object):
                     self.__ret = pickle.load(f)
             except Exception as E:
                 self.__pickle_exception = E
-                a.append('Cannot read exit status: %s ' % (E,))
+                m = 'Cannot read exit status %r : %s ' % (self.tempfile_name, E,)
+                a.append(m)
+                logger.warning(m)
                 self.__ret = (1 , RuntimeWarning(' '.join(a)) )
+            #
             if len(a)>1:
                 logger.error(' '.join(a))
         if self.__ret[0] == 1:
@@ -190,7 +193,7 @@ class fork_class(object):
         return self.__ret[1]
     def __del__(self):
         if self.tempfile_name is not None:
-            self.os.unlink(self.tempfile_name)
+            self.os_unlink(self.tempfile_name)
 
 
 ######################
