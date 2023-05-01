@@ -112,17 +112,20 @@ else:
 class fork_class(object):
     "class that runs a job in a forked subprocess, and returns results or raises exception"
     def __init__(self, use_fork = True):
-        # FIXME find a viable alternative
-        self.can_fork = (sys.platform == 'linux')
         self.tempfile_name = None
         self.other_pid_ = None
         self.already_run = False
         self.already_wait = False
         self.__ret = None
-        self.__use_fork = use_fork and self.can_fork
+        self.__use_fork = use_fork and self.can_fork()
         self.__pickle_exception = None
         # __del__ methods may be run after modules are gc
         self.os_unlink = os.unlink
+    #
+    @staticmethod
+    def can_fork():
+        # FIXME find a viable alternative
+        return (sys.platform == 'linux')
     #
     @property
     def use_fork(self):
@@ -130,7 +133,7 @@ class fork_class(object):
     @use_fork.setter
     def use_fork(self,v):
         assert self.already_run is False
-        self.__use_fork = v and self.can_fork
+        self.__use_fork = v and self.can_fork()
     @property
     def subprocess_pid(self):
         return  self.other_pid_
