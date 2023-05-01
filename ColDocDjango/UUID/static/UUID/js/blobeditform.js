@@ -148,6 +148,8 @@ function update_viewarea(b)
        //$('#'+id).replaceWith(h);
        if(e) {
 	    e.innerHTML = h;
+	    //MathJax.Hub.Queue(["Typeset",MathJax.Hub,e]);
+	    MathJax.typesetPromise([e]);
 	    //console.log("replace " + l);
 	  } //else //console.log("replacenot " + l);
        }
