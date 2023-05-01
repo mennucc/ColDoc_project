@@ -1175,6 +1175,9 @@ def postedit(request, NICK, UUID):
     all_messages = [ (messages.WARNING, a) for a in weird_prologue]
     del weird_prologue
     #
+    do_fork = True
+    fork1 = fork2 = None
+    #
     from ColDoc.latex import environments_we_wont_latex
     from ColDoc.utils import reparse_blob
     #
@@ -1211,7 +1214,9 @@ def postedit(request, NICK, UUID):
                 all_messages.append( ( messages.INFO, _('Metadata change in new blob') + ': ' + msg) )
             reparse_blob(addfilename, addmetadata, lang, blobs_dir, warn, load_uuid=load_uuid, options=reparse_options)
             # compile it
-            if True:
+            if do_fork:
+                fork2 = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata, fork=True)
+            else:
                 ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata)
                 __relatex_new_msg(ret, all_messages)
     #
@@ -1223,8 +1228,13 @@ def postedit(request, NICK, UUID):
     #
     if ext_ in  ('.tex', '.bib'):
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
-        ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata)
-        __relatex_msg(ret, all_messages)
+        if do_fork:
+            fork1 = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata, fork=True)
+            a = _('Compilation of LaTeX scheduled.')
+            all_messages.append( (messages.INFO, a))
+        else:
+            ret = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata)
+            __relatex_msg(ret, all_messages)
     logger.info('ip=%r user=%r coldoc=%r uuid=%r ',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID)
     email_to = _interested_emails(coldoc,metadata)
@@ -1285,13 +1295,17 @@ def postedit(request, NICK, UUID):
         with open(file_editstate,'w') as f_:
             json.dump(D, f_)
     #
+    if do_fork:
+        a = 'compilation_in_progress_' + metadata.uuid
+        request.session[a] = base64.a85encode(pickle.dumps((fork1,fork2))).decode('ascii')
+        request.session.save()
+    #
     if the_action == 'compile_no_reload' :
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(file_lines_before,
                                file_lines_after,
                                _('Previous'),_('Current'), True)
         #
-        views = __prepare_views(metadata, blobs_dir)
         real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
         blobcontent = open(filename).read()
         if blobcontent and blobcontent[-1] != '\n' :
@@ -1305,7 +1319,10 @@ def postedit(request, NICK, UUID):
                 'blobeditarea' : json.dumps(blobeditdata),
                 'blobdiff' : json.dumps(blobdiff),
                 "message"  : json.dumps(str(a)),
-                "viewarea" : json.dumps(views),  }
+                }
+        if not do_fork:
+            views = __prepare_views(metadata, blobs_dir)
+            z[ "viewarea" ] = json.dumps(views)
         return JsonResponse(z)
     for a,b in all_messages:
         messages.add_message(request, a, b)
