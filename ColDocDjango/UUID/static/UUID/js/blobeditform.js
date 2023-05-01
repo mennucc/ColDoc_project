@@ -52,7 +52,7 @@ function restore_editform_non_cm(){
     let blobeditform = document.getElementById("id_form_blobeditform");
     let textarea = document.getElementById("id_BlobEditTextarea");
     if ( ! blobeditform ) {
-	setTimeout(restore_editform, 200);
+	setTimeout(restore_editform_non_cm, 200);
 	return;
     }
     
