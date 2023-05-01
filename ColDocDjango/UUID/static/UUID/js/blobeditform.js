@@ -172,6 +172,9 @@ function blob_post(type) {
 	   data: data,
 	   error: function(jqXHR, error_code, exception_object)  {
 	         alert("While " + type + " , " + error_code + " : " + exception_object);
+		 if ( type == 'compile_no_reload') {
+ 		  $("#id_blobeditform_compile").removeClass("progress-bar progress-bar-striped progress-bar-animated").addClass("bg-warning");
+		 }
 	       },
 	   success: function(response, success_code, jqXHR) {
 	       let blob_uncompiled_ = response['uncompiled'];
