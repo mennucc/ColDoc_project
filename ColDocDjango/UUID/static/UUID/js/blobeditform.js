@@ -90,9 +90,11 @@ function hide_and_show(){
     }
 };
 
-window.addEventListener('ready', hide_and_show() );
-
 ////////////////////
+
+window.addEventListener("load", (event) => {
+  hide_and_show();
+});
 
 //////////////////////////////////////////
 

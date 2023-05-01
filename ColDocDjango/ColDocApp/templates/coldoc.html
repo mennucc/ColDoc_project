@@ -95,7 +95,12 @@ ColDoc  — {{ coldoc.nickname }} {% endif %}</h1>
   {% translate "Check tree" %}
 </button>
 </div>
-<script>window.addEventListener('ready', AJAXcheck_tree('{{ check_tree_url }}') );</script>
+<script>
+const check_tree_url = '{{ check_tree_url }}';
+window.addEventListener("load", (event) => {
+   AJAXcheck_tree(check_tree_url);
+ });
+</script>
 
 {% include "latex_error_logs.html" %}
 

@@ -10,7 +10,7 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 const    compilation_in_progress = {{ compilation_in_progress }};
 const    ajax_views_url = "{{ ajax_views_url }}";
 if ( compilation_in_progress ) { 
-   window.addEventListener('ready', ajax_views_post );
+   window.addEventListener('load', ajax_views_post );
 }; 
 </script>
 
@@ -143,7 +143,7 @@ function activate_BlobEditCodeMirror_once(e) {
 $('a[href="#blob"]').on('shown.bs.tab',activate_BlobEditCodeMirror_once);
 {% else %}
  {# non CodeMirror #}
-window.addEventListener('ready', restore_editform_non_cm() );
+window.addEventListener('load', restore_editform_non_cm );
 $('#id_BlobEditTextarea').on('input propertychange change keyup paste', update_blobedit_timestamp );
 {% endif %}
 </script>

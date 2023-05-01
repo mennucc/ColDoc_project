@@ -35,9 +35,6 @@ if (xmlhttp.readyState==4)
   }
 }
 
-
-//window.addEventListener('ready', AJAXcheck_tree() );
-
 function GetXmlHttpObject()
 {
 if (window.XMLHttpRequest)
