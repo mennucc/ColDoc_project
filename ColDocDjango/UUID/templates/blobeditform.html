@@ -7,6 +7,11 @@ var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
 {% else %}
   const get_blob_md5_url = "";
 {% endif %}
+const    compilation_in_progress = {{ compilation_in_progress }};
+const    ajax_views_url = "{{ ajax_views_url }}";
+if ( compilation_in_progress ) { 
+   window.addEventListener('ready', ajax_views_post );
+}; 
 </script>
 
 {% if USE_CODEMIRROR %}

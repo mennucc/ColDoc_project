@@ -2316,6 +2316,9 @@ def index(request, NICK, UUID):
         bibliolink = reverse_uuid_link(bibliofiles[0].uuid) if bibliofiles else ''
         bibliofiles = []
     #
+    compilation_in_progress = int( ('compilation_in_progress_' + metadata.uuid) in request.session)
+    ajax_views_url = django.urls.reverse('UUID:ajax_views', kwargs={'NICK':NICK,'UUID':UUID})
+    #
     return render(request, 'UUID.html', locals() )
 
 

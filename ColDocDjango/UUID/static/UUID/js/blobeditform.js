@@ -155,6 +155,36 @@ function update_viewarea(b)
 };
 
 
+function ajax_views_post() {
+ if ( compilation_in_progress ) { 
+   $("#id_view").addClass("bg-warning");
+   $("#id_blobeditform_compile").addClass("bg-warning progress-bar-striped progress-bar-animated");
+   blob_polling = 0 ; view_polling = 0 ;
+ }
+ $.ajax(ajax_views_url, {
+	   type: "POST",
+	   url: ajax_views_url,
+	   data: {},
+	   error: function(jqXHR, error_code, exception_object)  {
+	         alert("While ajax_views_post , " + error_code + " : " + exception_object);
+	       },
+	   success: function(response, success_code, jqXHR) {
+	        if ( 'viewarea' in response ) {
+		  update_viewarea(JSON.parse(response['viewarea']));
+		  };
+		last_textarea_keypress = 0;
+		//
+		 $("#id_view").removeClass("bg-warning");
+		 $("#id_blobeditform_compile").removeClass("bg-warning progress-bar progress-bar-striped progress-bar-animated");
+		//
+		let msg = JSON.parse(response['message']);
+		if ( msg ) {
+		 setTimeout(function() { alert(msg);}, 100); 
+	       }
+	   },
+	});
+ blob_polling = blob_polling_default; setTimeout(poll_blob_changed_md5, blob_polling);
+}
 //////////////////////////////////////////
 
 var last_textarea_keypress = 0;
