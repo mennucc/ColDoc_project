@@ -1289,17 +1289,7 @@ def postedit(request, NICK, UUID):
                                file_lines_after,
                                _('Previous'),_('Current'), True)
         #
-        views = []
-        Blangs = metadata.get_languages()
-        CDlangs = coldoc.get_languages()
-        d = os.path.dirname(filename)
-        # fixme this works fine only for TeX to HTML
-        for ll in  (Blangs if ( 'mul' not in Blangs) else  CDlangs):
-            f = os.path.join(d,'view_' + ll + '_html' , 'index.html')
-            if os.path.isfile(f):
-                #fixme filter somehow
-                h = open(f).read()
-                views.append( (ll,h) )
+        views = __prepare_views(metadata, blobs_dir)
         real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
         blobcontent = open(filename).read()
         if blobcontent and blobcontent[-1] != '\n' :
@@ -1318,6 +1308,21 @@ def postedit(request, NICK, UUID):
     for a,b in all_messages:
         messages.add_message(request, a, b)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
+
+def __prepare_views(metadata, blobs_dir):
+    uuid_dir = uuid_to_dir(metadata.uuid)
+    Blangs = metadata.get_languages()
+    CDlangs = metadata.coldoc.get_languages()
+    d = os.path.join(uuid_dir, blobs_dir)
+    # fixme this works fine only for TeX to HTML
+    views = []
+    for ll in  (Blangs if ( 'mul' not in Blangs) else  CDlangs):
+        f = os.path.join(d,'view_' + ll + '_html' , 'index.html')
+        if os.path.isfile(f):
+            #fixme filter somehow
+            h = open(f).read()
+            views.append( (ll,h) )
+    return views
 
 def postmetadataedit(request, NICK, UUID):
     if request.method != 'POST' :
