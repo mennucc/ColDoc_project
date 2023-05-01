@@ -21,4 +21,5 @@ urlpatterns = [
     path('<str:NICK>/<str:UUID>/', views.index, name='index'),
     path('<str:NICK>/<str:UUID>/download', views.download, name='download'),
     path('<str:NICK>/<str:UUID>/md5/<str:ACCESS>/<path:FILE>', views.md5, name='md5'),
+    path('<str:NICK>/<str:UUID>/ajax_views/', views.ajax_views, name='ajax_views'),
 ]

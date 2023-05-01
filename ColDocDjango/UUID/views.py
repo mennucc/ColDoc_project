@@ -1,5 +1,6 @@
 import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect, functools
 from html import escape as py_html_escape
+import pickle, base64
 from os.path import join as osjoin
 
 try:
@@ -38,6 +39,7 @@ from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
 from django.utils.text import format_lazy
 from django.utils.functional import lazy
+from django.views.decorators.csrf import csrf_exempt
 
 full_escape_translate_lazy = lazy ( lambda s : py_html_escape(gettext_lazy (s ) , quote=True) , str )
 full_escape_lazy = lazy ( lambda s : py_html_escape(s , quote=True) , str )
@@ -1323,6 +1325,38 @@ def __prepare_views(metadata, blobs_dir):
             h = open(f).read()
             views.append( (ll,h) )
     return views
+
+
+@csrf_exempt
+def ajax_views(request, NICK, UUID):
+    if request.method != 'POST' :
+        raise SuspiciousOperation('!!!')
+    #
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+    request.user.associate_coldoc_blob_for_has_perm(coldoc, metadata)
+    can_view_blob = request.user.has_perm('UUID.view_blob')
+    if not can_view_blob:
+        raise SuspiciousOperation("Permission denied")
+    #
+    all_messages = []
+    a = 'compilation_in_progress_' + metadata.uuid
+    if a in  request.session:
+        #
+        fork1,fork2 = pickle.loads(base64.a85decode(request.session.pop(a)))
+        request.session.save()
+        #
+        res1 = fork1.wait()
+        __relatex_msg(res1, all_messages)
+        #
+        if fork2 is not None:
+            res2 = fork1.wait()
+            __relatex_new_msg(res2, all_messages)
+    #
+    views = __prepare_views(metadata, blobs_dir)
+    a='\n'.join( [ html2text(str(v[1])) for v in all_messages] )
+    return JsonResponse( {"message"  : json.dumps(str(a)),
+                          "viewarea" : json.dumps(views),  })
 
 def postmetadataedit(request, NICK, UUID):
     if request.method != 'POST' :
