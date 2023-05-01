@@ -179,7 +179,7 @@ function blob_post(type) {
 	       if ( 'blobdiff' in response ) {
 		 let blobdiff = JSON.parse(response['blobdiff']);
 		 let blobdiffdiv = document.getElementById("id_blob_diff");
-		 blobdiffdiv.innerHTML = '<pre>' + blobdiff + '</pre>';
+		  if(blobdiffdiv) { blobdiffdiv.innerHTML = '<pre>' + blobdiff + '</pre>'; }
 	       } else { console.log("Did not get blobdiff"); }
 	       if ( 'blob_md5' in response ) {
 		  blob_md5 = response['blob_md5'];
