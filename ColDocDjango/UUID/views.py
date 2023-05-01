@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 import django
 from django.shortcuts import get_object_or_404, render, redirect
+from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse, QueryDict
 from django.contrib import messages
 from django import forms
@@ -1313,12 +1314,16 @@ def postedit(request, NICK, UUID):
         # the first line contains the \uuid command or the \section{}\uuid{}
         shortprologue, prologue, blobeditdata, warnings = __extract_prologue(blobcontent, UUID, env, metadata.optarg)
         #
-        a='\n'.join( [ html2text(str(v[1])) for v in all_messages] )
+        alert='\n'.join( [ html2text(str(v[1])) for v in all_messages if v[0] >= messages.WARNING ] )
+        for a,b in all_messages:
+            messages.add_message(request, a, b)
+        message = render_to_string(template_name="messages.html", request=request)
         #
         z =    {'uncompiled' : 0, 'blob_md5': real_file_md5,
                 'blobeditarea' : json.dumps(blobeditdata),
                 'blobdiff' : json.dumps(blobdiff),
-                "message"  : json.dumps(str(a)),
+                "alert"  : json.dumps(str(alert)),
+                "message"  : json.dumps(str(message)),
                 }
         if not do_fork:
             views = __prepare_views(metadata, blobs_dir)
@@ -1371,8 +1376,12 @@ def ajax_views(request, NICK, UUID):
             __relatex_new_msg(res2, all_messages)
     #
     views = __prepare_views(metadata, blobs_dir)
-    a='\n'.join( [ html2text(str(v[1])) for v in all_messages] )
-    return JsonResponse( {"message"  : json.dumps(str(a)),
+    alert='\n'.join( [ html2text(str(v[1])) for v in all_messages if v[0] >= messages.WARNING ] )
+    for a,b in all_messages:
+        messages.add_message(request, a, b)
+    message = render_to_string(template_name="messages.html", request=request)
+    return JsonResponse( {"message"  : json.dumps(str(message)),
+                          "alert"  : json.dumps(str(alert)),
                           "viewarea" : json.dumps(views),  })
 
 def postmetadataedit(request, NICK, UUID):

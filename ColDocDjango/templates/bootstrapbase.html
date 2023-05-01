@@ -110,8 +110,9 @@
 
 </header>
 
-
-{% include 'messages.html' %}
+ <div id="id_messages">
+ {% include 'messages.html' %}
+</div>
  <main class="{{ MAIN_CONTAINER_CLASS | default:"container" }} flex-grow-1" >
     <!-- Content here -->
         {% block content %}fake content{% endblock %}

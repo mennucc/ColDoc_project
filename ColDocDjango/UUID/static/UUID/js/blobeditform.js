@@ -154,6 +154,27 @@ function update_viewarea(b)
     );
 };
 
+function _parse_response(response) {
+	if ( 'viewarea' in response ) {
+	   update_viewarea(JSON.parse(response['viewarea']));
+	};
+	if ( 'alert' in response ) {
+                let alert_msg = JSON.parse(response['alert']);
+		if ( alert_msg ) {
+		  setTimeout(function() { alert(alert_msg);}, 100); 
+		}
+	}
+	if ( 'message' in response ) {
+		let msg = JSON.parse(response['message']);
+		let div_messages = document.getElementById("id_messages");
+		if ( msg ) {
+		 const testDiv = document.createElement('div');
+		 testDiv.innerHTML = msg;
+		 div_messages.append(testDiv);
+		 $('.toast').toast("show");
+	       }
+	}
+}
 
 function ajax_views_post() {
  if ( compilation_in_progress ) { 
@@ -169,18 +190,11 @@ function ajax_views_post() {
 	         alert("While ajax_views_post , " + error_code + " : " + exception_object);
 	       },
 	   success: function(response, success_code, jqXHR) {
-	        if ( 'viewarea' in response ) {
-		  update_viewarea(JSON.parse(response['viewarea']));
-		  };
 		last_textarea_keypress = 0;
 		//
+	         _parse_response(response);
 		 $("#id_view").removeClass("bg-warning");
 		 $("#id_blobeditform_compile").removeClass("bg-warning progress-bar progress-bar-striped progress-bar-animated");
-		//
-		let msg = JSON.parse(response['message']);
-		if ( msg ) {
-		 setTimeout(function() { alert(msg);}, 100); 
-	       }
 	   },
 	});
  blob_polling = blob_polling_default; setTimeout(poll_blob_changed_md5, blob_polling);
@@ -244,9 +258,6 @@ function blob_post(type) {
 		     BlobEditCodeMirror.setValue(b);
 	            }
 	       } else { console.log("Did not get blobeditarea"); }
-	       if ( 'viewarea' in response ) {
-		  update_viewarea(JSON.parse(response['viewarea']));
-		  };
 		last_textarea_keypress = 0;
 		if ( type == 'save_no_reload') {
 		    $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
@@ -257,12 +268,9 @@ function blob_post(type) {
 		 hide_and_show();
 		 setTimeout(ajax_views_post, 100);
 		}
+		_parse_response(response);
 		set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		prevent_unload_remove();
-		let msg = JSON.parse(response['message']);
-		if ( msg ) {
-		 setTimeout(function() { alert(msg);}, 100); 
-	       }
 	   }
 	 });
    // avoid to execute the actual submit of the form.
