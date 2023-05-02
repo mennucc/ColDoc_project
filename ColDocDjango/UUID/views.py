@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 import django
+from django.db import transaction
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse, QueryDict
@@ -1366,16 +1367,25 @@ def ajax_views(request, NICK, UUID):
     all_messages = []
     a = 'compilation_in_progress_' + metadata.uuid
     if a in  request.session:
+        fork1 = fork2 = None
+        try:
+            with transaction.atomic():
+                b =  request.session.pop(a)
+                if b is not None:
+                    fork1,fork2 = pickle.loads(base64.a85decode(b))
+                request.session.save()
         #
-        fork1,fork2 = pickle.loads(base64.a85decode(request.session.pop(a)))
-        request.session.save()
-        #
-        res1 = fork1.wait()
-        __relatex_msg(res1, all_messages)
-        #
-        if fork2 is not None:
-            res2 = fork1.wait()
-            __relatex_new_msg(res2, all_messages)
+            if fork1 is not None:
+                res1 = fork1.wait()
+                __relatex_msg(res1, all_messages)
+            #
+            if fork2 is not None:
+                res2 = fork1.wait()
+                __relatex_new_msg(res2, all_messages)
+        except RuntimeWarning as e:
+            logger.warning(str(e))
+        except:
+            logger.exception('while managing jobs')
     #
     views = __prepare_views(metadata, blobs_dir)
     alert='\n'.join( [ html2text(str(v[1])) for v in all_messages if v[0] >= messages.WARNING ] )
