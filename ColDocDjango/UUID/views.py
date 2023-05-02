@@ -651,6 +651,13 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
     except OSError:
         pass
     #
+    def set_lang(lang):
+        with transaction.atomic():
+            m = metadata.locked_fresh_copy()
+            m.lang = lang
+            m.save()
+        metadata.refresh_from_db()
+    #
     Blangs = metadata.get_languages()
     if prefix == 'manual':
         assert len(Blangs) == 1 and 'mul' in Blangs
@@ -665,8 +672,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                 os.rename(src,src+'~auto~')
                 with open(src,'w') as f_:
                     f_.write(''.join(lines))
-        metadata.lang = '\n'.join(Clangs) + '\n'
-        metadata.save()
+        set_lang( '\n'.join(Clangs) + '\n' )
         logmessage(messages.INFO,_('Converted to manual language management (non <tt>mul</tt>)'))
         dst = osjoin(D,'blob_mul'+ext_)
         if os.path.exists(dst):
@@ -704,8 +710,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
         # close it. This flushes the content. Otherwise sometimes the file appears empty in the web interface
         F.close()
         #
-        metadata.lang = 'mul\n'
-        metadata.save()
+        set_lang('mul\n')
         logmessage(messages.INFO, _('Converted to `mul` method'))
         gen_lang_metadata(metadata, blobs_dir, Clangs)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
@@ -731,8 +736,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
             os.rename(dst,dst+'~old~')
         with open(dst,'w') as f_:
             f_.write('\n'.join(output) + '\n')
-        metadata.lang = 'mul\n'
-        metadata.save()
+        set_lang( 'mul\n' )
         logmessage(messages.INFO,_('Converted to `mul` method'))
         gen_lang_metadata(metadata, blobs_dir, Clangs)
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
@@ -763,8 +767,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
         else:
             if prefix in ( 'add', 'translate' ): # this never happens or langchoice_ == 'mul':
                 if langchoice_ not in L:
-                    metadata.lang = '\n'.join(L + [langchoice_]) + '\n'
-                    metadata.save()
+                    set_lang( '\n'.join(L + [langchoice_]) + '\n' )
                     L = metadata.get_languages()
                 logger.warning('copy %r to %r',src,dst)
                 string = open(src).read()
@@ -794,8 +797,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                 logmessage(messages.INFO, m)
             elif prefix == 'relabel':
                 L[L.index(lang_)] = langchoice_
-                metadata.lang = '\n'.join(L) + '\n'
-                metadata.save()
+                set_lang( '\n'.join(L) + '\n' )
                 logger.warning('rename %r to %r (converting language inputs)',src,dst)
                 string = open(src).read()
                 string = ColDoc.utils.replace_language_in_inputs(string, lang_, langchoice_)
@@ -817,8 +819,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
         L = metadata.get_languages()
         if langchoice_ in L:
             del L[L.index(langchoice_)]
-            metadata.lang = '\n'.join(L)  + '\n'
-            metadata.save()
+            set_lang( '\n'.join(L)  + '\n' )
             redirectlang_ = L[0]
             for j in os.listdir(D):
                 if j[:4] in ('blob','view') and j[5:8] == langchoice_  and j[-1] != '~':
@@ -832,6 +833,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
         logmessage(messages.ERROR, 'Unimplemented %r %r'%(prefix,langchoice_))
     if prefix == 'translate' and settings.AUTO_MUL and \
        'mul' not in L and set(L) == set(coldoc.get_languages()):
+        metadata.refresh_from_db()
         return postlang_no_http(logmessage, metadata, 'multlang', lang_, ext_ , langchoice_ )
     ColDoc.utils.recreate_symlinks(metadata, blobs_dir)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + \
