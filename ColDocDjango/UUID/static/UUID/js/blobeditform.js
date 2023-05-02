@@ -192,7 +192,7 @@ function ajax_error_handler(jqXHR, error_code, exception_object)  {
 function ajax_views_post() {
  if ( compilation_in_progress ) { 
    $("#id_view").addClass("bg-warning");
-   $("#id_blobeditform_compile").removeClass("bg-warning btn-outline-info").addClass("bg-info progress-bar-striped progress-bar-animated");
+   $("#id_blobeditform_compile").removeClass("btn-warning btn-outline-info bg-warning").addClass("bg-info progress-bar-striped progress-bar-animated");
    blob_polling = 0 ; view_polling = 0 ;
  }
  $.ajax(ajax_views_url, {
@@ -206,7 +206,7 @@ function ajax_views_post() {
 		last_textarea_keypress = 0;
 		_parse_response(response);
 		$("#id_view").removeClass("bg-warning");
-		$("#id_blobeditform_compile").removeClass("bg-warning bg-info progress-bar progress-bar-striped progress-bar-animated").addClass("btn-outline-info");
+		$("#id_blobeditform_compile").removeClass("btn-warning bg-warning bg-info progress-bar-striped progress-bar-animated").addClass("btn-outline-info");
 		compilation_in_progress = 0;
 		// FIXME set view polling and md5
 	   },
@@ -230,7 +230,7 @@ function blob_post(type) {
   }
   if ( type == "compile_no_reload" ) {
     $("#id_view").addClass("bg-warning");
-    $("#id_blobeditform_compile").removeClass("btn-outline-info bg-info").addClass("bg-warning progress-bar-striped progress-bar-animated");
+    $("#id_blobeditform_compile").removeClass("btn-outline-info btn-warning bg-info").addClass("bg-warning progress-bar-striped progress-bar-animated");
     blob_polling = 0 ; view_polling = 0 ;
    }
 
