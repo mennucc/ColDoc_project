@@ -1371,9 +1371,9 @@ def ajax_views(request, NICK, UUID):
         try:
             with transaction.atomic():
                 b =  request.session.pop(a)
-                if b is not None:
-                    fork1,fork2 = pickle.loads(base64.a85decode(b))
                 request.session.save()
+            if b is not None:
+                fork1,fork2 = pickle.loads(base64.a85decode(b))
         #
             if fork1 is not None:
                 res1 = fork1.wait()
