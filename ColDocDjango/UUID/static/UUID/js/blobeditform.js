@@ -292,10 +292,8 @@ function update_blobedit_timestamp()
 {   
     blob_uncompiled = 1;
     if( last_textarea_keypress == 0) {
-       $("#id_blobeditform_save_no_reload").removeClass("btn-primary");
-       $("#id_blobeditform_save_no_reload").addClass("btn-warning");
-       $("#id_blobeditform_compile").removeClass("btn-outline-info");
-       $("#id_blobeditform_compile").addClass("btn-warning");
+       $("#id_blobeditform_save_no_reload").removeClass("btn-primary").addClass("btn-warning");
+       $("#id_blobeditform_compile").removeClass("btn-outline-info").addClass("btn-warning");
        prevent_unload_add();
    }
    last_textarea_keypress = new Date().getTime();
