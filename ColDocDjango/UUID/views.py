@@ -632,7 +632,14 @@ def postlang(request, NICK, UUID):
         raise SuspiciousOperation("Permission denied")
     #
     log = functools.partial(messages.add_message,request)
-    return postlang_no_http(log, metadata, prefix, lang_, ext_ , langchoice_ )
+    ret = postlang_no_http(log, metadata, prefix, lang_, ext_ , langchoice_ )
+    a = 'compilation_in_progress_' + metadata.uuid
+    if a not in request.session:
+        metadata.refresh_from_db()
+        fork1 = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata, fork=True)
+        request.session[a] = base64.a85encode(pickle.dumps((fork1,None))).decode('ascii')
+        request.session.save()
+    return ret
 
 def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
     coldoc = metadata.coldoc
