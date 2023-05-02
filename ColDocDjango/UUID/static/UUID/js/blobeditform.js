@@ -190,6 +190,7 @@ function ajax_views_post() {
 	         alert("While ajax_views_post , " + error_code + " : " + exception_object);
 		let ne = document.getElementById("id_network_error");
 		if (ne) { ne.style.display = 'inline'; }
+		$("#id_blobeditform_compile").removeClass("progress-bar-striped progress-bar-animated");
 	       },
 	   success: function(response, success_code, jqXHR) {
 		let ne = document.getElementById("id_network_error");
@@ -240,9 +241,7 @@ function blob_post(type) {
 	         alert("While " + type + " , " + error_code + " : " + exception_object);
 		let ne = document.getElementById("id_network_error");
 		if (ne) { ne.style.display = 'inline'; }
-		 if ( type == 'compile_no_reload') {
- 		  $("#id_blobeditform_compile").removeClass("bg-info progress-bar progress-bar-striped progress-bar-animated").addClass("bg-warning");
-		 }
+		$("#id_blobeditform_compile").removeClass("progress-bar-striped progress-bar-animated");
 	       },
 	   success: function(response, success_code, jqXHR) {
 	       let ne = document.getElementById("id_network_error");
