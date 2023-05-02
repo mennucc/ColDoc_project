@@ -245,6 +245,7 @@ function blob_post(type) {
 	   type: "POST",
 	   url: blobeditform.action,
 	   data: data,
+	   timeout: 16000,
 	   error: ajax_error_handler,
 	   success: function(response, success_code, jqXHR) {
 	       let ne = document.getElementById("id_network_error");
