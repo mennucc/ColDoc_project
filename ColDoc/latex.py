@@ -151,7 +151,7 @@ def lang_conditionals(thelang, langs = None, metadata = None):
 
 
 @ColDoc.utils.log_debug
-def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, options = {}):
+def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, options = {}, forked = False):
     " `latex` the blob identified `uuid` or `metadata`; if `lang` is None, `latex` all languages ; return a dict of booleans to report failure for each language "
     log_level = logging.WARNING if warn else logging.DEBUG
     assert uuid is not None or metadata is not None
@@ -185,7 +185,7 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     for l in langs:
         subproc = ColDoc.utils.fork_class(use_fork = (len(langs)>1) )
         subproc.run(latex_blob, blobs_dir, metadata=metadata, lang=l,
-                    uuid_dir=uuid_dir, options = options, forked=subproc.use_fork)
+                    uuid_dir=uuid_dir, options = options, forked=(subproc.use_fork or forked))
         langpids.append((l, subproc))
     #
     for ll, subproc in langpids:
