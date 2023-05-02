@@ -127,15 +127,11 @@ setTimeout(poll_blob_changed_md5, blob_polling);
 function set_buttons_classes_on_uncompiled (b) {
   blob_uncompiled = b;
     if (  blob_uncompiled ) {
-	$("#id_blobeditform_revert").removeClass("btn-outline-info");
-	$("#id_blobeditform_revert").addClass("btn-warning");
-	$("#id_blobeditform_compile").removeClass("btn-outline-info");
-	$("#id_blobeditform_compile").addClass("btn-warning");
+	$("#id_blobeditform_revert").removeClass("btn-outline-info").addClass("btn-warning");
+	$("#id_blobeditform_compile").removeClass("btn-outline-info").addClass("btn-warning");
     } else {
-	$("#id_blobeditform_revert").removeClass("btn-warning");
-	$("#id_blobeditform_revert").addClass("btn-outline-info");
-	$("#id_blobeditform_compile").removeClass("btn-warning");
-	$("#id_blobeditform_compile").addClass("btn-outline-info");
+	$("#id_blobeditform_revert").removeClass("btn-warning").addClass("btn-outline-info");
+	$("#id_blobeditform_compile").removeClass("btn-warning").addClass("btn-outline-info");
     }
 };
 
@@ -273,8 +269,7 @@ function blob_post(type) {
 	       } else { console.log("Did not get blobeditarea"); }
 		last_textarea_keypress = 0;
 		if ( type == 'save_no_reload') {
-		    $("#id_blobeditform_save_no_reload").removeClass("btn-warning");
-		    $("#id_blobeditform_save_no_reload").addClass("btn-primary");
+		    $("#id_blobeditform_save_no_reload").removeClass("btn-warning").addClass("btn-primary");
 		}
 		if ( type == 'compile_no_reload') {
 		 $("#id_blobeditform_compile").removeClass("bg-warning").addClass("bg-info");
