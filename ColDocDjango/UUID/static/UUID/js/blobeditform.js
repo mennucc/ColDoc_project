@@ -192,8 +192,12 @@ function ajax_views_post() {
 	   data: {},
 	   error: function(jqXHR, error_code, exception_object)  {
 	         alert("While ajax_views_post , " + error_code + " : " + exception_object);
+		let ne = document.getElementById("id_network_error");
+		if (ne) { ne.style.display = 'inline'; }
 	       },
 	   success: function(response, success_code, jqXHR) {
+		let ne = document.getElementById("id_network_error");
+		if (ne) { ne.style.display = 'none'; }
 		last_textarea_keypress = 0;
 		_parse_response(response);
 		$("#id_view").removeClass("bg-warning");
@@ -238,11 +242,15 @@ function blob_post(type) {
 	   data: data,
 	   error: function(jqXHR, error_code, exception_object)  {
 	         alert("While " + type + " , " + error_code + " : " + exception_object);
+		let ne = document.getElementById("id_network_error");
+		if (ne) { ne.style.display = 'inline'; }
 		 if ( type == 'compile_no_reload') {
  		  $("#id_blobeditform_compile").removeClass("bg-info progress-bar progress-bar-striped progress-bar-animated").addClass("bg-warning");
 		 }
 	       },
 	   success: function(response, success_code, jqXHR) {
+	       let ne = document.getElementById("id_network_error");
+	       if (ne) { ne.style.display = 'none'; }
 	       let blob_uncompiled_ = response['uncompiled'];
 	       let blobeditform = document.getElementById("id_form_blobeditform");
 	       if ( 'blobdiff' in response ) {

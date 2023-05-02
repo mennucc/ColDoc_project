@@ -75,6 +75,13 @@ if ( compilation_in_progress ) {
          data-toggle="tooltip" title="Save changes, update PDF and HTML"
          onclick="update_editform();  if ( check_primary_tab() ) { prevent_unload_remove (); blob_post('compile_no_reload'); }; return false;"
          id="id_blobeditform_compile" name="compile" value="Compile">
+        
+        <img id="id_network_error" class="btn-danger"
+             data-toggle="tooltip" title="{% translate 'There was a network error' %}"
+             style="display: none;"
+             src="{% static 'ColDoc/sync_problem_FILL0_wght400_GRAD0_opsz48.svg' %}"  style="height: 14pt" alt="Network error!">
+
+        
       {% if perms.UUID.change_blob %}
          <input type="submit" class="btn btn-primary" 
          data-toggle="tooltip" title="Save changes so far, update diff"
