@@ -195,8 +195,11 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     #
     if lang is None:
         # update only if all languages were recomputed
-        metadata.latex_time_update()
-    metadata.save()
+        TA = metadata.transaction_atomic()
+        with TA:
+            m = metadata.locked_fresh_copy()
+            m.latex_time_update()
+            m.save()
     return res
 
 @ColDoc.utils.log_debug
@@ -243,11 +246,15 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
                 f_.write(uuid_dir + ':0:' + b + '\n')
             logger.warning(b)
     if preamble is None:
-        retcodes = ColDoc.utils.json_to_dict(metadata.latex_return_codes)
-        j = (':'+lang) if (isinstance(lang,str) and lang) else ''
-        ColDoc.utils.dict_save_or_del( retcodes, 'latex'+j, False)
-        metadata.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
-        metadata.save()
+        #
+        TA = metadata.transaction_atomic()
+        with TA:
+            m = metadata.locked_fresh_copy()
+            retcodes = ColDoc.utils.json_to_dict(m.latex_return_codes)
+            j = (':'+lang) if (isinstance(lang,str) and lang) else ''
+            ColDoc.utils.dict_save_or_del( retcodes, 'latex'+j, False)
+            m.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
+            m.save()
         return False, False
     #
     D = {'uuiddir':uuid_dir, 'lang':lang, 'uuid':uuid,
@@ -415,6 +422,12 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     return rh, rp
 
 def _update_metadata(metadata, lang, rh, rp):
+    TA = metadata.transaction_atomic()
+    with TA:
+        m = metadata.locked_fresh_copy()
+        return _update_metadata_unsafe(m, lang, rh, rp)
+
+def _update_metadata_unsafe(metadata, lang, rh, rp):
     # TODO there is a fundamental mistake here. This function may be called to
     # update the PDF/HTML view of only one language. This timestamp
     # does not record which language was updated. We should have different timestamps
@@ -595,6 +608,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             # update only if all languages were updated
             coldoc.latex_time_update()
         coldoc.latex_return_codes = ColDoc.utils.dict_to_json(retcodes)
+        # FIXME should ensure atomicity
         coldoc.save()
     #
     return ret, return_values
