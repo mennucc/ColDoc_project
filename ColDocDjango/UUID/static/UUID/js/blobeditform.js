@@ -176,6 +176,19 @@ function _parse_response(response) {
 	}
 }
 
+function ajax_error_handler(jqXHR, error_code, exception_object)  {
+	let ne = document.getElementById("id_network_error");
+	if (ne) { ne.style.display = 'inline'; }
+	$("#id_blobeditform_compile").removeClass("progress-bar-striped progress-bar-animated");
+	//Possible values for the second argument (besides null) are "timeout", "error", "abort", and "parsererror".
+	switch(error_code) {
+	 case "timeout": alert("Network request has timed out"); break;
+	 case "error": if (  exception_object ) { alert("Error on request: " + exception_object); }; break;
+	 case "abort": alert("abort"); break;
+	 default: console.log("While ajax post , error = " + error_code + " ,  exception =" + exception_object); break;
+	} 
+};
+
 function ajax_views_post() {
  if ( compilation_in_progress ) { 
    $("#id_view").addClass("bg-warning");
@@ -186,12 +199,7 @@ function ajax_views_post() {
 	   type: "POST",
 	   url: ajax_views_url,
 	   data: {},
-	   error: function(jqXHR, error_code, exception_object)  {
-	         alert("While ajax_views_post , " + error_code + " : " + exception_object);
-		let ne = document.getElementById("id_network_error");
-		if (ne) { ne.style.display = 'inline'; }
-		$("#id_blobeditform_compile").removeClass("progress-bar-striped progress-bar-animated");
-	       },
+	   error: ajax_error_handler,
 	   success: function(response, success_code, jqXHR) {
 		let ne = document.getElementById("id_network_error");
 		if (ne) { ne.style.display = 'none'; }
@@ -237,12 +245,7 @@ function blob_post(type) {
 	   type: "POST",
 	   url: blobeditform.action,
 	   data: data,
-	   error: function(jqXHR, error_code, exception_object)  {
-	         alert("While " + type + " , " + error_code + " : " + exception_object);
-		let ne = document.getElementById("id_network_error");
-		if (ne) { ne.style.display = 'inline'; }
-		$("#id_blobeditform_compile").removeClass("progress-bar-striped progress-bar-animated");
-	       },
+	   error: ajax_error_handler,
 	   success: function(response, success_code, jqXHR) {
 	       let ne = document.getElementById("id_network_error");
 	       if (ne) { ne.style.display = 'none'; }
