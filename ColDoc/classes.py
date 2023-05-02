@@ -34,6 +34,14 @@ class MetadataBase(object):
         " returns an instance that matches the `uuid` in the `coldoc` or in the `basepath`"
         raise NotImplementedError
     #
+    def locked_fresh_copy(self):
+        " returns a copy of the object that is locked for database update "
+        raise NotImplementedError
+    #
+    def transaction_atomic(self):
+        " returns context manager that ensures atomicity of update "
+        raise NotImplementedError
+    #
     def save(self, filename=None):
         "saves data, optionally in a file"
         raise NotImplementedError

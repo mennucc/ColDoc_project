@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 #from datetime import datetime as DT
 from django.utils import timezone as DT
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q as advanced_query
 #from django.core.validators  import RegexValidator
 from django.urls import reverse
@@ -156,6 +156,13 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             logger.warning('Multiple DMetadata for uuid=%r coldoc=%r'%(coldoc_utils.int_to_uuid(uuid),coldoc))
         for j in r:
             return j
+    #
+    def locked_fresh_copy(self):
+        " Returns a copy of the object that is locked for database update. "
+        return DMetadata.objects.select_for_update().get(pk=self.pk)
+    #
+    def transaction_atomic(self):
+        return transaction.atomic()
     #
     def backup_filename(self):
         if COLDOC_SITE_ROOT is None:

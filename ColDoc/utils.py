@@ -445,6 +445,13 @@ def dict_to_json(thedict):
 # note that from python 3.6 on, `dict` preserves order
 from collections import OrderedDict
 
+try:
+    import lockfile
+except ImportError:
+    lockfile = None
+    logger.warning("Please install python lockfile library")
+
+
 class FMetadata(dict, MetadataBase):
     "an implementation of `MetadataBase` that stores data in a file"
     #
@@ -506,6 +513,18 @@ class FMetadata(dict, MetadataBase):
         assert isinstance(basepath, (str, pathlib.Path))
         assert isinstance(uuid,str)
         return cls.load_by_file( osjoin(basepath,uuid_to_dir(uuid),'metadata') )
+    #
+    def locked_fresh_copy(self):
+        " returns a copy of the object that is locked for database update. Warning: locking is not implemented!"
+        return FMetadata.load_by_file( osjoin(self._basepath,uuid_to_dir(self.uuid),'metadata') )
+    #
+    def transaction_atomic(self):
+        " returns context manager that ensures atomicity of update "
+        if lockfile is not None:
+            return lockfile.FileLock( osjoin(self._basepath,uuid_to_dir(self.uuid),'metadata') )
+        else:
+            # FIXME this was not there in older Python < 3.7
+            return contextlib.nullcontext
     #
     def save(self, f =  None):
         """ return key/values as a list of strings;
