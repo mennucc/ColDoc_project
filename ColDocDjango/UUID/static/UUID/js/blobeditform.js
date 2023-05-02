@@ -183,7 +183,7 @@ function _parse_response(response) {
 function ajax_views_post() {
  if ( compilation_in_progress ) { 
    $("#id_view").addClass("bg-warning");
-   $("#id_blobeditform_compile").addClass("bg-warning progress-bar-striped progress-bar-animated");
+   $("#id_blobeditform_compile").removeClass("bg-warning btn-outline-info").addClass("bg-info progress-bar-striped progress-bar-animated");
    blob_polling = 0 ; view_polling = 0 ;
  }
  $.ajax(ajax_views_url, {
@@ -195,10 +195,9 @@ function ajax_views_post() {
 	       },
 	   success: function(response, success_code, jqXHR) {
 		last_textarea_keypress = 0;
-		//
-	         _parse_response(response);
-		 $("#id_view").removeClass("bg-warning");
-		 $("#id_blobeditform_compile").removeClass("bg-warning bg-info progress-bar progress-bar-striped progress-bar-animated");
+		_parse_response(response);
+		$("#id_view").removeClass("bg-warning");
+		$("#id_blobeditform_compile").removeClass("bg-warning bg-info progress-bar progress-bar-striped progress-bar-animated").addClass("btn-outline-info");
 	   },
 	});
  blob_polling = blob_polling_default; setTimeout(poll_blob_changed_md5, blob_polling);
