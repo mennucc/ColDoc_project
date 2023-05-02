@@ -232,6 +232,7 @@ function blob_post(type) {
     $("#id_view").addClass("bg-warning");
     $("#id_blobeditform_compile").removeClass("btn-outline-info btn-warning bg-info").addClass("bg-warning progress-bar-striped progress-bar-animated");
     blob_polling = 0 ; view_polling = 0 ;
+    compilation_in_progress = 1;
    }
 
   update_editform();

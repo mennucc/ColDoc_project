@@ -9,6 +9,7 @@ var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
 // `blob_uncompiled` is now a misnomer: it means that the version saved by the user is different from
 // the version in blob...tex ; it is reset to 0 as soon as the user version is written on disk
 // even though actual LaTeX compilation may be yet working in a forked process.
+// The variable that stores if a compilation is in progress is `compilation_in_progress`.
 var blob_uncompiled={{ uncompiled }};
 {% if VIEW %}
   const get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=VIEW %}";
