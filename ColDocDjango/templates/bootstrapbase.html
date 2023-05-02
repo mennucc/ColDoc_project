@@ -110,7 +110,7 @@
 
 </header>
 
- <div id="id_messages">
+ <div id="id_messages" aria-live="polite" aria-atomic="true"  class="sticky-top" style="position: absolute; top: 20px; right: 20px;">
  {% include 'messages.html' %}
 </div>
  <main class="{{ MAIN_CONTAINER_CLASS | default:"container" }} flex-grow-1" >
