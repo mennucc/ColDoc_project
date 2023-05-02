@@ -198,6 +198,8 @@ function ajax_views_post() {
 		_parse_response(response);
 		$("#id_view").removeClass("bg-warning");
 		$("#id_blobeditform_compile").removeClass("bg-warning bg-info progress-bar progress-bar-striped progress-bar-animated").addClass("btn-outline-info");
+		compilation_in_progress = 0;
+		// FIXME set view polling and md5
 	   },
 	});
  blob_polling = blob_polling_default; setTimeout(poll_blob_changed_md5, blob_polling);
@@ -219,7 +221,7 @@ function blob_post(type) {
   }
   if ( type == "compile_no_reload" ) {
     $("#id_view").addClass("bg-warning");
-    $("#id_blobeditform_compile").addClass("bg-warning progress-bar-striped progress-bar-animated");
+    $("#id_blobeditform_compile").removeClass("btn-outline-info bg-info").addClass("bg-warning progress-bar-striped progress-bar-animated");
     blob_polling = 0 ; view_polling = 0 ;
    }
 
@@ -237,7 +239,7 @@ function blob_post(type) {
 	   error: function(jqXHR, error_code, exception_object)  {
 	         alert("While " + type + " , " + error_code + " : " + exception_object);
 		 if ( type == 'compile_no_reload') {
- 		  $("#id_blobeditform_compile").removeClass("progress-bar progress-bar-striped progress-bar-animated").addClass("bg-warning");
+ 		  $("#id_blobeditform_compile").removeClass("bg-info progress-bar progress-bar-striped progress-bar-animated").addClass("bg-warning");
 		 }
 	       },
 	   success: function(response, success_code, jqXHR) {
@@ -271,9 +273,9 @@ function blob_post(type) {
 		 blobeditform.split_selection.checked = false;
 		 hide_and_show();
 		 setTimeout(ajax_views_post, 100);
-		}
+		 blob_uncompiled = 0;
+		} else set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		_parse_response(response);
-		set_buttons_classes_on_uncompiled(blob_uncompiled_);
 		prevent_unload_remove();
 	   }
 	 });
