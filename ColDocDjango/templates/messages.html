@@ -6,7 +6,8 @@
             <strong class="mr-auto">
                 {{message.tags|capfirst}}
             </strong>
-            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close"
+                    onclick="$(this).closest('.toast').remove()">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
