@@ -82,10 +82,12 @@ $( document ).ready(function() {
     <img src="{% static 'ColDoc/sms_FILL0_wght400_GRAD0_opsz48.svg' %}" style="height: 14pt" alt="show messages">
   </button>
 
-  <button class="btn  float-right" id="button_width_small" onclick="mainClassUpdate('container');"> 
+  <button class="btn btn-outline-light float-right" id="button_width_small" onclick="mainClassUpdate('container');"
+    data-toggle="tooltip" title="{% translate 'Shorter width' %}"> 
     <img src="{% static 'ColDoc/close_fullscreen_FILL0_wght400_GRAD0_opsz48.svg' %}" style="height: 14pt" alt="shorter width">
   </button>
-  <button class="btn  float-right" id="button_width_large" onclick="mainClassUpdate('container-fluid');"> 
+  <button class="btn btn-outline-light float-right" id="button_width_large" onclick="mainClassUpdate('container-fluid');"
+    data-toggle="tooltip" title="{% translate 'Larger width' %}"> 
     <img src="{% static 'ColDoc/open_in_full_FILL0_wght400_GRAD0_opsz48.svg' %}" style="height: 14pt" alt="larger width">
   </button>
 
