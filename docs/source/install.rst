@@ -37,9 +37,9 @@ To install them (but for plastex) you may use
 
 .. code:: shell
 
-	  pip3 install django BeautifulSoup4 pycountry django-guardian django-allauth django-background-tasks django-select2 pylatexenc whitenoise
+	  pip3 install django BeautifulSoup4 pycountry lockfile django-guardian django-allauth django-background-tasks django-select2 pylatexenc whitenoise
 
-(only the first three are strictly needed, the others can be used to activate advanced features, as explained below)
+(only the first four are strictly needed, the others can be used to activate advanced features, as explained below)
 
 Note that (as of 2021-12-21)  `django-background-tasks`  is incompatible with Django4 : install the version at `https://github.com/mennucc/django-background-tasks` .
 
