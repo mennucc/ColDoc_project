@@ -1115,7 +1115,7 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
     #
     exception = None
     t = time.time()
-    if True:
+    if False:
         stdout_d = open(stdout_,'a')
         p = subprocess.Popen(['plastex']+argv_, cwd=cwd_, stdin=open(os.devnull),
                              stdout=stdout_d, stderr=subprocess.STDOUT)
