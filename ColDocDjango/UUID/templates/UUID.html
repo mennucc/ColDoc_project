@@ -77,6 +77,11 @@ $( document ).ready(function() {
  </form>
  {% endif %}
 
+  <button class="btn  btn-outline-light float-right" id="button_show_messages" onclick="$('.toast').toast('show');"
+          data-toggle="tooltip" title="{% translate 'Show messages' %}"> 
+    <img src="{% static 'ColDoc/sms_FILL0_wght400_GRAD0_opsz48.svg' %}" style="height: 14pt" alt="show messages">
+  </button>
+
   <button class="btn  float-right" id="button_width_small" onclick="mainClassUpdate('container');"> 
     <img src="{% static 'ColDoc/close_fullscreen_FILL0_wght400_GRAD0_opsz48.svg' %}" style="height: 14pt" alt="shorter width">
   </button>
