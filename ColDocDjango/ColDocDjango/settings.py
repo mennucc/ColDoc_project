@@ -379,3 +379,8 @@ if AZURE_SUBSCRIPTION_KEY and AZURE_LOCATION:
     def TRANSLATOR(text, fromlang, tolang):
         from ColDocDjango.translators import translator_Azure
         return translator_Azure(text, fromlang, tolang, AZURE_SUBSCRIPTION_KEY, AZURE_LOCATION)
+
+
+## store a comment associated to each change on a blob
+# this feature was never properly implemented
+USE_COMMIT_COMMENTS = False

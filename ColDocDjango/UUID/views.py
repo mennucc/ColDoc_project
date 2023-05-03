@@ -193,7 +193,9 @@ class BlobEditForm(forms.Form):
                                      widget=forms.Textarea(attrs={'class': 'form-text w-100'}),
                                      help_text=_('Edit the blob content'))
     BlobEditComment=forms.CharField(label=_('Comment'),required = False,
-                                    widget=forms.TextInput(attrs={'class': 'form-text w-75'}),
+                                    widget=forms.TextInput(attrs={'class': 'form-text w-75'})
+                                        if settings.USE_COMMIT_COMMENTS
+                                        else forms.HiddenInput(),
                                     help_text=_('Comment for this commit'))
     UUID = forms.CharField(widget=forms.HiddenInput())
     NICK = forms.CharField(widget=forms.HiddenInput())
