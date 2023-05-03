@@ -14,6 +14,8 @@ The icons
 
 - warning_FILL0_wght400_GRAD0_opsz48.svg
 
+- sms_FILL0_wght400_GRAD0_opsz48.svg
+
 come from https://fonts.google.com/icons
 
 and are Copyright by Google, but are freely usable.
