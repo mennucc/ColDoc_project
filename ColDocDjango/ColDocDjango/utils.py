@@ -25,6 +25,7 @@ from django.db import transaction
 
 from ColDocDjango.middleware import redirect_by_exception
 
+from ColDoc.utils import prologue_length
 
 if django.VERSION[0] >= 4 :
     _ = gettext_lazy
@@ -115,24 +116,32 @@ def convert_latex_return_codes(latex_return_codes, NICK, UUID):
         logger.exception("While reading latex_return_codes")
     return latex_error_logs
 
-def latex_error_fix_line_numbers(blobs_dir, uuid, latex_error_logs, b):
-    " compute line number for latex errors; `b` is the blob if `mul` is used, else `None` "
+def latex_error_fix_line_numbers(blobs_dir, uuid, latex_error_logs, load_uuid):
+    " compute line number for latex errors"
     a = []
     try:
         for e_prog, e_language, e_access, e_extension, e_link, useless in latex_error_logs:
             uuid_line_err = ColDoc.utils.parse_latex_log(blobs_dir, uuid, e_language, e_extension)
             # correct for line number
             errors = []
-            if b:
-                for err_uuid, line, err  in uuid_line_err:
+            for err_uuid, line, err  in uuid_line_err:
+                line = int(line)
+                #
+                m = load_uuid(err_uuid)
+                L = m.get_languages()
+                b = None
+                if 'mul' in L:
+                    f = ColDoc.utils.choose_blob(metadata=m, blobs_dir=blobs_dir , lang='mul', ext='.tex')[0]
+                    b = open(f).read().splitlines()
+                if b:
                     try:
                         # in `mul` files, the line number has to be adjusted to skip lines in different languages"
-                        line = ColDoc.utils.line_with_language_lines(b,int(line),e_language)
+                        line = ColDoc.utils.line_with_language_lines(b, line, e_language)
                     except:
                         logger.exception('ColDoc.utils.line_with_language_lines({b},int({line}),e_language)'.format(line=line,b=b))
-                    errors.append( ( err_uuid, line, err) )
-            else:
-                errors = uuid_line_err
+                # ingnore prologue lines
+                line -= prologue_length(L[0], m.environ)
+                errors.append( ( err_uuid, line, err) )
             a.append( (e_prog, e_language, e_access, e_extension, e_link, errors) )
     except:
         logger.exception('while reparsing latex error logs')

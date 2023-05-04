@@ -1374,6 +1374,7 @@ def ajax_views(request, NICK, UUID):
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
     request.user.associate_coldoc_blob_for_has_perm(coldoc, metadata)
     can_view_blob = request.user.has_perm('UUID.view_blob')
     if not can_view_blob:
@@ -1411,8 +1412,7 @@ def ajax_views(request, NICK, UUID):
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
     if latex_error_logs:
-        b = None ## FIXME open(filename).read().splitlines() if ('mul' in metadata.get_languages()) else None
-        latex_error_logs = latex_error_fix_line_numbers(blobs_dir, metadata.uuid, latex_error_logs, b)
+        latex_error_logs = latex_error_fix_line_numbers(blobs_dir, metadata.uuid, latex_error_logs, load_uuid)
         latex_errors_html = render_to_string(template_name="latex_error_logs.html",
                                              context = {"latex_error_logs":latex_error_logs,
                                                         'NICK':coldoc.nickname,
@@ -1981,6 +1981,8 @@ def index(request, NICK, UUID):
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
     #
+    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
+    #
     Blangs = metadata.get_languages()
     CDlangs = coldoc.get_languages()
     #
@@ -2247,8 +2249,7 @@ def index(request, NICK, UUID):
     #
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
-    b = open(filename).read().splitlines() if (latex_error_logs and ('mul' in Blangs)) else None
-    latex_error_logs = latex_error_fix_line_numbers(blobs_dir, uuid, latex_error_logs, b)
+    latex_error_logs = latex_error_fix_line_numbers(blobs_dir, uuid, latex_error_logs, load_uuid)
     #
     can_change_metadata = request.user.has_perm('UUID.change_dmetadata')
     if can_change_metadata:
