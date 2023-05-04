@@ -2229,30 +2229,11 @@ def index(request, NICK, UUID):
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(view_lang,ext)
     #
-    from ColDocDjango.utils import convert_latex_return_codes
+    from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
-    a = []
-    try:
-        b = open(filename).read().splitlines() if (latex_error_logs and ('mul' in Blangs)) else None
-        for e_prog, e_language, e_access, e_extension, e_link, useless in latex_error_logs:
-            uuid_line_err = ColDoc.utils.parse_latex_log(blobs_dir, uuid, e_language, e_extension)
-            # correct for line number
-            errors = []
-            if b:
-                for err_uuid, line, err  in uuid_line_err:
-                    try:
-                        line = ColDoc.utils.line_with_language_lines(b,int(line),e_language)
-                    except:
-                        logger.exception('ColDoc.utils.line_with_language_lines({b},int({line}),e_language)'.format(line=line,b=b))
-                    errors.append( ( err_uuid, line, err) )
-            else:
-                errors = uuid_line_err
-            a.append( (e_prog, e_language, e_access, e_extension, e_link, errors) )
-    except:
-        logger.exception('while reparsing latex error logs')
-    else:
-        latex_error_logs = a
+    b = open(filename).read().splitlines() if (latex_error_logs and ('mul' in Blangs)) else None
+    latex_error_logs = latex_error_fix_line_numbers(blobs_dir, uuid, latex_error_logs, b)
     #
     can_change_metadata = request.user.has_perm('UUID.change_dmetadata')
     if can_change_metadata:

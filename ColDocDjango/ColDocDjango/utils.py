@@ -115,7 +115,30 @@ def convert_latex_return_codes(latex_return_codes, NICK, UUID):
         logger.exception("While reading latex_return_codes")
     return latex_error_logs
 
-
+def latex_error_fix_line_numbers(blobs_dir, uuid, latex_error_logs, b):
+    " compute line number for latex errors; `b` is the blob if `mul` is used, else `None` "
+    a = []
+    try:
+        for e_prog, e_language, e_access, e_extension, e_link, useless in latex_error_logs:
+            uuid_line_err = ColDoc.utils.parse_latex_log(blobs_dir, uuid, e_language, e_extension)
+            # correct for line number
+            errors = []
+            if b:
+                for err_uuid, line, err  in uuid_line_err:
+                    try:
+                        # in `mul` files, the line number has to be adjusted to skip lines in different languages"
+                        line = ColDoc.utils.line_with_language_lines(b,int(line),e_language)
+                    except:
+                        logger.exception('ColDoc.utils.line_with_language_lines({b},int({line}),e_language)'.format(line=line,b=b))
+                    errors.append( ( err_uuid, line, err) )
+            else:
+                errors = uuid_line_err
+            a.append( (e_prog, e_language, e_access, e_extension, e_link, errors) )
+    except:
+        logger.exception('while reparsing latex error logs')
+        return latex_error_logs
+    else:
+        return a
 
 def get_email_for_user(user):
     " get verified primary email"
