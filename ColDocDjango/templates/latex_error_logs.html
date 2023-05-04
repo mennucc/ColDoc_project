@@ -1,5 +1,4 @@
 {% if latex_error_logs %}
-    <div class="border border-info mt-2">
     There were errors while compiling
     <ul>
         {% for e_program, e_lang, e_access, e_extension, e_link, e_errors in latex_error_logs %}
@@ -16,5 +15,4 @@
          {% endif %}
         {% endfor %}
     </ul>
-   </div>
 {% endif %}

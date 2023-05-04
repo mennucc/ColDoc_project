@@ -102,7 +102,9 @@ window.addEventListener("load", (event) => {
  });
 </script>
 
+<div id="id_latex_error_logs" class="border border-info mt-2">
 {% include "latex_error_logs.html" %}
+</div>
 
 {% if failedblobs %}
 <h2>{% translate "Failed blobs in tree" %}</h2>

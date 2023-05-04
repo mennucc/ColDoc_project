@@ -230,9 +230,9 @@ $( document ).ready(function() {
       </form></div>
       {% endif %}
     {% endif %}
-
-    {% include "latex_error_logs.html" %}
-
+      <div id="id_latex_error_logs" class="border border-info mt-2">
+        {% include "latex_error_logs.html" %}
+      </div>
     </div>
   </div>
  {% endif %}
