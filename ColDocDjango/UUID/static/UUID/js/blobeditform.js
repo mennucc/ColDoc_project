@@ -145,6 +145,7 @@ function update_viewarea(b)
        let e = document.getElementById(id);
        //$('#'+id).replaceWith(h);
        if(e) {
+            MathJax.typesetClear([e])
 	    e.innerHTML = h;
 	    //MathJax.Hub.Queue(["Typeset",MathJax.Hub,e]);
 	    MathJax.typesetPromise([e]);
