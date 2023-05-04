@@ -1149,14 +1149,16 @@ def postedit(request, NICK, UUID):
         blobdiff = H.make_table(open(filename).readlines(),
                                 blobcontent.splitlines(keepends=True),
                                 _('Current'),_('Your version'), True)
-        a = '' if ( file_md5 == real_file_md5 ) else str(ch__)
+        if ( file_md5 != real_file_md5 ):
+            messages.add_message(request, messages.WARNING, ch__ )
         for wp in weird_prologue:
-            a += '\n' + str(wp)
+            messages.add_message(request, messages.WARNING, wp )
         for string_,argument_ in normalize_errors:
-            a += '\n' + str(gettext(string_) % argument_)
+            messages.add_message(request, messages.WARNING, _(string_) % argument_ )
+        message = render_to_string(template_name="messages.html", request=request)
         return JsonResponse({'blob_md5': real_file_md5, 'uncompiled' : uncompiled,
                              'blobdiff':json.dumps(blobdiff),
-                             "message":json.dumps(str(a)),
+                             "message":json.dumps(str(message)),
                              'blobeditarea' : json.dumps(blobeditarea),})
     # if we reach here we know that this is empty
     del  normalize_errors
