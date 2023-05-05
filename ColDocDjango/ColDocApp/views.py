@@ -108,19 +108,10 @@ def index(request, NICK, coldocform=None):
     tasks = []
     completed_tasks = []
     if request.user.is_editor:
-        from ColDocDjango.utils import convert_latex_return_codes
+        from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
         latex_error_logs = convert_latex_return_codes(coldoc.latex_return_codes, coldoc.nickname, coldoc.root_uuid)
-        #
-        a = []
-        try:
-            for e_prog, e_language, e_access, e_extension, e_link, useless in latex_error_logs:
-                _dir = blobs_dir if e_access == 'private' else anon_dir
-                uuid_line_err = ColDoc.utils.parse_latex_log(_dir, coldoc.root_uuid, e_language, e_extension, prefix='main')
-                a.append( (e_prog, e_language, e_access, e_extension, e_link, uuid_line_err) )
-        except:
-            logger.exception('while reparsing latex error logs')
-        else:
-            latex_error_logs = a
+        load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
+        latex_error_logs = latex_error_fix_line_numbers(blobs_dir, anon_dir, coldoc.root_uuid, latex_error_logs, load_uuid, prefix='main')
         #
         failed_blobs = map( lambda x : (x, django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':x})),
                             DMetadata.objects.filter(coldoc=coldoc).exclude(latex_return_codes__exact='').values_list('uuid', flat=True))
