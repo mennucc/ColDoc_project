@@ -293,6 +293,7 @@ def __extract_prologue(blobcontent, uuid, env, optarg):
             except:
                 logger.exception('Could not remove uuid line from blob %r', uuid)
                 prologue = '%'
+    # if the above code is changed, then prologue_length() must be changed as well
     return shortprologue, prologue, blobeditdata, warnings
 
 def _build_blobeditform_data(metadata,

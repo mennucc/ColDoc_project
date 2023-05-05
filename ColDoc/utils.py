@@ -60,6 +60,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'parent_cmd_env_child',
             'html2text',
             'iso3lang2word', 'iso3lang_to_iso2', 'normalize_iso3',
+            'prologue_length',
             'replace_language_in_inputs','strip_language_lines', 'gen_lang_coldoc', 'gen_lang_metadata',
             'multimerge', 'multimerge_lookahead',
             'text_linechar2pos', 'text_pos2linechar',
@@ -1976,8 +1977,24 @@ def line_with_language_lines(text, line, thelang , header = ColDoc_language_head
     return newline
 
 
+def prologue_length(lang, env):
+    " how many lines of prologue (hidden in the editable web are) are in blob of `lang` and `env` "
+    # two lines of warning "do not edit"
+    l = 2 if lang == 'mul' else 0
+    #
+    if env in ColDoc_environments_sectioning:
+        l += 1
+    elif  env not in ColDoc_do_not_write_uuid_in:
+        l += 1
+    return l
+
+
+
 def gen_lang_metadata(metadata, blobs_dir, coldoc_languages):
     " call 'recreate_symlinks' ; for `mul` blobs : create all language versions "
+    #
+    # if this code is changed, then prologue_length must be changed as well
+    #
     # just in case
     recreate_symlinks(metadata, blobs_dir)
     #
