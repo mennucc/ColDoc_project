@@ -18,6 +18,12 @@ try:
 except:
     LatexNodes2Text = None
 
+try:
+    import magic
+except:
+    magic = None
+
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -1876,6 +1882,10 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
                 _content_type = 'text/plain'
             else:
                 _content_type , _content_encoding = mimetypes.guess_type(n)
+        if _content_type is None and magic:
+            _content_type = magic.from_file(n, mime=True)
+        if _content_type is None  :
+            _content_type = 'application/octet-stream'
         #
         if prefix=='blob' and not ( request.user.has_perm('UUID.view_blob') or is_image_blob(metadata, _content_type) ):
             logger.info('ip=%r user=%r coldoc=%r uuid=%r _view_ext=%r _content_type=%r subpath=%r pref_=%r : permission denied',
