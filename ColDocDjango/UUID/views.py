@@ -1366,7 +1366,7 @@ def __prepare_views(metadata, blobs_dir):
     return views
 
 
-@csrf_exempt
+##@csrf_exempt
 def ajax_views(request, NICK, UUID):
     if request.method != 'POST' :
         raise SuspiciousOperation('!!!')

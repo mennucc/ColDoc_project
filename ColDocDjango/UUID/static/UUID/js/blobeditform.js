@@ -199,7 +199,7 @@ function ajax_views_post() {
  $.ajax(ajax_views_url, {
 	   type: "POST",
 	   url: ajax_views_url,
-	   data: {},
+	   data: { csrfmiddlewaretoken:  csrf_token },
 	   error: ajax_error_handler,
 	   success: function(response, success_code, jqXHR) {
 		let ne = document.getElementById("id_network_error");
