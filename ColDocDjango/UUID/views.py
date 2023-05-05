@@ -78,6 +78,7 @@ from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
 from ColDocApp import text_catalog
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
+from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
 
 def iso3lang2word(*v , **k):
     return gettext_lazy(iso3lang2word_untranslated(*v, **k))
@@ -1407,7 +1408,6 @@ def ajax_views(request, NICK, UUID):
         messages.add_message(request, a, b)
     message = render_to_string(template_name="messages.html", request=request)
     #
-    from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
     if latex_error_logs:
@@ -2245,7 +2245,6 @@ def index(request, NICK, UUID):
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
         '?lang=%s&ext=%s'%(view_lang,ext)
     #
-    from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
     b = open(filename).read().splitlines() if (latex_error_logs and ('mul' in Blangs)) else None
