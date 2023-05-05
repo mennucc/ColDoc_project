@@ -116,12 +116,13 @@ def convert_latex_return_codes(latex_return_codes, NICK, UUID):
         logger.exception("While reading latex_return_codes")
     return latex_error_logs
 
-def latex_error_fix_line_numbers(blobs_dir, uuid, latex_error_logs, load_uuid):
+def latex_error_fix_line_numbers(blobs_dir, anon_dir, uuid, latex_error_logs, load_uuid, prefix='view'):
     " compute line number for latex errors"
     a = []
     try:
         for e_prog, e_language, e_access, e_extension, e_link, useless in latex_error_logs:
-            uuid_line_err = ColDoc.utils.parse_latex_log(blobs_dir, uuid, e_language, e_extension)
+            __dir = anon_dir if e_access == 'public' else blobs_dir
+            uuid_line_err = ColDoc.utils.parse_latex_log(__dir, uuid, e_language, e_extension, prefix=prefix)
             # correct for line number
             errors = []
             for err_uuid, line, err  in uuid_line_err:
