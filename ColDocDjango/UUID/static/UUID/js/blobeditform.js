@@ -175,6 +175,12 @@ function _parse_response(response) {
 		 $('.toast').toast("show");
 	       }
 	}
+	if ( 'latex_errors_html' in response ) {
+		let msg = JSON.parse(response['latex_errors_html']);
+		let div_errors = document.getElementById("id_latex_error_logs");
+		div_errors.innerHTML = msg;
+		// console.log('error=',msg);
+	} // else console.log('no error');
 }
 
 function ajax_error_handler(jqXHR, error_code, exception_object)  {

@@ -1406,7 +1406,23 @@ def ajax_views(request, NICK, UUID):
     for a,b in all_messages:
         messages.add_message(request, a, b)
     message = render_to_string(template_name="messages.html", request=request)
+    #
+    from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
+    a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
+    latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
+    if latex_error_logs:
+        b = None ## FIXME open(filename).read().splitlines() if ('mul' in metadata.get_languages()) else None
+        latex_error_logs = latex_error_fix_line_numbers(blobs_dir, metadata.uuid, latex_error_logs, b)
+        latex_errors_html = render_to_string(template_name="latex_error_logs.html",
+                                             context = {"latex_error_logs":latex_error_logs,
+                                                        'NICK':coldoc.nickname,
+                                                        },
+                                             request=request )
+    else:
+        latex_errors_html = ''
+    #
     return JsonResponse( {"message"  : json.dumps(str(message)),
+                          "latex_errors_html" : json.dumps(str(latex_errors_html)),
                           "alert"  : json.dumps(str(alert)),
                           "viewarea" : json.dumps(views),  })
 
