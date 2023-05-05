@@ -1410,6 +1410,8 @@ def ajax_views(request, NICK, UUID):
         messages.add_message(request, a, b)
     message = render_to_string(template_name="messages.html", request=request)
     #
+    metadata.refresh_from_db()
+    coldoc.refresh_from_db()
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
     if latex_error_logs:
