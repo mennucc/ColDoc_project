@@ -1,4 +1,4 @@
-### these are some settings that are suggested 
+### these are some settings that are suggested
 
 MAIL_HOST = "smtp.server"
 EMAIL_PORT = "587"
