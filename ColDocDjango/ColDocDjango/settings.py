@@ -237,13 +237,27 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ColDocDjango.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+# Database. See https://docs.djangoproject.com/en/dev/ref/settings/#databases
+# By default, sqlite. This is easy to deploy, but creates problems with concurrency...
+#  for this reason, a timeout has been set below.
+# If you expect a lot of traffic, you should switch to another database
+#   the best moment is right when you deploy your instance.
+# (You can ovverride `DATABASES` in the "settings" file in the instance).
+# If you see too many "operational errors" then you may try to increase the timeout and/or
+# enable WAL mode : https://sqlite.org/wal.html#persistence_of_wal_mode
+# See also https://docs.djangoproject.com/en/dev/ref/databases/#database-is-locked-errors
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': config.get('django','sqlite_database'),
+        "OPTIONS": {
+            # this is passed to
+            ## from sqlite3 import dbapi2 as Database
+            ## Database.connect
+            # so it should be in seconds, according to
+            # https://docs.python.org/3/library/sqlite3.html#sqlite3.connect
+            "timeout": 5,
+        }
     }
 }
 

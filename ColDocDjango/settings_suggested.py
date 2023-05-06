@@ -7,6 +7,16 @@ EMAIL_HOST_PASSWORD = "password"
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = "helpdesk@that_email"
 
+
+##########
+# Database. See https://docs.djangoproject.com/en/dev/ref/settings/#databases
+# The default is sqlite. This is easy to deploy, but creates problems with concurrency...
+# If you expect a lot of traffic, you should switch to another database when you deploy.
+# You can ovverride `DATABASES` here
+## DATABASES = {...
+
+##########
+
 ## you may want to reduce the list of available languages
 
 from django.utils.translation import gettext_lazy
