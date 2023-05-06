@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 ** It is advisable not to edit this file to customize a deployed site **
 
 If you want to customize this file for your specific coldoc site
-instance, add your desired settings changes to 
+instance, add your desired settings changes to
 'settings.py' file inside the COLDOC_SITE_ROOT directory.
 That file will be executed after this file.
 """
@@ -51,7 +51,7 @@ elif not os.path.isfile(os.path.join(COLDOC_SRC_ROOT,'ColDocDjango','manage.py')
     logger.error('COLDOC_SRC_ROOT does not contain `ColDocDjango/manage.py`: %r ', COLDOC_SRC_ROOT)
 else:
     a = os.path.join(COLDOC_SRC_ROOT,'ColDocDjango')
-    if a not in sys.path:    
+    if a not in sys.path:
         sys.path.insert(0, a)
 
 if COLDOC_SRC_ROOT != os.path.dirname(BASE_DIR):
@@ -142,14 +142,14 @@ if USE_ALLAUTH:
      'allauth',
      'allauth.account',
      'allauth.socialaccount', ]
-## to add providers for your deployed site, add a snippet like this to the 
+## to add providers for your deployed site, add a snippet like this to the
 ## settings.py file in COLDOC_SITE_ROOT
 # INSTALLED_APPS += [
 #     'allauth.socialaccount.providers.google']
 
 if USE_BACKGROUND_TASKS:
     INSTALLED_APPS += ['background_task',]
-    
+
 if USE_RECAPTCHA or USE_SIMPLE_CAPTCHA:
     INSTALLED_APPS += ['captcha', ]
 
@@ -237,13 +237,27 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ColDocDjango.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
+# Database. See https://docs.djangoproject.com/en/dev/ref/settings/#databases
+# By default, sqlite. This is easy to deploy, but creates problems with concurrency...
+#  for this reason, a timeout has been set below.
+# If you expect a lot of traffic, you should switch to another database
+#   the best moment is right when you deploy your instance.
+# (You can ovverride `DATABASES` in the "settings" file in the instance).
+# If you see too many "operational errors" then you may try to increase the timeout and/or
+# enable WAL mode : https://sqlite.org/wal.html#persistence_of_wal_mode
+# See also https://docs.djangoproject.com/en/dev/ref/databases/#database-is-locked-errors
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': config.get('django','sqlite_database'),
+        "OPTIONS": {
+            # this is passed to
+            ## from sqlite3 import dbapi2 as Database
+            ## Database.connect
+            # so it should be in seconds, according to
+            # https://docs.python.org/3/library/sqlite3.html#sqlite3.connect
+            "timeout": 5,
+        }
     }
 }
 
@@ -309,7 +323,7 @@ STATICFILES_DIRS = [
     config.get('django','dedup_root'),
 ]
 
-# since PlasTeX produces many static files that are repeated in each blob HTML version, they are copied here 
+# since PlasTeX produces many static files that are repeated in each blob HTML version, they are copied here
 DEDUP_ROOT = config.get('django','dedup_root')
 # and served here
 DEDUP_URL = config.get('django','dedup_url')
