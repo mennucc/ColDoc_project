@@ -1005,9 +1005,14 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_
     if metadata.environ in environments_we_wont_latex:
         logger.log(log_level, 'Cannot `latex` environ %r , UUID = %r'%(metadata.environ, uuid,))
     else:
-        r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
-        r = all(r.values())
-        ret = ret and r
+        try:
+            r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
+            r = all(r.values())
+            ret = ret and r
+        except:
+            # when using sqlite for database, sometimes the database is locked and latex_uuid fails
+            logger.exception(" while compiling %r ",uuid)
+            ret = False
     for u in metadata.get('child_uuid'):
         logger.debug('moving down from node %r to node %r',uuid,u)
         r = latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options)
