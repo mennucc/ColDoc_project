@@ -23,6 +23,8 @@ import mimetypes
 for j in ('.gplt','.gnuplot'):
     mimetypes.add_type('application/x-gnuplot',j)
 
+mimetypes.add_type('application/x-xfig','.fig')
+
 ## Google analytics
 
 GOOGLE_SITE_VERIFICATION = 'googleXXXXXXXXXXXXXXXX.html'
