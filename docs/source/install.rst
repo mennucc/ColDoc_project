@@ -37,7 +37,7 @@ To install them (but for plastex) you may use
 
 .. code:: shell
 
-	  pip3 install django BeautifulSoup4 pycountry lockfile django-guardian django-allauth django-background-tasks django-select2 pylatexenc whitenoise
+	  pip3 install django BeautifulSoup4 pycountry lockfile django-guardian django-allauth django-background-tasks django-select2 pylatexenc whitenoise django-simple-captcha
 
 (only the first four are strictly needed, the others can be used to activate advanced features, as explained below)
 
