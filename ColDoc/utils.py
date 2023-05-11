@@ -117,7 +117,8 @@ class fork_class(object):
         self.other_pid_ = None
         self.already_run = False
         self.already_wait = False
-        self.__ret = None
+        self.__ret = (2 , RuntimeError('Program bug') )
+        self.__signal = None
         self.__use_fork = use_fork and self.can_fork()
         self.__pickle_exception = None
         # __del__ methods may be run after modules are gc
@@ -148,6 +149,8 @@ class fork_class(object):
         if self.__use_fork:
             _tempfile = tempfile.NamedTemporaryFile(prefix='forkret',delete=False)
             self.tempfile_name = _tempfile.name
+            with open(_tempfile.name,'wb') as f:
+                pickle.dump((2,None), f)
             self.other_pid_ = os.fork()
             if self.other_pid_ == 0:
                 try:
@@ -157,7 +160,12 @@ class fork_class(object):
                     ret = (1, e)
                 with open(self.tempfile_name,'wb') as f:
                     pickle.dump(ret, f)
+                # avoid deleting the file
+                self.tempfile_name = None
+                # (altough __del__ is not called)
                 os._exit(0)
+                # or maybe
+                # sys.exit(0)
             else:
                 logger.debug('forked %r as pid %r', cmd, self.other_pid_)
         else:
@@ -169,6 +177,7 @@ class fork_class(object):
     def wait(self):
         assert self.already_run is True
         if self.__use_fork and not self.already_wait:
+            a = [('Sub Process %r pid %r .' % (self.__cmd, self.other_pid_))]
             logger.debug('wait %r', self.other_pid_)
             try:
                 pid_, exitstatus_ = os.waitpid(self.other_pid_, 0)
@@ -177,26 +186,31 @@ class fork_class(object):
                 s = waitstatus_to_exitcode(exitstatus_)
             except ChildProcessError:
                 logger.warning('Child %r has disappeared, unknown exit status', self.other_pid_ )
+                a.append('Child has disappeared, unknown exit status. ')
                 s = 0
-            self.already_wait = True 
-            a = [('Sub Process %r pid %r .' % (self.__cmd, self.other_pid_))]
+            self.already_wait = True
             if s < 0:
                 import signal
-                sig = signal.Signals(-s)
+                self.__signal = sig = signal.Signals(-s)
                 a.append('Got signal %r. ' % (sig,))
-            try:
-                with open(self.tempfile_name,'rb') as f:
-                    self.__ret = pickle.load(f)
-            except Exception as E:
-                self.__pickle_exception = E
-                m = 'Cannot read exit status %r : %s ' % (self.tempfile_name, E,)
-                a.append(m)
-                logger.warning(m)
-                self.__ret = (1 , RuntimeWarning(' '.join(a)) )
+                self.__ret = (2,  RuntimeError(' '.join(a)))
+            else:
+                try:
+                    with open(self.tempfile_name,'rb') as f:
+                        self.__ret = pickle.load(f)
+                except Exception as E:
+                    self.__pickle_exception = E
+                    m = 'Cannot read exit status %r : %s ' % (self.tempfile_name, E,)
+                    a.append(m)
+                    logger.warning(m)
+                    self.__ret = (2 , RuntimeWarning(' '.join(a)) )
+                if self.__ret[0] == 2:
+                    a.append('Child did not terminate correctly (but no signal was detected), unknown exit status. ')
+                    self.__ret = (2 , RuntimeError(' '.join(a)) )
             #
             if len(a)>1:
                 logger.error(' '.join(a))
-        if self.__ret[0] == 1:
+        if self.__ret[0] :
             raise self.__ret[1]
         return self.__ret[1]
     def __del__(self):
@@ -2115,23 +2129,36 @@ if __name__ == '__main__':
         sys.stdout.write('\n'.join(output)+'\n')
         sys.exit(0)
     elif len(sys.argv) > 1 and sys.argv[1] == 'fork':
+        print("==== test : return 3.14")
         f = fork_class()
         f.run(str,3.14)
         r = f.wait()
         print('Returned %r ' % (r,))
         #
-        f = fork_class()
         if f.use_fork:
+            print("==== test : subprocess raises exception")
+            f = fork_class()
+            f.run(eval,'0/0')
+            try:
+                r = f.wait()
+            except  ZeroDivisionError:
+                print('caught')
+            else:
+                print('WRONG: Returned  %r' % (r,))
+            print("==== test : kill subprocess")
+            f = fork_class()
             f.run(time.sleep,1)
             import signal
             os.kill(f.subprocess_pid, signal.SIGTERM)
             r = None
             try:
                 r = f.wait()
-            except RuntimeWarning as R:
+            except RuntimeError as R:
                 print('As expected, raised: %r ' % (R,))
             else:
                 print('WRONG: Returned  %r' % (r,))
+
+        print('=== all tests successful')
     else:
         print(""" Commands:
 %s test_uuid
