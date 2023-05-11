@@ -1407,8 +1407,10 @@ def ajax_views(request, NICK, UUID):
                 __relatex_new_msg(res2, all_messages)
         except RuntimeWarning as e:
             logger.warning(str(e))
-        except:
+            all_messages.append( (messages.WARNING, py_html_escape(str(e))  ) )
+        except Exception as e:
             logger.exception('while managing jobs')
+            all_messages.append( (messages.ERROR, py_html_escape(str(e))  ) )
     #
     views = __prepare_views(metadata, blobs_dir)
     alert='\n'.join( [ html2text(str(v[1])) for v in all_messages if v[0] >= messages.WARNING ] )
