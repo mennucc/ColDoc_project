@@ -114,7 +114,7 @@ class fork_class(object):
     "class that runs a job in a forked subprocess, and returns results or raises exception"
     def __init__(self, use_fork = True):
         self.tempfile_name = None
-        self.other_pid_ = None
+        self.__other_pid = None
         self.already_run = False
         self.already_wait = False
         self.__ret = (2 , RuntimeError('Program bug') )
@@ -138,7 +138,7 @@ class fork_class(object):
         self.__use_fork = v and self.can_fork()
     @property
     def subprocess_pid(self):
-        return  self.other_pid_
+        return  self.__other_pid
     #
     def run(self, cmd, *k, **v):
         assert self.already_run is False
@@ -151,8 +151,8 @@ class fork_class(object):
             self.tempfile_name = _tempfile.name
             with open(_tempfile.name,'wb') as f:
                 pickle.dump((2,None), f)
-            self.other_pid_ = os.fork()
-            if self.other_pid_ == 0:
+            self.__other_pid = os.fork()
+            if self.__other_pid == 0:
                 try:
                     ret = cmd(*k, **v)
                     ret = (0,ret)
@@ -168,7 +168,7 @@ class fork_class(object):
                 # or maybe
                 # sys.exit(0)
             else:
-                logger.debug('forked %r as pid %r', cmd, self.other_pid_)
+                logger.debug('forked %r as pid %r', cmd, self.__other_pid)
         else:
             try:
                 self.__ret = (0, cmd(*k, **v))
@@ -178,15 +178,15 @@ class fork_class(object):
     def wait(self):
         assert self.already_run is True
         if self.__use_fork and not self.already_wait:
-            a = [('Sub Process %r pid %r .' % (self.__cmd, self.other_pid_))]
-            logger.debug('wait %r', self.other_pid_)
+            a = [('Sub Process %r pid %r .' % (self.__cmd, self.__other_pid))]
+            logger.debug('wait %r', self.__other_pid)
             try:
-                pid_, exitstatus_ = os.waitpid(self.other_pid_, 0)
-                if pid_ != self.other_pid_:
+                pid_, exitstatus_ = os.waitpid(self.__other_pid, 0)
+                if pid_ != self.__other_pid:
                     logger.error('internal error lnkanla19')
                 s = waitstatus_to_exitcode(exitstatus_)
             except ChildProcessError:
-                logger.warning('Child %r has disappeared, unknown exit status', self.other_pid_ )
+                logger.warning('Child %r has disappeared, unknown exit status', self.__other_pid )
                 a.append('Child has disappeared, unknown exit status. ')
                 s = 0
             self.already_wait = True
