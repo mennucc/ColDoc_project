@@ -1734,7 +1734,8 @@ def replace_with_hash_symlink(base_dir, src_dir , dedup_dir , obj):
         assert dedup_dir_abs.startswith(base_dir)
         dedup_dir = os.path.relpath(dedup_dir_abs, base_dir)
     #
-    if not os.path.isdir(dedup_dir): os.makedirs(dedup_dir)
+    a = osjoin(base_dir, dedup_dir)
+    if not os.path.isdir(a):  os.makedirs(a)
     # symlink common files
     S = osjoin(src_dir_abs, obj)
     if os.path.islink(S):
