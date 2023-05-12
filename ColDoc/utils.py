@@ -209,15 +209,19 @@ class fork_class(object):
                     a.append('Child did not terminate correctly (but no signal was detected), unknown exit status. ')
                     self.__ret = (2 , RuntimeError(' '.join(a)) )
             #
+            self.__del()
+            #
             if len(a)>1:
                 logger.error(' '.join(a))
         if self.__ret[0] :
             raise self.__ret[1]
         return self.__ret[1]
-    def __del__(self):
+    ## this is not __del__  
+    def __del(self):
         if self.tempfile_name is not None:
             try:
                 self.os_unlink(self.tempfile_name)
+                self.tempfile_name = None
             except FileNotFoundError:
                 pass
 
