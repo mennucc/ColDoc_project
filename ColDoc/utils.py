@@ -157,6 +157,7 @@ class fork_class(object):
                     ret = cmd(*k, **v)
                     ret = (0,ret)
                 except Exception as e:
+                    logger.exception('Inside Sub Process %r pid %r .', self.__cmd, os.getpid())
                     ret = (1, e)
                 with open(self.tempfile_name,'wb') as f:
                     pickle.dump(ret, f)
