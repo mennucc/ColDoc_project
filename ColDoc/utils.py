@@ -114,6 +114,7 @@ class fork_class(object):
     "class that runs a job in a forked subprocess, and returns results or raises exception"
     def __init__(self, use_fork = True):
         self.tempfile_name = None
+        self.__my_pid    = os.getpid()
         self.__other_pid = None
         self.already_run = False
         self.already_wait = False
@@ -153,22 +154,26 @@ class fork_class(object):
                 pickle.dump((2,None), f)
             self.__other_pid = os.fork()
             if self.__other_pid == 0:
+                self.__other_pid = os.getpid()
+                logger.debug('class_fork.run , inside forked  newpid %r now starting %r , file %r .',
+                             self.__other_pid, self.__cmd, self.tempfile_name)
                 try:
                     ret = cmd(*k, **v)
                     ret = (0,ret)
                 except Exception as e:
-                    logger.exception('Inside Sub Process %r pid %r .', self.__cmd, os.getpid())
+                    logger.exception('class_fork.run , insider forked pid %r, cmd %r :', os.getpid(), self.__cmd)
                     ret = (1, e)
                 with open(self.tempfile_name,'wb') as f:
                     pickle.dump(ret, f)
                 # avoid deleting the file
-                self.tempfile_name = None
+                # self.tempfile_name = None
                 # (altough __del__ is not called)
                 os._exit(0)
                 # or maybe
                 # sys.exit(0)
             else:
-                logger.debug('forked %r as pid %r', cmd, self.__other_pid)
+                logger.debug('class_fork.run , forked oldpid %r to newpid %r to start %r file %r .',
+                               self.__my_pid, self.__other_pid, self.__cmd, self.tempfile_name)
         else:
             try:
                 self.__ret = (0, cmd(*k, **v))
@@ -178,33 +183,36 @@ class fork_class(object):
     def wait(self):
         assert self.already_run is True
         if self.__use_fork and not self.already_wait:
-            a = [('Sub Process %r pid %r .' % (self.__cmd, self.__other_pid))]
-            logger.debug('wait %r', self.__other_pid)
+            a = [('fork_class, cmd %r pid %r.' % (self.__cmd, self.__other_pid))]
+            logger.debug('fork_class.wait,  my_pid %r waits for__other_pid %r, cmd %r , file %r .',
+                         self.__my_pid, self.__other_pid, self.__cmd, self.tempfile_name)
             try:
                 pid_, exitstatus_ = os.waitpid(self.__other_pid, 0)
                 if pid_ != self.__other_pid:
                     logger.error('internal error lnkanla19')
                 s = waitstatus_to_exitcode(exitstatus_)
             except ChildProcessError:
-                logger.warning('Child %r has disappeared, unknown exit status', self.__other_pid )
-                a.append('Child has disappeared, unknown exit status. ')
+                logger.warning('Child %r has disappeared, unknown exit status', self.__other_pid)
+                a.append('Child has disappeared, unknown exit status.')
                 s = 0
             self.already_wait = True
             if s < 0:
                 import signal
                 self.__signal = sig = signal.Signals(-s)
-                a.append('Got signal %r. ' % (sig,))
+                a.append('Got signal %r.' % (sig,))
                 self.__ret = (2,  RuntimeError(' '.join(a)))
             else:
                 try:
                     with open(self.tempfile_name,'rb') as f:
                         self.__ret = pickle.load(f)
+                    self.os_unlink(self.tempfile_name)
                 except Exception as E:
                     self.__pickle_exception = E
-                    m = 'Cannot read exit status %r : %s ' % (self.tempfile_name, E,)
+                    m = 'In pid %r cannot read exit status %r for pid %r: %s ' % \
+                        (self.__my_pid, self.tempfile_name, self.__other_pid, E,)
                     a.append(m)
                     logger.warning(m)
-                    self.__ret = (2 , RuntimeWarning(' '.join(a)) )
+                    self.__ret = (2 , None) # overwritten below
                 if self.__ret[0] == 2:
                     a.append('Child did not terminate correctly (but no signal was detected), unknown exit status. ')
                     self.__ret = (2 , RuntimeError(' '.join(a)) )
@@ -218,6 +226,8 @@ class fork_class(object):
         return self.__ret[1]
     ## this is not __del__  
     def __del(self):
+        logger.debug('fork_class.__del cmd %r __my_pid %r getpid %r , rm file %r .',
+                       self.__cmd, self.__my_pid, os.getpid(), self.tempfile_name)
         if self.tempfile_name is not None:
             try:
                 self.os_unlink(self.tempfile_name)
@@ -2135,6 +2145,8 @@ if __name__ == '__main__':
         sys.stdout.write('\n'.join(output)+'\n')
         sys.exit(0)
     elif len(sys.argv) > 1 and sys.argv[1] == 'fork':
+        logger.setLevel(logging.DEBUG)
+        ret = 0
         print("==== test : return 3.14")
         f = fork_class()
         f.run(str,3.14)
@@ -2151,6 +2163,7 @@ if __name__ == '__main__':
                 print('caught')
             else:
                 print('WRONG: Returned  %r' % (r,))
+                ret = 1
             print("==== test : kill subprocess")
             f = fork_class()
             f.run(time.sleep,1)
@@ -2163,8 +2176,12 @@ if __name__ == '__main__':
                 print('As expected, raised: %r ' % (R,))
             else:
                 print('WRONG: Returned  %r' % (r,))
-
-        print('=== all tests successful')
+                ret = 1
+        if ret:
+            print('=== some tests failed')
+        else:
+            print('=== all tests successful')
+        sys.exit(ret)
     else:
         print(""" Commands:
 %s test_uuid
