@@ -60,8 +60,10 @@ function mainClassUpdate(classname)
    if (classname == undefined || classname == '' ) { return ; }
    let main = document.getElementsByTagName("main");
    main = main[0];
-   main.classList.remove(previous_main_class);
-   main.classList.add(classname);
+   if ( ! main.classList.contains(classname) ) {
+    main.classList.remove(previous_main_class);
+    main.classList.add(classname);
+   }
    previous_main_class=classname;
    if (classname == 'container') {
      $('#button_width_small').addClass('disabled').removeClass('btn-outline-primary').hide();
