@@ -2383,6 +2383,9 @@ def index(request, NICK, UUID):
     compilation_in_progress = int( ('compilation_in_progress_' + metadata.uuid) in request.session)
     ajax_views_url = django.urls.reverse('UUID:ajax_views', kwargs={'NICK':NICK,'UUID':UUID})
     #
+    MAIN_CONTAINER_CLASS = 'container-fluid' if \
+        request.COOKIES.get('main_width') == 'large' else 'container'
+    #
     return render(request, 'UUID.html', locals() )
 
 
