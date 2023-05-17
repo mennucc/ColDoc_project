@@ -55,7 +55,7 @@ function mainClassUpdate(classname)
       if ( c=='large') { classname = 'container-fluid' ; }
       if ( c=='small') { classname = 'container' ; }
       if ( c==undefined) { classname = 'container' ; }
-     } else { classname == python_main_class ; }
+     } else { classname = python_main_class ; }
    }
    if (classname == undefined || classname == '' ) { return ; }
    let main = document.getElementsByTagName("main");
