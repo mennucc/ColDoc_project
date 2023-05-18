@@ -167,13 +167,11 @@ function _parse_response(response) {
 	}
 	if ( 'message' in response ) {
 		let msg = JSON.parse(response['message']);
-		let div_messages = document.getElementById("id_messages");
 		if ( msg ) {
-		 const testDiv = document.createElement('div');
-		 testDiv.innerHTML = msg;
-		 div_messages.append(testDiv);
+		 let div_messages = document.getElementById("id_messages");
+		 div_messages.innerHTML += msg;
 		 $('.toast').toast("show");
-	       }
+		}
 	}
 	if ( 'latex_errors_html' in response ) {
 		let msg = JSON.parse(response['latex_errors_html']);
