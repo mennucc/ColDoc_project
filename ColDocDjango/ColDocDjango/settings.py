@@ -256,7 +256,7 @@ DATABASES = {
             ## Database.connect
             # so it should be in seconds, according to
             # https://docs.python.org/3/library/sqlite3.html#sqlite3.connect
-            "timeout": 5,
+            "timeout": 10.0,
         }
     }
 }
