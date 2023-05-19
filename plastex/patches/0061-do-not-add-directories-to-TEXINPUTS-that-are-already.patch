@@ -1,9 +1,8 @@
-From 3366f454b7c282ff24396e482f3af3e851fc2a2e Mon Sep 17 00:00:00 2001
-From: Andrea C G Mennucci <andrea.mennucci@gmail.com>
-Date: Wed, 10 Feb 2021 08:43:48 +0100
-Subject: [PATCH 61/61] do not add directories to TEXINPUTS that are already
- there also , do not add useless : at the end each time otherwise it may grow
- too large and then subprocess will crash see 
+From ab56778fb2e21d1ed5e9fda8ee3a4f6124732e2e Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Fri, 19 May 2023 09:00:17 +0200
+Subject: [PATCH] do not add directories to TEXINPUTS that are already there;
+ otherwise it may grow too large and then subprocess will crash; see
  https://stackoverflow.com/a/33924766/5058564
 
 ---
@@ -11,20 +10,20 @@ Subject: [PATCH 61/61] do not add directories to TEXINPUTS that are already
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/plasTeX/TeX.py b/plasTeX/TeX.py
-index bd09b50..f69fffe 100644
+index c085587..8cafd77 100644
 --- a/plasTeX/TeX.py
 +++ b/plasTeX/TeX.py
-@@ -1349,7 +1349,9 @@ class TeX(object):
+@@ -1342,7 +1342,9 @@ class TeX(object):
              pass
          else:
-             TEXINPUTS = os.environ.get("TEXINPUTS",'')
--            os.environ["TEXINPUTS"] = "%s%s%s%s" % (srcDir, os.path.pathsep, TEXINPUTS, os.path.pathsep)
-+            t = TEXINPUTS.split(os.path.pathsep)
-+            if srcDir not in t:
-+                os.environ["TEXINPUTS"] = "%s%s%s" % (srcDir, os.path.pathsep, TEXINPUTS)
+             if TEXINPUTS:
+-                os.environ["TEXINPUTS"] = "%s%s%s%s" % (srcDir, os.path.pathsep, TEXINPUTS, os.path.pathsep)
++                t = TEXINPUTS.split(os.path.pathsep)
++                if srcDir not in t:
++                    os.environ["TEXINPUTS"] = "%s%s%s%s" % (srcDir, os.path.pathsep, TEXINPUTS, os.path.pathsep)
+             else:
+                 os.environ["TEXINPUTS"] = "%s%s" % (srcDir, os.path.pathsep)
  
-         try:
-             program = self.ownerDocument.config['general']['kpsewhich']
 -- 
-2.17.1
+2.34.1
 
