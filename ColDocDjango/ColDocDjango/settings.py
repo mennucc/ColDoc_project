@@ -398,3 +398,6 @@ if AZURE_SUBSCRIPTION_KEY and AZURE_LOCATION:
 ## store a comment associated to each change on a blob
 # this feature was never properly implemented
 USE_COMMIT_COMMENTS = False
+#mySql has problems in reusing a connection when forking
+CLOSE_CONNECTION_ON_FORK = any( (a in DATABASES['default']['ENGINE']) for a in ('mysql', 'maria') )
+

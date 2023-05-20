@@ -1573,6 +1573,9 @@ def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata, fork=False):
         return latex.latex_uuid(blobs_dir, metadata=metadata, options=options)
     else:
         fork = fork_class()
+        if settings.CLOSE_CONNECTION_ON_FORK:
+            from django import db
+            db.close_old_connections()
         fork.run(latex.latex_uuid, blobs_dir, metadata=metadata, options=options, forked=fork.use_fork)
         return fork
 
