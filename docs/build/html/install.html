@@ -1,18 +1,19 @@
-
 <!DOCTYPE html>
 
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Installing &#8212; ColDoc 0.1 documentation</title>
+    <title>Installing &#8212; ColDoc 0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Testing" href="test.html" />
@@ -34,57 +35,97 @@
           <div class="body" role="main">
             
   <section id="installing">
-<h1>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h1>
+<h1>Installing<a class="headerlink" href="#installing" title="Permalink to this heading">¶</a></h1>
 <p>The following instructions are for people running Debian/Ubuntu, and the <cite>bash</cite> shell.
 Other operating system may need some adjustments.</p>
 <p>Download the latest code from GitHub</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /home/.../.../somewhere
-git clone https://github.com/mennucc/ColDoc_project
-<span class="nb">cd</span> ColDoc_project
-<span class="nb">export</span> <span class="nv">COLDOC_SRC_ROOT</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>/home/.../.../somewhere
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mennucc/ColDoc_project
+<span class="nb">cd</span><span class="w"> </span>ColDoc_project
+<span class="nb">export</span><span class="w"> </span><span class="nv">COLDOC_SRC_ROOT</span><span class="o">=</span><span class="sb">`</span><span class="nb">pwd</span><span class="sb">`</span>
 </pre></div>
 </div>
 <p>the last command sets the environmental variable <cite>COLDOC_SRC_ROOT</cite> to the directory where the
 code was downloaded. This is fundamental in the following.
 In this section, we will assume that the <cite>CWD</cite> (current working directory) is <cite>COLDOC_SRC_ROOT</cite>.</p>
 <section id="venv">
-<h2>venv<a class="headerlink" href="#venv" title="Permalink to this headline">¶</a></h2>
+<h2>venv<a class="headerlink" href="#venv" title="Permalink to this heading">¶</a></h2>
 <p>Note that ColDoc needs <cite>Python3</cite> ; you may want to set up a virtualenv, so that Python3 is the default Python.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 -m venv venv
-<span class="nb">source</span> venv/bin/activate
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>venv
+<span class="nb">source</span><span class="w"> </span>venv/bin/activate
 </pre></div>
 </div>
 </section>
 <section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading">¶</a></h2>
 <p>ColDoc has some prerequisites: <cite>Django</cite> (version 2, 3 or 4),
 <cite>plasTex</cite> (a patched version, see below), and others, as explained later.</p>
-<p>To install them (but for plastex) you may use</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3 install django BeautifulSoup4 pycountry django-guardian django-allauth django-background-tasks django-select2 pylatexenc whitenoise
+<p>Some packages are required for the code to work properly; others are recommended, to activate advanced features.</p>
+<p>Long story short. To install most of them, you may use</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>django<span class="w"> </span>BeautifulSoup4<span class="w"> </span>pycountry<span class="w"> </span>lockfile<span class="w"> </span>django-guardian<span class="w"> </span>django-allauth<span class="w"> </span>django-select2<span class="w"> </span>pylatexenc<span class="w"> </span>whitenoise<span class="w"> </span>django-simple-captcha
 </pre></div>
 </div>
-<p>(only the first three are strictly needed, the others can be used to activate advanced features, as explained below)</p>
-<p>Note that (as of 2021-12-21)  <cite>django-background-tasks</cite>  is incompatible with Django4 : install the version at <cite>https://github.com/mennucc/django-background-tasks</cite> .</p>
+<p>or</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<p>that will install versions that are known to work fine.</p>
+<p>Then, you  install <cite>plastex</cite>, <cite>wallet</cite>, <cite>CodeMirror</cite>, and <cite>django-background-tasks</cite> manually.</p>
 </section>
 <section id="installing-plastex">
-<h2>Installing plasTex<a class="headerlink" href="#installing-plastex" title="Permalink to this headline">¶</a></h2>
+<h2>Installing plasTex<a class="headerlink" href="#installing-plastex" title="Permalink to this heading">¶</a></h2>
 <p>Installing <cite>plastex</cite> is somewhat complex, since ColDoc needs a patched version.</p>
 <p>The script <cite>plastex/prepare.sh</cite> can download and patch plastex for you: the patched
 version is then available in  <cite>plastex/plastex</cite>.
-So you can install it, using <cite>python3 setup.py install</cite> inside the directory <cite>plastex/plastex</cite>.</p>
+So you can install it, using <cite>pip3 install .</cite> inside the directory <cite>plastex/plastex</cite>.</p>
 </section>
-<section id="installing-wallet">
-<h2>Installing wallet<a class="headerlink" href="#installing-wallet" title="Permalink to this headline">¶</a></h2>
-<p>The portal has an internal currency that can be used to buy permissions and downloads.
-To enable it, download the latest code from GitHub</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> /home/.../.../somewhereelse
-git clone https://github.com/mennucc/django-simplewallet
-ln -s -T <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>/django-simplewallet/src/wallet <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/wallet
+<section id="git-submodules">
+<h2>Git submodules<a class="headerlink" href="#git-submodules" title="Permalink to this heading">¶</a></h2>
+<p>Now you should activate and update submodules.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>submodule<span class="w"> </span>init
+git<span class="w"> </span>submodule<span class="w"> </span>update
 </pre></div>
 </div>
 </section>
+<section id="installing-django-background-tasks">
+<h2>Installing django-background-tasks<a class="headerlink" href="#installing-django-background-tasks" title="Permalink to this heading">¶</a></h2>
+<p>Compiling the whole LaTeX file can be long, and hence the HTTP connection
+scheduling those compilation will hang for long time, and eventually timeout.
+This makes for a lousy user experience.</p>
+<p>When <cite>django-background-tasks</cite> is installed and activated in the <cite>config</cite> file,
+those compilations will run in background.</p>
+<p>(Results of compilations will be email to the editors:
+do not forget to properly configure the email parameters.)</p>
+<p>Note that (as of 2021-12-21)  <cite>django-background-tasks</cite>  is incompatible with Django4 :
+you have to manually install the version at <cite>https://github.com/mennucc/django-background-tasks</cite> .
+This is made available as a git submodule, so it is enough to</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/sub/django-background-tasks
+pip<span class="w"> </span>install<span class="w"> </span>.
+</pre></div>
+</div>
+</section>
+<section id="installing-codemirror">
+<h2>Installing CodeMirror<a class="headerlink" href="#installing-codemirror" title="Permalink to this heading">¶</a></h2>
+<p>Editing of LaTeX files with the standard web forms is tedious; for this reason,
+your portal can integrate the online editor <cite>CodeMirror</cite>.</p>
+<p>The script <cite>bin/install_CodeMirror.sh</cite> can install all the needed files, and link them into the portal.</p>
+</section>
+<section id="wallet">
+<h2>wallet<a class="headerlink" href="#wallet" title="Permalink to this heading">¶</a></h2>
+<p>The portal has an internal currency that can be used to buy permissions and downloads.
+This is implemented in the library <cite>django-simplewallet</cite>, that is made
+available as a git submodule <cite>sub/django-simplewallet</cite>, and is already linked into the main code.</p>
+<p>Note that, to use it, you must also install <cite>django-guardian</cite>.</p>
+</section>
+<section id="unicode2latex">
+<h2>unicode2latex<a class="headerlink" href="#unicode2latex" title="Permalink to this heading">¶</a></h2>
+<p>The LaTeX editor has a <cite>normalize</cite> button that can convert accents and
+other symbols for easier reading, for example <cite>\'e</cite> will become <cite>è</cite>.
+This is implemented in the library <cite>unicode2latex</cite>, that is made
+available as a git submodule <cite>sub/unicode2latex</cite>, and is already linked into the main code.</p>
+</section>
 <section id="fix-pdflatex">
-<h2>Fix PdfLaTeX<a class="headerlink" href="#fix-pdflatex" title="Permalink to this headline">¶</a></h2>
+<h2>Fix PdfLaTeX<a class="headerlink" href="#fix-pdflatex" title="Permalink to this heading">¶</a></h2>
 <p>Some TeX/LaTeX versions, by default, mangle the tags in the output PDF; then
 the cross-referencing machinery in ColDoc will not work.</p>
 <p>To solve this problem, you should
@@ -94,9 +135,9 @@ edit the file <cite>/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg</cite> a
 <p>Note that this file is not marked as a <cite>configuration file</cite> in Debian/Ubuntu,
 so it would be overwritten if the package <cite>texlive-base</cite> is upgraded; to avoid this
 problem, you may want to run (as <cite>root</cite> user)</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>dpkg-divert --add --rename /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
-cp -a /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg.distrib  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
-patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/patches/texmf.patch
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>dpkg-divert<span class="w"> </span>--add<span class="w"> </span>--rename<span class="w"> </span>/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
+cp<span class="w"> </span>-a<span class="w"> </span>/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg.distrib<span class="w">  </span>/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg
+patch<span class="w">  </span>/usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/patches/texmf.patch
 </pre></div>
 </div>
 <p>Alternatively, you may add</p>
@@ -107,6 +148,29 @@ patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg <span class="si">${</
 </pre></div>
 </div>
 <p>to the preamble of all LaTeX documents.</p>
+</section>
+<section id="prerequisites-in-detail">
+<h2>Prerequisites, in detail<a class="headerlink" href="#prerequisites-in-detail" title="Permalink to this heading">¶</a></h2>
+<p>Eventually, here is the long story.</p>
+<p>Some packages are required: <cite>django</cite>, <cite>plastex</cite>, <cite>BeautifulSoup4</cite>. The code will not work without them.</p>
+<p>The package <cite>lockfile</cite> is used to protect data on disk against racing conditions, <cite>eg</cite>
+two users modifying the same file on disk at the same time. You want to install it.</p>
+<p>Some are recommended, for better user experience: <cite>pycountry</cite>,  <cite>django-select2</cite>, <cite>pylatexenc</cite>.</p>
+<p><cite>whitenoise</cite> provides advanced caching features when serving static files.
+Instructions on how to activate them is in
+<a class="reference internal" href="deploy.html"><span class="doc">deploy section</span></a>.</p>
+<p>There is an internal provision for an user to send an email to another user:
+<cite>django-simple-captcha</cite> protects against abuse of this feature.</p>
+<p><cite>django-guardian</cite> provides fine access control, and
+is needed for an user to buy access to restricted parts of a document.</p>
+<p><cite>django-allauth</cite> is a fantastic package that will enable your users to login
+using external providers (Google, Facebook, etc). It is a bit complex
+to setup, but wholly worth it.</p>
+<p>By default, a <cite>coldoc</cite> portal will use <cite>sqlite</cite> as database; to use other databases,
+you may need to install an adapter, <cite>eg</cite> for <cite>MySQL</cite> you may install <cite>mysqlclient</cite>.
+(There are easy instructions on how to use <cite>MySQL</cite>, please read on in
+<a class="reference internal" href="deploy.html"><span class="doc">deploy section</span></a>.
+.)</p>
 </section>
 </section>
 
@@ -133,8 +197,13 @@ patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg <span class="si">${</
 <li class="toctree-l2"><a class="reference internal" href="#venv">venv</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-plastex">Installing plasTex</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#installing-wallet">Installing wallet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#git-submodules">Git submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-django-background-tasks">Installing django-background-tasks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-codemirror">Installing CodeMirror</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wallet">wallet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unicode2latex">unicode2latex</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fix-pdflatex">Fix PdfLaTeX</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites-in-detail">Prerequisites, in detail</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="test.html">Testing</a></li>
@@ -147,6 +216,7 @@ patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg <span class="si">${</
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
@@ -168,7 +238,7 @@ patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg <span class="si">${</
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -182,11 +252,11 @@ patch  /usr/share/texlive/texmf-dist/dvipdfmx/dvipdfmx.cfg <span class="si">${</
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Andrea C. G. Mennucci.
+      &copy;2023, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/install.rst.txt"

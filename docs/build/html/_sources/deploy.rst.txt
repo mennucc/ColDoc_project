@@ -76,7 +76,7 @@ This command will create the structure for the new ColDoc portal
 
 .. code:: shell
 
-	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy --coldoc-site-root=${COLDOC_SITE_ROOT}
 
 
 In particular it will deploy the *config file* for the new document as
@@ -85,6 +85,29 @@ This contains some fundamental settings for the site,
 and it can also be used to activate/deactivate special features for the portal,
 such as: social authentication, background tasks, comments, *etc*.
 Edit it at taste.
+
+
+Using MySQL
+-----------
+
+By default, the above command will create a portal that uses `sqlite` as backend database.
+If instead you use
+
+.. code:: shell
+
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy  --coldoc-site-root=${COLDOC_SITE_ROOT} --database=mysql
+
+then the portal will be prepared for using `mysql` as database.
+In this case, you should create the database, the user and set permissions,
+before proceeding. You may use this command:
+
+.. code:: shell
+
+          # sudo mysql < ${COLDOC_SITE_ROOT}/mysql.sql
+
+If you deploy using `sqlite` and then change your mind later, there
+are instructions in the section
+:doc:`issues section<issues>`.
 
 
 Local variables
@@ -104,10 +127,12 @@ settings for a deployed site are read from three files:
 
 Each one overrides the previous.
 
+The last file is prepopulated with some useful examples (all commented out).
+
 To better test the code,
 you may want to create a file `${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py`
 to setup some variables to enable email sending, as in this example.
-Or you may want to enable them in `${COLDOC_SITE_ROOT}/settings.py` for your specific site.
+
 
 .. code:: shell
 
@@ -127,8 +152,10 @@ or to enhance the code, *e.g.* adding some mimetypes used in your `coldoc` s
 	  for j in ('.gplt','.gnuplot'):
 	      mimetypes.add_type('application/x-gnuplot',j)
 
+Or you may want to enable them in `${COLDOC_SITE_ROOT}/settings.py` for your specific site.
 
 See in `${COLDOC_SRC_ROOT}/ColDocDjango/settings_suggested.py` for more examples.
+
 
 
 Social auth
@@ -191,9 +218,10 @@ Then initialize `django` for your deployed site
 .. code:: shell
 
 	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py set_site [name] [url]
 	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
 
-
+where you substitute `[name]` and `[url]` for appropriate values for your portal.
 
 Add test material
 -----------------

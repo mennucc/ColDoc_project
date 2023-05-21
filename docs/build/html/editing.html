@@ -1,18 +1,19 @@
-
 <!DOCTYPE html>
 
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Editing &#8212; ColDoc 0.1 documentation</title>
+    <title>Editing &#8212; ColDoc 0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Multiple languages" href="multilingual.html" />
@@ -34,35 +35,35 @@
           <div class="body" role="main">
             
   <section id="editing">
-<h1>Editing<a class="headerlink" href="#editing" title="Permalink to this headline">¶</a></h1>
+<h1>Editing<a class="headerlink" href="#editing" title="Permalink to this heading">¶</a></h1>
 <p>There are many tools to operate on the coldoc; most have a <cite>command line</cite> and a <cite>web</cite> interface as well.</p>
 <p>Command line tools have many options (not documented here), see respective <cite>--help</cite>.</p>
 <p>One useful operation is to add new nodes to the tree of blobs.
 From command line,</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py  add_blob
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py<span class="w">  </span>add_blob
 </pre></div>
 </div>
 <p>If you edit the blobs directly in the filesystem, and not using the web interface,
 then the django database will be desyncronized regarding metadata: run</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py   --coldoc-nick NICK reparse_all
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py<span class="w">   </span>--coldoc-nick<span class="w"> </span>NICK<span class="w"> </span>reparse_all
 </pre></div>
 </div>
 <p>Moreover from time to time you will need to recreate the PDF and HTML representations.</p>
 <p>Use</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py   --coldoc-nick NICK main_private
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py<span class="w">   </span>--coldoc-nick<span class="w"> </span>NICK<span class="w"> </span>main_private
 </pre></div>
 </div>
 <p>to recreate the complete HTML PDF (visible only to editors);
 use</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py   --coldoc-nick NICK main_public
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py<span class="w">   </span>--coldoc-nick<span class="w"> </span>NICK<span class="w"> </span>main_public
 </pre></div>
 </div>
 <p>to recreate the public HTML PDF (visible only to everybody); use</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py   --coldoc-nick NICK tree
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py<span class="w">   </span>--coldoc-nick<span class="w"> </span>NICK<span class="w"> </span>tree
 </pre></div>
 </div>
 <p>to recreate the HTML PDF for each blob (this is useful if you edited many blobs in the filesystem); use</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py   --coldoc-nick NICK all
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py<span class="w">   </span>--coldoc-nick<span class="w"> </span>NICK<span class="w"> </span>all
 </pre></div>
 </div>
 <p>to run all of the above.</p>
@@ -102,6 +103,7 @@ automatically, you have to either use the command above or the button in the web
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
@@ -123,7 +125,7 @@ automatically, you have to either use the command above or the button in the web
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -137,11 +139,11 @@ automatically, you have to either use the command above or the button in the web
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Andrea C. G. Mennucci.
+      &copy;2023, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/editing.rst.txt"

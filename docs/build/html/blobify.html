@@ -1,18 +1,19 @@
-
 <!DOCTYPE html>
 
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Blobify &#8212; ColDoc 0.1 documentation</title>
+    <title>Blobify &#8212; ColDoc 0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Editing" href="editing.html" />
@@ -34,7 +35,7 @@
           <div class="body" role="main">
             
   <section id="blobify">
-<h1>Blobify<a class="headerlink" href="#blobify" title="Permalink to this headline">¶</a></h1>
+<h1>Blobify<a class="headerlink" href="#blobify" title="Permalink to this heading">¶</a></h1>
 <p>This section explains how to import a LaTeX document
 into a ColDoc portal.</p>
 <p>Since the portal will use <cite>plastex</cite> to convert
@@ -66,7 +67,7 @@ want to see in the directory <cite>test/paper</cite> for a complete working exam
 with older LaTeX (older than 2019); it will be used for internal
 checkpointing.</p>
 <section id="plastex-tweaks">
-<h2>Plastex tweaks<a class="headerlink" href="#plastex-tweaks" title="Permalink to this headline">¶</a></h2>
+<h2>Plastex tweaks<a class="headerlink" href="#plastex-tweaks" title="Permalink to this heading">¶</a></h2>
 <p>Then wrap all code that
 is not compatible with plastex (code that sets fonts etc etc)
 as follows</p>
@@ -101,7 +102,7 @@ work well with <cite>plastex</cite>, as in this example</p>
 <p><a class="reference external" href="http://plastex.sourceforge.net/plastex/sect0008.html">See plastex docs for details</a></p>
 </section>
 <section id="standalone-tweaks">
-<h2>Standalone tweaks<a class="headerlink" href="#standalone-tweaks" title="Permalink to this headline">¶</a></h2>
+<h2>Standalone tweaks<a class="headerlink" href="#standalone-tweaks" title="Permalink to this heading">¶</a></h2>
 <p>You should also wrap all the code in the preamble that modifies
 page geometry so that it is ignored in standalone mode,
 as in this example:</p>
@@ -115,7 +116,7 @@ as in this example:</p>
 <p><a class="reference external" href="https://ctan.org/pkg/standalone">See standalone docs for details</a></p>
 </section>
 <section id="multiple-latex-format">
-<h2>Multiple LaTeX format<a class="headerlink" href="#multiple-latex-format" title="Permalink to this headline">¶</a></h2>
+<h2>Multiple LaTeX format<a class="headerlink" href="#multiple-latex-format" title="Permalink to this heading">¶</a></h2>
 <p>It is possible to prepare a LaTeX document
 that can be compiled using different engines:
 <cite>pdflatex</cite>, <cite>xelatex</cite> or <cite>lualatex</cite></p>
@@ -143,7 +144,7 @@ commands to setup fonts for <cite>xelatex</cite> or <cite>lualatex</cite>;
 and similarly in <cite>preamble_pdflatex.tex</cite> for <cite>pdflatex</cite>.</p>
 </section>
 <section id="downloading-and-compiling-single-uuids">
-<h2>Downloading, and compiling single UUIDs<a class="headerlink" href="#downloading-and-compiling-single-uuids" title="Permalink to this headline">¶</a></h2>
+<h2>Downloading, and compiling single UUIDs<a class="headerlink" href="#downloading-and-compiling-single-uuids" title="Permalink to this heading">¶</a></h2>
 <p>You should also move all your favorite customizations
 in a file <cite>preamble_definitions.tex</cite></p>
 <ul class="simple">
@@ -167,10 +168,10 @@ a copy of all the needed macros and definitions,</p></li>
 <p>to be able to compile that blob.</p>
 </section>
 <section id="check-it-all">
-<h2>Check it all<a class="headerlink" href="#check-it-all" title="Permalink to this headline">¶</a></h2>
+<h2>Check it all<a class="headerlink" href="#check-it-all" title="Permalink to this heading">¶</a></h2>
 <p>Check that the document compiles fine to HTML
 by invoking PlasTeX on your document using</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>plastex -d output_html document.tex
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>plastex<span class="w"> </span>-d<span class="w"> </span>output_html<span class="w"> </span>document.tex
 </pre></div>
 </div>
 <p>(it is recommended that you use the <cite>plastex</cite>
@@ -179,14 +180,14 @@ version that was installed
 <p>And check that it still compiles fine with
 standard <cite>pdflatex</cite></p>
 <p>Then try to import in a test portal. Setup the test portal as follows</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/tmp/test_site
-<span class="nb">cd</span>  <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>
-make -C <span class="nb">test</span> clean
-make -C <span class="nb">test</span> django_deploy
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/tmp/test_site
+<span class="nb">cd</span><span class="w">  </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>
+make<span class="w"> </span>-C<span class="w"> </span><span class="nb">test</span><span class="w"> </span>clean
+make<span class="w"> </span>-C<span class="w"> </span><span class="nb">test</span><span class="w"> </span>django_deploy
 </pre></div>
 </div>
 <p>Then try to import your document in the portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ColDocDjango/blob_inator.py --coldoc-site-root <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span> --coldoc-nick<span class="o">=</span>testdoc --ZS --SAT  --split-sections --editor<span class="o">=</span>ed_itor --author<span class="o">=</span>jsmith --lang<span class="o">=</span>eng yourdir/yourdocument.tex
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ColDocDjango/blob_inator.py<span class="w"> </span>--coldoc-site-root<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span><span class="w"> </span>--coldoc-nick<span class="o">=</span>testdoc<span class="w"> </span>--ZS<span class="w"> </span>--SAT<span class="w">  </span>--split-sections<span class="w"> </span>--editor<span class="o">=</span>ed_itor<span class="w"> </span>--author<span class="o">=</span>jsmith<span class="w"> </span>--lang<span class="o">=</span>eng<span class="w"> </span>yourdir/yourdocument.tex
 </pre></div>
 </div>
 <p>note that:</p>
@@ -201,11 +202,11 @@ as  <cite>--split-graphic mypicturecommand</cite>.
 the same syntax of <cite>includegraphics</cite>).</p></li>
 </ul>
 <p>Then check if the document can be compiled</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ColDocDjango/latex.py --coldoc-site-root <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span> --coldoc-nick<span class="o">=</span>testdoc --url-UUID<span class="o">=</span><span class="s2">&quot;http://localhost:8000/UUID/testdoc/&quot;</span> all
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>ColDocDjango/latex.py<span class="w"> </span>--coldoc-site-root<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span><span class="w"> </span>--coldoc-nick<span class="o">=</span>testdoc<span class="w"> </span>--url-UUID<span class="o">=</span><span class="s2">&quot;http://localhost:8000/UUID/testdoc/&quot;</span><span class="w"> </span>all
 </pre></div>
 </div>
 <p>and eventually run the test portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make -C <span class="nb">test</span> django_run <span class="p">&amp;</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>-C<span class="w"> </span><span class="nb">test</span><span class="w"> </span>django_run<span class="w"> </span><span class="p">&amp;</span>
 </pre></div>
 </div>
 <p>and access the web portal at <cite>http://localhost:8000</cite>.</p>
@@ -223,15 +224,15 @@ if only small changes are needed,
 you can also change the document <em>inside the portal</em>
 by editing the files inside <cite>${COLDOC_SITE_ROOT}/coldocs/testdoc/blobs/</cite>.
 Note that the data structure can be compiled from the command line, using</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>/coldocs/testdoc/blobs/
-pdflatex main_eng.tex
-plastex -d main_html main_eng.tex
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>/coldocs/testdoc/blobs/
+pdflatex<span class="w"> </span>main_eng.tex
+plastex<span class="w"> </span>-d<span class="w"> </span>main_html<span class="w"> </span>main_eng.tex
 </pre></div>
 </div>
 <p>where <em>eng</em> may be replaced by the desired language.</p>
 </section>
 <section id="multilingual-documents">
-<h2>Multilingual documents<a class="headerlink" href="#multilingual-documents" title="Permalink to this headline">¶</a></h2>
+<h2>Multilingual documents<a class="headerlink" href="#multilingual-documents" title="Permalink to this heading">¶</a></h2>
 <p>In this regard, to be able to compute a
 multilingual document from the command line,
 you may also add in the preamble the snippet of code</p>
@@ -284,6 +285,7 @@ the directory of your main LaTeX file, and adapt it to your needs.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
@@ -305,7 +307,7 @@ the directory of your main LaTeX file, and adapt it to your needs.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -319,11 +321,11 @@ the directory of your main LaTeX file, and adapt it to your needs.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Andrea C. G. Mennucci.
+      &copy;2023, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/blobify.rst.txt"

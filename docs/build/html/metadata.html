@@ -1,18 +1,19 @@
-
 <!DOCTYPE html>
 
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Metadata &#8212; ColDoc 0.1 documentation</title>
+    <title>Metadata &#8212; ColDoc 0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="UUID Permissions" href="permission.html" />
@@ -34,12 +35,12 @@
           <div class="body" role="main">
             
   <section id="metadata">
-<h1>Metadata<a class="headerlink" href="#metadata" title="Permalink to this headline">¶</a></h1>
+<h1>Metadata<a class="headerlink" href="#metadata" title="Permalink to this heading">¶</a></h1>
 <p>Here we explain all metadata that may be associated to blobs, and their meaning.</p>
 <p>As explained in the previous section, the metadata is associated to the UUID
 (and not to the specific blob, as specified by language and file type)</p>
 <section id="environment">
-<h2>Environment<a class="headerlink" href="#environment" title="Permalink to this headline">¶</a></h2>
+<h2>Environment<a class="headerlink" href="#environment" title="Permalink to this heading">¶</a></h2>
 <p>Before proceeding, though, we clarify what we mean by <cite>environment</cite>.</p>
 <p><cite>LaTeX</cite> uses environments to delimit text elements, as in this example</p>
 <div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>Theorem<span class="nb">}</span>
@@ -78,7 +79,7 @@ as specified by the <cite>\bibliography</cite> command</p></li>
 </ul>
 </section>
 <section id="metadata-key-list">
-<h2>Metadata key list<a class="headerlink" href="#metadata-key-list" title="Permalink to this headline">¶</a></h2>
+<h2>Metadata key list<a class="headerlink" href="#metadata-key-list" title="Permalink to this heading">¶</a></h2>
 <p>This is the list of all keys in the metadata storage, and the meaning of their values.
 Note that a key may be repeated multiple times.</p>
 <p>These keys are <cite>static</cite> : they are instantiated when
@@ -140,7 +141,7 @@ database is called <cite>ExtraMetadata</cite>.)</p>
 <ul>
 <li><p><cite>M_</cite> followed by a <cite>name</cite> that was provided as <cite>--metadata-command name</cite> . E.g. if
 <cite>blob_inator</cite> was invoked with the command</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>blob_inator --metadata-command label --split-environment Theorem
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>blob_inator<span class="w"> </span>--metadata-command<span class="w"> </span>label<span class="w"> </span>--split-environment<span class="w"> </span>Theorem
 </pre></div>
 </div>
 <p>to parse this input</p>
@@ -154,7 +155,7 @@ database is called <cite>ExtraMetadata</cite>.)</p>
 <li><p><cite>S_</cite> followed by an environment and then followed by <cite>_M_name</cite> ; this is used by metadata
 extracted from environments that are deeper in the tree than the current blob,
 but that are not splitted in a child blob. As in this example:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>blob_inator --metadata-command label --split-environment Theorem
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>blob_inator<span class="w"> </span>--metadata-command<span class="w"> </span>label<span class="w"> </span>--split-environment<span class="w"> </span>Theorem
 </pre></div>
 </div>
 <p>to parse this input</p>
@@ -172,7 +173,7 @@ but that are not splitted in a child blob. As in this example:</p>
 </ul>
 </section>
 <section id="metadata-in-source-code">
-<h2>Metadata in source code<a class="headerlink" href="#metadata-in-source-code" title="Permalink to this headline">¶</a></h2>
+<h2>Metadata in source code<a class="headerlink" href="#metadata-in-source-code" title="Permalink to this heading">¶</a></h2>
 <p>Metadata is represented and operated on by a Python Class.</p>
 <p>The class interface is described as the base class <cite>MetadataBase</cite> in <cite>ColDoc.classes</cite></p>
 <p>This interface is implemented in the <cite>FMetadata</cite> class, that stores
@@ -227,6 +228,7 @@ single value (or <cite>None</cite>).</p>
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
@@ -248,7 +250,7 @@ single value (or <cite>None</cite>).</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -262,11 +264,11 @@ single value (or <cite>None</cite>).</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Andrea C. G. Mennucci.
+      &copy;2023, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/metadata.rst.txt"

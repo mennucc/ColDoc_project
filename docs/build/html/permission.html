@@ -1,18 +1,19 @@
-
 <!DOCTYPE html>
 
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>UUID Permissions &#8212; ColDoc 0.1 documentation</title>
+    <title>UUID Permissions &#8212; ColDoc 0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Blobify" href="blobify.html" />
@@ -34,7 +35,7 @@
           <div class="body" role="main">
             
   <section id="uuid-permissions">
-<h1>UUID Permissions<a class="headerlink" href="#uuid-permissions" title="Permalink to this headline">¶</a></h1>
+<h1>UUID Permissions<a class="headerlink" href="#uuid-permissions" title="Permalink to this heading">¶</a></h1>
 <p>(See in ColDocDjango/users.py for more details).</p>
 <p>There is a list of permissions for each UUID. Currently it is:
 'view_view', 'view_log', 'view_blob', 'change_blob', 'download', 'commit', 'view_dmetadata', 'change_dmetadata'</p>
@@ -43,7 +44,7 @@ so they are the same for all languages and/or content types.
 (Internally, they are associated to the <cite>DMetadata</cite> class).</p>
 <p>Inside Django, the complete name of such permissions is of the form <cite>UUID.name</cite>.</p>
 <section id="permissions-for-a-specific-coldoc">
-<h2>Permissions for a specific coldoc<a class="headerlink" href="#permissions-for-a-specific-coldoc" title="Permalink to this headline">¶</a></h2>
+<h2>Permissions for a specific coldoc<a class="headerlink" href="#permissions-for-a-specific-coldoc" title="Permalink to this heading">¶</a></h2>
 <p>For each permission above of the form <cite>aaaa_bbbb</cite> and any <cite>coldoc</cite> with nickname <cite>cccc</cite> there is also a permission
 <cite>aaaa_bbbb_on_blob_inside_cccc</cite>, that is specific for that coldoc.</p>
 <ul class="simple">
@@ -54,7 +55,7 @@ so they are the same for all languages and/or content types.
 </ul>
 </section>
 <section id="special-users">
-<h2>Special users<a class="headerlink" href="#special-users" title="Permalink to this headline">¶</a></h2>
+<h2>Special users<a class="headerlink" href="#special-users" title="Permalink to this heading">¶</a></h2>
 <p>An author of a blob has all the above permissions for that blob.</p>
 <p>An anonymous user (an user that accesses the portal and is not
 authenticated) has very limited permissions: s/he has the <cite>view_view</cite>
@@ -62,7 +63,7 @@ permission only if the coldoc has the <cite>anonymous_can_view</cite> flag set t
 True, and the blob the UUID <cite>access</cite> state is <cite>open</cite> or <cite>public</cite>.</p>
 </section>
 <section id="meaning-of-permissions-and-rules">
-<h2>Meaning of permissions, and rules<a class="headerlink" href="#meaning-of-permissions-and-rules" title="Permalink to this headline">¶</a></h2>
+<h2>Meaning of permissions, and rules<a class="headerlink" href="#meaning-of-permissions-and-rules" title="Permalink to this heading">¶</a></h2>
 <p>This is the Permissions meaning and rule for each <cite>UUID</cite>.</p>
 <p>(Recall that each UUID has an <cite>access</cite> metadata that can be
 <cite>open</cite> , <cite>public</cite> or <cite>private</cite>.)</p>
@@ -100,7 +101,7 @@ If the UUID <cite>access</cite> state is</p>
 </ul>
 </section>
 <section id="local-permissions">
-<h2>Local permissions<a class="headerlink" href="#local-permissions" title="Permalink to this headline">¶</a></h2>
+<h2>Local permissions<a class="headerlink" href="#local-permissions" title="Permalink to this heading">¶</a></h2>
 <p>The <cite>ColDoc</cite> portal uses the <cite>django-guardian</cite> library, so that
 a specific permission can be given to an user for only one object.</p>
 <p>Note that if the user has a certain permission for the whole coldoc,
@@ -109,7 +110,7 @@ This only holds for permissions listed above (those associated to the <cite>DMet
 that start with <cite>UUID.</cite>).</p>
 </section>
 <section id="buying-local-permissions">
-<h2>Buying local permissions<a class="headerlink" href="#buying-local-permissions" title="Permalink to this headline">¶</a></h2>
+<h2>Buying local permissions<a class="headerlink" href="#buying-local-permissions" title="Permalink to this heading">¶</a></h2>
 <p>There is a provision so that an user can buy certain permissions
 using <cite>eulercoins</cite>. For this, the library <cite>django-wallet</cite> must be installed
 (a special version, available on demand); then a function <cite>PRICE_FOR_PERMISSION</cite>
@@ -119,7 +120,7 @@ function will decide if the user can buy that permission for that object, and th
 <p>Note that an user must have <cite>operate</cite> permissions on <cite>wallet</cite> objects to buy something.</p>
 </section>
 <section id="access-to-protected-content-in-the-whole-document">
-<h2>Access to protected content in the whole document<a class="headerlink" href="#access-to-protected-content-in-the-whole-document" title="Permalink to this headline">¶</a></h2>
+<h2>Access to protected content in the whole document<a class="headerlink" href="#access-to-protected-content-in-the-whole-document" title="Permalink to this heading">¶</a></h2>
 <p>As aforementioned, the LaTeX data is stored on disk inside a <cite>blobs</cite>
 directory tree.</p>
 <p>Two versions of the whole document are generated, one from the <cite>blobs</cite> tree,
@@ -130,7 +131,7 @@ generated as a copy of the <cite>blobs</cite> tree where all material with <cite
 will be masked out. This is the <cite>public</cite> version of the whole document.</p>
 </section>
 <section id="latex-macros">
-<h2>LaTeX macros<a class="headerlink" href="#latex-macros" title="Permalink to this headline">¶</a></h2>
+<h2>LaTeX macros<a class="headerlink" href="#latex-macros" title="Permalink to this heading">¶</a></h2>
 <p>In the coldoc metadata there are three keys: <cite>latex_macros_private</cite>,  <cite>latex_macros_public</cite>
 and  <cite>latex_macros_uuid</cite>.
 These contain LaTeX macros.</p>
@@ -164,7 +165,7 @@ the web interface will make sure that only authorized users can access the conte
 and in the document.</p>
 </section>
 <section id="accessing-the-whole-document">
-<h2>Accessing the whole document<a class="headerlink" href="#accessing-the-whole-document" title="Permalink to this headline">¶</a></h2>
+<h2>Accessing the whole document<a class="headerlink" href="#accessing-the-whole-document" title="Permalink to this heading">¶</a></h2>
 <p>The whole document can be accessed using buttons
 <cite>View whole document</cite> and  <cite>View whole document, as PDF</cite>
 in the main page of the coldoc.</p>
@@ -184,13 +185,13 @@ for each and any user.</p>
 </section>
 </section>
 <section id="coldoc-permissions">
-<h1>ColDoc Permissions<a class="headerlink" href="#coldoc-permissions" title="Permalink to this headline">¶</a></h1>
+<h1>ColDoc Permissions<a class="headerlink" href="#coldoc-permissions" title="Permalink to this heading">¶</a></h1>
 <p>(See in ColDocDjango/users.py for more details).</p>
 <p>There is a list of permissions for each ColDoc. Currently it is:
 'add_blob', 'delete_blob', 'commit', 'view_dcoldoc', 'change_dcoldoc'</p>
 <p>Inside Django, the complete name of such permissions is of the form <cite>ColDocApp.name</cite>.</p>
 <section id="id1">
-<h2>Meaning of permissions, and rules<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2>Meaning of permissions, and rules<a class="headerlink" href="#id1" title="Permalink to this heading">¶</a></h2>
 <p>This is the Permissions meaning and rule for some of the above.</p>
 <ul>
 <li><dl>
@@ -205,7 +206,7 @@ flag is turned off in the ColDoc settings).</p>
 </section>
 </section>
 <section id="groups">
-<h1>Groups<a class="headerlink" href="#groups" title="Permalink to this headline">¶</a></h1>
+<h1>Groups<a class="headerlink" href="#groups" title="Permalink to this heading">¶</a></h1>
 <p>For each coldoc <cite>cccc</cite> two groups are created, one named
 <cite>coldoc_cccc_group_authors</cite> and one <cite>coldoc_cccc_group_editors</cite>;
 <cite>coldoc_cccc_group_authors</cite> has all <cite>UUID</cite> permissions for that
@@ -256,6 +257,7 @@ for that coldoc, and also <cite>UUID.view_view</cite>, <cite>UUID.view_log</cite
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
@@ -277,7 +279,7 @@ for that coldoc, and also <cite>UUID.view_view</cite>, <cite>UUID.view_log</cite
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -291,11 +293,11 @@ for that coldoc, and also <cite>UUID.view_view</cite>, <cite>UUID.view_log</cite
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Andrea C. G. Mennucci.
+      &copy;2023, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/permission.rst.txt"

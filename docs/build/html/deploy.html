@@ -1,18 +1,19 @@
-
 <!DOCTYPE html>
 
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Deploying &#8212; ColDoc 0.1 documentation</title>
+    <title>Deploying &#8212; ColDoc 0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Blob and UUID" href="blob.html" />
@@ -34,7 +35,7 @@
           <div class="body" role="main">
             
   <section id="deploying">
-<h1>Deploying<a class="headerlink" href="#deploying" title="Permalink to this headline">¶</a></h1>
+<h1>Deploying<a class="headerlink" href="#deploying" title="Permalink to this heading">¶</a></h1>
 <p>Here we explain how to bootstrap a new ColDoc <em>web portal</em>, or <em>site</em>.</p>
 <p>We assume that the ColDoc source code was downloaded in the directory
 whose name is saved in the environment variable COLDOC_SRC_ROOT.
@@ -53,41 +54,41 @@ The directory name must be saved in the <cite>COLDOC_SITE_ROOT</cite>
 environmental variable.</p>
 <p>You need to use a terminal where you can insert shell commands.</p>
 <section id="serving-with-apache">
-<h2>Serving with Apache<a class="headerlink" href="#serving-with-apache" title="Permalink to this headline">¶</a></h2>
+<h2>Serving with Apache<a class="headerlink" href="#serving-with-apache" title="Permalink to this heading">¶</a></h2>
 <p>To serve the portal using Apache2 in Debian or Ubuntu, you may install the packages</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt install apache2 libapache2-mod-wsgi-py3
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>apache2<span class="w"> </span>libapache2-mod-wsgi-py3
 </pre></div>
 </div>
 <p>It is advisable to put the portal under <cite>/var/www</cite>
 (or otherwise, you should edit <cite>/etc/apache2/apache2.conf</cite>
 otherwise <cite>apache</cite> will not serve your content).
 Here is an example shell code:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span>/var/www/test_site
-sudo mkdir <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
-sudo chown owner.group <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span>/var/www/test_site
+sudo<span class="w"> </span>mkdir<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
+sudo<span class="w"> </span>chown<span class="w"> </span>owner.group<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
 </pre></div>
 </div>
 <p>where <cite>owner.group</cite> is who is performing the install.</p>
 </section>
 <section id="serving-without-apache">
-<h2>Serving without Apache<a class="headerlink" href="#serving-without-apache" title="Permalink to this headline">¶</a></h2>
+<h2>Serving without Apache<a class="headerlink" href="#serving-without-apache" title="Permalink to this heading">¶</a></h2>
 <p>If you want to run the portal by some other means (there are
 <a class="reference external" href="https://docs.djangoproject.com/en/dev/howto/deployment/">many ways to deploy Django, see here</a>
 ) then
 you may setup the test site anywhere, let's say <cite>/home/.../test_site</cite> . Make
 sure that this directory is empty, and set its name in an environ variable as follows.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span>/home/.../test_site
-mkdir <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">COLDOC_SITE_ROOT</span><span class="o">=</span>/home/.../test_site
+mkdir<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
 </pre></div>
 </div>
 </section>
 <section id="deploying-the-skeleton">
-<h2>Deploying the skeleton<a class="headerlink" href="#deploying-the-skeleton" title="Permalink to this headline">¶</a></h2>
+<h2>Deploying the skeleton<a class="headerlink" href="#deploying-the-skeleton" title="Permalink to this heading">¶</a></h2>
 <p>In the following you may omit the part <cite>${COLDOC_SRC_ROOT}/</cite>
 if you are sure that the current working directory of the shell is the directory
 where the ColDoc source code is located.</p>
 <p>This command will create the structure for the new ColDoc portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py  deploy
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py<span class="w">  </span>deploy<span class="w"> </span>--coldoc-site-root<span class="o">=</span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
 </pre></div>
 </div>
 <p>In particular it will deploy the <em>config file</em> for the new document as
@@ -97,8 +98,25 @@ and it can also be used to activate/deactivate special features for the portal,
 such as: social authentication, background tasks, comments, <em>etc</em>.
 Edit it at taste.</p>
 </section>
+<section id="using-mysql">
+<h2>Using MySQL<a class="headerlink" href="#using-mysql" title="Permalink to this heading">¶</a></h2>
+<p>By default, the above command will create a portal that uses <cite>sqlite</cite> as backend database.
+If instead you use</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py<span class="w">  </span>deploy<span class="w">  </span>--coldoc-site-root<span class="o">=</span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span><span class="w"> </span>--database<span class="o">=</span>mysql
+</pre></div>
+</div>
+<p>then the portal will be prepared for using <cite>mysql</cite> as database.
+In this case, you should create the database, the user and set permissions,
+before proceeding. You may use this command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># sudo mysql &lt; ${COLDOC_SITE_ROOT}/mysql.sql</span>
+</pre></div>
+</div>
+<p>If you deploy using <cite>sqlite</cite> and then change your mind later, there
+are instructions in the section
+<a class="reference internal" href="issues.html"><span class="doc">issues section</span></a>.</p>
+</section>
 <section id="local-variables">
-<h2>Local variables<a class="headerlink" href="#local-variables" title="Permalink to this headline">¶</a></h2>
+<h2>Local variables<a class="headerlink" href="#local-variables" title="Permalink to this heading">¶</a></h2>
 <p>There are many settings for a Django portal (the <cite>config.ini</cite> file will setup
 only the most important ones).</p>
 <p>At startup, Django reads a <cite>settings.py</cite> file. In this case,
@@ -109,16 +127,16 @@ settings for a deployed site are read from three files:</p>
 <li><p><cite>${COLDOC_SITE_ROOT}/settings.py</cite> from the <cite>COLDOC_SITE_ROOT</cite> directory where the web site is deployed.</p></li>
 </ul>
 <p>Each one overrides the previous.</p>
+<p>The last file is prepopulated with some useful examples (all commented out).</p>
 <p>To better test the code,
 you may want to create a file <cite>${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py</cite>
-to setup some variables to enable email sending, as in this example.
-Or you may want to enable them in <cite>${COLDOC_SITE_ROOT}/settings.py</cite> for your specific site.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">MAIL_HOST</span> <span class="o">=</span> <span class="s2">&quot;smtp.server&quot;</span>
-<span class="nv">EMAIL_PORT</span> <span class="o">=</span> <span class="s2">&quot;587&quot;</span>
-<span class="nv">EMAIL_HOST_USER</span> <span class="o">=</span> <span class="s2">&quot;username&quot;</span>
-<span class="nv">EMAIL_HOST_PASSWORD</span> <span class="o">=</span> <span class="s2">&quot;password&quot;</span>
-<span class="nv">EMAIL_USE_TLS</span> <span class="o">=</span> True
-<span class="nv">DEFAULT_FROM_EMAIL</span> <span class="o">=</span> <span class="s2">&quot;Helpdesk &lt;helpdesk@that_email&gt;&quot;</span>
+to setup some variables to enable email sending, as in this example.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">MAIL_HOST</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;smtp.server&quot;</span>
+<span class="nv">EMAIL_PORT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;587&quot;</span>
+<span class="nv">EMAIL_HOST_USER</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;username&quot;</span>
+<span class="nv">EMAIL_HOST_PASSWORD</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;password&quot;</span>
+<span class="nv">EMAIL_USE_TLS</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>True
+<span class="nv">DEFAULT_FROM_EMAIL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Helpdesk &lt;helpdesk@that_email&gt;&quot;</span>
 </pre></div>
 </div>
 <p>or to enhance the code, <em>e.g.</em> adding some mimetypes used in your <cite>coldoc</cite> s</p>
@@ -128,10 +146,11 @@ Or you may want to enable them in <cite>${COLDOC_SITE_ROOT}/settings.py</cite> f
     <span class="n">mimetypes</span><span class="o">.</span><span class="n">add_type</span><span class="p">(</span><span class="s1">&#39;application/x-gnuplot&#39;</span><span class="p">,</span><span class="n">j</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Or you may want to enable them in <cite>${COLDOC_SITE_ROOT}/settings.py</cite> for your specific site.</p>
 <p>See in <cite>${COLDOC_SRC_ROOT}/ColDocDjango/settings_suggested.py</cite> for more examples.</p>
 </section>
 <section id="social-auth">
-<h2>Social auth<a class="headerlink" href="#social-auth" title="Permalink to this headline">¶</a></h2>
+<h2>Social auth<a class="headerlink" href="#social-auth" title="Permalink to this heading">¶</a></h2>
 <p>If you wish to use social authentication, you may set <cite>use_allauth</cite> to True
 in <cite>${COLDOC_SITE_ROOT}/config.ini</cite> and install <cite>django-allauth</cite></p>
 <p><strong>Note that once you set `use_allauth` to True, you cannot change it back to `False`.</strong></p>
@@ -160,91 +179,93 @@ a <cite>social application</cite> in the database, that contains all credentials
 (emails are sent automatically to verify emails addresses or reset passwords).</p>
 </section>
 <section id="late-adding-of-social-auth">
-<h2>Late adding of social auth<a class="headerlink" href="#late-adding-of-social-auth" title="Permalink to this headline">¶</a></h2>
+<h2>Late adding of social auth<a class="headerlink" href="#late-adding-of-social-auth" title="Permalink to this heading">¶</a></h2>
 <p>If you did not turn <cite>social authentication</cite> on at first, you may turn it on later,
 by following the above instructions; and then you have to run</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py migrate
-python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py collectstatic
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py<span class="w"> </span>migrate
+python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py<span class="w"> </span>collectstatic
 </pre></div>
 </div>
 <p>to update the databases.</p>
 </section>
 <section id="initalize">
-<h2>Initalize<a class="headerlink" href="#initalize" title="Permalink to this headline">¶</a></h2>
+<h2>Initalize<a class="headerlink" href="#initalize" title="Permalink to this heading">¶</a></h2>
 <p>Then initialize <cite>django</cite> for your deployed site</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py migrate
-python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py collectstatic
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py<span class="w"> </span>migrate
+python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py<span class="w"> </span>set_site<span class="w"> </span><span class="o">[</span>name<span class="o">]</span><span class="w"> </span><span class="o">[</span>url<span class="o">]</span>
+python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py<span class="w"> </span>collectstatic
 </pre></div>
 </div>
+<p>where you substitute <cite>[name]</cite> and <cite>[url]</cite> for appropriate values for your portal.</p>
 </section>
 <section id="add-test-material">
-<h2>Add test material<a class="headerlink" href="#add-test-material" title="Permalink to this headline">¶</a></h2>
+<h2>Add test material<a class="headerlink" href="#add-test-material" title="Permalink to this heading">¶</a></h2>
 <p>To test the portal we may populate it with the test LaTeX document.</p>
 <p>Before we create some fake users, to be able to interact with the portal.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py  create_fake_users
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/helper.py<span class="w">  </span>create_fake_users
 </pre></div>
 </div>
 <p>(The list of users and passwords will be printed on terminal)</p>
 <p>We insert the test LaTeX document in the portal. Note that <cite>jsmith</cite> is the author of all blobs, and will have special access rights; similarly <cite>ed_itor</cite> is the editor, and will have access to some administrative information in the coldoc main page.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/blob_inator.py --coldoc-nick<span class="o">=</span><span class="nb">test</span> --lang<span class="o">=</span>eng --ZS --editor<span class="o">=</span>ed_itor --author<span class="o">=</span>jsmith  --SP --SAT    <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/paper/paper.tex
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/blob_inator.py<span class="w"> </span>--coldoc-nick<span class="o">=</span><span class="nb">test</span><span class="w"> </span>--lang<span class="o">=</span>eng<span class="w"> </span>--ZS<span class="w"> </span>--editor<span class="o">=</span>ed_itor<span class="w"> </span>--author<span class="o">=</span>jsmith<span class="w">  </span>--SP<span class="w"> </span>--SAT<span class="w">    </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/test/paper/paper.tex
 </pre></div>
 </div>
 <p>Then you should generate all PDF and HTML associated to the test paper</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">COLDOC_URL</span><span class="o">=</span><span class="s2">&quot;http://localhost:8000/UUID/test/&quot;</span>
-python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py --coldoc-nick<span class="o">=</span><span class="nb">test</span> --url-UUID<span class="o">=</span><span class="si">${</span><span class="nv">COLDOC_URL</span><span class="si">}</span>  all
+python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/latex.py<span class="w"> </span>--coldoc-nick<span class="o">=</span><span class="nb">test</span><span class="w"> </span>--url-UUID<span class="o">=</span><span class="si">${</span><span class="nv">COLDOC_URL</span><span class="si">}</span><span class="w">  </span>all
 </pre></div>
 </div>
 <p>(The command line option <cite>--url-UUID</cite> is needed so that the hyperlinks inside the PDF version will point to the correct URL)</p>
 </section>
 <section id="activate-the-apache-portal">
-<h2>Activate the Apache portal<a class="headerlink" href="#activate-the-apache-portal" title="Permalink to this headline">¶</a></h2>
+<h2>Activate the Apache portal<a class="headerlink" href="#activate-the-apache-portal" title="Permalink to this heading">¶</a></h2>
 <p>If you are preparing the web site to be served by Apache2, you should</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo chown -R www-data:www-data <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>chown<span class="w"> </span>-R<span class="w"> </span>www-data:www-data<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>
 </pre></div>
 </div>
 <p>otherwise Apache will not be able to access it. Then set up Apache as follows:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo cp <span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>/apache2.conf /etc/apache2/sites-available/test_site.conf
-sudo a2ensite test_site
-sudo a2enmod wsgi
-sudo systemctl reload apache2
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>cp<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SITE_ROOT</span><span class="si">}</span>/apache2.conf<span class="w"> </span>/etc/apache2/sites-available/test_site.conf
+sudo<span class="w"> </span>a2ensite<span class="w"> </span>test_site
+sudo<span class="w"> </span>a2enmod<span class="w"> </span>wsgi
+sudo<span class="w"> </span>systemctl<span class="w"> </span>reload<span class="w"> </span>apache2
 </pre></div>
 </div>
 <p>To enjoy advanced caching capabilities you may also</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo a2enmod expires
-sudo a2enmod headers
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>a2enmod<span class="w"> </span>expires
+sudo<span class="w"> </span>a2enmod<span class="w"> </span>headers
 </pre></div>
 </div>
 <p>If you activated <cite>whitenoise</cite> you may also tweak caching timings,
 as explained in <cite>apache2.conf</cite> .</p>
 </section>
 <section id="serve-without-apache">
-<h2>Serve without Apache<a class="headerlink" href="#serve-without-apache" title="Permalink to this headline">¶</a></h2>
+<h2>Serve without Apache<a class="headerlink" href="#serve-without-apache" title="Permalink to this heading">¶</a></h2>
 <p>Start the simplest Django server and access the portal</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py  runserver <span class="m">8000</span>
-firefox http://localhost:8000/
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py<span class="w">  </span>runserver<span class="w"> </span><span class="m">8000</span>
+firefox<span class="w"> </span>http://localhost:8000/
 </pre></div>
 </div>
 <p>Note that in this case <em>django</em> will not serve the static files, unless you set <em>debug</em> to <em>True</em> in
 <cite>${COLDOC_SITE_ROOT}/config.ini</cite>
 ; and you may need to change</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">dedup_root</span> <span class="o">=</span> %<span class="o">(</span>site_root<span class="o">)</span>s/static_local/dedup
-<span class="nv">dedup_url</span> <span class="o">=</span> /static/dedup
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nv">dedup_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>%<span class="o">(</span>site_root<span class="o">)</span>s/static_local/dedup
+<span class="nv">dedup_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>/static/dedup
 </pre></div>
 </div>
 <p>in that file.</p>
 </section>
 <section id="software-upgrade-and-or-template-changes">
-<h2>Software upgrade and/or template changes<a class="headerlink" href="#software-upgrade-and-or-template-changes" title="Permalink to this headline">¶</a></h2>
+<h2>Software upgrade and/or template changes<a class="headerlink" href="#software-upgrade-and-or-template-changes" title="Permalink to this heading">¶</a></h2>
 <p>Note that each time you upgrade the software you need to</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py migrate
-python3 <span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py collectstatic
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py<span class="w"> </span>migrate
+python3<span class="w"> </span><span class="si">${</span><span class="nv">COLDOC_SRC_ROOT</span><span class="si">}</span>/ColDocDjango/manage.py<span class="w"> </span>collectstatic
 </pre></div>
 </div>
 <p>This is particularly important when you use  <cite>whitenoise</cite> otherwise the
 cache will not work and your server will return 500.</p>
 </section>
 <section id="final-remarks">
-<h2>Final remarks<a class="headerlink" href="#final-remarks" title="Permalink to this headline">¶</a></h2>
+<h2>Final remarks<a class="headerlink" href="#final-remarks" title="Permalink to this heading">¶</a></h2>
 <p>ColDoc keeps a strict separation between <cite>code</cite> and <cite>data</cite>.
 You may even install the code using an account, let's say
 <cite>coldoc_sw</cite>, then deploy a portal, and assign all the files
@@ -252,7 +273,7 @@ in the portal to a different user, let's say <cite>coldoc_data</cite>:
 in this case you need to tell Apache about this change,
 by adding the <cite>user</cite> and <cite>group</cite> directives in the line starting as <cite>WSGIDaemonProcess</cite>,
 as follows</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>WSGIDaemonProcess coldoc.group python-home<span class="o">=</span>/...virtualenv.... python-path<span class="o">=</span><span class="si">${</span><span class="nv">coldoc_src_root</span><span class="si">}</span>  <span class="nv">locale</span><span class="o">=</span>en_US.UTF-8  <span class="nv">lang</span><span class="o">=</span>en_US.UTF-8 <span class="nv">user</span><span class="o">=</span>coldoc_data <span class="nv">group</span><span class="o">=</span>coldoc_data
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>WSGIDaemonProcess<span class="w"> </span>coldoc.group<span class="w"> </span>python-home<span class="o">=</span>/...virtualenv....<span class="w"> </span>python-path<span class="o">=</span><span class="si">${</span><span class="nv">coldoc_src_root</span><span class="si">}</span><span class="w">  </span><span class="nv">locale</span><span class="o">=</span>en_US.UTF-8<span class="w">  </span><span class="nv">lang</span><span class="o">=</span>en_US.UTF-8<span class="w"> </span><span class="nv">user</span><span class="o">=</span>coldoc_data<span class="w"> </span><span class="nv">group</span><span class="o">=</span>coldoc_data
 </pre></div>
 </div>
 <p>This may improve security.</p>
@@ -284,6 +305,7 @@ as follows</p>
 <li class="toctree-l2"><a class="reference internal" href="#serving-with-apache">Serving with Apache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#serving-without-apache">Serving without Apache</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#deploying-the-skeleton">Deploying the skeleton</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-mysql">Using MySQL</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#local-variables">Local variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#social-auth">Social auth</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#late-adding-of-social-auth">Late adding of social auth</a></li>
@@ -303,6 +325,7 @@ as follows</p>
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
@@ -324,7 +347,7 @@ as follows</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -338,11 +361,11 @@ as follows</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Andrea C. G. Mennucci.
+      &copy;2023, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/deploy.rst.txt"

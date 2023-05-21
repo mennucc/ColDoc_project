@@ -1,18 +1,19 @@
-
 <!DOCTYPE html>
 
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>ColDoc Project &#8212; ColDoc 0.1 documentation</title>
+    <title>ColDoc Project &#8212; ColDoc 0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Installing" href="install.html" />
@@ -34,7 +35,7 @@
           <div class="body" role="main">
             
   <section id="coldoc-project">
-<h1>ColDoc Project<a class="headerlink" href="#coldoc-project" title="Permalink to this headline">¶</a></h1>
+<h1>ColDoc Project<a class="headerlink" href="#coldoc-project" title="Permalink to this heading">¶</a></h1>
 <p>There are two main frameworks currently used to present information (in particular,
 related to scientific fields).</p>
 <ul class="simple">
@@ -58,25 +59,26 @@ or
 </ul>
 <p>A ColDoc tries to get the best of two publishing frameworks.</p>
 <section id="code">
-<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this heading">¶</a></h2>
 <p>The code is open source, it is available at
 <a class="reference external" href="https://github.com/mennucc/ColDoc_project">https://github.com/mennucc/ColDoc_project</a></p>
 <p>The code uses Django, that is implemented using the Python language;
 it also uses some JavaScript snippets for interactive features.</p>
+<p>The current version of the code is <cite>0.2</cite>.</p>
 <section id="authors">
-<h3>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h3>
-<p>This software is Copyright 2019-22</p>
-<p><a class="reference external" href="https://www.sns.it/it/persona/andrea-carlo-giuseppe-mennucci">Andrea C. G. Mennucci</a></p>
+<h3>Authors<a class="headerlink" href="#authors" title="Permalink to this heading">¶</a></h3>
+<p>This software is Copyright 2019-23
+<a class="reference external" href="https://www.sns.it/it/persona/andrea-carlo-giuseppe-mennucci">Andrea C. G. Mennucci</a></p>
 </section>
 <section id="license">
-<h3>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h3>
+<h3>License<a class="headerlink" href="#license" title="Permalink to this heading">¶</a></h3>
 <p>See file <cite>LICENSE.txt</cite> in the code distribution</p>
 </section>
 </section>
 <section id="features">
-<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this heading">¶</a></h2>
 <section id="code-portal-document">
-<h3>Code, portal, document<a class="headerlink" href="#code-portal-document" title="Permalink to this headline">¶</a></h3>
+<h3>Code, portal, document<a class="headerlink" href="#code-portal-document" title="Permalink to this heading">¶</a></h3>
 <p>This project is structured to keep separation between
 the <em>code</em>, the <em>portal</em>, and the <em>data</em>.</p>
 <p>Foremost, we install the <em>code</em> following the instructions in the
@@ -90,14 +92,14 @@ on how to prepare a document for its splitting and uploading into a <em>portal</
 <p>(You may also deploy multiple <em>portals</em> using the same <em>code</em>).</p>
 </section>
 <section id="access-management">
-<h3>Access management<a class="headerlink" href="#access-management" title="Permalink to this headline">¶</a></h3>
+<h3>Access management<a class="headerlink" href="#access-management" title="Permalink to this heading">¶</a></h3>
 <p>Access to the whole document, or parts whereof, can be tuned.</p>
 <p>See the
 <a class="reference internal" href="permission.html"><span class="doc">section on permissions</span></a>
 for details.</p>
 </section>
 <section id="uuid-and-blobs">
-<h3>UUID and blobs<a class="headerlink" href="#uuid-and-blobs" title="Permalink to this headline">¶</a></h3>
+<h3>UUID and blobs<a class="headerlink" href="#uuid-and-blobs" title="Permalink to this heading">¶</a></h3>
 <p>When a <cite>LaTeX</cite> document is inserted into a <em>portal</em>, it is <em>blobified</em>: it
 is divided in many small files, called <em>blobs</em>,
 each identified by an <cite>UUID</cite> (an unique identifier).</p>
@@ -127,37 +129,37 @@ of the whole document.</p>
 </section>
 </section>
 <section id="documentation">
-<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
+<h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this heading">¶</a></h2>
 <p>All documentation is in the &quot;<code class="docutils literal notranslate"><span class="pre">docs</span></code>&quot; directory.</p>
 <p>The documentation is in RST format, so it is mostly standard text:
 you can read it in the files inside <cite>docs/source</cite>.</p>
 <p>By using  <cite>sphinx</cite> toolset, the documentation
 can be compiled to other formats; an HTML version is already available,
 for your convenience: browse it by</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>firefox docs/build/html/index.html
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>firefox<span class="w"> </span>docs/build/html/index.html
 </pre></div>
 </div>
 <section id="compile">
-<h3>Compile<a class="headerlink" href="#compile" title="Permalink to this headline">¶</a></h3>
+<h3>Compile<a class="headerlink" href="#compile" title="Permalink to this heading">¶</a></h3>
 <p>To compile the documentation, you will need the <cite>sphinx</cite> toolset.
 To install it:</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3 install sphinx
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>sphinx<span class="w"> </span>sphinx-copybuttons
 </pre></div>
 </div>
 <p>or, if you prefer, in Debian-based systems (like Ubuntu):</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo apt install python3-sphinx
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-sphinx<span class="w"> </span>python3-sphinx-copybutton
 </pre></div>
 </div>
 <p>Then</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> docs
-make html
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+make<span class="w"> </span>html
 </pre></div>
 </div>
 <p>or any other format that you wish.</p>
 </section>
 </section>
 <section id="quick-start">
-<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h2>
+<h2>Quick start<a class="headerlink" href="#quick-start" title="Permalink to this heading">¶</a></h2>
 <p>If just want to see the code in action:
 install the code and the prerequisite libraries
 as explained in the
@@ -167,12 +169,12 @@ then follow commands in the
 to create a test portal.</p>
 </section>
 <section id="edb-portal">
-<h2>EDB portal<a class="headerlink" href="#edb-portal" title="Permalink to this headline">¶</a></h2>
+<h2>EDB portal<a class="headerlink" href="#edb-portal" title="Permalink to this heading">¶</a></h2>
 <p>This software is used to run the portal <a class="reference external" href="https://coldoc.sns.it">https://coldoc.sns.it</a>
 that serves a document containing math exercises (nicknamed <em>EDB</em>)</p>
 </section>
 <section id="getting-help">
-<h2>Getting help<a class="headerlink" href="#getting-help" title="Permalink to this headline">¶</a></h2>
+<h2>Getting help<a class="headerlink" href="#getting-help" title="Permalink to this heading">¶</a></h2>
 <p>To get more help:</p>
 <p><a class="reference external" href="mailto:coldoc&#46;staff&#37;&#52;&#48;sns&#46;it">coldoc<span>&#46;</span>staff<span>&#64;</span>sns<span>&#46;</span>it</a></p>
 </section>
@@ -228,6 +230,7 @@ that serves a document containing math exercises (nicknamed <em>EDB</em>)</p>
 <li class="toctree-l1"><a class="reference internal" href="blobify.html">Blobify</a></li>
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
@@ -249,7 +252,7 @@ that serves a document containing math exercises (nicknamed <em>EDB</em>)</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -263,11 +266,11 @@ that serves a document containing math exercises (nicknamed <em>EDB</em>)</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Andrea C. G. Mennucci.
+      &copy;2023, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/README.rst.txt"

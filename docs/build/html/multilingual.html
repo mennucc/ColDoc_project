@@ -1,21 +1,22 @@
-
 <!DOCTYPE html>
 
 <html lang="en it">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Multiple languages &#8212; ColDoc 0.1 documentation</title>
+    <title>Multiple languages &#8212; ColDoc 0.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Acknowledgements" href="ack.html" />
+    <link rel="next" title="Known issues" href="issues.html" />
     <link rel="prev" title="Editing" href="editing.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -34,9 +35,9 @@
           <div class="body" role="main">
             
   <section id="multiple-languages">
-<h1>Multiple languages<a class="headerlink" href="#multiple-languages" title="Permalink to this headline">¶</a></h1>
+<h1>Multiple languages<a class="headerlink" href="#multiple-languages" title="Permalink to this heading">¶</a></h1>
 <section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading">¶</a></h2>
 <p>Languages are specified  using the 3 letter codes
 <a class="reference external" href="https://en.wikipedia.org/wiki/ISO_639-3">from ISO_639-3</a></p>
 <p>The list of languages supported by each coldoc document is in the
@@ -56,14 +57,14 @@ it should be the only language: it means that all blobs are of the form <cite>bl
 the bibliography (copied to a  <cite>blob_und.bib</cite>), or style files (copied to a <cite>blob_und.sty</cite>).</p>
 </section>
 <section id="single-language-document">
-<h2>Single language document<a class="headerlink" href="#single-language-document" title="Permalink to this headline">¶</a></h2>
+<h2>Single language document<a class="headerlink" href="#single-language-document" title="Permalink to this heading">¶</a></h2>
 <p>When importing a document using <cite>blob_inator</cite> with a command option <cite>--lang xxx</cite>,
 a single-language document is created.</p>
 <p>Each blob containing LaTeX code will be stored with name <cite>blob_xxx.tex</cite></p>
 <p>It can be later converted to a multiple-language document, see below.</p>
 </section>
 <section id="multiple-language-documents">
-<h2>Multiple language documents<a class="headerlink" href="#multiple-language-documents" title="Permalink to this headline">¶</a></h2>
+<h2>Multiple language documents<a class="headerlink" href="#multiple-language-documents" title="Permalink to this heading">¶</a></h2>
 <p>When the coldoc document lists more than one language in the
 field <cite>languages</cite> of the <cite>coldoc</cite> record, then it is
 a <em>multiple language document</em>.</p>
@@ -81,7 +82,7 @@ it is up to you to include <cite>\input</cite> command in all language versions!
 </ul>
 </section>
 <section id="the-mul-multiple-languages-method">
-<h2>The <cite>mul</cite> (<em>multiple languages</em>) method<a class="headerlink" href="#the-mul-multiple-languages-method" title="Permalink to this headline">¶</a></h2>
+<h2>The <cite>mul</cite> (<em>multiple languages</em>) method<a class="headerlink" href="#the-mul-multiple-languages-method" title="Permalink to this heading">¶</a></h2>
 <p>Suppose that  <cite>aaa,bbb,ccc,ddd</cite> is the list of supported languages
 (as listed in the field <cite>languages</cite> of the <cite>coldoc</cite> record).</p>
 <p>When an UUID has <cite>mul</cite> as the (only) language, it is subjected to
@@ -105,9 +106,12 @@ of the form <cite>\ifCDLxxx</cite> will be defined
 for all supported languages <cite>aaa,bbb,ccc,ddd</cite> , and one (and only one) will
 be set to true; precisely, when compiling <cite>blob_xxx.tex</cite> only the conditional
 <cite>\ifCDLxxx</cite> will be set to true.</p>
+<p>A similar behaviour is valid for bibliographic content that has code
+language <cite>zxx</cite> or <cite>und</cite> : multiple language views are compiled, using
+the <cite>aux</cite> file from the main document (the private version).</p>
 </section>
 <section id="importing-a-mul-document">
-<h2>Importing a <cite>mul</cite> document<a class="headerlink" href="#importing-a-mul-document" title="Permalink to this headline">¶</a></h2>
+<h2>Importing a <cite>mul</cite> document<a class="headerlink" href="#importing-a-mul-document" title="Permalink to this heading">¶</a></h2>
 <p>When importing a document using <cite>blob_inator</cite> with a command option <cite>--lang mul,aaa,bbb,ccc,ddd</cite>,
 a multiple-language document is created, where <cite>aaa,bbb,ccc,ddd</cite> is the list of supported languages.</p>
 <p>Each blob containing LaTeX code will be stored with name <cite>blob_mul.tex</cite></p>
@@ -117,7 +121,7 @@ with the <cite>helper.py gen_lang</cite> command.</p>
 <p>An example document is stored in <cite>test/multlang</cite> and can be imported in the test portal using <cite>make django_multlang</cite>.</p>
 </section>
 <section id="converting-single-to-multi-language">
-<h2>Converting single to multi language<a class="headerlink" href="#converting-single-to-multi-language" title="Permalink to this headline">¶</a></h2>
+<h2>Converting single to multi language<a class="headerlink" href="#converting-single-to-multi-language" title="Permalink to this heading">¶</a></h2>
 <p>To convert a single-language document to multiple-language,
 first you add other languages to the
 field <cite>languages</cite> of the <cite>coldoc</cite> record (this can be done using
@@ -141,7 +145,7 @@ any blob with a lot of children and little linguistic content.</p>
 content and no children.</p>
 </section>
 <section id="automatic-translations">
-<h2>Automatic translations<a class="headerlink" href="#automatic-translations" title="Permalink to this headline">¶</a></h2>
+<h2>Automatic translations<a class="headerlink" href="#automatic-translations" title="Permalink to this heading">¶</a></h2>
 <p>The portal can interface to an automatic translator.</p>
 <p>Currently there are hooks to connect to
 <a class="reference external" href="https://azure.microsoft.com/en-us/services/cognitive-services/translator/">Microsoft translator</a>
@@ -158,7 +162,7 @@ before submitting your text to the automatic translator.
 Currently, text inside math environments will not be translated.</p>
 </section>
 <section id="other-tools">
-<h2>Other tools<a class="headerlink" href="#other-tools" title="Permalink to this headline">¶</a></h2>
+<h2>Other tools<a class="headerlink" href="#other-tools" title="Permalink to this heading">¶</a></h2>
 <p>The command</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">ColDocDjango</span><span class="o">/</span><span class="n">helper</span><span class="o">.</span><span class="n">py</span>  <span class="o">--</span><span class="n">coldoc</span><span class="o">-</span><span class="n">site</span><span class="o">-</span><span class="n">root</span> <span class="o">...</span>  <span class="o">--</span><span class="n">coldoc</span><span class="o">-</span><span class="n">nick</span> <span class="o">...</span>   <span class="n">count_untranslated_chars</span>
 </pre></div>
@@ -208,6 +212,7 @@ Currently, text inside math environments will not be translated.</p>
 <li class="toctree-l2"><a class="reference internal" href="#other-tools">Other tools</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
@@ -216,7 +221,7 @@ Currently, text inside math environments will not be translated.</p>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="editing.html" title="previous chapter">Editing</a></li>
-      <li>Next: <a href="ack.html" title="next chapter">Acknowledgements</a></li>
+      <li>Next: <a href="issues.html" title="next chapter">Known issues</a></li>
   </ul></li>
 </ul>
 </div>
@@ -229,7 +234,7 @@ Currently, text inside math environments will not be translated.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -243,11 +248,11 @@ Currently, text inside math environments will not be translated.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, Andrea C. G. Mennucci.
+      &copy;2023, Andrea C. G. Mennucci.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/multilingual.rst.txt"
