@@ -123,7 +123,7 @@ def deploy(target):
     b = osjoin(target, 'wsgi.py')
     os.symlink(a, b)
     #
-    a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','apache2_template.conf')
+    a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','etc','apache2_template.conf')
     z = open(a).read()
     z = z.replace('@COLDOC_SITE_ROOT@', target)
     z = z.replace('@COLDOC_SRC_ROOT@', COLDOC_SRC_ROOT)
