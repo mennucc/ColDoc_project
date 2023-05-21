@@ -7,8 +7,10 @@
 
 # Credentials are also stored in the mysql.cnf file, that you may copy to ~/.my.cnf
 
-MYSQL_DATABASE = 'coldoc_db'
-MYSQL_USERNAME = 'coldoc_user'
+
+# (This has a random suffix to avoid name clashes.)
+MYSQL_DATABASE = '@MYSQL_DATABASE@'
+MYSQL_USERNAME = '@MYSQL_USERNAME@'
 # (The password was randomized when deploying this coldoc site.)
 MYSQL_PASSWORD = '@MYSQL_PASSWORD@'
 

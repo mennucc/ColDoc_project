@@ -93,6 +93,7 @@ def deploy(target):
         return False
     config.deploy(a)
     #
+    #
     COLDOC_SITE_SETTINGS = os.path.join(target,'settings.py')
     F = open(COLDOC_SITE_SETTINGS,'w')
     F.write("""# settings specific for this instance
@@ -137,10 +138,15 @@ def deploy(target):
     #
     #
     from django.core.management.utils import get_random_string
+    suffix = get_random_string(5)
+    MYSQL_USERNAME = 'coldoc_user_' + suffix
     MYSQL_PASSWORD = get_random_string(10)
+    MYSQL_DATABASE = 'coldoc_db_'   + suffix
     for l in 'mysql.cnf', 'mysql.sql', 'settings_mysql.py':
         a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','etc',l)
         z = open(a).read()
+        z = z.replace('@MYSQL_DATABASE@'  ,  MYSQL_DATABASE)
+        z = z.replace('@MYSQL_USERNAME@'  ,  MYSQL_USERNAME)
         z = z.replace('@MYSQL_PASSWORD@'  , MYSQL_PASSWORD)
         z = z.replace('@COLDOC_SITE_ROOT@', target)
         b = osjoin(target, l)
