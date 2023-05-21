@@ -107,7 +107,10 @@ Each one overrides the previous.
 To better test the code,
 you may want to create a file `${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py`
 to setup some variables to enable email sending, as in this example.
+
 Or you may want to enable them in `${COLDOC_SITE_ROOT}/settings.py` for your specific site.
+This file is prepopulated with some useful examples (all commented out).
+In particular, there is a snippet and instructions to use MySQL instead sqlite as backend database.
 
 .. code:: shell
 

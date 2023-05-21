@@ -1,0 +1,11 @@
+[client]
+user=coldoc_user
+password=@MYSQL_PASSWORD@
+
+[mysqldump]
+user=coldoc_user
+password=@MYSQL_PASSWORD@
+
+[mysql]
+user=coldoc_user
+password=@MYSQL_PASSWORD@

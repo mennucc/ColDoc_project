@@ -135,6 +135,19 @@ def deploy(target):
     with open(b,'w') as f_:
         f_.write(z)
     #
+    #
+    from django.core.management.utils import get_random_string
+    MYSQL_PASSWORD = get_random_string(10)
+    for l in 'mysql.cnf', 'mysql.sql', 'settings_mysql.py':
+        a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','etc',l)
+        z = open(a).read()
+        z = z.replace('@MYSQL_PASSWORD@'  , MYSQL_PASSWORD)
+        z = z.replace('@COLDOC_SITE_ROOT@', target)
+        b = osjoin(target, l)
+        with open(b,'w') as f_:
+            f_.write(z)
+        os.chmod(b,0o600)
+    #
     print("TODO : migrate, collectstatic, customize and install apache2.conf")
     return True
 

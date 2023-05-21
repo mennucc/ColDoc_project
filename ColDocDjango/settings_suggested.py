@@ -15,6 +15,12 @@ DEFAULT_FROM_EMAIL = "helpdesk@that_email"
 # You can ovverride `DATABASES` here
 ## DATABASES = {...
 
+# The snippet `settings_mysql` in the site root contains settings for using MySQL;
+# further instructions are in that file.
+# To load it, uncomment this line
+exec(open(os.path.join(COLDOC_SITE_ROOT,'settings_mysql.py')).read())
+
+
 ##########
 
 ## you may want to reduce the list of available languages
