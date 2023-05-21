@@ -104,13 +104,13 @@ settings for a deployed site are read from three files:
 
 Each one overrides the previous.
 
+The last file is prepopulated with some useful examples (all commented out).
+In particular, there is a snippet and instructions to use MySQL instead of sqlite as backend database.
+
 To better test the code,
 you may want to create a file `${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py`
 to setup some variables to enable email sending, as in this example.
 
-Or you may want to enable them in `${COLDOC_SITE_ROOT}/settings.py` for your specific site.
-This file is prepopulated with some useful examples (all commented out).
-In particular, there is a snippet and instructions to use MySQL instead sqlite as backend database.
 
 .. code:: shell
 
@@ -130,8 +130,10 @@ or to enhance the code, *e.g.* adding some mimetypes used in your `coldoc` s
 	  for j in ('.gplt','.gnuplot'):
 	      mimetypes.add_type('application/x-gnuplot',j)
 
+Or you may want to enable them in `${COLDOC_SITE_ROOT}/settings.py` for your specific site.
 
 See in `${COLDOC_SRC_ROOT}/ColDocDjango/settings_suggested.py` for more examples.
+
 
 
 Social auth
