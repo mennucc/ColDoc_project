@@ -173,6 +173,11 @@ function _parse_response(response) {
 		 $('.toast').toast("show");
 		}
 	}
+	if ( 'arrows_html' in response ) {
+		let msg = JSON.parse(response['arrows_html']);
+		let div_arrows = document.getElementById("id_navigation_arrows");
+		div_arrows.innerHTML = msg;
+	}
 	if ( 'latex_errors_html' in response ) {
 		let msg = JSON.parse(response['latex_errors_html']);
 		let div_errors = document.getElementById("id_latex_error_logs");

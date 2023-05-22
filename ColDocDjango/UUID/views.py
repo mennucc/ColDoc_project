@@ -1341,10 +1341,16 @@ def postedit(request, NICK, UUID):
             messages.add_message(request, a, b)
         message = render_to_string(template_name="messages.html", request=request)
         #
+        parent_metadata, downlink, uplink, leftlink, rightlink = index_arrows(metadata)
+        arrows = render_to_string(template_name="UUID_arrows.html",
+                                  context = locals(),
+                                  request=request)
+        #
         z =    {'uncompiled' : 0, 'blob_md5': real_file_md5,
                 'blobeditarea' : json.dumps(blobeditdata),
                 'blobdiff' : json.dumps(blobdiff),
                 "alert"  : json.dumps(str(alert)),
+                "arrows_html"  : json.dumps(str(arrows)),
                 "message"  : json.dumps(str(message)),
                 }
         if not do_fork:
@@ -1432,8 +1438,14 @@ def ajax_views(request, NICK, UUID):
     else:
         latex_errors_html = ''
     #
+    parent_metadata, downlink, uplink, leftlink, rightlink = index_arrows(metadata)
+    arrows = render_to_string(template_name="UUID_arrows.html",
+                              context = locals(),
+                              request=request)
+    #
     return JsonResponse( {"message"  : json.dumps(str(message)),
                           "latex_errors_html" : json.dumps(str(latex_errors_html)),
+                          "arrows_html" : json.dumps(str(arrows)),
                           "alert"  : json.dumps(str(alert)),
                           "viewarea" : json.dumps(views),  })
 
