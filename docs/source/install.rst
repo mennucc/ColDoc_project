@@ -49,7 +49,7 @@ or
 
 that will install versions that are known to work fine.
 
-Then, you  install `plastex`, `wallet` and `django-background-tasks` manually.
+Then, you  install `plastex`, `wallet`, `CodeMirror`, and `django-background-tasks` manually.
 
 
 Installing plasTex
@@ -98,6 +98,15 @@ To enable it, download the latest code from GitHub
 	  ln -s -T $(pwd)/django-simplewallet/src/wallet ${COLDOC_SRC_ROOT}/ColDocDjango/wallet
 
 Note that, in this case, you must also install `django-guardian`.
+
+Installing CodeMirror
+---------------------
+
+Editing of LaTeX files with the standard web forms is tedious; for this reason,
+your portal can integrate the online editor `CodeMirror`.
+
+
+The script `bin/install_CodeMirror.sh` can install all the needed files, and link them into the portal.
 
 Fix PdfLaTeX
 ------------

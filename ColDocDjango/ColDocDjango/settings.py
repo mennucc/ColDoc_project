@@ -330,7 +330,8 @@ DEDUP_ROOT = config.get('django','dedup_root')
 DEDUP_URL = config.get('django','dedup_url')
 
 ## https://codemirror.net/
-USE_CODEMIRROR = os.path.isdir(os.path.join(BASE_DIR, '..', 'node_modules', 'codemirror'))
+USE_CODEMIRROR = os.path.isdir(os.path.join(BASE_DIR, '..', 'node_modules', 'codemirror')) and \
+    os.path.isdir(os.path.join(BASE_DIR,'UUID','static','UUID','cm'))
 if not USE_CODEMIRROR:
     logger.warning('You may want to install CodeMirror, use `bin/install_CodeMirror.sh`')
 
