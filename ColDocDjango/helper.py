@@ -10,7 +10,7 @@ This program does some actions that `manage` does not. Possible commands:
     deploy
         create a new ColDoc site
 
-    set_site
+    set_site [name] [url]
         set the SITE
 
     create_fake_users
@@ -157,8 +157,7 @@ def deploy(target):
     print("TODO : migrate, collectstatic, customize and install apache2.conf")
     return True
 
-def set_site(site_url = None):
-    if site_url is None : site_url =  'localhost:8000'
+def set_site(site_name='ColDoc', site_url = 'localhost:8000', *ignored):
     from django.contrib.sites.models import Site
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     import django
@@ -166,7 +165,7 @@ def set_site(site_url = None):
     django.setup()
     one = Site.objects.filter(id=settings.SITE_ID).get()
     one.domain = site_url
-    one.name = 'ColDoc test'
+    one.name = site_name
     one.save()
     print("Set site id = %r domain %r name %r" % (one.id , one.domain, one.name))
     return True
@@ -916,7 +915,7 @@ does not contain the file `config.ini`
     if argv[0] == 'deploy':
         return deploy(COLDOC_SITE_ROOT)
     elif argv[0] == 'set_site':
-        return set_site(argv[1] if (len(argv) >= 2) else None)
+        return set_site(* (argv[1:]) )
     elif argv[0] == 'create_fake_users':
         return create_fake_users(COLDOC_SITE_ROOT)
     elif argv[0] == 'add_blob':

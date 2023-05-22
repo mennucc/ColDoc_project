@@ -196,9 +196,10 @@ Then initialize `django` for your deployed site
 .. code:: shell
 
 	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py migrate
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py set_site [name] [url]
 	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/manage.py collectstatic
 
-
+where you substitute `[name]` and `[url]` for appropriate values for your portal.
 
 Add test material
 -----------------
