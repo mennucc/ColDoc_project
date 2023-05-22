@@ -1929,6 +1929,39 @@ def get_access_icon(access):
                         }
     return ACCESS_ICONS[access]
 
+def index_arrows(metadata, children = None):
+    parent_metadata = parent_uuid = None
+    if children is None:
+        children = metadata.get('child_uuid')
+    uplink = downlink = leftlink = rightlink = None
+    UUID = metadata.uuid
+    NICK = metadata.coldoc.nickname
+    try:
+        j = children
+        if j:
+            downlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[0]})
+        j = metadata.get('parent_uuid')
+        if j:
+            parent_uuid = j[0]
+            parent_metadata = DMetadata.load_by_uuid(parent_uuid, metadata.coldoc)
+            uplink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':parent_uuid})
+            uplink += '?highlight=' + UUID
+        elif 'main_file' not in metadata.get('environ'):
+            logger.warning('no parent for UUID %r',UUID)
+    except:
+        logger.exception('WHY?')
+    if parent_metadata is not None:
+        j = list(parent_metadata.get('child_uuid'))
+        try:
+            i = j.index(UUID)
+            if i>0:
+                leftlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i-1]})
+            if i<len(j)-1:
+                rightlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i+1]})
+        except:
+            logger.exception('problem finding siblings for UUID %r',UUID)
+    return parent_metadata, downlink, uplink, leftlink, rightlink
+
 
 diff_table_template = """
     <table class="diff" id="difflib_chg_%(prefix)s_top" >
@@ -2024,33 +2057,8 @@ def index(request, NICK, UUID):
     #
     ###################################### navigation arrows
     #
-    parent_metadata = parent_uuid = uplink = downlink = None
     children = metadata.get('child_uuid')
-    try:
-        j = children
-        if j:
-            downlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[0]})
-        j = metadata.get('parent_uuid')
-        if j:
-            parent_uuid = j[0]
-            parent_metadata = DMetadata.load_by_uuid(parent_uuid, metadata.coldoc)
-            uplink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':parent_uuid})
-            uplink += '?highlight=' + UUID
-        elif env != 'main_file':
-            logger.warning('no parent for UUID %r',UUID)
-    except:
-        logger.exception('WHY?')
-    leftlink = rightlink = None 
-    if parent_metadata is not None:
-        j = list(parent_metadata.get('child_uuid'))
-        try:
-            i = j.index(uuid)
-            if i>0:
-                leftlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i-1]})
-            if i<len(j)-1:
-                rightlink = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':j[i+1]})
-        except:
-            logger.exception('problem finding siblings for UUID %r',UUID)
+    parent_metadata, downlink, uplink, leftlink, rightlink = index_arrows(metadata, children)
     #
     if not request.user.is_anonymous:
         a = metadata.access
