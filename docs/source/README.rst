@@ -139,14 +139,14 @@ To install it:
 
 .. code:: shell
 
-	  pip3 install sphinx
+	  pip3 install sphinx sphinx-copybuttons
 
 
 or, if you prefer, in Debian-based systems (like Ubuntu):
 
 .. code:: shell
 
-	  sudo apt install python3-sphinx
+	  sudo apt install python3-sphinx python3-sphinx-copybutton
 
 Then
 
