@@ -49,14 +49,9 @@ $( document ).ready(function() {
 <h1><a href="{% url 'ColDoc:index' NICK=NICK %}">{{ NICK  }}</a> — {{ UUID }}  {{ access_icon | safe }}</h1>
 
 <div>
- {% if uplink %}<a class="btn btn-outline-primary" href="{{uplink|safe}}">↑</a>
- {% else %}<div class="btn btn-outline-light disabled">↑</div>{% endif %}
- {% if leftlink %}<a class="btn btn-outline-primary" href="{{leftlink|safe}}">←</a>
- {% else %}<div class="btn btn-outline-light disabled">←</div>{% endif %}
- {% if rightlink %}<a class="btn btn-outline-primary" href="{{rightlink|safe}}">→</a>
- {% else %}<div class="btn btn-outline-light disabled">→</div>{% endif %}
- {% if downlink %}<a class="btn btn-outline-primary" href="{{downlink|safe}}">↓</a>
- {% else %}<div class="btn btn-outline-light disabled">↓</div>{% endif %}
+ <span id="id_navigation_arrows">
+  {% include "UUID_arrows.html" %}
+ </span>
  {% if pdfUUIDurl %} <a href="{{ pdfUUIDurl | safe }}" class="btn btn-outline-primary"
             data-toggle="tooltip" title="{% translate 'View this blob inside the whole PDF' %}">
   <img src="{% static 'ColDoc/Adobe_PDF_goto_icon.svg' %}"  style="height: 14pt" alt="view in whole PDF"></a>
