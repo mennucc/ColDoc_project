@@ -34,12 +34,12 @@ https://github.com/mennucc/ColDoc_project
 The code uses Django, that is implemented using the Python language;
 it also uses some JavaScript snippets for interactive features.
 
+The current version of the code is `0.2`.
 
 Authors
 -------
 
-This software is Copyright 2019-22
-
+This software is Copyright 2019-23
 `Andrea C. G. Mennucci <https://www.sns.it/it/persona/andrea-carlo-giuseppe-mennucci>`_
 
 License

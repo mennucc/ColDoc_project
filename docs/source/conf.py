@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'ColDoc'
-copyright = '2019, Andrea C. G. Mennucci'
+copyright = '2023, Andrea C. G. Mennucci'
 author = 'Andrea C. G. Mennucci'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.2'
 
 
 # -- General configuration ---------------------------------------------------
