@@ -1,0 +1,11 @@
+beautifulsoup4==4.11.1
+Django==4.1.2
+django-allauth==0.51.0
+django-guardian==2.4.0
+django-select2==7.10.1
+lockfile==0.12.2
+whitenoise==6.4.0
+django-simple-captcha==0.5.17
+pylatexenc==2.10
+pycountry==22.3.5
+mysqlclient==2.1.1

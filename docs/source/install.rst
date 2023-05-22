@@ -33,15 +33,24 @@ Prerequisites
 ColDoc has some prerequisites: `Django` (version 2, 3 or 4),
 `plasTex` (a patched version, see below), and others, as explained later.
 
-To install them (but for plastex) you may use
+Some packages are required for the code to work properly; others are recommended, to activate advanced features.
+
+Long story short. To install most of them, you may use
 
 .. code:: shell
 
-	  pip3 install django BeautifulSoup4 pycountry lockfile django-guardian django-allauth django-background-tasks django-select2 pylatexenc whitenoise django-simple-captcha
+	  pip3 install django BeautifulSoup4 pycountry lockfile django-guardian django-allauth django-select2 pylatexenc whitenoise django-simple-captcha
 
-(only the first four are strictly needed, the others can be used to activate advanced features, as explained below)
+or
 
-Note that (as of 2021-12-21)  `django-background-tasks`  is incompatible with Django4 : install the version at `https://github.com/mennucc/django-background-tasks` .
+.. code:: shell
+
+	  pip3 install -r requirements.txt
+
+that will install versions that are known to work fine.
+
+Then, you  install `plastex`, `wallet` and `django-background-tasks` manually.
+
 
 Installing plasTex
 ------------------
@@ -51,6 +60,30 @@ Installing `plastex` is somewhat complex, since ColDoc needs a patched version.
 The script `plastex/prepare.sh` can download and patch plastex for you: the patched
 version is then available in  `plastex/plastex`.
 So you can install it, using `pip3 install .` inside the directory `plastex/plastex`.
+
+Installing django-background-tasks
+----------------------------------
+
+Compiling the whole LaTeX file can be long, and hence the HTTP connection
+scheduling those compilation will hang for long time, and eventually timeout.
+This makes for a lousy user experience.
+
+When `django-background-tasks` is installed and activated in the `config` file,
+those compilations will run in background.
+
+(Results of compilations will be email to the editors:
+do not forget to properly configure the email parameters.)
+
+Note that (as of 2021-12-21)  `django-background-tasks`  is incompatible with Django4 :
+you have to manually install the version at `https://github.com/mennucc/django-background-tasks` .
+
+.. code:: shell
+
+	  cd /home/.../.../somewhereelse
+	  git clone https://github.com/mennucc/django-background-tasks
+	  cd django-background-tasks
+	  pip install .
+
 
 Installing wallet
 -----------------
@@ -64,7 +97,7 @@ To enable it, download the latest code from GitHub
 	  git clone https://github.com/mennucc/django-simplewallet
 	  ln -s -T $(pwd)/django-simplewallet/src/wallet ${COLDOC_SRC_ROOT}/ColDocDjango/wallet
 
-
+Note that, in this case, you must also install `django-guardian`.
 
 Fix PdfLaTeX
 ------------
@@ -100,3 +133,38 @@ Alternatively, you may add
 	  \fi
 
 to the preamble of all LaTeX documents.
+
+
+
+Prerequisites, in detail
+------------------------
+
+Eventually, here is the long story.
+
+Some packages are required: `django`, `plastex`, `BeautifulSoup4`. The code will not work without them.
+
+The package `lockfile` is used to protect data on disk against racing conditions, `eg`
+two users modifying the same file on disk at the same time. You want to install it.
+
+Some are recommended, for better user experience: `pycountry`,  `django-select2`, `pylatexenc`.
+
+`whitenoise` provides advanced caching features when serving static files.
+Instructions on how to activate them is in
+:doc:`deploy section<deploy>`.
+
+There is an internal provision for an user to send an email to another user:
+`django-simple-captcha` protects against abuse of this feature.
+
+`django-guardian` provides fine access control, and
+is needed for an user to buy access to restricted parts of a document.
+
+`django-allauth` is a fantastic package that will enable your users to login
+using external providers (Google, Facebook, etc). It is a bit complex
+to setup, but wholly worth it.
+
+By default, a `coldoc` portal will use `sqlite` as database; to use other databases,
+you may need to install an adapter, `eg` for `MySQL` you may install `mysqlclient`.
+(There are easy instructions on how to use `MySQL`, please read on in
+:doc:`deploy section<deploy>`.
+.)
+
