@@ -240,8 +240,9 @@ WSGI_APPLICATION = 'ColDocDjango.wsgi.application'
 # Database. See https://docs.djangoproject.com/en/dev/ref/settings/#databases
 # By default, sqlite. This is easy to deploy, but creates problems with concurrency...
 #  for this reason, a timeout has been set below.
-# If you expect a lot of traffic, you should switch to another database
-#   the best moment is right when you deploy your instance.
+# If you expect a lot of traffic, you should switch to another database;
+#   the best moment is right when you deploy your instance, before inserting any data;
+#   in any case, there are instructions in `issues` document to convert an already running portal.
 # (You can ovverride `DATABASES` in the "settings" file in the instance).
 # If you see too many "operational errors" then you may try to increase the timeout and/or
 # enable WAL mode : https://sqlite.org/wal.html#persistence_of_wal_mode
