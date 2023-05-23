@@ -1370,7 +1370,7 @@ def __prepare_views(metadata, blobs_dir):
     views = []
     children = metadata.get('child_uuid')
     url = django.urls.reverse('UUID:index', kwargs={'NICK':metadata.coldoc.nickname,'UUID':'000'})
-    for ll in  (Blangs if ( 'mul' not in Blangs) else  CDlangs):
+    for ll in  set(Blangs + CDlangs):
         f = os.path.join(d,'view_' + ll + '_html' , 'index.html')
         if os.path.isfile(f):
             h = open(f).read()
