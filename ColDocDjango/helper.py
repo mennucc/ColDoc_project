@@ -75,7 +75,10 @@ from ColDoc.utils import ColDocException, get_blobinator_args, uuid_to_dir, pare
 import logging
 logger = logging.getLogger('helper')
 
-def deploy(target):
+DEPLOY_DATABASES = ('sqlite3', 'mysql')
+
+def deploy(target, database = 'sqlite3'):
+    assert database in DEPLOY_DATABASES
     from ColDocDjango import config
     if os.path.exists(target):
         if not os.path.isdir(target):
@@ -103,7 +106,11 @@ def deploy(target):
     # comment out
     a = open(osjoin(COLDOC_SRC_ROOT,'ColDocDjango/settings_suggested.py')).readlines()
     a = [l.strip('\n') for l in a]
-    a = [ ( ('#'+l) if l else l) for l in a ]
+    commenter = lambda l : ( ('#'+l) if l else l)
+    if database == "mysql" :
+        s = 'settings_mysql.py'
+        commenter = lambda l : ( ('#'+l) if ( l and s not in l ) else l)
+    a = [commenter(l)  for l in a ]
     F.write('\n'.join(a))
     F.close()
     #
@@ -154,7 +161,12 @@ def deploy(target):
             f_.write(z)
         os.chmod(b,0o600)
     #
-    print("TODO : migrate, collectstatic, customize and install apache2.conf")
+    if database == "mysql" :
+        print('You should create the database, the user and set permissions,\n'
+              ' maybe using this command:\n'
+              ' # sudo mysql < %s' % (osjoin(target,'mysql.sql'))
+              )
+    print("Then: `manage.py migrate`; `manage.py collectstatic`, customize and install apache2.conf")
     return True
 
 def set_site(site_name='ColDoc', site_url = 'localhost:8000', *ignored):
@@ -880,6 +892,9 @@ def main(argv):
                             help='user creating the blob')
         parser.add_argument('--environ',type=str,required=True,\
                             help='environment of  newly created blob')
+    if 'deploy' in sys.argv:
+        parser.add_argument('--database',type=str,default='sqlite3',\
+                            help=('type of database, one of %s' % ','.join(DEPLOY_DATABASES)))
     parser.add_argument('command', help='specific command',nargs='+')
     args = parser.parse_args()
     #
@@ -913,7 +928,11 @@ does not contain the file `config.ini`
         activate(os.environ.get('LANG','en-US'))
     #
     if argv[0] == 'deploy':
-        return deploy(COLDOC_SITE_ROOT)
+        if args.database not in DEPLOY_DATABASES:
+            sys.stderr.write('The --database=%r is not one of %r.' % (args.database, DEPLOY_DATABASES ))
+            return (1)
+        else:
+            return deploy(COLDOC_SITE_ROOT, database=args.database)
     elif argv[0] == 'set_site':
         return set_site(* (argv[1:]) )
     elif argv[0] == 'create_fake_users':

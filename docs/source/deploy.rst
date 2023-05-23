@@ -87,6 +87,29 @@ such as: social authentication, background tasks, comments, *etc*.
 Edit it at taste.
 
 
+Using MySQL
+-----------
+
+By default, the above command will create a portal that uses `sqlite` as backend database.
+If instead you use
+
+.. code:: shell
+
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy  --coldoc-site-root=${COLDOC_SITE_ROOT} --database=mysql
+
+then the portal will be prepared for using `mysql` as database.
+In this case, you should create the database, the user and set permissions,
+before proceeding. You may use this command:
+
+.. code:: shell
+
+          # sudo mysql < ${COLDOC_SITE_ROOT}/mysql.sql
+
+If you deploy using `sqlite` and then change your mind later, there
+are instructions in the section
+:doc:`issues section<issues>`.
+
+
 Local variables
 ---------------
 
@@ -105,7 +128,6 @@ settings for a deployed site are read from three files:
 Each one overrides the previous.
 
 The last file is prepopulated with some useful examples (all commented out).
-In particular, there is a snippet and instructions to use MySQL instead of sqlite as backend database.
 
 To better test the code,
 you may want to create a file `${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py`
