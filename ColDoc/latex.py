@@ -293,13 +293,31 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     # 'compile' the bibliography by compiling the `.bib` file
     if environ in ColDoc.config.ColDoc_environments_biblio:
         b = None
-        b_bbls = [ 'main'+_lang+'.bbl' ] + [ ('main_'+l+'.bbl') for l in metadata.coldoc.get_languages() ]
-        for a in b_bbls:
-            if os.path.isfile(osjoin(blobs_dir, a)):
-                b = a
+        # (re)generate bbl file
+        # TODO support biber
+        cmd = 'bibtex'
+        # FIXME the .bib files are stored with language `und`, and this language
+        # does not correspond to a specific main file... so we pick one at random
+        llll = [lang]
+        if lang in ('und','zxx'):
+            logger.warning('latex_blob, substituting language %r', lang)
+            llll = list(metadata.coldoc.get_languages())
+        for ll in llll:
+            f = 'main_' + ll + '.aux'
+            if os.path.isfile(osjoin(blobs_dir, f )):
+                p = subprocess.Popen([cmd, f],
+                                     cwd=blobs_dir,stdin=open(os.devnull),
+                                     stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
+                a = p.stdout.read()
+                r2 = p.wait()
+                if r2 != 0:
+                    logger.warning('%s fails, output: %r', cmd, a)
+            f = 'main_' + ll + '.bbl'
+            if os.path.isfile(osjoin(blobs_dir, f)):
+                b = f
                 break
         if b is None:
-            logger.warning('when compiling UUID %r , no file %r is available', uuid, b_bbls)
+            logger.warning('when compiling UUID %r , no aux or bbl file is available (for any language)', uuid)
             squash = False
             b_temp = tempfile.NamedTemporaryFile(dir=blobs_dir,suffix='.tex')
             b = b_temp.name
