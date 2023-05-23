@@ -775,19 +775,23 @@ def sort_extensions(E):
     E.sort(key = lambda x: P.get(x,10))
     return E
 
-def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
+def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = False,
                 lang = ColDoc_lang, accept_lang = {}, 
-                metadata_class=FMetadata, coldoc=None, metadata=None):
-    """ Choose a blob, trying to satisfy request for language and extension
-    returns `filename`, `uuid`, `metadata`, `lang`, `ext`
-    possibly following the preferences of `accept_lang`
-    if `ext` is None, an extension will be returned following `sort_extensions`
-    if `lang` is None, a random language will be returned
+                metadata_class=FMetadata, coldoc=None, metadata=None, prefix=None):
+    """ Choose a blob, trying to satisfy request for language and extension.
+    Returns `filename`, `uuid`, `metadata`, `lang`, `ext` ,
+    possibly following the preferences of `accept_lang` ;
+    if `ext` is None, an extension will be returned following `sort_extensions`; 
+    if `lang` is None, the best language according to `accept_lang` will be returned ;
+    if `prefix` is `view`, searches for `view` files instead of `blobs` (and ext is '.pdf' by default),
+    otherwise `ext` is `.tex` by default .
     """
     assert blobs_dir is not None
     assert metadata is not None or (uuid is not None and (metadata_class == FMetadata or coldoc is not None))
     assert isinstance(uuid,str) or uuid is None
     assert lang is None or (len(lang) == 3 and slug_re.match(lang))
+    if prefix is  None : prefix = 'blob'
+    assert prefix in ('blob','view')
     #
     if metadata is None:
         m = metadata_class.load_by_uuid(uuid=uuid,coldoc=coldoc,basepath=blobs_dir)
@@ -803,23 +807,32 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
     # short circuit the case of given lang and ext
     if lang is not None and ext is not None:
         lang_ = ('_' + lang) if lang else ''
-        input_file = osjoin(blobs_dir, uuid_dir, 'blob' + lang_ + ext)
+        input_file = osjoin(blobs_dir, uuid_dir, prefix + lang_ + ext)
         if os.path.exists(input_file):
             return input_file,uuid,m,lang,ext
         else:
-            logger.error('Blob `%r` not available for lang = %r ext = %r : %r', uuid, lang, ext, input_file)
-            raise ColDocException('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
+            logger.error('Blob %r ... r not available for lang = %r ext = %r : %r', prefix, uuid, lang, ext, input_file)
+            raise FileNotFoundError('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
-    E = sort_extensions(m.get('extension'))
-    assert len(E) >= 1
-    if ext is not None:
-        if ext not in E:
-            logger.error('Extension %r is not available for uuid %r',ext, uuid)
-            raise FileNotFoundError('Extension %r is not available for uuid %r'%(ext, uuid))
+    if prefix == 'blob':
+        if ext is False : ext = '.tex'
+        E = sort_extensions(m.get('extension'))
+        assert len(E) >= 1
+        if ext is not None:
+            if ext not in E:
+                logger.error('Extension %r is not available for uuid %r',ext, uuid)
+                raise FileNotFoundError('Extension %r is not available for uuid %r'%(ext, uuid))
+            E = [ext]
+    else:
+        if ext is False or ext is None : ext = '.pdf'
+        assert ext in ('.pdf','_html')
         E = [ext]
     #
+    # the .bib files are sometimes stored with language `und` or `zxx`, and this language
+    # does not correspond to a specific main file... so we compile and show real languages
     L = copy.copy(m.get_languages())
-    if 'mul' in L:
+    if prefix == 'view' and ('mul' in L or  ( any( (j in L) for j in ('zxx','und')) and \
+                                              m.environ in ColDoc_environments_biblio)):
         L = copy.copy(m.coldoc.get_languages())
     #
     if accept_lang:
@@ -838,11 +851,11 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = '.tex',
             ls = l
             if l:
                 ls='_'+l
-            input_file = osjoin(blobs_dir, uuid_dir, 'blob'+ls+e)
+            input_file = osjoin(blobs_dir, uuid_dir, prefix+ls+e)
             if os.path.exists(input_file):
                 return input_file,uuid,m,l,e
-    logger.error('Blob `%r` not available for lang in %r, ext in %r', uuid, L, E)
-    raise FileNotFoundError('Blob `%r` not available for lang in %r, ext in %r'%(uuid, L, E))
+    logger.error('Blob %r ...`%r` not available for lang in %r, ext in %r', prefix, uuid, L, E)
+    raise FileNotFoundError('Blob %r ...`%r` not available for lang in %r, ext in %r'%(prefix, uuid, L, E))
 
 #####################
 
