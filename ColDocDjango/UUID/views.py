@@ -2182,7 +2182,14 @@ def index(request, NICK, UUID):
             all_views = [( view_lang, iso3lang2word_H(view_lang), html, '')]
         else:
           all_views = []
-          llll = CDlangs if (lang == 'mul' or (lang is None and (request.user.is_editor or request.user.is_author ))) else  [view_lang] 
+          llll = [view_lang]
+          if lang == "mul":
+            llll =  CDlangs
+          # show all languages to authors and editors, but not for non-linguistic content
+          # TODO maybe add : 'biblio' not in env and
+          if lang is None and (request.user.is_editor or request.user.is_author) and \
+                                 all((j not in Blangs) for j in ('xzz','und')  ):
+            llll =  CDlangs
           for ll in  llll:
             pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
                 '?lang=%s&ext=%s'%(ll,ext)
