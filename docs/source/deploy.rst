@@ -76,7 +76,7 @@ This command will create the structure for the new ColDoc portal
 
 .. code:: shell
 
-	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy
+	  python3 ${COLDOC_SRC_ROOT}/ColDocDjango/helper.py  deploy --coldoc-site-root=${COLDOC_SITE_ROOT}
 
 
 In particular it will deploy the *config file* for the new document as
