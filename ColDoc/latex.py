@@ -170,11 +170,15 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
         logger.log(log_level, 'Do not need to `pdflatex` the main_file')
         return {l:True for l in metadata.get_languages()}
     #
+    Blangs = metadata.get_languages()
     if lang is not None:
         langs = [lang]
     else:
-        langs = metadata.get_languages()
-    if 'mul' in langs:
+        langs = Blangs
+    # the .bib files are sometimes stored with language `und` or `zxx`, and this language
+    # does not correspond to a specific main file... so we compile real languages
+    if 'mul' in langs or ( any ( (j in Blangs) for j in ('zxx','und')) and \
+                           metadata.environ in ColDoc.config.ColDoc_environments_biblio):
         langs = metadata.coldoc.get_languages()
     if not langs:
         logger.debug('No languages for blob %r in blobs_dir %r',uuid,blobs_dir)
