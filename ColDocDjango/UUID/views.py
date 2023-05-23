@@ -2034,6 +2034,7 @@ def index(request, NICK, UUID):
                                      ext = ext, lang = lang if (lang != 'mul') else None, 
                                      accept_lang = accept_lang,
                                      metadata_class=DMetadata, coldoc=NICK)
+        blob__dir = os.path.dirname(view_filename)
     except FileNotFoundError:
         logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
@@ -2197,13 +2198,14 @@ def index(request, NICK, UUID):
             view_mtime = 0
             html = _('[NO HTML AVAILABLE]')
             try:
-                d = os.path.dirname(filename) + '/'
                 a = 'view'
                 if view_lang:
                     a += '_' + ll
-                a += '_html/index.html'
+                a += '_html'
+                a = osjoin(a , 'index.html')
                 VIEW = a
-                a = d + a
+                a = osjoin(blob__dir, a )
+                #
                 view_md5 = hashlib.md5(open(a,'rb').read()).hexdigest()
                 view_mtime = str(os.path.getmtime(a))
                 html = open(a).read()
@@ -2232,7 +2234,6 @@ def index(request, NICK, UUID):
         lang_ = ''
     availablelogs = []
     if  request.user.has_perm('UUID.view_log'):
-        d = os.path.dirname(filename)
         pref_ = 'main' if UUID == metadata.coldoc.root_uuid else 'view'
         accs_ = ('public','private') if UUID == metadata.coldoc.root_uuid else (None,)
         for l in (Blangs if ('mul' not in Blangs) else CDlangs):
@@ -2242,7 +2243,7 @@ def index(request, NICK, UUID):
             if ac_ :
                 lt_ += ' ' + _(ac_)
             for e_ in ColDoc.config.ColDoc_allowed_logs:
-                a = osjoin(d, pref_ + '_' + l + e_)
+                a = osjoin(blob__dir, pref_ + '_' + l + e_)
                 if os.path.exists(a):
                     a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':NICK,'UUID':UUID})
                     if a[-1] != '/': a += '/'
