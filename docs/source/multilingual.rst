@@ -91,6 +91,9 @@ for all supported languages `aaa,bbb,ccc,ddd` , and one (and only one) will
 be set to true; precisely, when compiling `blob_xxx.tex` only the conditional
 `\\ifCDLxxx` will be set to true.
 
+A similar behaviour is valid for bibliographic content that has code
+language `zxx` or `und` : multiple language views are compiled, using
+the `aux` file from the main document (the private version).
 
 Importing a `mul` document
 --------------------------
