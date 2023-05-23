@@ -291,7 +291,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     b = os.path.join(uuid_dir,'blob'+_lang+'.tex')
     s = os.path.join(uuid_dir,'squash'+_lang+'.tex')
     # 'compile' the bibliography by compiling the `.bib` file
-    if environ in  ('bibliography', 'E_thebibliography'):
+    if environ in ColDoc.config.ColDoc_environments_biblio:
         b = None
         b_bbls = [ 'main'+_lang+'.bbl' ] + [ ('main_'+l+'.bbl') for l in metadata.coldoc.get_languages() ]
         for a in b_bbls:
