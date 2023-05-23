@@ -2199,7 +2199,7 @@ def index(request, NICK, UUID):
             html = _('[NO HTML AVAILABLE]')
             try:
                 a = 'view'
-                if view_lang:
+                if ll:
                     a += '_' + ll
                 a += '_html'
                 a = osjoin(a , 'index.html')
