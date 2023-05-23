@@ -804,15 +804,6 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = False,
     if m is None:
         logger.error('Metadata `%r` not available for coldoc %r', uuid, coldoc)
         raise ColDocException('Metadata `%r` not available for coldoc %r'%(uuid, coldoc))
-    # short circuit the case of given lang and ext
-    if lang is not None and ext is not None:
-        lang_ = ('_' + lang) if lang else ''
-        input_file = osjoin(blobs_dir, uuid_dir, prefix + lang_ + ext)
-        if os.path.exists(input_file):
-            return input_file,uuid,m,lang,ext
-        else:
-            logger.error('Blob %r ... r not available for lang = %r ext = %r : %r', prefix, uuid, lang, ext, input_file)
-            raise FileNotFoundError('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
     if prefix == 'blob':
         if ext is False : ext = '.tex'
@@ -827,6 +818,15 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = False,
         if ext is False or ext is None : ext = '.pdf'
         assert ext in ('.pdf','_html')
         E = [ext]
+    # short circuit the case of given lang and ext
+    if lang is not None and ext is not None:
+        lang_ = ('_' + lang) if lang else ''
+        input_file = osjoin(blobs_dir, uuid_dir, prefix + lang_ + ext)
+        if os.path.exists(input_file):
+            return input_file,uuid,m,lang,ext
+        else:
+            logger.error('Blob %r ... r not available for lang = %r ext = %r : %r', prefix, uuid, lang, ext, input_file)
+            raise FileNotFoundError('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
     # the .bib files are sometimes stored with language `und` or `zxx`, and this language
     # does not correspond to a specific main file... so we compile and show real languages
