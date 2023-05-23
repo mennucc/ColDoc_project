@@ -2203,15 +2203,16 @@ def index(request, NICK, UUID):
                     a += '_' + ll
                 a += '_html'
                 a = osjoin(a , 'index.html')
+                f = osjoin(blob__dir, a )
+                #
+                view_md5 = hashlib.md5(open(f,'rb').read()).hexdigest()
+                view_mtime = str(os.path.getmtime(f))
                 VIEW = a
-                a = osjoin(blob__dir, a )
                 #
-                view_md5 = hashlib.md5(open(a,'rb').read()).hexdigest()
-                view_mtime = str(os.path.getmtime(a))
-                html = open(a).read()
-                a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
+                html = open(f).read()
+                u = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
                 #
-                html = _html_replace(html, a[:-4], uuid, ll, True, children, highlight)
+                html = _html_replace(html, u[:-4], uuid, ll, True, children, highlight)
             except FileNotFoundError:
                 messages.add_message(request, messages.WARNING, _("HTML preview not available"))
             except:
