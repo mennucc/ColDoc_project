@@ -96,6 +96,8 @@ def deploy(target, database = 'sqlite3'):
         return False
     config.deploy(a)
     #
+    from django.core.management.utils import get_random_string
+    suffix = get_random_string(5)
     #
     COLDOC_SITE_SETTINGS = os.path.join(target,'settings.py')
     F = open(COLDOC_SITE_SETTINGS,'w')
@@ -135,6 +137,7 @@ def deploy(target, database = 'sqlite3'):
     z = open(a).read()
     z = z.replace('@COLDOC_SITE_ROOT@', target)
     z = z.replace('@COLDOC_SRC_ROOT@', COLDOC_SRC_ROOT)
+    z = z.replace('@RANDSUFFIX@', suffix)
     v = ''
     if 'VIRTUAL_ENV' in os.environ:
         v = 'python-home=' + os.environ['VIRTUAL_ENV']
@@ -144,8 +147,6 @@ def deploy(target, database = 'sqlite3'):
         f_.write(z)
     #
     #
-    from django.core.management.utils import get_random_string
-    suffix = get_random_string(5)
     MYSQL_USERNAME = 'coldoc_user_' + suffix
     MYSQL_PASSWORD = get_random_string(10)
     MYSQL_DATABASE = 'coldoc_db_'   + suffix
@@ -155,6 +156,7 @@ def deploy(target, database = 'sqlite3'):
         z = z.replace('@MYSQL_DATABASE@'  ,  MYSQL_DATABASE)
         z = z.replace('@MYSQL_USERNAME@'  ,  MYSQL_USERNAME)
         z = z.replace('@MYSQL_PASSWORD@'  , MYSQL_PASSWORD)
+        z = z.replace('@RANDSUFFIX@', suffix)
         z = z.replace('@COLDOC_SITE_ROOT@', target)
         b = osjoin(target, l)
         with open(b,'w') as f_:
