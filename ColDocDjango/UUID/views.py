@@ -2029,17 +2029,29 @@ def index(request, NICK, UUID):
     cookie = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
     accept_lang = ColDocDjango.utils.request_accept_language(accept, cookie)
     try:
-        view_filename, uuid, metadata, view_lang, ext = \
+        blob_filename, uuid, metadata, blob_lang, blob_ext = \
             ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
-                                     ext = ext, lang = lang if (lang != 'mul') else None, 
+                                     ext = ext, lang = lang,
                                      accept_lang = accept_lang,
                                      metadata_class=DMetadata, coldoc=NICK)
-        blob__dir = os.path.dirname(view_filename)
+        blob__dir = os.path.dirname(blob_filename)
     except FileNotFoundError:
         logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
         return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext),
                             status=http.HTTPStatus.NOT_FOUND)
+    except Exception as e:
+        logger.exception('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: exception',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
+        return HttpResponse("Some error with UUID %r. \n Reason: %r" % (UUID,e), status=http.HTTPStatus.INTERNAL_SERVER_ERROR)
+    try:
+        view_filename, uuid, metadata, view_lang, view_ext = \
+            ColDoc.utils.choose_blob(blobs_dir = blobs_dir,
+                                     lang = lang, 
+                                     accept_lang = accept_lang,
+                                     metadata=metadata, prefix='view')
+    except FileNotFoundError:
+        view_filename = view_lang = view_ext = None
     except Exception as e:
         logger.exception('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: exception',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
@@ -2050,18 +2062,9 @@ def index(request, NICK, UUID):
     Blangs = metadata.get_languages()
     CDlangs = coldoc.get_languages()
     #
-    if 'mul' in Blangs:
-        filename = osjoin( os.path.dirname(view_filename), 'blob_mul.tex')
-        if not os.path.isfile(filename):
-            return HttpResponse("Cannot find UUID %r with lang=mul , extension=tex." % (UUID,),
-                                status=http.HTTPStatus.NOT_FOUND)
-        blob_lang = 'mul'
-    else:
-        blob_lang = view_lang
-        filename = view_filename
-    BLOB = os.path.basename(filename)
-    blob_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
-    blob_mtime = str(os.path.getmtime(filename))
+    BLOB = os.path.basename(blob_filename)
+    blob_md5 = hashlib.md5(open(blob_filename,'rb').read()).hexdigest()
+    blob_mtime = str(os.path.getmtime(blob_filename))
     uncompiled = 0;
     #
     envs = metadata.get('environ')
@@ -2106,7 +2109,7 @@ def index(request, NICK, UUID):
     if not request.user.has_perm('UUID.download'):
         ret = can_buy_permission(request.user, metadata, 'download')
         if isinstance(ret,(int,float)):
-            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + ('?lang=%s&ext=%s'%(view_lang,ext)) + '#tools'
+            a = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + ('?lang=%s&ext=%s'%(blob_lang,blob_ext)) + '#tools'
             encoded_contract = encoded_contract_to_buy_permission(request.user, metadata, 'download', ret, request=request, redirect_fails=a, redirect_ok=a)
             ## long links do not work in Apache
             # buy_download_link = django.urls.reverse('wallet:authorize_purchase_url', kwargs={'encoded' : encoded_contract })
@@ -2143,9 +2146,9 @@ def index(request, NICK, UUID):
     view_mtime = ''
     VIEW = ''
     #
-    if ext in ColDoc.config.ColDoc_show_as_text:
+    if blob_ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
-        file = open(view_filename).read()
+        file = open(blob_filename).read()
         escapedfile = escape(file).replace('\n', '<br>') #.replace('\\', '&#92;')
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
@@ -2180,11 +2183,11 @@ def index(request, NICK, UUID):
                 except:
                     logger.exception('cannot add blob %r to list',b)
             html+='</ul>'
-            all_views = [( view_lang, iso3lang2word_H(view_lang), html, '')]
+            all_views = [( blob_lang, iso3lang2word_H(blob_lang), html, '')]
         else:
           all_views = []
           llll = [view_lang]
-          if lang == "mul":
+          if lang == "mul" or view_lang is None:
             llll =  CDlangs
           # show all languages to authors and editors, but not for non-linguistic content
           # TODO maybe add : 'biblio' not in env and
@@ -2193,7 +2196,7 @@ def index(request, NICK, UUID):
             llll =  CDlangs
           for ll in  llll:
             pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
-                '?lang=%s&ext=%s'%(ll,ext)
+                '?lang=%s&ext=%s'%(ll,blob_ext)
             view_md5 =''
             view_mtime = 0
             html = _('[NO HTML AVAILABLE]')
@@ -2221,7 +2224,7 @@ def index(request, NICK, UUID):
             #
             all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl))
     else:
-        blobcontenttype = 'image' if (ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
+        blobcontenttype = 'image' if (blob_ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
         file = html = escapedfile = ''
         # TODO
         #  a = ... see in `show()`
@@ -2276,8 +2279,8 @@ def index(request, NICK, UUID):
                     val = coldoc.latex_engine != 'pdflatex'
                 latex_filters.append((name, label, help, val, fun))
             blobform_filters = [a[0] for a in latex_filters] 
-            blobeditform , uncompiled = _build_blobeditform_data(metadata, request.user, filename,
-                                                    ext, blob_lang, choices, can_add_blob, can_change_blob, msgs,
+            blobeditform , uncompiled = _build_blobeditform_data(metadata, request.user, blob_filename,
+                                                    blob_ext, blob_lang, choices, can_add_blob, can_change_blob, msgs,
                                                     latex_filters)
             revert_button_class =  'btn-warning'  if uncompiled else 'btn-outline-info'
             compile_button_class=  'btn-warning'  if uncompiled else 'btn-outline-info'
@@ -2285,14 +2288,14 @@ def index(request, NICK, UUID):
                 messages.add_message(request, l, m)
             H = difflib.HtmlDiff()
             H._table_template = diff_table_template
-            blobdiff = H.make_table(open(filename).read().split('\n'),
+            blobdiff = H.make_table(open(blob_filename).read().split('\n'),
                                     blobeditform.initial['blobcontent'].split('\n'),
                                     _('Saved on disk'),_('Your content'), True)
             # html5 does not like those
             #blobdiff = blobdiff.replace('cellspacing="0"','').replace('cellpadding="0"','').replace('rules="groups"','')
     #
     showurl = django.urls.reverse('UUID:show', kwargs={'NICK':NICK,'UUID':UUID}) +\
-        '?lang=%s&ext=%s'%(view_lang,ext)
+        '?lang=%s&ext=%s'%(blob_lang,blob_ext)
     #
     a = metadata.latex_return_codes if UUID != metadata.coldoc.root_uuid else metadata.coldoc.latex_return_codes
     latex_error_logs = convert_latex_return_codes(a, NICK, UUID)
@@ -2300,7 +2303,7 @@ def index(request, NICK, UUID):
     #
     can_change_metadata = request.user.has_perm('UUID.change_dmetadata')
     if can_change_metadata:
-        metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':ext,'lang_':blob_lang, })
+        metadataform = MetadataForm(instance=metadata, initial={'uuid_':uuid,'ext_':blob_ext,'lang_':blob_lang, })
         metadataform.htmlid = "id_form_metadataform"
         ## restrict to allowed choices
         if parent_metadata is not None:
@@ -2318,18 +2321,18 @@ def index(request, NICK, UUID):
             metadataform.fields['environ'].widget.attrs['readonly'] = True
             metadataform.fields['optarg'].widget.attrs['readonly'] = True
     #
-    mimetype = mimetypes.types_map.get(ext,'')
-    initial_base = {'NICK':NICK,'UUID':UUID,'ext':ext,'lang':blob_lang,'mimetype':mimetype}
+    mimetype = mimetypes.types_map.get(blob_ext,'')
+    initial_base = {'NICK':NICK,'UUID':UUID,'ext':blob_ext,'lang':blob_lang,'mimetype':mimetype}
     blobuploadform = BlobUploadForm(initial=initial_base)
     if mimetype:
         blobuploadform.fields['file'].widget.attrs['accept'] = mimetype
     else:
-        logger.warning('Extension %r is not in mimetypes.types_map', ext)
+        logger.warning('Extension %r is not in mimetypes.types_map', blob_ext)
     # FIXME this is ineffective
-    a = ('.jpg','.jpeg') if ( ext in ('.jpg','.jpeg') ) else (ext,)
+    a = ('.jpg','.jpeg') if ( blob_ext in ('.jpg','.jpeg') ) else (blob_ext,)
     v = FileExtensionValidator(allowed_extensions=a)
     blobuploadform.fields['file'].validators.append(v)
-    #    
+    #
     other_view_languages = []
     uuid_languages = []
     for val in  (Blangs if ('mul' not in Blangs) else CDlangs) :
@@ -2340,7 +2343,7 @@ def index(request, NICK, UUID):
     #
     langforms = []
     # TODO only '.tex' is supported now
-    if can_change_metadata and can_change_blob and ext == '.tex':
+    if can_change_metadata and can_change_blob and blob_ext == '.tex':
         bc = 'btn-primary'
         # add
         m = [l for l in CDlangs if l not in Blangs ]
@@ -2381,8 +2384,11 @@ def index(request, NICK, UUID):
                          prefix = 'manual', initial=initial_base)
             langforms.append( (L,'manual',_('Change this UUID to manual language management (non <tt>mul</tt>)'), bc) )
     #
-    view_language = iso3lang2word(view_lang)
     blob_language = iso3lang2word(blob_lang)
+    if view_lang :
+        view_language = iso3lang2word(view_lang)
+    else:
+        view_language = blob_language
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
     #
