@@ -262,8 +262,6 @@ DATABASES = {
     }
 }
 
-if not os.path.isfile(DATABASES['default']['NAME']):
-    logger.warning('No database %r',DATABASES['default']['NAME'])
 
 # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
 AUTH_USER_MODEL = 'ColDocApp.ColDocUser'
@@ -403,3 +401,7 @@ USE_COMMIT_COMMENTS = False
 #mySql has problems in reusing a connection when forking
 CLOSE_CONNECTION_ON_FORK = any( (a in DATABASES['default']['ENGINE']) for a in ('mysql', 'maria') )
 
+
+if 'sqlite 'in DATABASES['default']['ENGINE'] and \
+    not os.path.isfile(DATABASES['default']['NAME']):
+    logger.warning('No database %r',DATABASES['default']['NAME'])
