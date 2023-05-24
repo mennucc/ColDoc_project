@@ -328,7 +328,7 @@ $( document ).ready(function() {
       </form>
     {% endif %}
     {% for dlang, dlanguage in download_blob_buttons %}
-       <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ dlang }}&ext={{ ext }}"
+       <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ dlang }}&ext={{ blob_ext }}"
              class="btn btn-outline-primary btn-sm p-2" data-toggle="tooltip"
              title="{% blocktranslate %}Download this blob in {{ dlanguage }}.{% endblocktranslate %}">{{ dlang }}</a>
     {% endfor %}
@@ -337,14 +337,14 @@ $( document ).ready(function() {
    <span data-toggle="tooltip" class="border fill m-2 p-3"
              title="{% blocktranslate %}Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.{% endblocktranslate %}">
        {% blocktranslate %}Download inside complete {{ view_language }} document{% endblocktranslate %}:
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=single&lang={{ view_lang }}&ext={{ ext }}"
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=single&lang={{ view_lang }}"
              class="btn btn-outline-primary btn-sm" data-toggle="tooltip"
              title="{% translate 'Download this blob embedded in a complete, compilable, LaTeX document.' %}">
        {% translate 'as single document' %};</a>
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=zip&lang={{ view_lang }}&ext={{ ext }}"
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=zip&lang={{ view_lang }}"
              class="btn btn-outline-primary" data-toggle="tooltip" title="{% translate 'All pieces are shipped in a ZIP file' %}">
        {% translate 'as ZIP' %};</a>
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=email&lang={{ view_lang }}&ext={{ ext }}"
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=email&lang={{ view_lang }}"
              class="btn btn-outline-primary" data-toggle="tooltip" title="{% translate 'All pieces are sent as attachments to an email' %}">
        {% translate 'by email' %}.</a>
    </span>
