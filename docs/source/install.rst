@@ -76,28 +76,14 @@ do not forget to properly configure the email parameters.)
 
 Note that (as of 2021-12-21)  `django-background-tasks`  is incompatible with Django4 :
 you have to manually install the version at `https://github.com/mennucc/django-background-tasks` .
+This is made available as a git submodule, so it is enough to
 
 .. code:: shell
 
-	  cd /home/.../.../somewhereelse
-	  git clone https://github.com/mennucc/django-background-tasks
-	  cd django-background-tasks
+	  cd ${COLDOC_SRC_ROOT}/sub/django-background-tasks
 	  pip install .
 
 
-Installing wallet
------------------
-
-The portal has an internal currency that can be used to buy permissions and downloads.
-To enable it, download the latest code from GitHub
-
-.. code:: shell
-
-	  cd /home/.../.../somewhereelse
-	  git clone https://github.com/mennucc/django-simplewallet
-	  ln -s -T $(pwd)/django-simplewallet/src/wallet ${COLDOC_SRC_ROOT}/ColDocDjango/wallet
-
-Note that, in this case, you must also install `django-guardian`.
 
 Installing CodeMirror
 ---------------------
@@ -107,6 +93,23 @@ your portal can integrate the online editor `CodeMirror`.
 
 
 The script `bin/install_CodeMirror.sh` can install all the needed files, and link them into the portal.
+
+wallet
+------
+
+The portal has an internal currency that can be used to buy permissions and downloads.
+This is implemented in the library `django-simplewallet`, that is made
+available as a git submodule `sub/django-simplewallet`, and is already linked into the main code.
+
+Note that, to use it, you must also install `django-guardian`.
+
+unicode2latex
+-------------
+
+The LaTeX editor has a `normalize` button that can convert accents and
+other symbols for easier reading, for example `\\'e` will become `è`.
+This is implemented in the library `unicode2latex`, that is made
+available as a git submodule `sub/unicode2latex`, and is already linked into the main code.
 
 Fix PdfLaTeX
 ------------
