@@ -1171,8 +1171,15 @@ def plastex_invoke(cwd_, stdout_ , argv_, logfile):
     cwdO = os.getcwd()
     os.chdir(cwd_)
     try:
+        from plasTeX import client as plastex_client
+    except ImportError:
+        plastex_client = None
+    try:
         with contextlib.redirect_stdout(open(stdout_,'a')):
-            plastex_main(argv_)
+            if plastex_client:
+                plastex_client.main(argv_)
+            else:
+                plastex_main(argv_)
     except Exception as msg:
         logger.exception('There was an exception running %r internally.', argv_)
         exception = sys.exc_info()
