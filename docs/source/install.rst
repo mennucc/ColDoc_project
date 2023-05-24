@@ -61,6 +61,16 @@ The script `plastex/prepare.sh` can download and patch plastex for you: the patc
 version is then available in  `plastex/plastex`.
 So you can install it, using `pip3 install .` inside the directory `plastex/plastex`.
 
+Git submodules
+--------------
+
+Now you should activate and update submodules.
+
+.. code:: shell
+
+	  git submodule init
+	  git submodule update
+
 Installing django-background-tasks
 ----------------------------------
 
