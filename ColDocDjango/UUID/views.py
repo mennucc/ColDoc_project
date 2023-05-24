@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect, functools
+import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect, functools, tempfile
 from html import escape as py_html_escape
 import pickle, base64
 from os.path import join as osjoin
@@ -163,12 +163,12 @@ __debug_view_prologue__ = False
 
 class BlobUploadForm(forms.Form):
     htmlid = "id_form_blobuploadform"
-    file = forms.FileField(help_text=_("File to upload  — will replace the blob's content"))
+    file = forms.FileField(help_text=_("File to upload"))
     UUID = forms.CharField(widget=forms.HiddenInput())
     NICK = forms.CharField(widget=forms.HiddenInput())
     ext  = forms.CharField(widget=forms.HiddenInput())
     lang = forms.CharField(widget=forms.HiddenInput(),required = False)
-    mimetype = forms.CharField(widget=forms.HiddenInput(),required = False)    
+    #oldext = forms.CharField(widget=forms.HiddenInput(),required = False)    
 
 class BlobEditForm(forms.Form):
     #
@@ -857,6 +857,21 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
                     '?lang=%s&ext=%s'%(redirectlang_,ext_) )
 
 
+def __allowed_image_mimetypes(ext=None):
+    " `ext` is an extension to add to the list `ColDoc.config.ColDoc_show_as_image`"
+    ll = list(ColDoc.config.ColDoc_show_as_image)
+    if ext and ext not in ll:
+        logger.warning('Extension %r is not in ColDoc.config.ColDoc_show_as_image', ext)
+        ll.append(ext)
+    m=[]
+    for j in ll:
+        if j in mimetypes.types_map:
+            a = mimetypes.types_map.get(j)
+            if a not in m:
+                m.append(a)
+        else:
+            logger.error('Extension %r is not in mimetypes.types_map', j)
+    return ll,m
 
 
 def postupload(request, NICK, UUID):
@@ -874,6 +889,8 @@ def postupload(request, NICK, UUID):
                                                          blobs_dir = blobs_dir, coldoc = NICK,
                                                          metadata_class=DMetadata)
     #    
+    E = metadata.get('extension')
+    #
     try:
         os.unlink(osjoin(blobs_dir,uuid_dir,'.check_ok'))
     except OSError:
@@ -885,33 +902,66 @@ def postupload(request, NICK, UUID):
     nick_ = form.cleaned_data['NICK']
     lang_ = form.cleaned_data['lang']
     ext_ = form.cleaned_data['ext']
-    type__ = form.cleaned_data['mimetype']
     assert UUID == uuid_ and NICK == nick_
     assert lang_re.match(lang_)
     assert slugp_re.match(ext_)
     #
+    if ext_ and not ( ext_ in E or ext_ in ColDoc.config.ColDoc_show_as_image):
+        raise SuspiciousOperation()
+    #
+    allowed_ext , allowed_mime = __allowed_image_mimetypes(ext_ if ext_ else None)
+    #
+    f = file_._name
+    newext = os.path.splitext(f)[1]
+    if newext == '.jpg' :
+        newext = '.jpeg'
+    if  newext not in allowed_ext:
+        messages.add_message(request,messages.ERROR,
+                             _('File uploaded has extension of %(this)r instead of one of: %(that)r') %
+                             {'this': newext , 'that': allowed_ext})
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    if file_.content_type not in allowed_mime:
+        messages.add_message(request,messages.ERROR,
+                             _('File uploaded is %(this)r instead of one of: %(that)r') %
+                             {'this': file_.content_type , 'that': allowed_mime})
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
     l = ('_'+lang_) if lang_ else ''
-    dest = os.path.join(blobs_dir, uuid_dir, 'blob' + l + ext_)
+    D = os.path.join(blobs_dir, uuid_dir)
+    F = os.path.join(D, 'blob' + l + newext)
     #
     try:
-        with open(dest + '~~', 'wb+') as destination:
+        T = tempfile.NamedTemporaryFile(dir=D, prefix='tmp_upload_')
+        with open(T.name, 'wb') as destination:
             for chunk in file_.chunks():
                 destination.write(chunk)
-        os.rename(dest + '~~', dest)
     except:
         logger.exception('failed %r',dest)
         messages.add_message(request,messages.ERROR, _('File upload failed'))
-    ## nope this uses the extension
-    #_type_ , _encod_ = mimetypes.guess_type(dest)
-    if file_.content_type != type__:
-        messages.add_message(request,messages.ERROR,
-                             _('File uploaded is %(this)r instead of %(that)r') %
-                             {'this': file_.content_type , 'that': type__})
+        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
+    if magic:
+        a = magic.from_file(T.name, mime=True)
+        if a not in allowed_mime:
+                messages.add_message(request,messages.ERROR,
+                             _('File uploaded is %(this)r instead of one of: %(that)r') %
+                             {'this': a , 'that': allowed_mime})
+                return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+        if a != file_.content_type:
+            messages.add_message(request,messages.WARNING,
+                             _('File uploaded is %(this)r instead of %(that)r') %
+                             {'this': a , 'that': file_.content_type})
+    #
+    os.rename(T.name, F)
+    T.delete = False
+    #
+    if newext not in E:
+        metadata.add('extension',newext)
     metadata.blob_modification_time_update()
     metadata.save()
     #
-    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
+    return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,newext))
 
 
 def  __relatex_msg(res, all_messages):
@@ -2324,15 +2374,13 @@ def index(request, NICK, UUID):
             metadataform.fields['environ'].widget.attrs['readonly'] = True
             metadataform.fields['optarg'].widget.attrs['readonly'] = True
     #
-    mimetype = mimetypes.types_map.get(blob_ext,'')
-    initial_base = {'NICK':NICK,'UUID':UUID,'ext':blob_ext,'lang':blob_lang,'mimetype':mimetype}
+    initial_base = {'NICK':NICK, 'UUID':UUID, 'lang':blob_lang,
+                    'ext': blob_ext if blob_ext else ''}
+    a, m = __allowed_image_mimetypes(blob_ext)
     blobuploadform = BlobUploadForm(initial=initial_base)
-    if mimetype:
-        blobuploadform.fields['file'].widget.attrs['accept'] = mimetype
-    else:
-        logger.warning('Extension %r is not in mimetypes.types_map', blob_ext)
+    if m:
+        blobuploadform.fields['file'].widget.attrs['accept'] = ','.join(m)
     # FIXME this is ineffective
-    a = ('.jpg','.jpeg') if ( blob_ext in ('.jpg','.jpeg') ) else (blob_ext,)
     v = FileExtensionValidator(allowed_extensions=a)
     blobuploadform.fields['file'].validators.append(v)
     #
