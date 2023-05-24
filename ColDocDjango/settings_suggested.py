@@ -34,9 +34,10 @@ LANGUAGES = [
 
 
 ## as per https://bugs.freedesktop.org/show_bug.cgi?id=5455
+## or https://en.wikibooks.org/wiki/Gnuplot#Syntax_highlighting
 
 import mimetypes
-for j in ('.gplt','.gnuplot'):
+for j in ('.gplt','.gnuplot','.gpi'):
     mimetypes.add_type('application/x-gnuplot',j)
 
 mimetypes.add_type('application/x-xfig','.fig')
