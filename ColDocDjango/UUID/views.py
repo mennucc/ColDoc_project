@@ -2620,7 +2620,7 @@ def download(request, NICK, UUID):
     for a in ("preamble_definitions", "preamble_" + engine, ):
         m = None
         try:
-            m = DMetadata.objects.filter(original_filename = a, coldoc = coldoc).get()
+            m = DMetadata.objects.filter(original_filename__contains = a, coldoc = coldoc).get()
         except:
             logger.warning("No blob has filename %r", a)
             continue
