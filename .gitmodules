@@ -1,0 +1,9 @@
+[submodule "sub/django-background-tasks"]
+	path = sub/django-background-tasks
+	url = https://github.com/mennucc/django-background-tasks
+[submodule "sub/unicode2latex"]
+	path = sub/unicode2latex
+	url = https://github.com/mennucc/unicode2latex
+[submodule "sub/django-simplewallet"]
+	path = sub/django-simplewallet
+	url = https://github.com/mennucc/django-simplewallet
