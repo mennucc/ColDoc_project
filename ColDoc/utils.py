@@ -775,7 +775,7 @@ def sort_extensions(E):
     E.sort(key = lambda x: P.get(x,10))
     return E
 
-def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = False,
+def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = None,
                 lang = ColDoc_lang, accept_lang = {}, 
                 metadata_class=FMetadata, coldoc=None, metadata=None, prefix=None):
     """ Choose a blob, trying to satisfy request for language and extension.
@@ -783,15 +783,16 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = False,
     possibly following the preferences of `accept_lang` ;
     if `ext` is None, an extension will be returned following `sort_extensions`; 
     if `lang` is None, the best language according to `accept_lang` will be returned ;
-    if `prefix` is `view`, searches for `view` files instead of `blobs` (and ext is '.pdf' by default),
-    otherwise `ext` is `.tex` by default .
+    if `prefix` is `view`, searches for `view` files instead of `blob` (and ext is '.pdf' by default),
+    otherwise `ext` is None (that means: choose one) by default;
+    if `prefix` is `edit`, searches for a blob that can be edited (it will ignore `lang` if the blob is `mul`).
     """
     assert blobs_dir is not None
     assert metadata is not None or (uuid is not None and (metadata_class == FMetadata or coldoc is not None))
     assert isinstance(uuid,str) or uuid is None
     assert lang is None or (len(lang) == 3 and slug_re.match(lang))
     if prefix is  None : prefix = 'blob'
-    assert prefix in ('blob','view')
+    assert prefix in ('blob','edit','view')
     #
     if metadata is None:
         m = metadata_class.load_by_uuid(uuid=uuid,coldoc=coldoc,basepath=blobs_dir)
@@ -805,8 +806,9 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = False,
         logger.error('Metadata `%r` not available for coldoc %r', uuid, coldoc)
         raise ColDocException('Metadata `%r` not available for coldoc %r'%(uuid, coldoc))
     #
-    if prefix == 'blob':
+    if prefix != 'view':
         if ext is False : ext = '.tex'
+        # TODO if prefix=='edit'. only consider editable (ie text) formats
         E = sort_extensions(m.get('extension'))
         assert len(E) >= 1
         if ext is not None:
@@ -818,6 +820,15 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = False,
         if ext is False or ext is None : ext = '.pdf'
         assert ext in ('.pdf','_html')
         E = [ext]
+    #
+    Blangs = copy.copy(m.get_languages())
+    # if language is `mul`, we must edit the `mul` blob
+    if prefix == 'edit':
+        if 'mul' in Blangs:
+            if lang:
+                logger.warning('choose blob: uuid  %r forcing lang %r to `mul`', uuid, lang)
+            lang = 'mul'
+        prefix = 'blob'
     # short circuit the case of given lang and ext
     if lang is not None and ext is not None:
         lang_ = ('_' + lang) if lang else ''
@@ -828,12 +839,16 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = False,
             logger.error('Blob %r ... r not available for lang = %r ext = %r : %r', prefix, uuid, lang, ext, input_file)
             raise FileNotFoundError('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
+    CDlangs = copy.copy(m.coldoc.get_languages())
+    # prepare list of possible languages
+    L = Blangs
     # the .bib files are sometimes stored with language `und` or `zxx`, and this language
     # does not correspond to a specific main file... so we compile and show real languages
-    L = copy.copy(m.get_languages())
     if prefix == 'view' and ('mul' in L or  ( any( (j in L) for j in ('zxx','und')) and \
                                               m.environ in ColDoc_environments_biblio)):
-        L = copy.copy(m.coldoc.get_languages())
+        L = CDlangs
+    elif ('mul' in L ):
+        L += CDlangs
     #
     if accept_lang:
         L.sort(key = lambda x : accept_lang.get(x,0), reverse=True)

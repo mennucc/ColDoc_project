@@ -2033,7 +2033,7 @@ def index(request, NICK, UUID):
             ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
                                      ext = ext, lang = lang,
                                      accept_lang = accept_lang,
-                                     metadata_class=DMetadata, coldoc=NICK)
+                                     metadata_class=DMetadata, coldoc=NICK, prefix = 'edit')
         blob__dir = os.path.dirname(blob_filename)
     except FileNotFoundError:
         logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
