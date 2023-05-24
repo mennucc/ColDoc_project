@@ -2153,7 +2153,10 @@ def index(request, NICK, UUID):
         if env in ColDoc.latex.environments_we_wont_latex:
             html = '[NO HTML preview for %r]'%(env,)
             pdfurl = ''
-            all_views = [( view_lang, iso3lang2word_H(view_lang), html, '')]
+            if view_lang:
+                all_views = [( view_lang, iso3lang2word_H(view_lang), html, '')]
+            else:
+                all_views = [( '', '', html, '')]
         elif env == 'main_file' and uuid == coldoc.root_uuid:
             pdfurl = ''
             html = ''
