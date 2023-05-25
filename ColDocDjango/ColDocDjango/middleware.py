@@ -17,13 +17,14 @@ class RemoteUserMiddleware(MiddlewareMixin):
 from django import shortcuts
 
 class RedirectException(Exception):
-    def __init__(self, url):
+    def __init__(self, url, permanent=False):
         self.url = url
+        self.permanent = permanent
 
-def redirect_by_exception(url):
-    raise RedirectException(url)
+def redirect_by_exception(url, permanent=False):
+    raise RedirectException(url, permanent)
 
 class RedirectMiddleware(MiddlewareMixin):
     def process_exception(self, request, exception):
         if isinstance(exception, RedirectException):
-            return shortcuts.redirect(exception.url)
+            return shortcuts.redirect(exception.url, exception.permanent)
