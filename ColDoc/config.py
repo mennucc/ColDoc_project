@@ -156,6 +156,38 @@ ColDoc_allowed_logs = ['.aux','.log','.out','.toc','.idx','.bbl', '.blg', '.fls'
 ColDoc_latex_macros_private = '\\newif\\ifColDocPublic\\ColDocPublicfalse\n\\newif\\ifColDocOneUUID\\ColDocOneUUIDfalse\n'
 ColDoc_latex_macros_public  = '\\newif\\ifColDocPublic\\ColDocPublictrue \n\\newif\\ifColDocOneUUID\\ColDocOneUUIDfalse\n'
 ColDoc_latex_macros_uuid    = '\\newif\\ifColDocPublic\\ColDocPublicfalse\n\\newif\\ifColDocOneUUID\\ColDocOneUUIDtrue\n'
+ColDoc_graphic_template = r"""
+\ifplastex
+\includegraphics{%(filename)s}
+\else
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{%(filename_no_ext)s}
+\caption{Figure for \ref{UUID:%(parent_uuid)s}}
+\end{center}
+\end{figure}
+\fi
+"""
+ColDoc_graphic_mul_template = r"""
+\ifplastex
+\includegraphics{%(filename)s}
+\else
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.5\textwidth]{%(filename_no_ext)s}
+\caption{
+\CDLeng Figure for 
+\CDLita Figura per 
+\CDLfra Figure par 
+\CDLspa Figura por 
+\CDLdeu Abbildung zum
+\CDLrus Рисунок для 
+\ref{UUID:%(parent_uuid)s}}
+\end{center}
+\end{figure}
+\fi
+"""
+
 
 # prefix for language headers , e.g. `\CDLeng` , `\CDLita` etc
 # in multilingual documents,

@@ -174,6 +174,10 @@ class DColDoc(models.Model):
                                             default=CC.ColDoc_latex_macros_public)
     latex_macros_uuid = models.TextField(max_length=1000, blank=True,
                                             default=CC.ColDoc_latex_macros_uuid)
+    graphic_template  = models.TextField(max_length=1000, blank=True,
+                                            default=CC.ColDoc_graphic_template)
+    graphic_mul_template  = models.TextField(max_length=1000, blank=True,
+                                            default=CC.ColDoc_graphic_mul_template)
     #
     # blank means that no error occoured
     latex_return_codes = models.CharField(max_length=2000, blank=True)
