@@ -85,6 +85,7 @@ from ColDoc import TokenizerPassThru, transform
 from ColDocApp import text_catalog
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
+from ColDocDjango.middleware import redirect_by_exception
 
 def iso3lang2word(*v , **k):
     return gettext_lazy(iso3lang2word_untranslated(*v, **k))
@@ -110,6 +111,17 @@ def int_(v):
 
 wrong_choice_list = [('internal_error','internal_error')]
 
+##############################################################
+def __redirect_other_lang(request,lang,ext):
+    "  courtesy for people using other language codes "
+    if lang is not None and not langc_re.match(lang) and pycountry:
+        a = ColDocDjango.utils.http_to_iso_language(lang)
+        if a:
+            b = request.path + '?lang=' + a
+            if ext:
+                b += '&ext=' + ext
+            logger.warning('Redirected %r %r %r to %r',request.path, lang, ext , b)
+            redirect_by_exception(request.build_absolute_uri(b), permanent=True)
 
 
 ##############################################################
@@ -1854,6 +1866,7 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
         return HttpResponse("No such ColDoc %r.\n" % (NICK,), status=http.HTTPStatus.NOT_FOUND)
     #
     lang = q.get('lang')
+    __redirect_other_lang(request,lang,_view_ext)
     if lang is not None and  not langc_re.match(lang):
             raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
     if lang:
@@ -2065,6 +2078,7 @@ def index(request, NICK, UUID):
         if not slugp_re.match(ext):
             raise SuspiciousOperation("Invalid ext %r in query." % (ext,))
     lang = q.get('lang')
+    __redirect_other_lang(request,lang,ext)
     if lang is not None and not lang_re.match(lang):
             raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
     highlight = q.get('highlight')
