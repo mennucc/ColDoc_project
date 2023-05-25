@@ -39,7 +39,7 @@ Long story short. To install most of them, you may use
 
 .. code:: shell
 
-	  pip3 install django BeautifulSoup4 pycountry lockfile django-guardian django-allauth django-select2 pylatexenc whitenoise django-simple-captcha
+	  pip3 install django BeautifulSoup4 pycountry lockfile django-guardian django-allauth django-select2 pylatexenc whitenoise django-simple-captcha python-magic
 
 or
 
@@ -183,6 +183,8 @@ is needed for an user to buy access to restricted parts of a document.
 `django-allauth` is a fantastic package that will enable your users to login
 using external providers (Google, Facebook, etc). It is a bit complex
 to setup, but wholly worth it.
+
+`python-magic` is used to validate image file uploads.
 
 By default, a `coldoc` portal will use `sqlite` as database; to use other databases,
 you may need to install an adapter, `eg` for `MySQL` you may install `mysqlclient`.

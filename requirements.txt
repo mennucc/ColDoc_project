@@ -9,3 +9,4 @@ django-simple-captcha==0.5.17
 pylatexenc==2.10
 pycountry==22.3.5
 mysqlclient==2.1.1
+python-magic==0.4.27
