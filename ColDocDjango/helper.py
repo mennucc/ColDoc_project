@@ -386,6 +386,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
         new_uuid = utils.new_uuid(blobs_dir=blobs_dir)
         new_dir = utils.uuid_to_dir(new_uuid, blobs_dir=blobs_dir, create=True)
         filename = osjoin(new_dir,'blob' + c_lang_ + extension)
+        filename_no_ext = osjoin(new_dir,'blob' + c_lang_)
         if os.path.exists( osjoin(blobs_dir, filename) ):
             logger.error(' output exists %r, trying next UUID' % filename)
             filename = None
@@ -402,6 +403,7 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
     child_metadata.add('author',user)
     parent_metadata.add('child_uuid',new_uuid)
     child_metadata.save()
+    child_uuid = child_metadata.uuid
     #
     placeholder='placeholder'
     parent_file = open(parent_abs_filename).read()
@@ -435,7 +437,12 @@ def add_blob(logger, user, COLDOC_SITE_ROOT, coldoc_nick, parent_uuid, environ, 
             if environ[2:] in blobinator_args['split_list']:
                 f.write("\\item")
         if environ == 'graphic_file':
-            f.write("\\includegraphics{"+filename+"}")
+            t = coldoc.graphic_template
+            if 'mul' in Blangs:
+                t = coldoc.graphic_mul_template
+            l = locals()
+            l = dict( (a,l[a]) for a in l if (not a.startswith('_') and isinstance(l[a],str)))
+            f.write(t % l)
         else: 
             f.write("\\input{"+filename+"}")
         if environ[:2] == 'E_' and add_beginend:
