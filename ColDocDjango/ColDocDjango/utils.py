@@ -4,6 +4,7 @@ from os.path import join as osjoin
 # taken from Django, for convenience
 slug_re = re.compile(r'^[-a-zA-Z0-9_]+\Z')
 number_re = re.compile(r'^[0-9]+\Z')
+letter_re = re.compile(r'^[a-zA-Z]+\Z')
 
 from django.contrib.auth.validators import UnicodeUsernameValidator
 valid_user_re = UnicodeUsernameValidator().regex
@@ -41,11 +42,18 @@ except  ImportError:
 
 @functools.lru_cache(maxsize=1024)
 def http_to_iso_language(lang):
+    " converts ll-LL languages to 3 letter codes ; needs `pycountry` "
     # TODO implement subvariants somehow
     if '-' in lang:
         p = lang.index('-')
         lang = lang[:p]
+    if '_' in lang:
+        p = lang.index('_')
+        lang = lang[:p]
     newlang = None
+    if not letter_re.match(lang):
+        return
+    lang = lang.lower()
     if len(lang) == 2:
         try:
             newlang = pycountry.languages.get(alpha_2=lang).alpha_3
