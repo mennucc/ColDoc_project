@@ -104,10 +104,10 @@ var blob_polling = blob_polling_default;
 // check_changed_md5() is in notifychange.js
 
 function check_blob_changed_md5() { 
-   let blob_callback = (ret) => 
-      { if( (ret != undefined) && (blob_md5 != ret)) {
-      blob_post('save_no_reload');
-      blob_md5 = ret; 
+   let blob_callback = (ret) => {
+      if( (ret != undefined) && (blob_md5 != ret)) {
+        blob_post('save_no_reload');
+        blob_md5 = ret;
    }};
    check_changed_md5(get_blob_md5_url, blob_callback);
 };
