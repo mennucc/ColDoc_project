@@ -112,15 +112,16 @@ function check_blob_changed_md5() {
    check_changed_md5(get_blob_md5_url, blob_callback);
 };
 
+var blob_polling_id = undefined;
 
 function poll_blob_changed_md5() {
     if(blob_polling == 0 ) { return ; }
     check_blob_changed_md5();
-    setTimeout(poll_blob_changed_md5, blob_polling);
+    blob_polling_id = setTimeout(poll_blob_changed_md5, blob_polling);
 };
 
 // start polling
-setTimeout(poll_blob_changed_md5, blob_polling);
+blob_polling_id = setTimeout(poll_blob_changed_md5, blob_polling);
 
 ///////////////////////////////////////////
 
@@ -203,7 +204,9 @@ function ajax_views_post() {
  if ( compilation_in_progress ) { 
    $("#id_view").addClass("bg-warning");
    $("#id_blobeditform_compile").removeClass("btn-warning btn-outline-info bg-warning").addClass("bg-info progress-bar-striped progress-bar-animated");
+   // permanently stop view_poll, and disable blob_poll  
    blob_polling = 0 ; view_polling = 0 ;
+   clearTimeout(blob_polling_id);
  }
  $.ajax(ajax_views_url, {
 	   type: "POST",
@@ -221,7 +224,8 @@ function ajax_views_post() {
 		// FIXME set view polling and md5
 	   },
 	});
- blob_polling = blob_polling_default; setTimeout(poll_blob_changed_md5, blob_polling);
+ blob_polling = blob_polling_default;
+ blob_polling_id = setTimeout(poll_blob_changed_md5, blob_polling);
 }
 //////////////////////////////////////////
 
@@ -313,7 +317,12 @@ function update_blobedit_timestamp()
    }
    last_textarea_keypress = new Date().getTime();
    // once the user starts editing, the polling is reduced to 10 seconds
-   if(blob_polling > 10000) { blob_polling = 10000; setTimeout(poll_blob_changed_md5, blob_polling); }
+   if(blob_polling > 10000) { 
+     blob_polling = 10000;
+     clearTimeout(blob_polling_id);
+     // and a rapid check is made, that the remote was not changed
+     blob_polling_id = setTimeout(poll_blob_changed_md5, 100);
+   }
    return true;
 };
 
