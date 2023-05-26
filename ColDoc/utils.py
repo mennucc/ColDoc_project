@@ -836,7 +836,7 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = None,
         if os.path.exists(input_file):
             return input_file,uuid,m,lang,ext
         else:
-            logger.error('Blob %r ... r not available for lang = %r ext = %r : %r', prefix, uuid, lang, ext, input_file)
+            logger.error('Blob %r ... %r not available for lang = %r ext = %r : %r', prefix, uuid, lang, ext, input_file)
             raise FileNotFoundError('Blob `%r` not available for lang = %r ext = %r' % ( uuid, lang, ext))
     #
     CDlangs = copy.copy(m.coldoc.get_languages())
