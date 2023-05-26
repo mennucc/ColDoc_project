@@ -669,13 +669,8 @@ def   _put_back_prologue(prologue, blobeditarea, env, uuid):
         blobcontent = blobeditarea
     return blobcontent, newprologue, sources , weird_prologue, displacement
 
-def postlang(request, NICK, UUID):
-    if request.method != 'POST' :
-        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
-    #
-    check_login_timeout(request, NICK)
-    #
-    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+@decorator_url()
+def postlang(request, NICK, UUID, coldoc, coldoc_dir, blobs_dir, metadata, **w):
     #
     actions = ['add','translate','relabel','delete','multlang','manual']
     prefix = request.POST.get('button')
@@ -702,7 +697,6 @@ def postlang(request, NICK, UUID):
     assert lang_re.match(lang_)
     assert slugp_re.match(ext_)
     #
-    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     can_change_blob = request.user.has_perm('UUID.change_blob')
     can_change_metadata = request.user.has_perm('UUID.change_dmetadata')
@@ -943,23 +937,18 @@ def __allowed_image_mimetypes(ext=None):
             logger.error('Extension %r is not in mimetypes.types_map', j)
     return ll,m
 
-
-def postupload(request, NICK, UUID):
+@decorator_url()
+def postupload(request, NICK, UUID, coldoc, coldoc_dir, blobs_dir, metadata, **k):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
-    #
-    check_login_timeout(request, NICK)
-    #
-    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
     form=BlobUploadForm(data=request.POST, files=request.FILES)
     #
     if not form.is_valid():
         a = "Invalid form: "+repr(form.errors)
         return HttpResponse(a,status=http.HTTPStatus.BAD_REQUEST)
-    uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
-                                                         blobs_dir = blobs_dir, coldoc = NICK,
-                                                         metadata_class=DMetadata)
+    uuid = UUID
+    uuid_dir = uuid_to_dir(uuid)
     #    
     E = metadata.get('extension')
     #
@@ -1113,26 +1102,13 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
             blob = out.getvalue()
     return blob, errors
 
-def postedit(request, NICK, UUID):
-    if request.method != 'POST' :
-        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+@decorator_url(ajax_actions = ('compile_no_reload', 'save_no_reload', 'normalize' ))
+def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_dir, ajax_actions, do_lock, **k):
     #
-    ajax_actions = ('compile_no_reload', 'save_no_reload', 'normalize' )
     actions = 'compile', 'compile_no_reload', 'save', 'save_no_reload', 'normalize', 'revert'
     s = sum (int( a in request.POST ) for a in actions)
     assert 1 == s, request.POST.keys()
     the_action = [a for a in actions if a in request.POST].pop()
-    #
-    if request.user.is_anonymous:
-        a = _('Session timeout, please login again')
-        if the_action in ajax_actions:
-            return JsonResponse({"alert":json.dumps(str(a))})
-        messages.add_message(request,messages.ERROR, a)
-        return redirect(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,} ))
-    #
-    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
-    #
-    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
     #
     form=BlobEditForm(request.POST)
     #
@@ -1591,20 +1567,13 @@ def ajax_views(request, NICK, UUID):
                           "alert"  : json.dumps(str(alert)),
                           "viewarea" : json.dumps(views),  })
 
-def postmetadataedit(request, NICK, UUID):
-    if request.method != 'POST' :
-        return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
-    #
-    check_login_timeout(request, NICK)
-    #
-    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
-    #
+@decorator_url()
+def postmetadataedit(request, NICK, UUID, coldoc, coldoc_dir, blobs_dir, uuid_dir, metadata, **k):
     from ColDoc.utils import tree_environ_helper
     teh = tree_environ_helper(blobs_dir = blobs_dir)
     #
-    uuid, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=UUID, uuid_dir=None,
-                                                   blobs_dir = blobs_dir, coldoc = NICK,
-                                                   metadata_class=DMetadata)
+    uuid = UUID
+    uuid_dir = uuid_to_dir(uuid)
     #
     try:
         os.unlink(osjoin(blobs_dir,uuid_dir,'.check_ok'))
