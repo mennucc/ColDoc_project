@@ -23,6 +23,11 @@ try:
 except:
     magic = None
 
+try:
+    import lockfile
+except:
+    lockfile = None
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -256,6 +261,57 @@ def common_checks(request, NICK, UUID, accept_anon=False):
     if not os.path.isdir(blobs_dir):
         raise SuspiciousOperation("No blobs for this ColDoc %r.\n" % (NICK,))
     return coldoc, coldoc_dir, blobs_dir
+
+
+
+
+def decorator_url(_do_lock=True, **_decorator_kwargs):
+    """ `cmd` must be called with `request` `NICK`, `UUID` ,
+    `cmd`  be  called with args: request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_dir, **kwargs
+     and with a lock in the blob directory"; an argument of `ajax_actions`  has a special meaning """
+    def inner_decorator(_cmd):
+        @functools.wraps(_cmd)
+        def wrapper(request, *_kargs, **_wargs):
+            assert not _kargs
+            NICK = _wargs.get('NICK')
+            UUID = _wargs.get('UUID')
+            #
+            if request.method != 'POST' :
+                return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+            #
+            if request.user.is_anonymous:
+                m = _('Session timeout, please login again')
+                b = ajax_actions = _decorator_kwargs.get('ajax_actions',())
+                if any ( (a in request.POST) for a in b ):
+                    return JsonResponse({"alert":json.dumps(str(m))})
+                messages.add_message(request,messages.ERROR, m)
+                return redirect(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,} ))
+            #
+            coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+            #
+            metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+            #
+            if metadata is None:
+                raise SuspiciousOperation('No such nick %r uuid %r' % (NICK,UUID) )
+            #
+            uuid_dir = uuid_to_dir(UUID)
+            if not os.path.isdir(osjoin(blobs_dir, uuid_dir)):
+                raise SuspiciousOperation('No directory for nick %r uuid %r' % (NICK,UUID) )
+            #
+            do_lock = _do_lock and lockfile
+            #
+            l = locals()
+            l.update(_decorator_kwargs)
+            _wargs.update( (j,l[j]) for j in l if (not j.startswith('_') and len(l) > 2))
+            if do_lock:
+                lock = lockfile.LockFile(osjoin(settings.COLDOC_SITE_ROOT, 'lock', 'lock_' + NICK + '_' + UUID))
+                with lock:
+                    return _cmd(**_wargs)
+            else:
+                return _cmd(**_wargs)
+        return wrapper
+    return inner_decorator
+
 
 
 def __extract_prologue(blobcontent, uuid, env, optarg):
