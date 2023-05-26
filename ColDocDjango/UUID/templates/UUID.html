@@ -196,7 +196,7 @@ $( document ).ready(function() {
     <ul>
     {% if env %}<li>{% translate "Environment:" %} {{ env }} </li>{% endif %}
     {% if blob_language %}<li>{% translate "Selected language:" %} {{ blob_language }}</li>{% endif %}
-    {% if ext %}<li>{% translate "Selected extension:" %} {{ ext }}</li> {% endif %}
+    {% if blob_ext %}<li>{% translate "Selected extension:" %} {{ blob_ext }}</li> {% endif %}
     </ul>
     {% if blobcontenttype == 'text' %}
      {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
