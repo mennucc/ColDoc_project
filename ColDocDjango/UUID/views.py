@@ -1148,10 +1148,19 @@ def postedit(request, NICK, UUID):
             real_blobcontent += '\n'
     #
     if file_md5 != real_file_md5 and the_action.startswith('compile') :
-        a = _("The file was changed on disk: compile aborted.")
+        a = _("The file was changed on disk: compile aborted. Check the diff.")
+        messages.add_message(request, messages.ERROR, a)
         if the_action in ajax_actions:
-            return JsonResponse({"message":json.dumps(str(a))})
-        messages.add_message(request,messages.ERROR, a)
+            H = difflib.HtmlDiff()
+            blobdiff = H.make_table(open(filename).readlines(),
+                                blobeditarea.splitlines(keepends=True),
+                                _('Current'),_('Your version'), True)
+            message = render_to_string(template_name="messages.html", request=request)
+            return JsonResponse({'blob_md5': real_file_md5, 'uncompiled': 1,
+                                'blobdiff':json.dumps(blobdiff),
+                                'alert':json.dumps(str(a)),
+                                "message":json.dumps(str(message)),
+                                })
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
     #
     try:
@@ -1226,10 +1235,13 @@ def postedit(request, NICK, UUID):
         for string_,argument_ in normalize_errors:
             messages.add_message(request, messages.WARNING, _(string_) % argument_ )
         message = render_to_string(template_name="messages.html", request=request)
-        return JsonResponse({'blob_md5': real_file_md5, 'uncompiled' : uncompiled,
+        D = {'blob_md5': real_file_md5, 'uncompiled' : uncompiled,
                              'blobdiff':json.dumps(blobdiff),
                              "message":json.dumps(str(message)),
-                             'blobeditarea' : json.dumps(blobeditarea),})
+                             'blobeditarea' : json.dumps(blobeditarea),}
+        if ( file_md5 != real_file_md5 ):
+            D['alert'] = json.dumps(str(ch__ ))
+        return JsonResponse(D)
     # if we reach here we know that this is empty
     del  normalize_errors
     if 'save' == the_action:
