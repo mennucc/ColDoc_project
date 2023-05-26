@@ -216,7 +216,7 @@ $( document ).ready(function() {
      {% endif %}
     {% else %}
       (this is not text but {{ blobcontenttype }})
-      {% if perms.UUID.change_blob %}
+      {% if perms.UUID.change_blob and blobuploadform %}
       <div class="w-100 border border-info mt-2">
       <form enctype="multipart/form-data" method="post" action="{% url 'UUID:postupload' NICK=NICK UUID=UUID %}" id="{{ blobuploadform.htmlid }}"  class="w-100">
       {% csrf_token %}{{ blobuploadform.non_field_errors }}

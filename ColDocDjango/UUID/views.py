@@ -2416,13 +2416,16 @@ def index(request, NICK, UUID):
     #
     initial_base = {'NICK':NICK, 'UUID':UUID, 'lang':blob_lang,
                     'ext': blob_ext if blob_ext else ''}
-    a, m = __allowed_image_mimetypes(blob_ext)
-    blobuploadform = BlobUploadForm(initial=initial_base)
-    if m:
-        blobuploadform.fields['file'].widget.attrs['accept'] = ','.join(m)
-    # FIXME this is ineffective
-    v = FileExtensionValidator(allowed_extensions=a)
-    blobuploadform.fields['file'].validators.append(v)
+    #
+    blobuploadform = None
+    if blobcontenttype != 'text' and can_change_blob:
+        a, m = __allowed_image_mimetypes(blob_ext)
+        blobuploadform = BlobUploadForm(initial=initial_base)
+        if m:
+            blobuploadform.fields['file'].widget.attrs['accept'] = ','.join(m)
+        # FIXME this is ineffective
+        v = FileExtensionValidator(allowed_extensions=a)
+        blobuploadform.fields['file'].validators.append(v)
     #
     other_view_languages = []
     uuid_languages = []
