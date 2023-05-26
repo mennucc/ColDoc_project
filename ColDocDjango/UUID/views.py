@@ -79,7 +79,7 @@ from plasTeX.TeX import TeX
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
 from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, uuid_to_dir, gen_lang_metadata, strip_delimiters
 from ColDoc.utils import langc_re , lang_re, fork_class
-from ColDocDjango.utils import get_email_for_user, load_unicode_to_latex
+from ColDocDjango.utils import get_email_for_user, load_unicode_to_latex, check_login_timeout
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
 from ColDocApp import text_catalog
@@ -617,6 +617,8 @@ def postlang(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
+    check_login_timeout(request, NICK)
+    #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
     actions = ['add','translate','relabel','delete','multlang','manual']
@@ -890,6 +892,8 @@ def postupload(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
+    check_login_timeout(request, NICK)
+    #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
     form=BlobUploadForm(data=request.POST, files=request.FILES)
@@ -1057,15 +1061,23 @@ def postedit(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
-    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
-    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
-    reparse_options = {'unicode_to_latex' : load_unicode_to_latex(coldoc_dir)}
-    #
     ajax_actions = ('compile_no_reload', 'save_no_reload', 'normalize' )
     actions = 'compile', 'compile_no_reload', 'save', 'save_no_reload', 'normalize', 'revert'
     s = sum (int( a in request.POST ) for a in actions)
     assert 1 == s, request.POST.keys()
     the_action = [a for a in actions if a in request.POST].pop()
+    #
+    if request.user.is_anonymous:
+        a = _('Session timeout, please login again')
+        if the_action in ajax_actions:
+            return JsonResponse({"alert":json.dumps(str(a))})
+        messages.add_message(request,messages.ERROR, a)
+        return redirect(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,} ))
+    #
+    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
+    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
+    reparse_options = {'unicode_to_latex' : load_unicode_to_latex(coldoc_dir)}
+    #
     #
     form=BlobEditForm(request.POST)
     #
@@ -1526,6 +1538,8 @@ def ajax_views(request, NICK, UUID):
 def postmetadataedit(request, NICK, UUID):
     if request.method != 'POST' :
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+    #
+    check_login_timeout(request, NICK)
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
     #
