@@ -1075,16 +1075,14 @@ def postedit(request, NICK, UUID):
         return redirect(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,} ))
     #
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
-    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
-    reparse_options = {'unicode_to_latex' : load_unicode_to_latex(coldoc_dir)}
     #
+    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
     #
     form=BlobEditForm(request.POST)
     #
-    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
-    env = metadata.environ
     from ColDoc.utils import tree_environ_helper
     teh = tree_environ_helper(blobs_dir = blobs_dir)
+    env = metadata.environ
     ## https://docs.djangoproject.com/en/dev/topics/forms/
     a = teh.list_allowed_choices(env)
     form.fields['split_environment'].choices = a
@@ -1139,7 +1137,6 @@ def postedit(request, NICK, UUID):
                                  ext = ext_, lang = lang_, 
                                  metadata_class=DMetadata, coldoc=NICK)
     assert lang == lang_
-    env = metadata.environ
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
     can_change_blob = request.user.has_perm('UUID.change_blob')
@@ -1289,6 +1286,9 @@ def postedit(request, NICK, UUID):
     #
     from ColDoc.latex import environments_we_wont_latex
     from ColDoc.utils import reparse_blob
+    #
+    reparse_options = {'unicode_to_latex' : load_unicode_to_latex(coldoc_dir)}
+    load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
     #
     if split_selection_:
         from helper import add_blob
