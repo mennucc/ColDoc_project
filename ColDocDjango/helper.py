@@ -117,7 +117,7 @@ def deploy(target, database = 'sqlite3'):
     F.close()
     #
     newconfig = config.get_config(target)
-    for j in ( 'coldocs' , 'www' , ):
+    for j in ( 'coldocs' , 'www' , 'lock'):
         os.mkdir(osjoin(target,j))
     # create 'media', , 'static_local', 'static_root':
     for j in 'media_root', 'template_dirs', 'static_root', 'static_local', 'dedup_root':
