@@ -825,7 +825,7 @@ def choose_blob(uuid=None, blobs_dir = ColDoc_as_blobs, ext = None,
     # if language is `mul`, we must edit the `mul` blob
     if prefix == 'edit':
         if 'mul' in Blangs:
-            if lang:
+            if lang and lang != 'mul' :
                 logger.warning('choose blob: uuid  %r forcing lang %r to `mul`', uuid, lang)
             lang = 'mul'
         prefix = 'blob'
