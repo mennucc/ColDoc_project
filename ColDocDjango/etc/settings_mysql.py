@@ -19,4 +19,6 @@ DATABASES['default'] = {
     'NAME': MYSQL_DATABASE,
     'USER': MYSQL_USERNAME,
     'PASSWORD': MYSQL_PASSWORD,
+    # https://stackoverflow.com/a/61282219/5058564
+    "OPTIONS": {"charset": "utf8mb4"},
 }
