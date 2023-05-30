@@ -28,9 +28,9 @@ class squash_helper_ref(transform.squash_input_uuid):
         blob = None
         key = None
         logger.debug('searching label %r',label)
-        for j in ExtraMetadata.objects.filter(value=label):
-            if j.blob.coldoc == self.coldoc and j.key.endswith('M_label') and\
-               self.metadata.uuid != j.blob.uuid : # no need to rewrite refs inside the same blob
+        uuid = self.metadata.uuid
+        for j in ExtraMetadata.objects.filter(value=label, blob__uuid=uuid, blob__coldoc = self.coldoc, key__endswith = 'M_label' ):
+            if self.metadata.uuid != j.blob.uuid : # no need to rewrite refs inside the same blob
                 if blob is not None:
                     logger.warning('duplicate label %r in %r and in %r',
                                    label,blob,j.blob)
