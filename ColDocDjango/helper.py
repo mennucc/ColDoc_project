@@ -52,7 +52,7 @@ from os.path import join as osjoin
 if __name__ == '__main__':
     for j in ('','.'):
         while j in sys.path:
-            sys.stderr.write('Warning: deleting %r from sys.path\n',j)
+            sys.stderr.write('Warning: deleting %r from sys.path\n' % (j,))
             del sys.path[sys.path.index(j)]
     #
     a = os.path.realpath(sys.argv[0])

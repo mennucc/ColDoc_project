@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 if False:
     for j in ('','.'):
         while j in sys.path:
-            sys.stderr.write('Warning: deleting %r from sys.path\n',j)
+            sys.stderr.write('Warning: deleting %r from sys.path\n' % (j,))
             del sys.path[sys.path.index(j)]
 
 COLDOC_SITE_ROOT = None
