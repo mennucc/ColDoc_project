@@ -146,6 +146,15 @@ def deploy(target, database = 'sqlite3'):
     with open(b,'w') as f_:
         f_.write(z)
     #
+    import shlex
+    for j, c in (('environment', str), \
+                 ('environment.sh', lambda x: '"' + shlex.quote(x) + '"')):
+        b = osjoin(target, j)
+        with open(b,'w') as f_:
+            f_.write('COLDOC_SRC_ROOT=%s\nCOLDOC_SITE_ROOT=%s\nPATH=%s\n' % \
+                     (c(COLDOC_SRC_ROOT), c(target), c(os.environ.get('PATH',''))))
+            if 'VIRTUAL_ENV' in os.environ:
+                f_.write('VIRTUAL_ENV='  +  c(os.environ['VIRTUAL_ENV'])  +  '\n')
     #
     MYSQL_USERNAME = 'coldoc_user_' + suffix
     MYSQL_PASSWORD = get_random_string(10)
