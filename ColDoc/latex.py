@@ -50,6 +50,11 @@ if __name__ == '__main__':
 import logging
 logger = logging.getLogger(__name__)
 
+
+import coldoc_tasks
+import coldoc_tasks.simple_tasks
+from coldoc_tasks.simple_tasks import nofork_class
+
 ####
 
 try:
@@ -151,8 +156,11 @@ def lang_conditionals(thelang, langs = None, metadata = None):
 
 
 @ColDoc.utils.log_debug
-def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, options = {}, forked = False):
-    " `latex` the blob identified `uuid` or `metadata`; if `lang` is None, `latex` all languages ; return a dict of booleans to report failure for each language "
+def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, options = {}, forked = False,
+               fork_class=nofork_class):
+    """ `latex` the blob identified `uuid` or `metadata`; if `lang` is None, `latex` all languages ; 
+    if `forked`, it knows that it was forked, and will ask the same of `latex_blob` ;
+    return a dict of booleans to report failure for each language """
     log_level = logging.WARNING if warn else logging.DEBUG
     assert uuid is not None or metadata is not None
     if metadata is None:
@@ -207,7 +215,8 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     return res
 
 @ColDoc.utils.log_debug
-def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash = True, forked=False):
+def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash = True, forked=False,
+                fork_class=nofork_class):
     """ `latex` the blob identified by the `metadata`, for the given language `lang`.
     ( `uuid` and `uuid_dir` are courtesy , to avoid recomputing )
     Optionally squashes all sublevels, replacing with \\uuidplaceholder """
@@ -489,7 +498,9 @@ def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'
 
 
 @ColDoc.utils.log_debug
-def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, verbose_name=None, email_to=None):
+def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, verbose_name=None,
+                fork_class = nofork_class,
+                email_to=None):
     "latex the main document, as the authors intended it ; save all results in UUID dir, as main.* "
     #
     assert access in ('public','private')
@@ -564,7 +575,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         with open(fake_abs_name+'.tex','w') as f_:
             f_.write(f_pdf)
         #
-        subproc = ColDoc.utils.fork_class()
+        subproc = fork_class()
         subproc.run(pdflatex_engine, blobs_dir, fake_name, save_name, environ, lang, options)
         # plastex
         fake_texfile2 = tempfile.NamedTemporaryFile(prefix='fakelatex' + _lang + '_',
@@ -573,7 +584,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         fake_name2 = os.path.basename(fake_abs_name2)
         with open(fake_abs_name2+'.tex','w') as f_:
             f_.write(f_html)
-        subproc2 = ColDoc.utils.fork_class()
+        subproc2 = fork_class()
         subproc2.run(plastex_engine,blobs_dir, fake_name2, save_name, environ, uuid, lang, options,
                             levels = True, tok = True, strip_head = False)
         subprocs.append((lang, subproc, subproc2))
