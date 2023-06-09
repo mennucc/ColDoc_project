@@ -1,3 +1,5 @@
+import os
+
 ### these are some settings that are suggested
 
 MAIL_HOST = "smtp.server"

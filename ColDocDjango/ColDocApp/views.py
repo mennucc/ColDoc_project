@@ -423,7 +423,7 @@ def check_tree(request, NICK):
                 if problem[0] == 'DISCONNECTED':
                     disconnected.add(problem[1])
         except:
-            logger.exception('when scanning msg %r args %r',msg,args)
+            logger.exception('when scanning list of problems')
         for problem in problems:
             try:
                 code, uuid, msg, args = problem

@@ -28,6 +28,8 @@ logger = logging.getLogger(__name__)
 
 import ColDoc.latex
 
+from gettext import gettext as _
+
 cmd_help = ColDoc.latex.cmd_help + """
 
     dedup_html

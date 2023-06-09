@@ -998,7 +998,7 @@ def postupload(request, NICK, UUID, coldoc, coldoc_dir, blobs_dir, metadata, **k
             for chunk in file_.chunks():
                 destination.write(chunk)
     except:
-        logger.exception('failed %r',dest)
+        logger.exception('failed receiving file %r',F)
         messages.add_message(request,messages.ERROR, _('File upload failed'))
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
