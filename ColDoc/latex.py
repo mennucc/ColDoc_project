@@ -475,7 +475,9 @@ def _update_metadata_unsafe(metadata, lang, rh, rp):
     metadata.save()
 
 @ColDoc.utils.log_debug
-def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public', verbose_name=None, email_to=None):
+def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public', verbose_name=None,
+                fork_class = nofork_class,
+                email_to=None):
     #
     assert access=='public'
     #
@@ -492,7 +494,9 @@ def  latex_anon(coldoc_dir, uuid='001', lang=None, options = {}, access='public'
                                                  metadata_class=metadata_class, coldoc=coldoc)
     if anon_dir is not None:
         assert isinstance(anon_dir, (str, pathlib.Path)), anon_dir
-        return latex_main(anon_dir, uuid=uuid, lang=lang, options = options, access='public', verbose_name=verbose_name, email_to=email_to)
+        return latex_main(anon_dir, uuid=uuid, lang=lang, options = options, access='public', verbose_name=verbose_name,
+                          fork_class = fork_class,
+                          email_to=email_to)
     else:
         return False, {}
 
@@ -1014,7 +1018,9 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     return res, return_values
 
 
-def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_name=None, email_to=None):
+def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_name=None,
+               fork_class = nofork_class,
+               email_to=None):
     " latex the whole tree, starting from `uuid` "
     log_level = logging.WARNING if warn else logging.DEBUG
     #
@@ -1039,7 +1045,9 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_
         logger.log(log_level, 'Cannot `latex` environ %r , UUID = %r'%(metadata.environ, uuid,))
     else:
         try:
-            r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn, options=options)
+            r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn,
+                           fork_class=fork_class,
+                           options=options)
             r = all(r.values())
             ret = ret and r
         except:
