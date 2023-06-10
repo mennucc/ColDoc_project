@@ -10,8 +10,11 @@ from os.path import join as osjoin
 
 testdir = os.path.dirname(os.path.realpath(__file__))
 sourcedir = os.path.dirname(testdir)
+coldocdjangodir = osjoin(sourcedir,'ColDocDjango')
 
-sys.path.append(osjoin(sourcedir,'ColDocDjango'))
+if coldocdjangodir not in sys.path:
+    sys.path.insert(0, coldocdjangodir)
+
 
 from ColDoc import transform as T
 
