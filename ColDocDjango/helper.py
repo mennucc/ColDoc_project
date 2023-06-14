@@ -172,12 +172,6 @@ def deploy(target, database = 'sqlite3'):
             f_.write(z)
         os.chmod(b,0o600)
     #
-    if database == "mysql" :
-        print('You should create the database, the user and set permissions,\n'
-              ' maybe using this command:\n'
-              ' # sudo mysql < %s' % (osjoin(target,'mysql.sql'))
-              )
-    print("Then: `manage.py migrate`; `manage.py collectstatic`, customize and install apache2.conf")
     return True
 
 def set_site(site_name='ColDoc', site_url = 'localhost:8000', *ignored):
@@ -950,7 +944,15 @@ does not contain the file `config.ini`
             sys.stderr.write('The --database=%r is not one of %r.' % (args.database, DEPLOY_DATABASES ))
             return (1)
         else:
-            return deploy(COLDOC_SITE_ROOT, database=args.database)
+            ret = deploy(COLDOC_SITE_ROOT, database=args.database)
+            if args.database == "mysql" :
+                print('You should create the database, the user and set permissions,\n'
+                      ' maybe using this command:\n'
+                      ' # sudo mysql < %s' % (osjoin(COLDOC_SITE_ROOT,'mysql.sql'))
+                      )
+            print("Then: `manage.py migrate`; `manage.py collectstatic`, customize and install apache2.conf")
+            return ret
+    #
     elif argv[0] == 'set_site':
         return set_site(* (argv[1:]) )
     elif argv[0] == 'create_fake_users':
