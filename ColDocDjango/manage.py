@@ -2,6 +2,7 @@
 """Django's command-line utility for administrative tasks."""
 import os, copy, sys
 
+from helper import tmptestsite_deploy
 
 def main():
     argv = copy.copy(sys.argv)
@@ -25,7 +26,8 @@ def main():
     elif 'COLDOC_SITE_ROOT' in os.environ:
         COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
     #
-    if (len(argv)>1 and argv[1] not in ('help','startapp','makemessages','compilemessages')) and \
+    # check COLDOC_SITE_ROOT
+    if (len(argv)>1 and argv[1] not in ('test','help','startapp','makemessages','compilemessages')) and \
           (COLDOC_SITE_ROOT is None or \
            not os.path.isfile(os.path.join(COLDOC_SITE_ROOT,'config.ini'))):
         if COLDOC_SITE_ROOT is not None:
@@ -41,6 +43,16 @@ to specify where the ColDoc site is located.
         sys.exit(1)
     #
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
+    #
+    # change COLDOC_SITE_ROOT before initializing Django
+    if (len(argv)>1 and argv[1] in ('test',)):
+        COLDOC_SITE_ROOT = tmptestsite_deploy(COLDOC_SITE_ROOT)
+        os.environ['COLDOC_SITE_ROOT'] = COLDOC_SITE_ROOT
+        import django
+        django.setup()
+        from django.conf import settings
+        #tmptestsite_initialize_database(settings, COLDOC_SITE_ROOT)
+        os.environ['COLDOC_SITE_ROOT'] = COLDOC_SITE_ROOT
     #
     try:
         from django.core.management import execute_from_command_line
