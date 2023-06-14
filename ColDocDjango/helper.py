@@ -45,7 +45,7 @@ This program does some actions that `manage` does not. Possible commands:
     
 """)
 
-import os, sys, argparse, json, pickle, io, copy
+import os, sys, argparse, json, pickle, io, copy, tempfile
 from os.path import join as osjoin
 
 
@@ -74,6 +74,32 @@ from ColDoc.utils import ColDocException, get_blobinator_args, uuid_to_dir, pare
 
 import logging
 logger = logging.getLogger('helper')
+
+##################
+
+
+def tmptestsite_deploy(coldoc_site_root):
+    logger.setLevel(logging.INFO)
+    tempdir = tempfile.mkdtemp(prefix='ColDocDjangoTest_')
+    if coldoc_site_root:
+        logger.warning('COLDOC_SITE_ROOT was hijacked from %r to %r', coldoc_site_root, tempdir)
+    else:
+        logger.info('COLDOC_SITE_ROOT was set to %r',tempdir)
+    # set up temporary site
+    import helper
+    helper.deploy(tempdir)
+    # activate wallet
+    a = os.path.join(tempdir,'config.ini')
+    s = open(a).readlines()
+    for n in range(len(s)):
+        if s[n].startswith('use_wallet'):
+            s[n] = 'use_wallet = True\n'
+    with open(a,'w') as f:
+        f.write(''.join(s))
+    return tempdir
+
+
+##################
 
 DEPLOY_DATABASES = ('sqlite3', 'mysql')
 
