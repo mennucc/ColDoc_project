@@ -90,6 +90,8 @@ if   sys.base_prefix != sys.prefix:
         logger.info('prepend %r to path %r',a, p)
         os.environ['PATH'] = a + p
 
+os.environ['COLDOC_TASKS_AUTOSTART'] = 'all'
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()

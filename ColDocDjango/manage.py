@@ -42,6 +42,9 @@ to specify where the ColDoc site is located.
 """ )
         sys.exit(1)
     #
+    if (len(argv)>1 and argv[1] in ('runserver',)):
+        os.environ['COLDOC_TASKS_AUTOSTART'] = 'all'
+    #
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     #
     # change COLDOC_SITE_ROOT before initializing Django
