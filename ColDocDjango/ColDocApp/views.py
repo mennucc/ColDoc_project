@@ -23,6 +23,25 @@ else:
     # in django 3 you cannot concatenate strings to lazy-strings
     _ = gettext
 
+
+
+###################
+
+import coldoc_tasks.task_utils
+
+
+def _fork_class_callback(f):
+    if f.fork_type in ('simple',) and  settings.CLOSE_CONNECTION_ON_FORK:
+        logger.critical('Using %s forks for subprocesses , is incompatible with certain databases',
+                        f.fork_type)
+
+fork_class_default = \
+    coldoc_tasks.task_utils.choose_best_fork_class(getattr(settings,'COLDOC_TASKS_INFOFILE',None),
+                                                   getattr(settings,'COLDOC_TASKS_CELERYCONFIG',None),
+                                                   callback=_fork_class_callback)
+
+################
+
 import ColDoc.utils, ColDocDjango
 from ColDoc.utils import slug_re, slugp_re, langc_re , lang_re, uuid_valid_symbols,  get_blobinator_args
 from .models import DColDoc

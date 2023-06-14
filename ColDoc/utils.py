@@ -69,7 +69,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'recreate_symlinks',
             'TeX_add_packages',
             'log_debug', 'set_file_readonly', 'print_fun_call',
-            'fork_class', 'strip_delimiters',
+            'strip_delimiters',
             )
 
 class ColDocException(Exception):
@@ -96,144 +96,6 @@ def strip_delimiters(src, delimiters='{}'):
     else:
         d2 = ''
     return d1, src, d2
-
-############ class for forking
-
-if (sys.platform != 'linux'):
-    def waitstatus_to_exitcode(status):
-        # FIXME  find a viable alternative
-        return 0
-elif sys.version_info >= (3,9):
-    from os import waitstatus_to_exitcode
-else:
-    def waitstatus_to_exitcode(status):
-        return os.WEXITSTATUS(status) if os.WIFEXITED(status) else \
-               ( - os.WTERMSIG(status) if os.WIFSIGNALED(status) else None)
-
-class fork_class(object):
-    "class that runs a job in a forked subprocess, and returns results or raises exception"
-    def __init__(self, use_fork = True):
-        self.tempfile_name = None
-        self.__my_pid    = os.getpid()
-        self.__other_pid = None
-        self.already_run = False
-        self.already_wait = False
-        self.__ret = (2 , RuntimeError('Program bug') )
-        self.__signal = None
-        self.__use_fork = use_fork and self.can_fork()
-        self.__pickle_exception = None
-        # __del__ methods may be run after modules are gc
-        self.os_unlink = os.unlink
-    #
-    @staticmethod
-    def can_fork():
-        # FIXME find a viable alternative
-        return (sys.platform == 'linux')
-    #
-    @property
-    def use_fork(self):
-        return self.__use_fork
-    @use_fork.setter
-    def use_fork(self,v):
-        assert self.already_run is False
-        self.__use_fork = v and self.can_fork()
-    @property
-    def subprocess_pid(self):
-        return  self.__other_pid
-    #
-    def run(self, cmd, *k, **v):
-        assert self.already_run is False
-        self.__cmd = cmd
-        self.__k = k
-        self.__v = v
-        #
-        if self.__use_fork:
-            _tempfile = tempfile.NamedTemporaryFile(prefix='forkret',delete=False)
-            self.tempfile_name = _tempfile.name
-            with open(_tempfile.name,'wb') as f:
-                pickle.dump((2,None), f)
-            self.__other_pid = os.fork()
-            if self.__other_pid == 0:
-                self.__other_pid = os.getpid()
-                logger.debug('class_fork.run , inside forked  newpid %r now starting %r , file %r .',
-                             self.__other_pid, self.__cmd, self.tempfile_name)
-                try:
-                    ret = cmd(*k, **v)
-                    ret = (0,ret)
-                except Exception as e:
-                    logger.exception('class_fork.run , insider forked pid %r, cmd %r :', os.getpid(), self.__cmd)
-                    ret = (1, e)
-                with open(self.tempfile_name,'wb') as f:
-                    pickle.dump(ret, f)
-                # avoid deleting the file
-                # self.tempfile_name = None
-                # (altough __del__ is not called)
-                os._exit(0)
-                # or maybe
-                # sys.exit(0)
-            else:
-                logger.debug('class_fork.run , forked oldpid %r to newpid %r to start %r file %r .',
-                               self.__my_pid, self.__other_pid, self.__cmd, self.tempfile_name)
-        else:
-            try:
-                self.__ret = (0, cmd(*k, **v))
-            except Exception as e:
-                self.__ret = (1, e)
-        self.already_run = True
-    def wait(self):
-        assert self.already_run is True
-        if self.__use_fork and not self.already_wait:
-            a = [('fork_class, cmd %r pid %r.' % (self.__cmd, self.__other_pid))]
-            logger.debug('fork_class.wait,  my_pid %r waits for__other_pid %r, cmd %r , file %r .',
-                         self.__my_pid, self.__other_pid, self.__cmd, self.tempfile_name)
-            try:
-                pid_, exitstatus_ = os.waitpid(self.__other_pid, 0)
-                if pid_ != self.__other_pid:
-                    logger.error('internal error lnkanla19')
-                s = waitstatus_to_exitcode(exitstatus_)
-            except ChildProcessError:
-                logger.warning('Child %r has disappeared, unknown exit status', self.__other_pid)
-                a.append('Child has disappeared, unknown exit status.')
-                s = 0
-            self.already_wait = True
-            if s < 0:
-                import signal
-                self.__signal = sig = signal.Signals(-s)
-                a.append('Got signal %r.' % (sig,))
-                self.__ret = (2,  RuntimeError(' '.join(a)))
-            else:
-                try:
-                    with open(self.tempfile_name,'rb') as f:
-                        self.__ret = pickle.load(f)
-                    self.os_unlink(self.tempfile_name)
-                except Exception as E:
-                    self.__pickle_exception = E
-                    m = 'In pid %r cannot read exit status %r for pid %r: %s ' % \
-                        (self.__my_pid, self.tempfile_name, self.__other_pid, E,)
-                    a.append(m)
-                    logger.warning(m)
-                    self.__ret = (2 , None) # overwritten below
-                if self.__ret[0] == 2:
-                    a.append('Child did not terminate correctly (but no signal was detected), unknown exit status. ')
-                    self.__ret = (2 , RuntimeError(' '.join(a)) )
-            #
-            self.__del()
-            #
-            if len(a)>1:
-                logger.error(' '.join(a))
-        if self.__ret[0] :
-            raise self.__ret[1]
-        return self.__ret[1]
-    ## this is not __del__  
-    def __del(self):
-        logger.debug('fork_class.__del cmd %r __my_pid %r getpid %r , rm file %r .',
-                       self.__cmd, self.__my_pid, os.getpid(), self.tempfile_name)
-        if self.tempfile_name is not None:
-            try:
-                self.os_unlink(self.tempfile_name)
-                self.tempfile_name = None
-            except FileNotFoundError:
-                pass
 
 
 ######################
@@ -2179,44 +2041,6 @@ if __name__ == '__main__':
         output = [ (''.join(a)) for a in output ]
         sys.stdout.write('\n'.join(output)+'\n')
         sys.exit(0)
-    elif len(sys.argv) > 1 and sys.argv[1] == 'fork':
-        logger.setLevel(logging.DEBUG)
-        ret = 0
-        print("==== test : return 3.14")
-        f = fork_class()
-        f.run(str,3.14)
-        r = f.wait()
-        print('Returned %r ' % (r,))
-        #
-        if f.use_fork:
-            print("==== test : subprocess raises exception")
-            f = fork_class()
-            f.run(eval,'0/0')
-            try:
-                r = f.wait()
-            except  ZeroDivisionError:
-                print('caught')
-            else:
-                print('WRONG: Returned  %r' % (r,))
-                ret = 1
-            print("==== test : kill subprocess")
-            f = fork_class()
-            f.run(time.sleep,1)
-            import signal
-            os.kill(f.subprocess_pid, signal.SIGTERM)
-            r = None
-            try:
-                r = f.wait()
-            except RuntimeError as R:
-                print('As expected, raised: %r ' % (R,))
-            else:
-                print('WRONG: Returned  %r' % (r,))
-                ret = 1
-        if ret:
-            print('=== some tests failed')
-        else:
-            print('=== all tests successful')
-        sys.exit(ret)
     else:
         print(""" Commands:
 %s test_uuid
@@ -2228,8 +2052,6 @@ if __name__ == '__main__':
   multimerge  FILES
 
   multimerge_lookahead  FILES
-  
-  fork
 
 """ % (sys.argv[0],))
 

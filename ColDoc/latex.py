@@ -195,7 +195,7 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     res = {}
     langpids = []
     for l in langs:
-        subproc = ColDoc.utils.fork_class(use_fork = (len(langs)>1) )
+        subproc = fork_class(use_fork = (len(langs)>1) )
         subproc.run(latex_blob, blobs_dir, metadata=metadata, lang=l,
                     uuid_dir=uuid_dir, options = options, forked=(subproc.use_fork or forked))
         langpids.append((l, subproc))
@@ -406,7 +406,7 @@ def  latex_blob(blobs_dir, metadata, lang, uuid_dir=None, options = {}, squash =
     fake_texfile.write(latextemplate % D)
     fake_texfile.close()
     #
-    subproc = ColDoc.utils.fork_class(use_fork = forked)
+    subproc = fork_class(use_fork = forked)
     subproc.run(pdflatex_engine, blobs_dir, fake_name, save_name, environ, lang, options)
     ##
     ## create html

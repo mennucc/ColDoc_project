@@ -83,7 +83,7 @@ from plasTeX.TeX import TeX
 
 import ColDoc.utils, ColDoc.latex, ColDocDjango, ColDocDjango.users
 from ColDoc.utils import slug_re, slugp_re, is_image_blob, html2text, uuid_to_dir, gen_lang_metadata, strip_delimiters
-from ColDoc.utils import langc_re , lang_re, fork_class
+from ColDoc.utils import langc_re , lang_re
 from ColDocDjango.utils import get_email_for_user, load_unicode_to_latex, check_login_timeout
 from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
@@ -91,6 +91,20 @@ from ColDocApp import text_catalog
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
 from ColDocDjango.middleware import redirect_by_exception
+
+import coldoc_tasks.task_utils
+
+def _fork_class_callback(f):
+    if f.fork_type in ('simple',) and  settings.CLOSE_CONNECTION_ON_FORK:
+        logger.critical('Using %s forks for subprocesses , is incompatible with certain databases',
+                        f.fork_type)
+
+fork_class_default = \
+    coldoc_tasks.task_utils.choose_best_fork_class(getattr(settings,'COLDOC_TASKS_INFOFILE',None),
+                                                   getattr(settings,'COLDOC_TASKS_CELERYCONFIG',None),
+                                                   callback=_fork_class_callback)
+
+
 
 def iso3lang2word(*v , **k):
     return gettext_lazy(iso3lang2word_untranslated(*v, **k))
@@ -1313,7 +1327,7 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
     all_messages = [ (messages.WARNING, a) for a in weird_prologue]
     del weird_prologue
     #
-    do_fork = fork_class.can_fork()
+    do_fork = fork_class_default().can_fork()
     fork1 = fork2 = None
     #
     from ColDoc.latex import environments_we_wont_latex
@@ -1697,11 +1711,12 @@ def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata, fork=False):
     if not fork:
         return latex.latex_uuid(blobs_dir, metadata=metadata, options=options)
     else:
-        fork = fork_class()
-        if settings.CLOSE_CONNECTION_ON_FORK:
+        fork = fork_class_default()
+        if settings.CLOSE_CONNECTION_ON_FORK and fork_class_default.fork_type in ('simple',) :
             from django import db
             db.close_old_connections()
-        fork.run(latex.latex_uuid, blobs_dir, metadata=metadata, options=options, forked=fork.use_fork)
+        fork.run(latex.latex_uuid, blobs_dir, metadata=metadata, options=options,
+                 forked=fork.use_fork, fork_class=fork_class_default)
         return fork
 
 ##############################################################

@@ -58,6 +58,8 @@ if COLDOC_SRC_ROOT != os.path.dirname(BASE_DIR):
     logger.warning('COLDOC_SRC_ROOT is %r, BASE_DIR parent is %r', COLDOC_SRC_ROOT, os.path.dirname(BASE_DIR))
 
 
+COLDOC_RUN_ROOT  = os.path.join(COLDOC_SITE_ROOT,'run')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -95,6 +97,12 @@ if USE_BACKGROUND_TASKS:
         logger.error('Please install `django-background-tasks`')
         USE_BACKGROUND_TASKS = False
 
+
+#######
+
+COLDOC_TASKS_INFOFILE = os.path.join(COLDOC_RUN_ROOT,'coldoc_tasks-info')
+
+#######
 
 USE_WALLET = config['django'].getboolean('use_wallet')
 
@@ -135,6 +143,7 @@ INSTALLED_APPS = [
     #https://docs.djangoproject.com/en/3.0/howto/static-files/
     'django.contrib.staticfiles',
     'guardian',
+    'coldoc_tasks',
 ]
 
 if USE_ALLAUTH:
