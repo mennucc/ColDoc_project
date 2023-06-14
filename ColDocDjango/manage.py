@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Django's command-line utility for administrative tasks."""
-import os, copy, sys
+import os, copy, sys, shutil
 
 from helper import tmptestsite_deploy
 
@@ -48,8 +48,9 @@ to specify where the ColDoc site is located.
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ColDocDjango.settings')
     #
     # change COLDOC_SITE_ROOT before initializing Django
-    if (len(argv)>1 and argv[1] in ('test',)):
-        COLDOC_SITE_ROOT = tmptestsite_deploy(COLDOC_SITE_ROOT)
+    tmptestsite = None
+    if ( len(argv)<= 1 ) or (len(argv)>1 and argv[1] in ('test',)):
+        COLDOC_SITE_ROOT = tmptestsite = tmptestsite_deploy(COLDOC_SITE_ROOT)
         os.environ['COLDOC_SITE_ROOT'] = COLDOC_SITE_ROOT
         import django
         django.setup()
@@ -67,6 +68,9 @@ to specify where the ColDoc site is located.
         ) from exc
     #
     execute_from_command_line(argv)
+    #
+    if tmptestsite is not None:
+        shutil.rmtree(tmptestsite)
 
 
 if __name__ == '__main__':
