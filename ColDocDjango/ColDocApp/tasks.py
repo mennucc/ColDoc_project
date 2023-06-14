@@ -9,6 +9,12 @@ from django.core.mail import EmailMessage
 import logging
 logger = logging.getLogger(__name__)
 
+import coldoc_tasks.task_utils
+
+fork_class_default = \
+    coldoc_tasks.task_utils.choose_best_fork_class(getattr(settings,'COLDOC_TASKS_INFOFILE',None),
+                                                   getattr(settings,'COLDOC_TASKS_CELERYCONFIG',None))
+
 from ColDoc.latex import latex_main , latex_anon, latex_tree
 
 
@@ -26,6 +32,9 @@ def latex_generic_sched(subject_prefix, cmd,*v,**k):
     from UUID.views import _prepare_latex_options
     options = _prepare_latex_options(None, coldoc_dir, blobs_dir, coldoc, url)
     k['options'] = options
+    #
+    if k.get('fork_class') is None:
+        k['fork_class'] = fork_class_default
     ##
     if 'verbose_name' in k: del k['verbose_name']
     a = ' , '.join( ('%r=%r'%(i,j)) for i,j in k.items() )

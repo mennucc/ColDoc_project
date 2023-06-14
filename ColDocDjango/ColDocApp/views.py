@@ -193,17 +193,25 @@ def latex(request, NICK):
         # hack: in this case 'options' is a list not a dict
         # and _prepare_latex_options() will be called in the task
         options = [coldoc_dir, blobs_dir, coldoc.nickname, url]
+        # the fork_class cannot be passed to background tasks
+        fork_class = None
     else:
         from UUID.views import _prepare_latex_options
         options = _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc)
+        fork_class = fork_class_default
     #
     ret = False
     if typ_ == 'tree':
-        ret = latex_tree_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, verbose_name="latex_tree", email_to=request.user.email)
+        ret = latex_tree_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, verbose_name="latex_tree",
+                               email_to=request.user.email, fork_class=fork_class)
     elif typ_ == 'main':
-        ret = latex_main_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private', verbose_name="latex_main:private", email_to=request.user.email)
+        ret = latex_main_sched(blobs_dir, uuid=coldoc.root_uuid, options=options, access='private', verbose_name="latex_main:private",
+                               fork_class=fork_class,
+                               email_to=request.user.email)
     else:
-        ret = latex_anon_sched(coldoc_dir, uuid=coldoc.root_uuid, options=options, access='public', verbose_name="latex_main:public", email_to=request.user.email)
+        ret = latex_anon_sched(coldoc_dir, uuid=coldoc.root_uuid, options=options, access='public', verbose_name="latex_main:public",
+                               fork_class=fork_class,
+                               email_to=request.user.email)
     if settings.USE_BACKGROUND_TASKS:
         messages.add_message(request,messages.INFO,'Compilation scheduled for '+typ_)
     elif ret:
