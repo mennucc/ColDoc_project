@@ -197,7 +197,8 @@ def latex_uuid(blobs_dir, uuid=None, lang=None, metadata=None, warn=True, option
     for l in langs:
         subproc = fork_class(use_fork = (len(langs)>1) )
         subproc.run(latex_blob, blobs_dir, metadata=metadata, lang=l,
-                    uuid_dir=uuid_dir, options = options, forked=(subproc.use_fork or forked))
+                    uuid_dir=uuid_dir, options = options, forked=(subproc.use_fork or forked),
+                    fork_class = fork_class)
         langpids.append((l, subproc))
     #
     for ll, subproc in langpids:
