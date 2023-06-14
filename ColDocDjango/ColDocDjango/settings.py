@@ -59,6 +59,7 @@ if COLDOC_SRC_ROOT != os.path.dirname(BASE_DIR):
 
 
 COLDOC_RUN_ROOT  = os.path.join(COLDOC_SITE_ROOT,'run')
+COLDOC_LOCK_ROOT = os.path.join(COLDOC_SITE_ROOT,'lock')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
