@@ -1,0 +1,69 @@
+#!/bin/bash
+
+set -e
+
+if git diff --cached | egrep -2 '^(old.mode|new.mode)' ; then
+ echo 'Please do not change mode of files'
+ exit 1
+fi
+
+#######################
+
+origdir=$(realpath . )
+
+test -f "$origdir"/ColDocDjango/ColDocApp/apps.py
+
+t=`mktemp -d`
+
+test -d $t
+
+#trap "rm -fr \"$\"t" EXIT ERR HUP INT QUIT TERM
+
+git archive HEAD | ( cd $t ; tar xf - )
+
+
+git diff --cached | ( cd $t ; patch -p1 )
+
+pushd $t
+
+## fix symlink
+
+if test -L ColDocDjango/unicode2latex.py ; then
+    rm -r ColDocDjango/unicode2latex.py
+    ln -s "$origdir"/sub/unicode2latex/unicode2latex ColDocDjango/unicode2latex.py
+fi
+
+if test -L ColDocDjango/wallet ; then
+    rm -r ColDocDjango/wallet
+    ln -s "$origdir"/sub/django-simplewallet/src/wallet ColDocDjango/wallet
+fi
+
+
+echo ====== first flake run
+
+flake8 .  --select=E9,F63,F7,F82 \
+    --exclude=ColDocDjango/settings_suggested.py,ColDocDjango/etc/,ColDocDjango/unicode2latex.py
+
+echo ====== second flake run
+
+flake8  ColDocDjango/etc  --select=E9,F63,F7
+
+echo ====== testing
+
+## unfortunately
+# pytest  unittests
+## does not capture logs
+
+for thistest in unittests/*.py ; do
+  python3 $thistest
+done
+
+pushd ColDocDjango
+./manage.py test ColDocApp
+popd
+
+popd
+
+if test -d "$t" ; then  rm -r "$t" ; fi
+
+

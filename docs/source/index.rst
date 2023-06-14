@@ -25,6 +25,7 @@ Welcome to ColDoc's documentation!
   editing
   multilingual
   issues
+  devel
   ack
 
 
