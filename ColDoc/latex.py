@@ -748,8 +748,8 @@ def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
         extra = options.get('unicode_to_latex')
         s = unicode2latex.uni2tex(s, extra, add_font_modifiers=False, convert_accents=False)
     #s = s.replace('\n\t',' ')
-    s = re.sub('\s+',' ',s)
-    l = re.split('([.;\]\)}])', s)
+    s = re.sub(r'\s+',' ',s)
+    l = re.split(r'([.;\]\)}])', s)
     s = ''
     while len(l) > 1:
         s += l[0] + l[1] + '\n'
