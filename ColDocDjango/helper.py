@@ -200,6 +200,9 @@ def _build_fake_email(e):
     j = a.index('@')
     return a[:j] + '+' + e + a[j:]
 
+fake_users_passwords = (('buyer', 'barfoo'), ('jsmith',"123456"), ('jdoe',"345678"), ('ed_itor','345678'), ('reviewer','marvel'))
+
+fake_users = [up[0] for up in fake_users_passwords]
 
 def create_fake_users(COLDOC_SITE_ROOT=None, log=print):
     from django.db.utils import IntegrityError
@@ -208,7 +211,7 @@ def create_fake_users(COLDOC_SITE_ROOT=None, log=print):
     from django.conf import settings
     import django.contrib.auth as A
     UsMo = A.get_user_model()
-    for U,P in ('buyer', 'barfoo'), ('jsmith',"123456"), ('jdoe',"345678"), ('ed_itor','345678'), ('reviewer','marvel'):
+    for U,P in fake_users_passwords:
         log('*** creating user %r password %r' % (U,P))
         E=_build_fake_email(U)
         try:
