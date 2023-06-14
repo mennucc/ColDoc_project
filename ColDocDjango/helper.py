@@ -77,7 +77,11 @@ logger = logging.getLogger('helper')
 
 DEPLOY_DATABASES = ('sqlite3', 'mysql')
 
-def deploy(target, database = 'sqlite3'):
+def deploy(target, database = 'sqlite3', coldoc_src_root=None):
+    if coldoc_src_root is None:
+        coldoc_src_root = os.environ.get('COLDOC_SRC_ROOT')
+    assert  coldoc_src_root is not None and os.path.isdir(coldoc_src_root)
+    #
     assert database in DEPLOY_DATABASES
     from ColDocDjango import config
     if os.path.exists(target):
@@ -106,7 +110,7 @@ def deploy(target, database = 'sqlite3'):
 # in the source code.
 """)
     # comment out
-    a = open(osjoin(COLDOC_SRC_ROOT,'ColDocDjango/settings_suggested.py')).readlines()
+    a = open(osjoin(coldoc_src_root,'ColDocDjango/settings_suggested.py')).readlines()
     a = [l.strip('\n') for l in a]
     commenter = lambda l : ( ('#'+l) if l else l)
     if database == "mysql" :
@@ -129,14 +133,14 @@ def deploy(target, database = 'sqlite3'):
         if not os.path.isdir(a):
             os.makedirs(a)
     #
-    a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','ColDocDjango','wsgi.py')
+    a = osjoin(coldoc_src_root,'ColDocDjango','ColDocDjango','wsgi.py')
     b = osjoin(target, 'wsgi.py')
     os.symlink(a, b)
     #
-    a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','etc','apache2_template.conf')
+    a = osjoin(coldoc_src_root,'ColDocDjango','etc','apache2_template.conf')
     z = open(a).read()
     z = z.replace('@COLDOC_SITE_ROOT@', target)
-    z = z.replace('@COLDOC_SRC_ROOT@', COLDOC_SRC_ROOT)
+    z = z.replace('@coldoc_src_root@', coldoc_src_root)
     z = z.replace('@RANDSUFFIX@', suffix)
     v = ''
     if 'VIRTUAL_ENV' in os.environ:
@@ -151,8 +155,8 @@ def deploy(target, database = 'sqlite3'):
                  ('environment.sh', lambda x: '"' + shlex.quote(x) + '"')):
         b = osjoin(target, j)
         with open(b,'w') as f_:
-            f_.write('COLDOC_SRC_ROOT=%s\nCOLDOC_SITE_ROOT=%s\nPATH=%s\n' % \
-                     (c(COLDOC_SRC_ROOT), c(target), c(os.environ.get('PATH',''))))
+            f_.write('coldoc_src_root=%s\nCOLDOC_SITE_ROOT=%s\nPATH=%s\n' % \
+                     (c(coldoc_src_root), c(target), c(os.environ.get('PATH',''))))
             if 'VIRTUAL_ENV' in os.environ:
                 f_.write('VIRTUAL_ENV='  +  c(os.environ['VIRTUAL_ENV'])  +  '\n')
     #
@@ -160,7 +164,7 @@ def deploy(target, database = 'sqlite3'):
     MYSQL_PASSWORD = get_random_string(10)
     MYSQL_DATABASE = 'coldoc_db_'   + suffix
     for l in 'mysql.cnf', 'mysql.sql', 'settings_mysql.py':
-        a = osjoin(COLDOC_SRC_ROOT,'ColDocDjango','etc',l)
+        a = osjoin(coldoc_src_root,'ColDocDjango','etc',l)
         z = open(a).read()
         z = z.replace('@MYSQL_DATABASE@'  ,  MYSQL_DATABASE)
         z = z.replace('@MYSQL_USERNAME@'  ,  MYSQL_USERNAME)
