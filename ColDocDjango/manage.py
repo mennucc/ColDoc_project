@@ -4,9 +4,9 @@ import os, copy, sys
 
 from helper import tmptestsite_deploy
 
-def main():
-    argv = copy.copy(sys.argv)
+def main(argv):
     #
+    argv = copy.copy(argv)
     # set COLDOC_SITE_ROOT
     a = '--coldoc-site-root'
     COLDOC_SITE_ROOT = None
@@ -65,6 +65,7 @@ to specify where the ColDoc site is located.
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+    #
     execute_from_command_line(argv)
 
 
@@ -93,4 +94,4 @@ if __name__ == '__main__':
     os.environ['COLDOC_SRC_ROOT'] = COLDOC_SRC_ROOT
     #
     #
-    main()
+    main(sys.argv)
