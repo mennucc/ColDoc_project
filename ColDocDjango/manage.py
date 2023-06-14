@@ -6,16 +6,24 @@ import os, copy, sys
 def main():
     argv = copy.copy(sys.argv)
     #
+    # set COLDOC_SITE_ROOT
+    a = '--coldoc-site-root'
+    COLDOC_SITE_ROOT = None
+    for j in range(len(argv)):
+        if argv[j] == a:
+            COLDOC_SITE_ROOT = argv.pop(1+j)
+            argv.pop(j)
+            break
+        if argv[j].startswith(a + '='):
+            COLDOC_SITE_ROOT = argv[j][(1+len(a)):]
+            argv.pop(j)
+            break
     #
-    if '--coldoc-site-root' in argv:
-        j = argv.index('--coldoc-site-root')
-        COLDOC_SITE_ROOT = argv.pop(1+j)
-        argv.pop(j)
-        os.environ.setdefault('COLDOC_SITE_ROOT', COLDOC_SITE_ROOT)
-    elif  'COLDOC_SITE_ROOT' in os.environ:
+    if COLDOC_SITE_ROOT is not None:
+        COLDOC_SITE_ROOT = os.path.realpath(COLDOC_SITE_ROOT)
+        os.environ['COLDOC_SITE_ROOT'] = COLDOC_SITE_ROOT
+    elif 'COLDOC_SITE_ROOT' in os.environ:
         COLDOC_SITE_ROOT = os.environ['COLDOC_SITE_ROOT']
-    else:
-        COLDOC_SITE_ROOT = None #os.path.dirname(os.path.abspath(__file__))
     #
     if (len(argv)>1 and argv[1] not in ('help','startapp','makemessages','compilemessages')) and \
           (COLDOC_SITE_ROOT is None or \
