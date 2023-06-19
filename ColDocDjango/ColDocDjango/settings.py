@@ -102,7 +102,9 @@ if USE_BACKGROUND_TASKS:
 #######
 
 COLDOC_TASKS_INFOFILE = os.path.join(COLDOC_RUN_ROOT,'coldoc_tasks-info')
+COLDOC_TASKS_PYTHONPATH=BASE_DIR
 COLDOC_TASKS_AUTOSTART = 'coldoc'
+COLDOC_TASKS_LOGFILE = os.path.join(COLDOC_RUN_ROOT,'coldoc_tasks.log')
 
 #######
 
