@@ -334,6 +334,7 @@ $( document ).ready(function() {
     {% endfor %}
   </span>
    {% if its_something_we_would_latex and perms.UUID.download %}
+   {% if view_lang %}
    <span data-toggle="tooltip" class="border fill m-2 p-3"
              title="{% blocktranslate %}Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.{% endblocktranslate %}">
        {% blocktranslate %}Download inside complete {{ view_language }} document{% endblocktranslate %}:
@@ -348,6 +349,11 @@ $( document ).ready(function() {
              class="btn btn-outline-primary" data-toggle="tooltip" title="{% translate 'All pieces are sent as attachments to an email' %}">
        {% translate 'by email' %}.</a>
    </span>
+   {% else %}
+     <span data-toggle="tooltip" class="border fill m-2 p-3">
+      {% translate '(Please select a language, so as to download content)' %}
+    </span>
+   {% endif %} {# view_lang #} 
    {% endif %} {# its_something_we_would_latex #}
   {% endif %}   {# perms.UUID.download or buy_download_info #}
   
