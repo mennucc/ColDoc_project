@@ -2177,7 +2177,7 @@ def index(request, NICK, UUID):
     try:
         view_filename, uuid, metadata, view_lang, view_ext = \
             ColDoc.utils.choose_blob(blobs_dir = blobs_dir,
-                                     lang = lang, 
+                                     lang = lang if lang != 'mul' else None,
                                      accept_lang = accept_lang,
                                      metadata=metadata, prefix='view')
     except FileNotFoundError:
