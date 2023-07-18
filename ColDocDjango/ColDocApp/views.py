@@ -51,7 +51,8 @@ from ColDocDjango.transform import squash_helper_ref
 from ColDocApp import text_catalog
 
 from ColDocDjango.users import user_has_perm , UUID_view_view , UUID_view_blob #, UUID_download  #, user_has_perm_uuid_blob
-from ColDocDjango.utils import check_login_timeout
+from ColDocDjango.utils import check_login_timeout, build_hreflang_links
+
 
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 
@@ -273,6 +274,9 @@ def pdfframe(request, NICK, subpath=None):
         return r
     #
     filename, ACCESS, _content_type, _content_encoding, _view_ext, coldoc, rootuuid, lang, child_uuid = r
+    #
+    hreflanglinks = build_hreflang_links(request.build_absolute_uri(request.path),
+                                         None,coldoc.get_languages(),None)
     #
     FILENAME = os.path.basename(filename)
     UUID = coldoc.root_uuid

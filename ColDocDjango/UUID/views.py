@@ -89,7 +89,7 @@ from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
 from ColDocApp import text_catalog
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
-from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers
+from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers, build_hreflang_links
 from ColDocDjango.middleware import redirect_by_exception
 
 import coldoc_tasks.task_utils
@@ -2191,6 +2191,8 @@ def index(request, NICK, UUID):
     #
     Blangs = metadata.get_languages()
     CDlangs = coldoc.get_languages()
+    #
+    hreflanglinks = build_hreflang_links(request.build_absolute_uri(request.path),None,Blangs,CDlangs)
     #
     BLOB = os.path.basename(blob_filename)
     blob_md5 = hashlib.md5(open(blob_filename,'rb').read()).hexdigest()
