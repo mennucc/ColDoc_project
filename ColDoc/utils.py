@@ -129,9 +129,19 @@ try:
     import pycountry
 except ImportError:
     pycountry = None
+    iso3lang2iso2 = lambda x : x[:2]
     iso3lang2word = lambda x : x
     normalize_iso3 = lambda x : x
 else:
+    #
+    @functools.lru_cache(None)
+    def iso3lang2iso2(val):
+        L = pycountry.languages.get(alpha_3=val)
+        if L:
+            return( getattr(L,'alpha_2',None) )
+        return None
+    #
+    @functools.lru_cache(None)
     def iso3lang2word(val):
         L = pycountry.languages.get(alpha_3=val)
         if L:
