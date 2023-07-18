@@ -26,7 +26,8 @@ from django.db import transaction
 
 from ColDocDjango.middleware import redirect_by_exception
 
-from ColDoc.utils import prologue_length
+from ColDoc.utils import prologue_length, iso3lang2iso2
+
 
 if django.VERSION[0] >= 4 :
     _ = gettext_lazy
@@ -276,3 +277,24 @@ def check_login_timeout(request, NICK):
     if not request.user.is_authenticated:
         messages.add_message(request,messages.WARNING, _('Session timeout, please login again'))
         redirect_by_exception(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,} ))
+
+######
+
+def build_hreflang_links(path, view_ext, langs, CDlangs=None):
+    if 'zxx' in langs or 'und' in langs:
+        return []
+    if view_ext:
+        path += '?ext=' + view_ext 
+    a = [ ('x-default', path) ]
+    if view_ext:
+        path += '&lang='
+    else:
+        path += '?lang='
+    L = langs
+    if CDlangs and 'mul' in langs:
+        L = CDlangs
+    for l in L:
+        l2 = iso3lang2iso2(l)
+        if l2:
+            a.append( (l2, path + l ) )
+    return a
