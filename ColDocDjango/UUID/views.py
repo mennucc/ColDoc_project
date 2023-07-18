@@ -89,6 +89,7 @@ from ColDoc.blob_inator import _rewrite_section, _parse_obj
 from ColDoc import TokenizerPassThru, transform
 from ColDocApp import text_catalog
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
+from ColDoc.utils import iso3lang2iso2
 from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers, build_hreflang_links
 from ColDocDjango.middleware import redirect_by_exception
 
@@ -1797,6 +1798,18 @@ def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = [], h
     if expandbuttons:
         for a in soup.findAll('img'):
             a['src'] = url + uuid + '/html/' + a['src']
+    if lang:
+        for a in soup.findAll('a'):
+            if not 'href' in a.attrs:
+                continue
+            h = a['href']
+            if h.startswith('/UUID/') or h.startswith('/CD/') or h.endswith('.html'):
+                h += '?lang=' + lang
+                a['href'] = h
+        lang2 = iso3lang2iso2(lang)
+        if lang2:
+            for a in soup.findAll('html'):
+                a['lang'] = lang2
     return str(soup)
 
 if BeautifulSoup is None:
