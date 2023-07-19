@@ -1730,7 +1730,8 @@ def _html_replace_not_bs(html, url, uuid, lang, expandbuttons=True, children = [
     return html
 
 
-def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = [], highlight=None):
+def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = [],
+                     highlight=None, hreflang_links=None):
     ids = 0
     assert isinstance(lang,str)
     idp = 'UUID_lSa2q_' + uuid + '_' + lang + '_' 
@@ -1798,6 +1799,14 @@ def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = [], h
     if expandbuttons:
         for a in soup.findAll('img'):
             a['src'] = url + uuid + '/html/' + a['src']
+    #
+    if hreflang_links:
+        for s in soup.findAll('head'):
+            for l,p in hreflang_links:
+                b = soup.new_tag('link',rel="alternate",
+                                 hreflang=l,href=p )
+                s.append(b)
+    #
     if lang:
         for a in soup.findAll('a'):
             if not 'href' in a.attrs:
@@ -1856,7 +1865,9 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
         if _content_type == 'text/html':
             f = open(n).read()
             a = django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname, 'UUID':'001'})
-            f = _html_replace(f, a[:-4], uuid, lang, expandbuttons, child_uuid )
+            hreflanglinks = build_hreflang_links(request.build_absolute_uri(request.path),
+                                                 None,coldoc.get_languages(),None)
+            f = _html_replace(f, a[:-4], uuid, lang, expandbuttons, child_uuid, hreflang_links=hreflanglinks )
             response = HttpResponse(f, content_type=_content_type, charset=_content_encoding)
         elif _content_type.startswith('text/'):
             f = open(n)
