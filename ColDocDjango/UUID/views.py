@@ -2031,8 +2031,9 @@ def view_mul(request, NICK, UUID, _view_ext, _content_type, subpath = None, pref
                 n = os.path.join(n,subpath)
             if os.path.isfile(n):
                 break
-            elif os.path.isdir(n) and os.path.isfile(n+'/index.html'):
-                n+='/index.html'
+            n_i = osjoin(n,'index.html')
+            if os.path.isdir(n) and os.path.isfile(n_i):
+                n = n_i
                 isdir=True
                 break
             else:
