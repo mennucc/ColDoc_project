@@ -2190,10 +2190,11 @@ def index(request, NICK, UUID):
                                      accept_lang = accept_lang,
                                      metadata_class=DMetadata, coldoc=NICK, prefix = 'edit')
         blob__dir = os.path.dirname(blob_filename)
-    except FileNotFoundError:
-        logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found',
-                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
-        return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext),
+    except FileNotFoundError as E:
+        logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found %r',
+                       request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext, E)
+        return HttpResponse("Cannot find UUID %r with lang=%s and extension=%s : %r." % (UUID, repr(lang) if (lang is not None) else 'any',
+                                                                                         repr(ext) if (ext is not None) else 'any', E),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
         logger.exception('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: exception',
@@ -2647,10 +2648,10 @@ def download(request, NICK, UUID):
             ColDoc.utils.choose_blob(uuid=UUID, blobs_dir = blobs_dir,
                                      ext = ext, lang = lang, 
                                      metadata_class=DMetadata, coldoc=NICK)
-    except FileNotFoundError:
+    except FileNotFoundError as E:
         logger.warning('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : cannot find',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, ext, lang, download_as)
-        return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r." % (UUID,lang,ext),
+        return HttpResponse("Cannot find UUID %r with lang=%r , extension=%r: %r" % (UUID,lang,ext,E),
                             status=http.HTTPStatus.NOT_FOUND)
     except Exception as e:
         logger.exception('ip=%r user=%r coldoc=%r uuid=%r ext=%r lang=%r as=%r : exception',
