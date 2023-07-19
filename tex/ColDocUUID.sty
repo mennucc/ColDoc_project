@@ -72,7 +72,7 @@
 
 %%% you should not alter these
 \ifdefined\uuidmarker\else\ifdefined\href
-\newcommand{\uuidmarker}[1]{\ColDocmarginpar{\protect\href{\uuidbaseurl#1}{\uuidformatter{#1}}}}
+\newcommand{\uuidmarker}[1]{\ColDocmarginpar{\protect\href{\uuidbaseurl#1/}{\uuidformatter{#1}}}}
 \else
 \newcommand{\uuidmarker}[1]{\ColDocmarginpar{\uuidformatter{#1}}}
 \fi\fi
