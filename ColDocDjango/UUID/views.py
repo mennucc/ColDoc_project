@@ -2255,12 +2255,15 @@ def index(request, NICK, UUID):
         else:
             logger.debug('Cannot buy, '+str(ret))
         #
-        a = 'Access denied to this content.'
-        if request.user.is_anonymous: a += ' Please login.'
+        a = _('Access denied to this content.')
+        s = http.HTTPStatus.FORBIDDEN
+        if request.user.is_anonymous:
+            a += ' ' + _('Please login.')
+            s = http.HTTPStatus.UNAUTHORIZED
         messages.add_message(request, messages.WARNING, a)
         logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: access denied',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
-        return render(request, 'UUID.html', locals() )
+        return render(request, 'UUID.html', locals(), status=s )
     #
     buy_download_link = buy_download_label = buy_download_tooltip = buy_download_form = None
     download_blob_buttons = []
@@ -2712,7 +2715,7 @@ def download(request, NICK, UUID):
         e_f = filename
         _content_type , _content_encoding = mimetypes.guess_type(filename)
         if not is_image_blob(metadata, _content_type):
-            a = 'Access denied to this content.'
+            a = _('Access denied to this content.')
             e_f = None
     #
     if e_f is None:
