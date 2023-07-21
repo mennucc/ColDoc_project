@@ -174,3 +174,66 @@ will estimate how many characters are yet to be translated.
 
 In the editor panes, the `Document checks` will also list the untranslated blobs.
 
+
+Languages selection and advertising
+===================================
+
+In a ColDoc page, there are two *"languages"*:
+
+- the *interface language*: the language used for elements in the web interface (buttons, menus...);
+
+- the *content language*: the language of the ColDoc element that is shown.
+
+These need not be equal. The Django interface is traslated in many languages;
+the ColDoc specific interface is (currently) translated only in Italian and English.
+Instead the ColDoc content may be in any language (depending on the wish of the author);
+as explained in the previous section, a ColDoc document may also be *multilingual*.
+So we may envision, *eg*, a ColDoc document written in French, but an user visiting
+the page from Germany, who will see the interface elements represented in German.
+
+
+Django has three methods to establish the interface language,
+`as explained here <https://docs.djangoproject.com/en/4.2/topics/i18n/translation/#how-django-discovers-language-preference>`_
+.
+In ColDoc, one is ignored, and one more is  added.
+
+- First, Django looks for the language prefix in the requested URL. ColDoc does not use language prefixes,
+  so this method can be ignored.
+
+- Failing that, it looks for a cookie. In the ColDoc interface, users can set the cookie using a pop-up menu,
+  available as *interface language* in the page footer.
+
+- Failing that, it looks at the Accept-Language HTTP header.
+
+- Failing that, it will look for a URL query specifier *lang=xxx* (this is a ColDoc special extension;
+  it is useful when pages are visited by search engines crawlers).
+  
+- Failing that, it uses the global LANGUAGE_CODE setting.
+
+ColDoc then chooses the content language, as follows:
+
+- it will look for a URL specifier *lang=xxx* (3 letter iso code), and serve the content in that language, if available;
+
+- failing that, if the Django cookie is available, it will serve the content in that language, if available;
+
+- failing that, it looks at the Accept-Language HTTP header, and tries to see if the content is available
+  in a language specified there;
+
+- failing that, it will serve the content in the default language (that, for multilingual ColDocs,
+  it the first language in the list).
+
+Moreover, the web page contains the `lang=...` attributes:
+
+- the `<head lang="..">` attribute is set to the interface language (2 letter iso code);
+
+- there is a `<div lang="..">` attribute for each html rendering of the content.
+
+
+There are also links of the form
+`<link rel="alternate" hreflang="XX"  href="http://.../UUID/.../.../?lang=XXX" />`
+in the page header, so that search engines crawlers will know that the content is available
+in other languages.
+
+This way, a language-aware browser, or web crawler, will know which parts of
+the web pare are in which language, and will also know that other
+languages are available

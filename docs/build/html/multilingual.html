@@ -171,6 +171,55 @@ Currently, text inside math environments will not be translated.</p>
 <p>In the editor panes, the <cite>Document checks</cite> will also list the untranslated blobs.</p>
 </section>
 </section>
+<section id="languages-selection-and-advertising">
+<h1>Languages selection and advertising<a class="headerlink" href="#languages-selection-and-advertising" title="Permalink to this heading">¶</a></h1>
+<p>In a ColDoc page, there are two <em>&quot;languages&quot;</em>:</p>
+<ul class="simple">
+<li><p>the <em>interface language</em>: the language used for elements in the web interface (buttons, menus...);</p></li>
+<li><p>the <em>content language</em>: the language of the ColDoc element that is shown.</p></li>
+</ul>
+<p>These need not be equal. The Django interface is traslated in many languages;
+the ColDoc specific interface is (currently) translated only in Italian and English.
+Instead the ColDoc content may be in any language (depending on the wish of the author);
+as explained in the previous section, a ColDoc document may also be <em>multilingual</em>.
+So we may envision, <em>eg</em>, a ColDoc document written in French, but an user visiting
+the page from Germany, who will see the interface elements represented in German.</p>
+<p>Django has three methods to establish the interface language,
+<a class="reference external" href="https://docs.djangoproject.com/en/4.2/topics/i18n/translation/#how-django-discovers-language-preference">as explained here</a>
+.
+In ColDoc, one is ignored, and one more is  added.</p>
+<ul class="simple">
+<li><p>First, Django looks for the language prefix in the requested URL. ColDoc does not use language prefixes,
+so this method can be ignored.</p></li>
+<li><p>Failing that, it looks for a cookie. In the ColDoc interface, users can set the cookie using a pop-up menu,
+available as <em>interface language</em> in the page footer.</p></li>
+<li><p>Failing that, it looks at the Accept-Language HTTP header.</p></li>
+<li><p>Failing that, it will look for a URL query specifier <em>lang=xxx</em> (this is a ColDoc special extension;
+it is useful when pages are visited by search engines crawlers).</p></li>
+<li><p>Failing that, it uses the global LANGUAGE_CODE setting.</p></li>
+</ul>
+<p>ColDoc then chooses the content language, as follows:</p>
+<ul class="simple">
+<li><p>it will look for a URL specifier <em>lang=xxx</em> (3 letter iso code), and serve the content in that language, if available;</p></li>
+<li><p>failing that, if the Django cookie is available, it will serve the content in that language, if available;</p></li>
+<li><p>failing that, it looks at the Accept-Language HTTP header, and tries to see if the content is available
+in a language specified there;</p></li>
+<li><p>failing that, it will serve the content in the default language (that, for multilingual ColDocs,
+it the first language in the list).</p></li>
+</ul>
+<p>Moreover, the web page contains the <cite>lang=...</cite> attributes:</p>
+<ul class="simple">
+<li><p>the <cite>&lt;head lang=&quot;..&quot;&gt;</cite> attribute is set to the interface language (2 letter iso code);</p></li>
+<li><p>there is a <cite>&lt;div lang=&quot;..&quot;&gt;</cite> attribute for each html rendering of the content.</p></li>
+</ul>
+<p>There are also links of the form
+<cite>&lt;link rel=&quot;alternate&quot; hreflang=&quot;XX&quot;  href=&quot;http://.../UUID/.../.../?lang=XXX&quot; /&gt;</cite>
+in the page header, so that search engines crawlers will know that the content is available
+in other languages.</p>
+<p>This way, a language-aware browser, or web crawler, will know which parts of
+the web pare are in which language, and will also know that other
+languages are available</p>
+</section>
 
 
           </div>
@@ -212,7 +261,9 @@ Currently, text inside math environments will not be translated.</p>
 <li class="toctree-l2"><a class="reference internal" href="#other-tools">Other tools</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="#languages-selection-and-advertising">Languages selection and advertising</a></li>
 <li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="devel.html">Developing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 

@@ -62,7 +62,7 @@ In this section, we will assume that the <cite>CWD</cite> (current working direc
 <cite>plasTex</cite> (a patched version, see below), and others, as explained later.</p>
 <p>Some packages are required for the code to work properly; others are recommended, to activate advanced features.</p>
 <p>Long story short. To install most of them, you may use</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>django<span class="w"> </span>BeautifulSoup4<span class="w"> </span>pycountry<span class="w"> </span>lockfile<span class="w"> </span>django-guardian<span class="w"> </span>django-allauth<span class="w"> </span>django-select2<span class="w"> </span>pylatexenc<span class="w"> </span>whitenoise<span class="w"> </span>django-simple-captcha
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip3<span class="w"> </span>install<span class="w"> </span>django<span class="w"> </span>BeautifulSoup4<span class="w"> </span>pycountry<span class="w"> </span>lockfile<span class="w"> </span>django-guardian<span class="w"> </span>django-allauth<span class="w"> </span>django-select2<span class="w"> </span>pylatexenc<span class="w"> </span>whitenoise<span class="w"> </span>django-simple-captcha<span class="w"> </span>python-magic
 </pre></div>
 </div>
 <p>or</p>
@@ -166,6 +166,7 @@ is needed for an user to buy access to restricted parts of a document.</p>
 <p><cite>django-allauth</cite> is a fantastic package that will enable your users to login
 using external providers (Google, Facebook, etc). It is a bit complex
 to setup, but wholly worth it.</p>
+<p><cite>python-magic</cite> is used to validate image file uploads.</p>
 <p>By default, a <cite>coldoc</cite> portal will use <cite>sqlite</cite> as database; to use other databases,
 you may need to install an adapter, <cite>eg</cite> for <cite>MySQL</cite> you may install <cite>mysqlclient</cite>.
 (There are easy instructions on how to use <cite>MySQL</cite>, please read on in
@@ -217,6 +218,7 @@ you may need to install an adapter, <cite>eg</cite> for <cite>MySQL</cite> you m
 <li class="toctree-l1"><a class="reference internal" href="editing.html">Editing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="multilingual.html">Multiple languages</a></li>
 <li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="devel.html">Developing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ack.html">Acknowledgements</a></li>
 </ul>
 
