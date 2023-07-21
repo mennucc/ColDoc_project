@@ -1117,7 +1117,7 @@ def normalize(coldoc_dir, blobs_dir, metadata, blob, filters):
             blob = out.getvalue()
     return blob, errors
 
-@decorator_url(ajax_actions = ('compile_no_reload', 'save_no_reload', 'normalize' ))
+@decorator_url(ajax_actions = ('compile_no_reload', 'save_no_reload', 'normalize', 'revert' ))
 def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_dir, ajax_actions, do_lock, **k):
     #
     actions = 'compile', 'compile_no_reload', 'save', 'save_no_reload', 'normalize', 'revert'
