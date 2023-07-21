@@ -207,6 +207,7 @@ function ajax_views_post() {
    // permanently stop view_poll, and disable blob_poll  
    blob_polling = 0 ; view_polling = 0 ;
    clearTimeout(blob_polling_id);
+   clearTimeout(view_polling_id);
  }
  $.ajax(ajax_views_url, {
 	   type: "POST",

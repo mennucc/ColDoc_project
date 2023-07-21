@@ -22,15 +22,16 @@ function check_view_changed_md5() {
 //////////////////////////////////////////
 
 var view_polling = 600000;
+var view_polling_id ;
 
 function poll_view_changed_md5() {
     if(view_polling == 0 ) { return ; }
     check_view_changed_md5();
-    setTimeout(poll_view_changed_md5, view_polling);
+    view_polling_id = setTimeout(poll_view_changed_md5, view_polling);
 };
 
 // start polling
-setTimeout(poll_view_changed_md5, view_polling);
+view_polling_id = setTimeout(poll_view_changed_md5, view_polling);
 
 ///////////////////////////////////////////
 
