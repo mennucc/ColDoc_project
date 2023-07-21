@@ -88,6 +88,7 @@ if ( compilation_in_progress ) {
          onclick="blob_post('save_no_reload'); return false;"
          id="id_blobeditform_save_no_reload" name="save" value="Save">
 
+         <script>user_can_save = true;</script>
 
          <input type="submit" class="btn {{ revert_button_class }} float-right" 
          data-toggle="tooltip" title="Revert to previous version"

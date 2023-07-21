@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect, functools, tempfile
+import os, sys, mimetypes, http, copy, json, hashlib, difflib, shutil, subprocess, re, io, inspect, functools, tempfile, time
 from html import escape as py_html_escape
 import pickle, base64
 from os.path import join as osjoin
@@ -2255,7 +2255,12 @@ def index(request, NICK, UUID):
     if not request.user.is_anonymous:
         a = metadata.access
         access_icon  = get_access_icon(a)
-    else: access_icon = ''
+        session_expiry_age = request.session.get_expiry_age()
+        session_expiry_time = session_expiry_age + int(time.time())
+    else:
+        access_icon = ''
+        session_expiry_age = -1
+        session_expiry_time = -1
     ########################################## permission management
     #
     request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)

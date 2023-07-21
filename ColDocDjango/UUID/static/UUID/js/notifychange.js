@@ -26,6 +26,8 @@ var view_polling_id ;
 
 function poll_view_changed_md5() {
     if(view_polling == 0 ) { return ; }
+    // stop when session has expired
+    if ( session_has_expired() ) { return ; }
     check_view_changed_md5();
     view_polling_id = setTimeout(poll_view_changed_md5, view_polling);
 };

@@ -21,6 +21,13 @@ var blob_uncompiled={{ uncompiled }};
 const python_main_class = "{{ MAIN_CONTAINER_CLASS }}";
 var previous_main_class = "{{ MAIN_CONTAINER_CLASS | default:"container" }}";
 
+const session_expiry_age  = {{ session_expiry_age }};
+const session_expiry_time = {{ session_expiry_time }};
+const alert_expiry_message = "{% translate 'The session has timed out; you should login again.' %}";
+const alert_expiry_save_message = "{% translate 'The session will timeout soon; content has been saved; you should login again.' %}";
+
+var user_can_save = false;
+
 $( document ).ready(function() {
     mainClassUpdate(undefined);
 });
