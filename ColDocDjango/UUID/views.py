@@ -279,11 +279,22 @@ def common_checks(request, NICK, UUID, accept_anon=False):
 
 
 
+# adapted from django-allauth
+def is_ajax(request):
+    return any(
+        [
+            request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest",
+            request.content_type == "application/json",
+            "application/json" in request.META.get("HTTP_ACCEPT",''),
+        ]
+    )
 
 def decorator_url(_do_lock=True, **_decorator_kwargs):
     """ `cmd` must be called with `request` `NICK`, `UUID` ,
     `cmd`  be  called with args: request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_dir, **kwargs
-     and with a lock in the blob directory"; an argument of `ajax_actions`  has a special meaning """
+     and with a lock in the blob directory" (unless `_do_lock` is `False` );
+     an argument of `ajax_actions`  is either `True` (to  mean "only ajax requests) or a list of keywords in 
+     request.POST that indicate that this is an ajax request"""
     def inner_decorator(_cmd):
         @functools.wraps(_cmd)
         def wrapper(request, *_kargs, **_wargs):
@@ -294,10 +305,22 @@ def decorator_url(_do_lock=True, **_decorator_kwargs):
             if request.method != 'POST' :
                 raise SuspiciousOperation('Should be POST')
             #
+            ajax_actions = _decorator_kwargs.get('ajax_actions',())
+            if ajax_actions is True:
+                ajax_actions = ()
+                request_should_be_ajax = True
+            else:
+                request_should_be_ajax = any ( (a in request.POST) for a in ajax_actions )
+            request_is_ajax = is_ajax(request)
+            #
+            if request_should_be_ajax and not request_is_ajax :
+                raise SuspiciousOperation('Should be ajax')
+            if not request_should_be_ajax and  request_is_ajax :
+                raise SuspiciousOperation('Should not be ajax')
+            #
             if request.user.is_anonymous:
                 m = _('Session timeout, please login again')
-                b = ajax_actions = _decorator_kwargs.get('ajax_actions',())
-                if any ( (a in request.POST) for a in b ):
+                if request_is_ajax:
                     return JsonResponse({"alert":json.dumps(str(m))})
                 messages.add_message(request,messages.ERROR, m)
                 return redirect(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,} ))
@@ -1512,13 +1535,8 @@ def __prepare_views(metadata, blobs_dir):
     return views
 
 
-##@csrf_exempt
-def ajax_views(request, NICK, UUID):
-    if request.method != 'POST' :
-        raise SuspiciousOperation('!!!')
-    #
-    coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID)
-    metadata = DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc)
+@decorator_url(_do_lock=False, ajax_actions = True)
+def ajax_views(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_dir, ajax_actions, do_lock, **k):
     load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
     request.user.associate_coldoc_blob_for_has_perm(coldoc, metadata)
     anon_dir  = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'anon')
