@@ -2315,9 +2315,9 @@ def index(request, NICK, UUID):
             html = '[NO HTML preview for %r]'%(env,)
             pdfurl = ''
             if view_lang:
-                all_views = [( view_lang, iso3lang2word_H(view_lang), html, '')]
+                all_views = [( view_lang, iso3lang2word_H(view_lang), html, '', 'en')]
             else:
-                all_views = [( '', '', html, '')]
+                all_views = [( '', '', html, '', 'en')]
         elif env == 'main_file' and uuid == coldoc.root_uuid:
             pdfurl = ''
             html = ''
@@ -2347,7 +2347,7 @@ def index(request, NICK, UUID):
                 except:
                     logger.exception('cannot add blob %r to list',b)
             html+='</ul>'
-            all_views = [( blob_lang, iso3lang2word_H(blob_lang), html, '')]
+            all_views = [( blob_lang, iso3lang2word_H(blob_lang), html, '', iso3lang2iso2(blob_lang) or '')]
         else:
           all_views = []
           llll = [view_lang]
@@ -2386,7 +2386,7 @@ def index(request, NICK, UUID):
                 logger.exception('Problem when preparing HTML for %r',UUID)
                 messages.add_message(request, messages.ERROR ,_("HTML preview not available, internal error"))
             #
-            all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl))
+            all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl, iso3lang2iso2(ll) or '' ))
     else:
         blobcontenttype = 'image' if (blob_ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
         file = html = escapedfile = ''
