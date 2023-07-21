@@ -292,7 +292,7 @@ def decorator_url(_do_lock=True, **_decorator_kwargs):
             UUID = _wargs.get('UUID')
             #
             if request.method != 'POST' :
-                return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+                raise SuspiciousOperation('Should be POST')
             #
             if request.user.is_anonymous:
                 m = _('Session timeout, please login again')
