@@ -56,10 +56,14 @@ if settings.USE_ALLAUTH:
         path('accounts/', include('allauth.urls')),
         ]
 else:
+    urlpatterns.append(
+        path("accounts/", include("django.contrib.auth.urls")),
+    )
+    #
     urlpatterns += [
     path('login/', 
          LoginView.as_view(
-             template_name='admin/login.html',
+             template_name='account/simplelogin.html',
              extra_context={
                  'title': 'Login',
                  'site_title': config['DEFAULT']['site_name'],
