@@ -512,6 +512,9 @@ def md5(request, NICK, UUID, ACCESS, FILE):
     if metadata is None:
         return HttpResponse('UUID not found', status=http.HTTPStatus.NOT_FOUND)
     #
+    if not is_ajax(request):
+        raise SuspiciousOperation("Not AJAX")
+    #
     # TODO SuspiciousOperation may be raised when login has expired
     #
     if FILE.startswith('main'):

@@ -7,7 +7,10 @@ function check_changed_md5(get_md5_url, callback) {
        let real_file_md5 = response['file_md5'];
        callback( real_file_md5 );
      } else { console.log("Error in getting the MD5 from " + get_md5_url ); callback(undefined); }
-   });
+   },
+   // dataType
+   'json'
+   );
 };
 
 
