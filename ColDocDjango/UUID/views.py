@@ -2212,6 +2212,19 @@ def index(request, NICK, UUID):
                                      metadata_class=DMetadata, coldoc=NICK, prefix = 'edit')
         blob__dir = os.path.dirname(blob_filename)
     except FileNotFoundError as E:
+        # gentle redirect for yet untranslated blobs
+        if lang and  ext is None and lang in coldoc.get_languages() and\
+           DMetadata.load_by_uuid(uuid=UUID, coldoc=coldoc):
+            messages.add_message(request, messages.WARNING, 
+                                 _('Sorry, this content is not yet available in language %r.')
+                                 % ( iso3lang2word(lang) or lang  ,) )
+            logger.warning('redirect on untraslated coldoc=%r uuid=%r lang=%r ip=%r HTTP_FROM=%r HTTP_USER_AGENT=%r',
+                           NICK, UUID, lang,
+                           request.META.get('REMOTE_ADDR'),
+                           request.META.get('HTTP_FROM'),
+                           request.META.get('HTTP_USER_AGENT') )
+            return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
+        #
         logger.warning('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file not found %r',
                        request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext, E)
         return HttpResponse("Cannot find UUID %r with lang=%s and extension=%s : %r." % (UUID, repr(lang) if (lang is not None) else 'any',
