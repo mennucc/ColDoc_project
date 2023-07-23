@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ColDoc 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-19 13:49+0000\n"
-"PO-Revision-Date: 2023-07-19 15:58+0200\n"
+"POT-Creation-Date: 2023-07-23 07:00+0000\n"
+"PO-Revision-Date: 2023-07-23 09:00+0200\n"
 "Last-Translator: Andrea Mennucci <andrea.mennucci@sns.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: it\n"
@@ -53,7 +53,9 @@ msgstr ""
 msgid ""
 "Malformed languages; insert one ISO_639-3 three letter code per line (and no "
 "blank lines)"
-msgstr "Codici linguistici errati: usare solo codici di tre lettere, ISO_639-3; uno solo per ogni riga, senza linee vuote"
+msgstr ""
+"Codici linguistici errati: usare solo codici di tre lettere, ISO_639-3; uno "
+"solo per ogni riga, senza linee vuote"
 
 #: ColDocApp/models.py:129
 msgid ""
@@ -87,7 +89,7 @@ msgstr "tipo di comando latex da usare per compilare"
 msgid "First published"
 msgstr "Pubblicato per la prima volta"
 
-#: ColDocApp/templates/coldoc.html:14 UUID/templates/UUID.html:161
+#: ColDocApp/templates/coldoc.html:14 UUID/templates/UUID.html:168
 msgid "Authors"
 msgstr "Autori"
 
@@ -195,7 +197,7 @@ msgid "Tree is fine."
 msgstr "L'albero è corretto"
 
 # Timeout della sessione, effettuare nuovamente l'accesso
-#: ColDocDjango/utils.py:278 UUID/views.py:298
+#: ColDocDjango/utils.py:278 UUID/views.py:322
 msgid "Session timeout, please login again"
 msgstr "Timeout della sessione, effettuare nuovamente l'accesso"
 
@@ -271,108 +273,121 @@ msgstr "usa la documentclass `book`"
 msgid "documentclass used to compile"
 msgstr "documentclass usata per compilare"
 
-#: UUID/templates/UUID.html:56
+# Timeout della sessione, effettuare nuovamente l'accesso
+#: UUID/templates/UUID.html:26
+msgid "The session has timed out; you should login again."
+msgstr "Timeout della sessione, effettuare nuovamente l'accesso."
+
+#: UUID/templates/UUID.html:27
+msgid ""
+"The session will timeout soon; content has been saved; you should login "
+"again."
+msgstr ""
+"La sessione scadrà preso; i contenuti sono stati salvati; dovresti rifare "
+"login."
+
+#: UUID/templates/UUID.html:63
 msgid "View this blob inside the whole PDF"
 msgstr "Vedi questo blob all'interno del PDF completo"
 
-#: UUID/templates/UUID.html:60
+#: UUID/templates/UUID.html:67
 msgid "View this blob inside the whole HTML"
 msgstr "Vedi questo blob all'interno del documento HTML completo"
 
-#: UUID/templates/UUID.html:77
+#: UUID/templates/UUID.html:84
 msgid "Show messages"
 msgstr "Mostra messaggi"
 
-#: UUID/templates/UUID.html:82
+#: UUID/templates/UUID.html:89
 msgid "Shorter width"
 msgstr "Più stretto"
 
-#: UUID/templates/UUID.html:86
+#: UUID/templates/UUID.html:93
 msgid "Larger width"
 msgstr "Più largo"
 
-#: UUID/templates/UUID.html:96 UUID/templates/UUID.html:134
+#: UUID/templates/UUID.html:103 UUID/templates/UUID.html:141
 msgid "View"
 msgstr "Vista"
 
-#: UUID/templates/UUID.html:102
+#: UUID/templates/UUID.html:109
 msgid "Blob"
 msgstr "Blob"
 
-#: UUID/templates/UUID.html:108
+#: UUID/templates/UUID.html:115
 msgid "Metadata"
 msgstr "Metadati"
 
-#: UUID/templates/UUID.html:114
+#: UUID/templates/UUID.html:121
 msgid "Comments"
 msgstr "Commenti"
 
-#: UUID/templates/UUID.html:120
+#: UUID/templates/UUID.html:127
 msgid "Logs"
 msgstr "Log"
 
-#: UUID/templates/UUID.html:125
+#: UUID/templates/UUID.html:132
 msgid "Tools"
 msgstr "Strumenti"
 
-#: UUID/templates/UUID.html:138
+#: UUID/templates/UUID.html:145
 msgid "This element was replaced by"
 msgstr "Questo elemento è stato rimpiazzato da"
 
-#: UUID/templates/UUID.html:150
+#: UUID/templates/UUID.html:157
 msgid "Download PDF"
 msgstr "Scarica PDF"
 
-#: UUID/templates/UUID.html:173
+#: UUID/templates/UUID.html:180
 msgid "This element replaces"
 msgstr "Questo elemento rimpiazza"
 
-#: UUID/templates/UUID.html:179 UUID/templates/UUID.html:180
+#: UUID/templates/UUID.html:186 UUID/templates/UUID.html:187
 msgid "Bibliography"
 msgstr "Bibliografia"
 
-#: UUID/templates/UUID.html:197
+#: UUID/templates/UUID.html:204
 msgid "Environment:"
 msgstr "Ambiente:"
 
-#: UUID/templates/UUID.html:198
+#: UUID/templates/UUID.html:205
 msgid "Selected language:"
 msgstr "Lingua selezionata:"
 
-#: UUID/templates/UUID.html:199
+#: UUID/templates/UUID.html:206
 msgid "Selected extension:"
 msgstr "Estensione selezionata"
 
-#: UUID/templates/UUID.html:224
+#: UUID/templates/UUID.html:231
 msgid "Upload new content"
 msgstr "Carica nuovo contenuto"
 
-#: UUID/templates/UUID.html:225
+#: UUID/templates/UUID.html:232
 msgid "Upload"
 msgstr "Carica"
 
-#: UUID/templates/UUID.html:255
+#: UUID/templates/UUID.html:262
 msgid "Edit using administrative interface"
 msgstr "Modifica interfaccia amministrativa"
 
-#: UUID/templates/UUID.html:312
+#: UUID/templates/UUID.html:319
 msgid "Managing blob in:"
 msgstr "Stai gestendo il blob in:"
 
-#: UUID/templates/UUID.html:317
+#: UUID/templates/UUID.html:324
 msgid "Download"
 msgstr "Scarica"
 
-#: UUID/templates/UUID.html:319
+#: UUID/templates/UUID.html:326
 msgid "Download blob"
 msgstr "Scarica il blob"
 
-#: UUID/templates/UUID.html:333
+#: UUID/templates/UUID.html:340
 #, python-format
 msgid "Download this blob in %(dlanguage)s."
 msgstr "Scarica questo blob in %(dlanguage)s."
 
-#: UUID/templates/UUID.html:339
+#: UUID/templates/UUID.html:346
 #, python-format
 msgid ""
 "Download this blob together with all parts that constitute a complete, "
@@ -381,46 +396,46 @@ msgstr ""
 "Scarica questo blob insieme con tutte le parti necessarie per avere un "
 "documento LaTeX completo e compilabile in %(view_language)s."
 
-#: UUID/templates/UUID.html:340
+#: UUID/templates/UUID.html:347
 #, python-format
 msgid "Download inside complete %(view_language)s document"
 msgstr "Scarica all'interno di un documento in %(view_language)s"
 
-#: UUID/templates/UUID.html:343
+#: UUID/templates/UUID.html:350
 msgid "Download this blob embedded in a complete, compilable, LaTeX document."
 msgstr ""
 "Scarica questo blob inserito in un unico documento LaTeX completo e "
 "compilabile."
 
-#: UUID/templates/UUID.html:344
+#: UUID/templates/UUID.html:351
 msgid "as single document"
 msgstr "come documento singolo"
 
-#: UUID/templates/UUID.html:346
+#: UUID/templates/UUID.html:353
 msgid "All pieces are shipped in a ZIP file"
 msgstr "Tutti gli elementi in un file ZIP"
 
-#: UUID/templates/UUID.html:347
+#: UUID/templates/UUID.html:354
 msgid "as ZIP"
 msgstr "come ZIP"
 
-#: UUID/templates/UUID.html:349
+#: UUID/templates/UUID.html:356
 msgid "All pieces are sent as attachments to an email"
 msgstr "Tutti gli elementi sono inviati come allegati a una email"
 
-#: UUID/templates/UUID.html:350
+#: UUID/templates/UUID.html:357
 msgid "by email"
 msgstr "per email"
 
-#: UUID/templates/UUID.html:354
+#: UUID/templates/UUID.html:361
 msgid "(Please select a language, so as to download content)"
 msgstr "(Si prega di selezionare una lingua, per poter scaricare il contenuto)"
 
-#: UUID/templates/UUID.html:362
+#: UUID/templates/UUID.html:369
 msgid "Language tools"
 msgstr "Strumenti per le lingue"
 
-#: UUID/templates/UUID.html:388
+#: UUID/templates/UUID.html:395
 msgid "This content is available in:"
 msgstr "Questo contenuto è disponibile in:"
 
@@ -496,86 +511,86 @@ msgstr "Aggiungi begin/end"
 msgid "add a begin{}..end{} around the splitted part"
 msgstr "aggiungi begin{}..end{} intorno alla parte estratta"
 
-#: UUID/views.py:345
+#: UUID/views.py:368
 #, python-format
 msgid "Internal error when parsing optarg %r for  blob %r "
 msgstr "Errore interno nel'interpretare optarg %r per blob %r "
 
-#: UUID/views.py:370
+#: UUID/views.py:393
 #, python-format
 msgid "Added initial \\%s line"
 msgstr "Aggiunta linea iniziale \\%s"
 
-#: UUID/views.py:372
+#: UUID/views.py:395
 #, python-format
 msgid "Missing initial \\%s line"
 msgstr "Manca la linea iniziale \\%s"
 
-#: UUID/views.py:376
+#: UUID/views.py:399
 #, python-format
 msgid "Missing initial, hidden, \\uuid line in blob %r"
 msgstr "Manca la linea iniziale nascosta \\uuid in questo blob %r"
 
-#: UUID/views.py:411
+#: UUID/views.py:434
 msgid "(Why is there a  \\uuid  in this blob ?)"
 msgstr "(Perché c'è un comando \\uuid in questo blob?)"
 
-#: UUID/views.py:444
+#: UUID/views.py:467
 msgid "Editstate ignored"
 msgstr "Ignorato lo stato di edit"
 
-#: UUID/views.py:449
+#: UUID/views.py:472
 msgid "File was changed on disk since your last visit"
 msgstr "Il file è stato modificato nel disco dopo la tua ultima visita"
 
-#: UUID/views.py:454
+#: UUID/views.py:477
 msgid "Your saved changes are yet uncompiled"
 msgstr "Le tue modifiche salvate non sono state ancora compilate"
 
-#: UUID/views.py:601
+#: UUID/views.py:627
 #, python-format
 msgid "Keep the\\%s{...} command all in one line."
 msgstr "Tieni il comando \\%s{...} tutto sulla stessa linea"
 
-#: UUID/views.py:617
+#: UUID/views.py:643
 #, python-format
 msgid "Please add a \\%s{...} command in first line."
 msgstr "Si prega di aggiungere il comando \\%s{...} nella prima linea"
 
-#: UUID/views.py:619
+#: UUID/views.py:645
 #, python-format
 msgid "The command \\%s{...} was moved to first line."
 msgstr "Il comando \\%s{...} è stato spostat sulla prima linea"
 
-#: UUID/views.py:622
+#: UUID/views.py:648
 #, python-format
 msgid "The blob should contain only one occurrence of \\%s{...}."
 msgstr "Il blob dovrebbe contenere solo un comando \\%s{...}"
 
-#: UUID/views.py:676
+#: UUID/views.py:702
 #, python-format
 msgid "Internal error while parsing for \\%s{...}."
 msgstr "Errore interno nell'analisi di \\%s{...}"
 
-#: UUID/views.py:772
+#: UUID/views.py:798
 msgid "Converted to manual language management (non <tt>mul</tt>)"
 msgstr "Convertito a gestione manuale delle lingue (non <tt>mul</tt>)"
 
-#: UUID/views.py:810 UUID/views.py:836
+#: UUID/views.py:836 UUID/views.py:862
 msgid "Converted to `mul` method"
 msgstr "Convertito a metodo `mul`"
 
-#: UUID/views.py:848
+#: UUID/views.py:874
 #, python-format
 msgid "A blob with language %(lang)r extension %(ext)r does not exist"
 msgstr "Non esiste un blob con lingua %(lang)r extensione %(ext)r"
 
-#: UUID/views.py:861
+#: UUID/views.py:887
 #, python-format
 msgid "A blob with language %(lang)r extension %(ext)r already exists"
 msgstr "Esiste già un blob con lingua %(lang)r extensione %(ext)r"
 
-#: UUID/views.py:871
+#: UUID/views.py:897
 #, python-format
 msgid ""
 "A blob with language %(newlang)r extension %(ext)r was created copying from "
@@ -584,11 +599,11 @@ msgstr ""
 "Il blob con lingua %(newlang)r extensione %(ext)r è stato creato copiando da "
 "%(oldlang)r"
 
-#: UUID/views.py:873 UUID/views.py:887
+#: UUID/views.py:899 UUID/views.py:913
 msgid "Please check it."
 msgstr "Si prega di controllarlo"
 
-#: UUID/views.py:885
+#: UUID/views.py:911
 #, python-format
 msgid ""
 "A blob with language %(newlang)r extension %(ext)r was automatically "
@@ -597,77 +612,79 @@ msgstr ""
 "Il blob con lingua %(newlang)r extensione %(ext)r è stato automaticamente "
 "tradotto da %(oldlang)r  (%(len)d caratteri)"
 
-#: UUID/views.py:889
+#: UUID/views.py:915
 msgid "The automatic translation failed"
 msgstr "La traduzione automatica è fallita"
 
-#: UUID/views.py:996
+#: UUID/views.py:1022
 #, python-format
 msgid "File uploaded has extension of %(this)r instead of one of: %(that)r"
 msgstr "Il file caricato ha estensione %(this)r invece di uno di: %(that)r"
 
-#: UUID/views.py:1002 UUID/views.py:1024
+#: UUID/views.py:1028 UUID/views.py:1050
 #, python-format
 msgid "File uploaded is %(this)r instead of one of: %(that)r"
 msgstr "Il file caricato è %(this)r invece di uno di: %(that)r"
 
-#: UUID/views.py:1017
+#: UUID/views.py:1043
 msgid "File upload failed"
 msgstr "Il caricamento del file è fallito"
 
-#: UUID/views.py:1029
+#: UUID/views.py:1055
 #, python-format
 msgid "File uploaded is %(this)r instead of %(that)r"
 msgstr "Il file caricato è %(this)r invece di %(that)r"
 
-#: UUID/views.py:1046
+#: UUID/views.py:1072
 msgid "Compilation of LaTeX succeded."
 msgstr "La compilazione LaTeX è riuscita"
 
-#: UUID/views.py:1049
+#: UUID/views.py:1075
 msgid "Compilation of LaTeX failed"
 msgstr "La compilazione LaTeX è fallita"
 
-#: UUID/views.py:1055
+#: UUID/views.py:1081
 msgid "Compilation of new blob succeded"
 msgstr "La compilazione del nuovo blob è riuscita"
 
-#: UUID/views.py:1058
+#: UUID/views.py:1084
 msgid "Compilation of new blob failed"
 msgstr "La compilazione del nuovo blob è fallita"
 
-#: UUID/views.py:1207
+#: UUID/views.py:1233
 msgid "The file was changed on disk: compile aborted. Check the diff."
-msgstr "Il file è stato cambiato nel disco: compilazione abortita. Controlla le differenze."
+msgstr ""
+"Il file è stato cambiato nel disco: compilazione abortita. Controlla le "
+"differenze."
 
-#: UUID/views.py:1213 UUID/views.py:1286 UUID/views.py:1413 UUID/views.py:1463
+#: UUID/views.py:1239 UUID/views.py:1312 UUID/views.py:1439 UUID/views.py:1489
 msgid "Current"
 msgstr "Attuale"
 
-#: UUID/views.py:1213 UUID/views.py:1286
+#: UUID/views.py:1239 UUID/views.py:1312
 msgid "Your version"
 msgstr "La tua versione"
 
-#: UUID/views.py:1247
+#: UUID/views.py:1273
 msgid "Cannot split material when there are internal errors"
 msgstr "Non si può separare del materiale se vi sono stati errori interni"
 
-#: UUID/views.py:1250
+#: UUID/views.py:1276
 msgid "Cannot split material when there are header errors"
 msgstr ""
 "Non si può separare del materiale se vi sono stati errori nelle intestazioni"
 
-#: UUID/views.py:1253
+#: UUID/views.py:1279
 msgid "Sorry, cannot split material when the first line was changed"
 msgstr ""
 "Spiacente, non si può separare del materiale se la prima linea è stata "
 "cambiata"
 
-#: UUID/views.py:1280
+#: UUID/views.py:1306
 msgid "The file was changed on disk: check the diff"
 msgstr "Il file è stato cambiato nel disco: controlla le differenze"
 
-#: UUID/views.py:1354
+#: UUID/views.py:1380
 #, python-format
 msgid ""
 "Created blob with UUID %(newuuid)s, please edit %(olduuid)s to properly "
@@ -677,128 +694,128 @@ msgstr ""
 "%(olduuid)s per essere sicuri che sia correttamente incluso (un comando \\"
 "\\inputè stato inserito per comodità)"
 
-#: UUID/views.py:1370
+#: UUID/views.py:1396
 msgid "Metadata change in new blob"
 msgstr "I metadati cambiati nel nuovo blob"
 
-#: UUID/views.py:1382
+#: UUID/views.py:1408
 msgid "Metadata change in blob"
 msgstr "Cambiamento di metadata nel blob"
 
-#: UUID/views.py:1389
+#: UUID/views.py:1415
 msgid "Compilation of LaTeX scheduled."
 msgstr "La compilazione LaTeX è stata avviata."
 
-#: UUID/views.py:1401
+#: UUID/views.py:1427
 #, python-format
 msgid "User '%s' changed %s - %s - %s"
 msgstr "L'utente '%s' ha cambiato %s - %s - %s"
 
-#: UUID/views.py:1413 UUID/views.py:1463
+#: UUID/views.py:1439 UUID/views.py:1489
 msgid "Previous"
 msgstr "Precedente"
 
-#: UUID/views.py:1419
+#: UUID/views.py:1445
 msgid "File differences for"
 msgstr "Differenza nei file per"
 
-#: UUID/views.py:1633
+#: UUID/views.py:1654
 #, python-format
 msgid "Internal problem, check the metadata again %r != %r"
 msgstr "Problema interno, ricontrolla i metadati  %r != %r"
 
-#: UUID/views.py:1637
+#: UUID/views.py:1658
 msgid "Changes saved"
 msgstr "Cambiamenti salvati"
 
-#: UUID/views.py:1653
+#: UUID/views.py:1674
 #, python-format
 msgid "User '%s' changed metadata in %s - %s"
 msgstr "L'utente '%s' ha cambiato i metadata in %s - %s"
 
-#: UUID/views.py:1660
+#: UUID/views.py:1681
 msgid "Orig"
 msgstr "Orig"
 
-#: UUID/views.py:1660
+#: UUID/views.py:1681
 msgid "New"
 msgstr "Nuovo"
 
-#: UUID/views.py:1918
+#: UUID/views.py:1939
 #, python-format
 msgid "UUID was normalized from %(old)r to %(new)r)"
 msgstr "Lo UUID è stato normalizzato da %(old)r a %(new)r)"
 
-#: UUID/views.py:1950
+#: UUID/views.py:1971
 msgid "Access to private document denied. Please login."
 msgstr "Accesso negato al documento privato. Si prega di fare login."
 
-#: UUID/views.py:2258 UUID/views.py:2699 UUID/views.py:2718
+#: UUID/views.py:2284 UUID/views.py:2725 UUID/views.py:2744
 msgid "Access denied to this content."
 msgstr "Accesso negato per questo contenuto"
 
-#: UUID/views.py:2261 UUID/views.py:2722
+#: UUID/views.py:2287 UUID/views.py:2748
 msgid "Please login."
 msgstr "Si prega di autenticarsi."
 
-#: UUID/views.py:2327
+#: UUID/views.py:2353
 msgid "Main document"
 msgstr "Documento principale"
 
-#: UUID/views.py:2366
+#: UUID/views.py:2392
 msgid "[NO HTML AVAILABLE]"
 msgstr "[HTML NON DISPONIBILE]"
 
-#: UUID/views.py:2384
+#: UUID/views.py:2410
 msgid "HTML preview not available"
 msgstr "Anteprima HTML non disponibile"
 
-#: UUID/views.py:2387
+#: UUID/views.py:2413
 msgid "HTML preview not available, internal error"
 msgstr "Anteprima HTML non disponibile, errore interno"
 
-#: UUID/views.py:2429 UUID/views.py:2431
+#: UUID/views.py:2455 UUID/views.py:2457
 msgid "[access denied]"
 msgstr "[accesso negato]"
 
-#: UUID/views.py:2457
+#: UUID/views.py:2483
 msgid "Saved on disk"
 msgstr "Salvato nel disco"
 
-#: UUID/views.py:2457
+#: UUID/views.py:2483
 msgid "Your content"
 msgstr "Il tuo contenuto"
 
-#: UUID/views.py:2519
+#: UUID/views.py:2545
 msgid "Add a language version"
 msgstr "Aggiungi una versione in lingua"
 
-#: UUID/views.py:2524
+#: UUID/views.py:2550
 msgid "Translate to language"
 msgstr "Traduci alla lingua"
 
-#: UUID/views.py:2526
+#: UUID/views.py:2552
 msgid "(may damage preamble parts)"
 msgstr "(potrebbe danneggiare il preambolo)"
 
-#: UUID/views.py:2534
+#: UUID/views.py:2560
 msgid "Delete a language version"
 msgstr "Cancella una versione in lingua"
 
-#: UUID/views.py:2541
+#: UUID/views.py:2567
 #, python-format
 msgid "Change the language of this blob from %s to:"
 msgstr "Cambia la lingua di questo blob da %s a:"
 
-#: UUID/views.py:2546
+#: UUID/views.py:2572
 msgid "Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)"
 msgstr "Cambia questo UUID a <tt>mul</tt> (<i>Multilingual method</i>)"
 
-#: UUID/views.py:2550
+#: UUID/views.py:2576
 msgid "Change this UUID to manual language management (non <tt>mul</tt>)"
 msgstr "Cambia questo UUID a gestione manuale delle lingue (non <tt>mul</tt>)"
 
-#: UUID/views.py:2686
+#: UUID/views.py:2712
 msgid "Download denied for this content."
 msgstr "Scaricamento negato per questo contenuto"
 
@@ -845,52 +862,52 @@ msgid ""
 "    \n"
 msgstr ""
 
-#: helper.py:581
+#: helper.py:544
 #, python-format
 msgid "Parsing uuid %r lang %r : %s"
 msgstr "Analizzando uuid %r lingua %r : %s"
 
-#: helper.py:629
+#: helper.py:592
 #, python-format
 msgid "loop detected along branch %r"
 msgstr "anello nel ramo %r"
 
-#: helper.py:635
+#: helper.py:598
 #, python-format
 msgid "duplicate node %r in tree"
 msgstr "nodo %r duplicato nel ramo"
 
-#: helper.py:642
+#: helper.py:605
 #, python-format
 msgid "already deleted from queue %r"
 msgstr "già cancellato %r dalla coda"
 
-#: helper.py:648
+#: helper.py:611
 #, python-format
 msgid "The node %r %r cannot be a child of %r %r"
 msgstr "Il nodo %r %r non può essere un figlio di %r %r"
 
-#: helper.py:665
+#: helper.py:628
 #, python-format
 msgid "Disconnected nodes %r"
 msgstr "Nodi disconnessi %r"
 
-#: helper.py:667
+#: helper.py:630
 #, python-format
 msgid "Disconnected node %r"
 msgstr "Nodo disconnesso %r"
 
-#: helper.py:668
+#: helper.py:631
 #, python-format
 msgid "Disconnected node %r, replaced by %r"
 msgstr "Nodo disconnesso %r, rimpiazzato da %r"
 
-#: helper.py:692
+#: helper.py:655
 #, python-format
 msgid "UUID %r environ %r"
 msgstr "UUID %r ambiente %r"
 
-#: helper.py:714
+#: helper.py:677
 #, python-format
 msgid ""
 "Parent %r includes child %r using cmd %r environ %r but child %r thinks it "
@@ -899,17 +916,17 @@ msgstr ""
 "Il genitore %r include il figlio %r usando il comando %r ambiente %r\n"
 "ma il figlio %r è ambiente %r"
 
-#: helper.py:730
+#: helper.py:693
 #, python-format
 msgid "UUID %r environ %r access %r"
 msgstr "UUID %r ambiente %r accesso %r"
 
-#: helper.py:749
+#: helper.py:712
 #, python-format
 msgid "UUID %r file %r environ %r first line %r"
 msgstr "UUID %r file %r ambiente %r prima linea %r"
 
-#: helper.py:775
+#: helper.py:738
 #, python-format
 msgid ""
 "In language %(lang)s macro \\%(macroname)s %(argSource)s {%(inputfile)r} is "
@@ -918,44 +935,44 @@ msgstr ""
 "Nella lingua %(lang)s la macro \\%(macroname)s %(argSource)s {%(inputfile)r} "
 "include il blob errato %(thisblob)s"
 
-#: helper.py:780
+#: helper.py:743
 #, python-format
 msgid "Unparsable input  \\%s %s {%r} -> uuid %r blob %r"
 msgstr "Input  \\%s %s {%r} non analizzabile -> uuid %r blob %r"
 
-#: helper.py:785
+#: helper.py:748
 #, python-format
 msgid "inputs UUID %r filename %r twice"
 msgstr "include due volte lo UUID %r filename %r"
 
-#: helper.py:796
+#: helper.py:759
 #, python-format
 msgid "language %r does not input UUIDs: %r"
 msgstr "la lingua %r non include gli UUID: %r"
 
-#: helper.py:810
+#: helper.py:773
 #, python-format
 msgid "There are %d untranslated UUIDs, showing some"
 msgstr "Vi sono %d UUID non tradotti, ne mostro alcuni"
 
-#: helper.py:814
+#: helper.py:777
 #, python-format
 msgid "translated to: %r"
 msgstr "Tradotto in: %r"
 
-#: helper.py:946
+#: helper.py:909
 msgid "helper functions"
 msgstr "funzioni di aiuto"
 
-#: helper.py:1049
+#: helper.py:1012
 msgid "Warning"
 msgstr "Allerta"
 
-#: helper.py:1052
+#: helper.py:1015
 msgid "Problems"
 msgstr "Problemi"
 
-#: helper.py:1060
+#: helper.py:1023
 #, python-format
 msgid "Tree for coldoc %r is fine"
 msgstr "L'albero per il coldoc %r è corretto"
@@ -984,11 +1001,57 @@ msgstr "Italiano"
 msgid "French"
 msgstr "Francese"
 
+#: templates/account/base.html:73 templates/base.html:73
+#: templates/bootstrapbase.html:73
+msgid "Successfully logged in"
+msgstr "Accesso riuscito"
+
+#: templates/account/base.html:74 templates/base.html:74
+#: templates/bootstrapbase.html:74
+msgid "Author"
+msgstr "Autori"
+
+#: templates/account/base.html:75 templates/base.html:75
+#: templates/bootstrapbase.html:75
+msgid "Editor"
+msgstr "Editore"
+
+#: templates/account/base.html:76 templates/base.html:76
+#: templates/bootstrapbase.html:76
+msgid "Staff"
+msgstr "Staff"
+
+#: templates/account/base.html:81 templates/base.html:81
+#: templates/bootstrapbase.html:81
+msgid "Email"
+msgstr "Email"
+
+#: templates/account/base.html:82 templates/account/base.html:86
+#: templates/base.html:82 templates/base.html:86
+#: templates/bootstrapbase.html:82 templates/bootstrapbase.html:86
+msgid "Change password"
+msgstr "Password salvata"
+
+#: templates/account/base.html:83 templates/base.html:83
+#: templates/bootstrapbase.html:83
+msgid "Reset password"
+msgstr "Password reset"
+
+#: templates/account/base.html:84 templates/base.html:84
+#: templates/bootstrapbase.html:84
+msgid "Social connections"
+msgstr "Collegamenti social"
+
+#: templates/account/base.html:91 templates/base.html:91
+#: templates/bootstrapbase.html:91
+msgid "Logout"
+msgstr "Logout"
+
 #: templates/account/login.html:6 templates/account/login.html:48
 msgid "Sign In"
 msgstr "Iscriviti"
 
-#: templates/account/login.html:10
+#: templates/account/login.html:10 templates/account/simplelogin.html:11
 msgid "Login"
 msgstr "Login"
 
@@ -1015,13 +1078,34 @@ msgstr ""
 "Se non avete ancora creato un account, per favore <a "
 "href=\"%(signup_url)s\">registratevi</a>"
 
-#: templates/account/login.html:51
+#: templates/account/login.html:51 templates/account/simplelogin.html:56
 msgid "Forgot Password?"
 msgstr "Password dimenticata?"
 
 #: templates/account/login.html:53
 msgid "Create new local account"
 msgstr "Creare un nuovo account locale"
+
+#: templates/account/simplelogin.html:17
+msgid "Please correct the error below."
+msgstr "Si prega di correggere l'errore seguente."
+
+#: templates/account/simplelogin.html:17
+msgid "Please correct the errors below."
+msgstr "Si prega di correggere gli errori seguenti."
+
+#: templates/account/simplelogin.html:33
+#, python-format
+msgid ""
+"You are authenticated as %(username)s, but are not authorized to access this "
+"page. Would you like to login to a different account?"
+msgstr ""
+"Se autenticato come %(username)s, ma non hai autorizzazione per accedere a "
+"questa pagina. Vuoi accedere con un diverso account?"
+
+#: templates/account/simplelogin.html:52
+msgid "Log in"
+msgstr "Login"
 
 #: templates/socialaccount/signup.html:5 templates/socialaccount/signup.html:8
 msgid "Complete registration"
@@ -1065,6 +1149,11 @@ msgstr "Per favore completare questo modulo:"
 #: templates/socialaccount/signup.html:30
 msgid "Sign Up"
 msgstr "Iscriviti"
+
+#, fuzzy
+#~| msgid "Please login."
+#~ msgid "Please log in"
+#~ msgstr "Si prega di autenticarsi."
 
 # {% blocktranslate %}
 #, python-format
