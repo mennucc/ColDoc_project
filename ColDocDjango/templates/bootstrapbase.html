@@ -70,25 +70,25 @@
    	{% if user.is_authenticated %}
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <span data-toggle="tooltip" title="Succesfully logged in">  😀 </span>
-          {% if user.is_author %} <span data-toggle="tooltip" title="Author"> ✎ </span> {% endif %}
-	  {% if user.is_editor %} <span data-toggle="tooltip" title="Editor"> 🎩 </span>  {% endif %}
-	  {% if user.is_staff %}  <span data-toggle="tooltip" title="Staff"> 🔧 </span> {% endif %}
+	  <span data-toggle="tooltip" title="{% translate 'Successfully logged in' %}">  😀 </span>
+	  {% if user.is_author %} <span data-toggle="tooltip" title="{% translate 'Author' %}"> ✎ </span> {% endif %}
+	  {% if user.is_editor %} <span data-toggle="tooltip" title="{% translate 'Editor' %}"> 🎩 </span>  {% endif %}
+	  {% if user.is_staff %}  <span data-toggle="tooltip" title="{% translate 'Staff' %}"> 🔧 </span> {% endif %}
 	  {{ user.get_username }} 
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 	  {% if USE_ALLAUTH %}
- 	  <a class="dropdown-item" href="{% url 'account_email' %}">Email</a>
-	  <a class="dropdown-item" href="{% url 'account_change_password' %}">Change password</a>
-	  <a class="dropdown-item" href="{% url 'account_reset_password' %}">Reset password</a>
-	  <a class="dropdown-item" href="{% url 'socialaccount_connections' %}">Social connections</a>
+	   <a class="dropdown-item" href="{% url 'account_email' %}">{% translate 'Email' %}</a>
+	   <a class="dropdown-item" href="{% url 'account_change_password' %}">{% translate 'Change password' %}</a>
+	   <a class="dropdown-item" href="{% url 'account_reset_password' %}">{% translate 'Reset password' %}</a>
+	   <a class="dropdown-item" href="{% url 'socialaccount_connections' %}">{% translate 'Social connections' %}</a>
 	  {% else %} {# USE_ALLAUTH #}
-	  <a class="dropdown-item" href="/change_password">Change Password</a>
+	   <a class="dropdown-item" href="{% url 'password_change' %}">{% translate 'Change password' %}</a>
 	  {% endif %} {# USE_ALLAUTH #}
 	  {% if USE_WALLET %}
 	   	  <a class="dropdown-item" href="{% url 'wallet:show' %}">Wallet</a>
           {% endif %} {# USE_WALLET #}
-	  <a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a>
+	  <a class="dropdown-item" href="{% url 'account_logout' %}">{% translate 'Logout' %}</a>
         </div>
       </li>
       {% else %} {# user.is_authenticated #}
