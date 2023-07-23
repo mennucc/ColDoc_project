@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ColDoc 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-23 07:00+0000\n"
-"PO-Revision-Date: 2023-07-23 09:00+0200\n"
+"POT-Creation-Date: 2023-07-23 13:12+0000\n"
+"PO-Revision-Date: 2023-07-23 15:14+0200\n"
 "Last-Translator: Andrea Mennucci <andrea.mennucci@sns.it>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: it\n"
@@ -750,72 +750,78 @@ msgstr "Lo UUID è stato normalizzato da %(old)r a %(new)r)"
 msgid "Access to private document denied. Please login."
 msgstr "Accesso negato al documento privato. Si prega di fare login."
 
-#: UUID/views.py:2284 UUID/views.py:2725 UUID/views.py:2744
+# Spiacente, questo testo non è ancora disponibile nella lingua %r.
+#: UUID/views.py:2219
+#, python-format
+msgid "Sorry, this content is not yet available in language %r."
+msgstr "Spiacente, questo testo non è ancora disponibile nella lingua %r."
+
+#: UUID/views.py:2297 UUID/views.py:2738 UUID/views.py:2757
 msgid "Access denied to this content."
 msgstr "Accesso negato per questo contenuto"
 
-#: UUID/views.py:2287 UUID/views.py:2748
+#: UUID/views.py:2300 UUID/views.py:2761
 msgid "Please login."
 msgstr "Si prega di autenticarsi."
 
-#: UUID/views.py:2353
+#: UUID/views.py:2366
 msgid "Main document"
 msgstr "Documento principale"
 
-#: UUID/views.py:2392
+#: UUID/views.py:2405
 msgid "[NO HTML AVAILABLE]"
 msgstr "[HTML NON DISPONIBILE]"
 
-#: UUID/views.py:2410
+#: UUID/views.py:2423
 msgid "HTML preview not available"
 msgstr "Anteprima HTML non disponibile"
 
-#: UUID/views.py:2413
+#: UUID/views.py:2426
 msgid "HTML preview not available, internal error"
 msgstr "Anteprima HTML non disponibile, errore interno"
 
-#: UUID/views.py:2455 UUID/views.py:2457
+#: UUID/views.py:2468 UUID/views.py:2470
 msgid "[access denied]"
 msgstr "[accesso negato]"
 
-#: UUID/views.py:2483
+#: UUID/views.py:2496
 msgid "Saved on disk"
 msgstr "Salvato nel disco"
 
-#: UUID/views.py:2483
+#: UUID/views.py:2496
 msgid "Your content"
 msgstr "Il tuo contenuto"
 
-#: UUID/views.py:2545
+#: UUID/views.py:2558
 msgid "Add a language version"
 msgstr "Aggiungi una versione in lingua"
 
-#: UUID/views.py:2550
+#: UUID/views.py:2563
 msgid "Translate to language"
 msgstr "Traduci alla lingua"
 
-#: UUID/views.py:2552
+#: UUID/views.py:2565
 msgid "(may damage preamble parts)"
 msgstr "(potrebbe danneggiare il preambolo)"
 
-#: UUID/views.py:2560
+#: UUID/views.py:2573
 msgid "Delete a language version"
 msgstr "Cancella una versione in lingua"
 
-#: UUID/views.py:2567
+#: UUID/views.py:2580
 #, python-format
 msgid "Change the language of this blob from %s to:"
 msgstr "Cambia la lingua di questo blob da %s a:"
 
-#: UUID/views.py:2572
+#: UUID/views.py:2585
 msgid "Change this UUID to <tt>mul</tt> (<i>Multilingual method</i>)"
 msgstr "Cambia questo UUID a <tt>mul</tt> (<i>Multilingual method</i>)"
 
-#: UUID/views.py:2576
+#: UUID/views.py:2589
 msgid "Change this UUID to manual language management (non <tt>mul</tt>)"
 msgstr "Cambia questo UUID a gestione manuale delle lingue (non <tt>mul</tt>)"
 
-#: UUID/views.py:2712
+#: UUID/views.py:2725
 msgid "Download denied for this content."
 msgstr "Scaricamento negato per questo contenuto"
 
@@ -1009,7 +1015,7 @@ msgstr "Accesso riuscito"
 #: templates/account/base.html:74 templates/base.html:74
 #: templates/bootstrapbase.html:74
 msgid "Author"
-msgstr "Autori"
+msgstr "Autore"
 
 #: templates/account/base.html:75 templates/base.html:75
 #: templates/bootstrapbase.html:75
@@ -1030,7 +1036,7 @@ msgstr "Email"
 #: templates/base.html:82 templates/base.html:86
 #: templates/bootstrapbase.html:82 templates/bootstrapbase.html:86
 msgid "Change password"
-msgstr "Password salvata"
+msgstr "Cambia password"
 
 #: templates/account/base.html:83 templates/base.html:83
 #: templates/bootstrapbase.html:83
