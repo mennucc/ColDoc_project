@@ -283,6 +283,9 @@ function blob_post(type) {
 	       if (ne) { ne.style.display = 'none'; }
 	       let blob_uncompiled_ = response['uncompiled'];
 	       let blobeditform = document.getElementById("id_form_blobeditform");
+	       if ( 'session_expired' in response ) {
+		  session_expired_p = true;
+	       }
 	       if ( 'blobdiff' in response ) {
 		 let blobdiff = JSON.parse(response['blobdiff']);
 		 let blobdiffdiv = document.getElementById("id_blob_diff");

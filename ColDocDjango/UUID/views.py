@@ -321,7 +321,8 @@ def decorator_url(_do_lock=True, **_decorator_kwargs):
             if request.user.is_anonymous:
                 m = _('Session timeout, please login again')
                 if request_is_ajax:
-                    return JsonResponse({"alert":json.dumps(str(m))})
+                    return JsonResponse({"alert":json.dumps(str(m)),
+                                         "session_expired" : 1 })
                 messages.add_message(request,messages.ERROR, m)
                 return redirect(django.urls.reverse('ColDoc:index', kwargs={'NICK':NICK,} ))
             #

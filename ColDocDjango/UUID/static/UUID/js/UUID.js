@@ -80,7 +80,7 @@ function session_has_expired() {
  if ( session_expiry_time <= 0 )
     { return false ; }
  const now =  Math.floor(Date.now() / 1000);
- return ( session_expiry_time <= now );
+ return session_expired_p || ( session_expiry_time <= now );
 }
 
 
