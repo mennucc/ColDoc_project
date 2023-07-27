@@ -331,8 +331,6 @@ function blob_post(type) {
     return false;
 };
 
-//$("#id_blobeditform_save_no_reload").click(blob_save_no_reload);
-
 
 function update_blobedit_timestamp()
 {   
