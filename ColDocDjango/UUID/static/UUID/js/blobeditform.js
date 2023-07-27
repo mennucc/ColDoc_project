@@ -351,3 +351,45 @@ function update_blobedit_timestamp()
    return true;
 };
 
+////////////// CodeMirror specific code
+
+var BlobEditCodeMirror = undefined;
+
+
+function restore_editform_cm_once(){
+    // CodeMirror code
+   let url = document.location.toString();
+   let blobeditform = document.getElementById("id_form_blobeditform");
+   let hash = url.split('#')[1];
+   if ( hash == "blob") {
+      BlobEditCodeMirror.focus();
+    }
+    let from = JSON.parse(blobeditform.selection_start.value);
+    let to   = JSON.parse(blobeditform.selection_end.value);
+    BlobEditCodeMirror.setSelection(from, to);
+}
+
+
+
+function activate_BlobEditCodeMirror(e) {
+  let textarea = document.getElementById("id_BlobEditTextarea");
+  BlobEditCodeMirror = CodeMirror.fromTextArea(textarea, {
+      mode: "text/x-stex",
+      matchBrackets: true,
+      extraKeys: {"Alt-F": "findPersistent"},
+      lineNumbers:  true,
+      showTrailingSpace : true,
+      readOnly: ! check_primary_tab(),
+      // FIXME gutters: ["CodeMirror-linenumbers", "breakpoints"]
+      });
+  BlobEditCodeMirror.on("change", update_blobedit_timestamp );
+
+  setTimeout(restore_editform_cm_once, 100);
+};
+
+
+function activate_BlobEditCodeMirror_once(e) {
+  if( BlobEditCodeMirror == undefined && e.target.href.includes('#blob')) {
+    activate_BlobEditCodeMirror(e);
+  }
+};
