@@ -516,8 +516,6 @@ def md5(request, NICK, UUID, ACCESS, FILE):
     if not is_ajax(request):
         raise SuspiciousOperation("Not AJAX")
     #
-    # TODO SuspiciousOperation may be raised when login has expired
-    #
     if FILE.startswith('main'):
         assert UUID == coldoc.root_uuid
         if ACCESS not in ('private', 'public'):
@@ -525,19 +523,25 @@ def md5(request, NICK, UUID, ACCESS, FILE):
         request.user.associate_coldoc_blob_for_has_perm(coldoc, None)
         a = request.user.has_perm('UUID.view_view')
         if (not a) and ACCESS == 'private':
-            raise SuspiciousOperation("Mismatched access (login timed out?)")
+            if request.user.is_anonymous:
+                return JsonResponse({"session_expired" : 1 })
+            raise SuspiciousOperation("Mismatched access (hacking attempt?)")
         if ACCESS == 'public':
             blobs_dir = osjoin(coldoc_dir, 'anon')
     elif FILE.startswith('view'):
         request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
         if not request.user.has_perm('UUID.view_view'):
+            if request.user.is_anonymous:
+                return JsonResponse({"session_expired" : 1 })
             logger.error('Hacking attempt %r',request.META)
-            raise SuspiciousOperation("Permission denied")
+            raise SuspiciousOperation("Permission denied (hacking attempt?)")
     elif FILE.startswith('blob'):
         request.user.associate_coldoc_blob_for_has_perm(metadata.coldoc, metadata)
         if not request.user.has_perm('UUID.view_blob'):
+            if request.user.is_anonymous:
+                return JsonResponse({"session_expired" : 1 })
             logger.error('Hacking attempt %r',request.META)
-            raise SuspiciousOperation("Permission denied")
+            raise SuspiciousOperation("Permission denied (hacking attempt?)")
     else:
         raise RuntimeError('should not reach this')
     from ColDoc.utils import uuid_to_dir
