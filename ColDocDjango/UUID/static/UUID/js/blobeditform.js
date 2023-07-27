@@ -119,6 +119,7 @@ function poll_blob_changed_md5() {
     // stop when session has expired
     if ( session_has_expired() ) { return ; }
     check_blob_changed_md5();
+    if ( session_has_expired() ) { return ; }
     blob_polling_id = setTimeout(poll_blob_changed_md5, blob_polling);
 };
 

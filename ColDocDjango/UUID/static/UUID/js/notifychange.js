@@ -3,6 +3,9 @@
 function check_changed_md5(get_md5_url, callback) {
   if ( get_md5_url == '' ) { return undefined; };
   return  $.get( get_md5_url, function( response ) {
+     if ( 'session_expired' in response ) {
+       session_expired_p = true;
+     }
      if ( 'file_md5' in response ) {
        let real_file_md5 = response['file_md5'];
        callback( real_file_md5 );
@@ -32,6 +35,7 @@ function poll_view_changed_md5() {
     // stop when session has expired
     if ( session_has_expired() ) { return ; }
     check_view_changed_md5();
+    if ( session_has_expired() ) { return ; }
     view_polling_id = setTimeout(poll_view_changed_md5, view_polling);
 };
 
