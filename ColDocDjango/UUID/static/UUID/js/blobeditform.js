@@ -257,6 +257,12 @@ function blob_post(type) {
    if ( type == "save_no_reload" ) {
     $("#id_blobeditform_save_no_reload").addClass("progress-bar-striped progress-bar-animated");
    }
+   if ( type == "normalize" ) {
+    $("#id_blobeditform_normalize").addClass("progress-bar-striped progress-bar-animated");
+   }
+   if ( type == "revert" ) {
+    $("#id_blobeditform_revert").addClass("progress-bar-striped progress-bar-animated");
+   }
 
   update_editform();
   let blobeditform = document.getElementById("id_form_blobeditform");
@@ -297,8 +303,12 @@ function blob_post(type) {
 	       } else { console.log("Did not get blobeditarea"); }
 		last_textarea_keypress = 0;
 		if ( (! session_has_expired()) && 
-		    (type == 'save_no_reload' || type == 'compile_no_reload') ) {
+		    (type == 'save_no_reload' || type == 'compile_no_reload' || type == 'revert') ) {
 		    $("#id_blobeditform_save_no_reload").removeClass("btn-warning progress-bar-striped progress-bar-animated").addClass("btn-primary");
+		    $("#id_blobeditform_revert").removeClass("btn-warning progress-bar-striped progress-bar-animated").addClass("btn-outline-info");
+		}
+		if ( (! session_has_expired()) && type == 'normalize' ) {
+		    $("#id_blobeditform_normalize").removeClass("btn-warning progress-bar-striped progress-bar-animated").addClass("btn-primary");
 		}
 		if ( type == 'compile_no_reload') {
 		 blobeditform.split_selection.checked = false;
