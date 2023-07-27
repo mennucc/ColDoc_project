@@ -106,7 +106,7 @@ var blob_polling = blob_polling_default;
 function check_blob_changed_md5() { 
    let blob_callback = (ret) => {
       if( (ret != undefined) && (blob_md5 != ret)) {
-        blob_post('save_no_reload');
+        alert("Remote blob content was changed, you may want to reload" );
         blob_md5 = ret;
    }};
    check_changed_md5(get_blob_md5_url, blob_callback);
