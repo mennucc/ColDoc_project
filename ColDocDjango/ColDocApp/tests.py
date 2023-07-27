@@ -59,7 +59,7 @@ class General(ColDocTestCase):
         r0 = c.get('/')
         #_firefox_show(r0.content)
         self.assertEqual(r0.status_code , 200)
-        self.assertContains(r0, "Successfully logged in")
+        self.assertContains(r0, "😀")
 
     def test_nologin_page(self):
         User = get_user_model()
