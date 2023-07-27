@@ -179,9 +179,7 @@ function windowUpdated()
     let isMain = this.isMainWindow();
     window.document.title  = 'Coldoc '+ NICKUUID + ( isMain ? "" : "(duplicate tab)") ;
     if ( (text_was_locked) && (isMain) ) {
-        // it reloads so fast that it does not get the new content
-        //window.location.reload(true);
-        alert("It is advisable to reload this page");
+        setTimeout( function() { alert("This page will be reloaded"); window.location.reload(); }, 100);
     }
     textareaUpdate(isMain);
 }

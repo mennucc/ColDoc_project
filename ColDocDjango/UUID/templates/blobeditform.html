@@ -137,6 +137,7 @@ function activate_BlobEditCodeMirror(e) {
       extraKeys: {"Alt-F": "findPersistent"},
       lineNumbers:  true,
       showTrailingSpace : true,
+      readOnly: ! check_primary_tab(),
       // FIXME gutters: ["CodeMirror-linenumbers", "breakpoints"]
       });
   BlobEditCodeMirror.on("change", update_blobedit_timestamp );
