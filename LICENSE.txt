@@ -28,3 +28,15 @@ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+----
+
+The file ColDocDjango/UUID/static/UUID/js/cmlh.mjs
+was adapted to usual JavaScript from
+https://github.com/jun-sheaf/codemirror-latex-hint/blob/master/lib/index.js
+that in turn was
+Copyright (c) 2020 jun-sheaf
+and was distributed with
+MIT LICENSE
+https://github.com/jun-sheaf/codemirror-latex-hint/blob/master/LICENSE
