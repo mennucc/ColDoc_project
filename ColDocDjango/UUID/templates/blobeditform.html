@@ -20,6 +20,7 @@ if ( compilation_in_progress ) {
 <link href="{% static 'UUID/cm/addon/dialog/dialog.css' %}" rel="stylesheet">
 <link href="{% static 'UUID/cm/addon/search/matchesonscrollbar.css' %}" rel="stylesheet">
 <link href="{% static 'UUID/cm/addon/scroll/simplescrollbars.css' %}" rel="stylesheet">
+<link href="{% static 'UUID/css/cmlh.css' %}" rel="stylesheet">
 <style>
       .breakpoints {width: .8em;}
       .breakpoint { color: #822; }
@@ -48,10 +49,8 @@ if ( compilation_in_progress ) {
 <script src="{% static 'UUID/cm/addon/search/matchesonscrollbar.js' %}"></script>
 <script src="{% static 'UUID/cm/addon/search/jump-to-line.js' %}"></script>
 
-
-
-
-
+<script src="{% static 'UUID/cm/addon/hint/show-hint.js' %}"></script>
+<script type="module" src="{% static 'UUID/js/cmlh.mjs' %}"></script>
 
 {% include "CodeMirrorHelp.html" %}
 

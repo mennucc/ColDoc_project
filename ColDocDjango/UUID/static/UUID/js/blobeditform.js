@@ -370,13 +370,40 @@ function restore_editform_cm_once(){
 }
 
 
+const cmlh_p = import("./cmlh.mjs");
+
+var cmlh = undefined;
+var macros_json = undefined;
+
+$.ajax(macros_json_url, {
+	   type: "GET",
+	   url: macros_json_url,
+	   dataType: "json",
+	   timeout: 16000,
+	   error: () => { macros_json = false;} ,
+	   success: ( response ) => {   macros_json = response; }
+	   }
+);
+
+function cmlh_fulfill(m) {
+    cmlh = m;
+    if (  macros_json == undefined ) {
+     setTimeout(() => { cmlh_fulfill(cmlh); }, 100 );
+     return;
+    };
+    if (  macros_json == false ) { return ; };
+    CodeMirror.registerHelper("hint", "stex", (cm) => m.LaTeXHint(cm, macros_json));
+};
+
+cmlh_p.then(cmlh_fulfill);
 
 function activate_BlobEditCodeMirror(e) {
   let textarea = document.getElementById("id_BlobEditTextarea");
   BlobEditCodeMirror = CodeMirror.fromTextArea(textarea, {
       mode: "text/x-stex",
       matchBrackets: true,
-      extraKeys: {"Alt-F": "findPersistent"},
+      extraKeys: {"Alt-F": "findPersistent", 
+                  "Ctrl-Space": "autocomplete"},
       lineNumbers:  true,
       showTrailingSpace : true,
       readOnly: ! check_primary_tab(),
