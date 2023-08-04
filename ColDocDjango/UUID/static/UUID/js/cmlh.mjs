@@ -4,7 +4,6 @@
 // Copyright (c) 2020 jun-sheaf
 // MIT LICENSE
 // https://github.com/jun-sheaf/codemirror-latex-hint/blob/master/LICENSE
-const Pos = CodeMirror.Pos;
 /**
  * Binary operation that compares Positions by library order
  * @param left Left Position
@@ -138,8 +137,8 @@ export const LaTeXHint = (cm, macros) => {
         cm.state.completionActive.close();
         return {
             list: [],
-            from: Pos(cur.line, start),
-            to: Pos(cur.line, end),
+            from: CodeMirror.Pos(cur.line, start),
+            to: CodeMirror.Pos(cur.line, end),
         };
     }
     if (/[^\w\\]/.test(word)) {
@@ -148,8 +147,8 @@ export const LaTeXHint = (cm, macros) => {
     }
     const hints = {
         list: [],
-        from: Pos(cur.line, start),
-        to: Pos(cur.line, end),
+        from: CodeMirror.Pos(cur.line, start),
+        to: CodeMirror.Pos(cur.line, end),
     };
     if (token.type == "tag") {
         for (const macro of macros) {
