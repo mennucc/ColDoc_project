@@ -798,9 +798,11 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, uuid, lang, options
         argv += [ '--split-level', '-3']
     if tok is False or (environ[:2] == 'E_' and tok == 'auto'):
         argv.append( '--no-display-toc' )
-    #n =  osjoin(blobs_dir,save_name+'_paux')
-    #if not os.path.isdir(n):    os.mkdir(n)
-    ## do not use ['--paux-dirs',save_name+'_paux'] until we understand what it does
+    #
+    n =  osjoin(blobs_dir,'main_'+lang+'_plastex.paux')
+    if os.path.isfile(n):
+        argv += ['--load-paux', n]
+    #
     argv += ['--log',F]
     stdout_ = osjoin(blobs_dir,save_name+'_plastex.stdout')
     ret = ColDoc.utils.plastex_invoke(cwd_ =  blobs_dir ,
