@@ -1,0 +1,28 @@
+From 8cabcda8d88bd49198375cb46a07b66bd4886edb Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Fri, 4 Aug 2023 15:06:09 +0200
+Subject: [PATCH 1104/1105] warn if .paux file was rendered with different
+ renderer
+
+---
+ plasTeX/Context.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/plasTeX/Context.py b/plasTeX/Context.py
+index c423d1d..7260571 100644
+--- a/plasTeX/Context.py
++++ b/plasTeX/Context.py
+@@ -286,7 +286,9 @@ class Context(object):
+         try:
+             d = pickle.load(open(filename, 'rb'))
+             try: data = d[rtype]
+-            except KeyError: return
++            except KeyError:
++                log.warning('Could not load auxiliary rendering information %s from %s' % (rtype,filename))
++                return
+             wou = self.warnOnUnrecognized
+             self.warnOnUnrecognized = False
+             for key, value in list(data.items()):
+-- 
+2.34.1
+

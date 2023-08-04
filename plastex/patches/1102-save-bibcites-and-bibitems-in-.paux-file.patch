@@ -1,0 +1,56 @@
+From 8b67bf9b7766ffbb3a9c266253721f7547843580 Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Thu, 3 Aug 2023 16:55:11 +0200
+Subject: [PATCH 1102/1105] save bibcites and bibitems in .paux file
+
+---
+ plasTeX/Context.py            | 10 +++++++++-
+ plasTeX/Renderers/__init__.py |  4 +++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/plasTeX/Context.py b/plasTeX/Context.py
+index 33a4bb7..c423d1d 100644
+--- a/plasTeX/Context.py
++++ b/plasTeX/Context.py
+@@ -225,7 +225,7 @@ class Context(object):
+     def currenvir(self):
+         self._currenvir.pop()
+ 
+-    def persist(self, filename, rtype='none'):
++    def persist(self, filename, rtype='none', bibcites={}, bibitems={}):
+         """
+         Persist cross-document information for labeled nodes
+ 
+@@ -253,6 +253,14 @@ class Context(object):
+         data = d[rtype]
+         for key, value in list(self.persistentLabels.items()):
+             data[key] = value.persist()
++        #
++        bibcites = { k: str(bibcites[k])
++                     for k in bibcites}
++        d['_bibcites'] = bibcites
++        bibitems = { k: (str(bibitems[k]), bibitems[k].attributes.get('label'), bibitems[k].url)
++                     for k in bibitems}
++        d['_bibitems'] = bibitems
++        #
+         try:
+             with open(filename, 'wb') as fh:
+                 pickle.dump(d, fh)
+diff --git a/plasTeX/Renderers/__init__.py b/plasTeX/Renderers/__init__.py
+index 5ebf42f..f493607 100644
+--- a/plasTeX/Renderers/__init__.py
++++ b/plasTeX/Renderers/__init__.py
+@@ -524,7 +524,9 @@ class Renderer(dict):
+         pauxname = os.path.join(document.userdata.get('working-dir','.'),
+                                 '%s.paux' % document.userdata.get('jobname',''))
+         rname = config['general']['renderer']
+-        document.context.persist(pauxname, rname)
++        bibcites = document.userdata.getPath('bibliography/bibcites', {})
++        bibitems = document.userdata.getPath('bibliography/bibitems', {})
++        document.context.persist(pauxname, rname, bibcites, bibitems)
+ 
+         # Remove mixins
+         del Node.renderer
+-- 
+2.34.1
+

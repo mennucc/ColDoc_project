@@ -1,0 +1,43 @@
+From e2299ed4b4ad91bc3b1531c0a70ebbe51e6f9101 Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Fri, 4 Aug 2023 11:27:18 +0200
+Subject: [PATCH 1103/1105] add --load-paux command line option
+
+---
+ plasTeX/Compile.py | 2 ++
+ plasTeX/Config.py  | 6 ++++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/plasTeX/Compile.py b/plasTeX/Compile.py
+index 312b481..0a08e30 100644
+--- a/plasTeX/Compile.py
++++ b/plasTeX/Compile.py
+@@ -81,6 +81,8 @@ def parse(filename: str, config: ConfigManager) -> TeX:
+                 continue
+             document.context.restore(fname, rname)
+ 
++    for fname in config['general']['load-paux']:
++        document.context.restore(fname, rname)
+     # Parse the document
+     tex.parse()
+     return tex
+diff --git a/plasTeX/Config.py b/plasTeX/Config.py
+index c163b5a..fd50e4e 100644
+--- a/plasTeX/Config.py
++++ b/plasTeX/Config.py
+@@ -58,6 +58,12 @@ def defaultConfig(loadConfigFiles: bool=False):
+         default = False,
+     )
+ 
++    general['load-paux'] = MultiStringOption(
++        """ *.paux files to load.""",
++        options = '--load-paux',
++        default = [],
++    )
++
+     general['paux-dirs'] = MultiStringOption(
+         """Directories where *.paux files should be loaded from.""",
+         options = '--paux-dirs',
+-- 
+2.34.1
+

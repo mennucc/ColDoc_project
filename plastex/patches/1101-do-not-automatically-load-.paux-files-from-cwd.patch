@@ -1,0 +1,25 @@
+From 7df6cf3a570bd4f8a1ff0a5326c01fd8a3219759 Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Fri, 4 Aug 2023 15:03:04 +0200
+Subject: [PATCH 1101/1105] do not automatically load .paux files from cwd
+
+---
+ plasTeX/Compile.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plasTeX/Compile.py b/plasTeX/Compile.py
+index 8fbea12..312b481 100644
+--- a/plasTeX/Compile.py
++++ b/plasTeX/Compile.py
+@@ -75,7 +75,7 @@ def parse(filename: str, config: ConfigManager) -> TeX:
+     # Load aux files for cross-document references
+     pauxname = '%s.paux' % jobname
+     rname = config['general']['renderer']
+-    for dirname in [cwd] + config['general']['paux-dirs']:
++    for dirname in config['general']['paux-dirs']:
+         for fname in glob.glob(os.path.join(dirname, '*.paux')):
+             if os.path.basename(fname) == pauxname:
+                 continue
+-- 
+2.34.1
+

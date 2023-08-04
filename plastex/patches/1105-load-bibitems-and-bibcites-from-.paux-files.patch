@@ -1,0 +1,71 @@
+From a5c84d3b982208dbd9e10838aa6894ab74a901d3 Mon Sep 17 00:00:00 2001
+From: "Andrea C. G. Mennucci" <andrea.mennucci@gmail.com>
+Date: Fri, 4 Aug 2023 15:06:41 +0200
+Subject: [PATCH 1105/1105] load bibitems and bibcites from .paux files
+
+---
+ plasTeX/Compile.py |  5 ++---
+ plasTeX/Context.py | 23 ++++++++++++++++++++++-
+ 2 files changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/plasTeX/Compile.py b/plasTeX/Compile.py
+index 0a08e30..b52d818 100644
+--- a/plasTeX/Compile.py
++++ b/plasTeX/Compile.py
+@@ -79,10 +79,9 @@ def parse(filename: str, config: ConfigManager) -> TeX:
+         for fname in glob.glob(os.path.join(dirname, '*.paux')):
+             if os.path.basename(fname) == pauxname:
+                 continue
+-            document.context.restore(fname, rname)
+-
++            document.context.restore(fname, rname, document)
+     for fname in config['general']['load-paux']:
+-        document.context.restore(fname, rname)
++        document.context.restore(fname, rname, document)
+     # Parse the document
+     tex.parse()
+     return tex
+diff --git a/plasTeX/Context.py b/plasTeX/Context.py
+index 7260571..e5f85fc 100644
+--- a/plasTeX/Context.py
++++ b/plasTeX/Context.py
+@@ -267,7 +267,7 @@ class Context(object):
+         except Exception as msg:
+             log.warning('Could not save auxiliary information. (%s)' % msg)
+ 
+-    def restore(self, filename, rtype='none'):
++    def restore(self, filename, rtype='none', doc=None):
+         """
+         Restore cross-document information for labeled nodes
+ 
+@@ -285,6 +285,27 @@ class Context(object):
+             return
+         try:
+             d = pickle.load(open(filename, 'rb'))
++            if doc is not None:
++                ## load bibcites
++                bibcites = doc.userdata.getPath('bibliography/bibcites', {})
++                b = d.get('_bibcites',{})
++                for key in b:
++                    bibcites[key] = b[key]
++                doc.userdata.setPath('bibliography/bibcites', bibcites)
++                ## load bibitems
++                bibitems = doc.userdata.getPath('bibliography/bibitems', {})
++                from plasTeX.Base.LaTeX import Bibliography
++                b = d.get('_bibitems',{})
++                for key in b:
++                    description, label, url = b[key]
++                    # FIXME description is lost
++                    bibitem = Bibliography.thebibliography.bibitem()
++                    bibitem.url = url
++                    bibitem.attributes['label'] = label
++                    bibitem.attributes['key'] = key
++                    bibitem.ownerDocument = doc
++                    bibitems[key] = bibitem
++                doc.userdata.setPath('bibliography/bibitems', bibitems)
+             try: data = d[rtype]
+             except KeyError:
+                 log.warning('Could not load auxiliary rendering information %s from %s' % (rtype,filename))
+-- 
+2.34.1
+
