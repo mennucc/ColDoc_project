@@ -604,11 +604,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
         save_abs_name = os.path.join(blobs_dir, save_name)
         rh = subproc2.wait()
         parse_plastex_html(blobs_dir, osjoin(blobs_dir, save_name+'_html'), save_abs_name+'_plastex.paux')
-        # paux is quite large and it will not be used after this line
-        try:
-            os.unlink(save_abs_name+'_plastex.paux')
-        except:
-            logger.exception('while unlinking '+save_abs_name+'_plastex.paux')
+        #
         ColDoc.utils.dict_save_or_del(retcodes, 'plastex'+lang_+':'+access, rh)
         try:
             ColDoc.utils.os_rel_symlink(save_name+'_html','main'+_lang+'_html',
