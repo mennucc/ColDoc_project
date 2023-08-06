@@ -18,8 +18,24 @@ const get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS=ACCESS FI
       <div class="d-flex flex-column h-100">
         <div class="row justify-content-center">
         <a name="titlebeforepdf"> Coldoc  {{ NICK  }} — 
-        {% translate  'Language' %}  {{ LANGUAGE }} —
-        {% translate  'Access' %}  {{ ACCESS }} </a>
+	    &nbsp;  {% translate  'Language' %}  &nbsp;
+	    {% if LANGUAGES %}
+	    <span class="dropdown">
+	      <a class="dropdown-toggle" href="#"  role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		{{ LANGUAGE }}
+	      </a>
+	      <div class="dropdown-menu">
+		{% for name,url in LANGUAGES %}
+		<a class="dropdown-item" href="{{url | safe}}">{{ name }}</a>
+		{% endfor %}
+	      </div>
+	    </span>
+	    {% else %}
+	    {{ LANGUAGE }}
+	    {% endif %}
+	    &nbsp; — &nbsp;   {% translate  'Access' %}
+	    {{ ACCESS }}
+	  </a>
         </div>
         <div class="row justify-content-center flex-grow-1">
           <object data="{{ pdfurl | safe }}" type="application/pdf" class="h-100 w-100" id="id_pdf_object">

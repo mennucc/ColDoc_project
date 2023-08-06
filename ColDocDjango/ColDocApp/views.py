@@ -300,8 +300,17 @@ def pdfframe(request, NICK, subpath=None):
     # but this is used to jump the uuid
     if uuid:
         pdfurl += "#UUID:%s" % uuid
-    del a
     LANGUAGE = iso3lang2word(lang)
+    #
+    pdfframeurl = django.urls.reverse('ColDoc:pdfframe', kwargs={'NICK':NICK,})
+    LANGUAGES = []
+    L = coldoc.get_languages()
+    if len(L) > 1:
+        for l in L:
+            a[0] = 'lang=%s' % l
+            LANGUAGES.append( (iso3lang2word(l),
+                               pdfframeurl + '?' + '&'.join(a)  +  '#titlebeforepdf' ) )
+    del a
     MAIN_CONTAINER_CLASS = "container-fluid"
     return render(request, 'pdfframe.html', locals() )
 
