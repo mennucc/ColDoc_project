@@ -21,8 +21,6 @@ var blob_uncompiled={{ uncompiled }};
 const python_main_class = "{{ MAIN_CONTAINER_CLASS }}";
 var previous_main_class = "{{ MAIN_CONTAINER_CLASS | default:"container" }}";
 
-var user_can_save = false;
-
 $( document ).ready(function() {
     mainClassUpdate(undefined);
 });

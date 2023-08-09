@@ -24,12 +24,15 @@
       tex2jax: {inlineMath: [ ['\\(','\\)'] ] },
   };
   var COLDOC_COOKIE_CONSENT_NAME = 'coldoc_cookie_consent';
+  
+  var user_can_save = false;
   const session_expiry_age  = {{ session_expiry_age }};
   const session_expiry_time = {{ session_expiry_time }};
   var session_expired_p = false;
   const alert_expiry_message = "{% translate 'The session has timed out; you should login again.' %}";
   const alert_expiry_save_message = "{% translate 'The session will timeout soon; content has been saved; you should login again.' %}";
   </script>
+  <script src="{% static 'ColDoc/js/session.js' %}"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
       .checkbeforetext:before {
