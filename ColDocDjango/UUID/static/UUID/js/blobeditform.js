@@ -407,7 +407,7 @@ function activate_BlobEditCodeMirror(e) {
                   "Ctrl-Space": "autocomplete"},
       lineNumbers:  true,
       showTrailingSpace : true,
-      readOnly: ! check_primary_tab(),
+      readOnly: (( ! check_primary_tab() ) || ( ! user_can_save ) )
       // FIXME gutters: ["CodeMirror-linenumbers", "breakpoints"]
       });
   BlobEditCodeMirror.on("change", update_blobedit_timestamp );

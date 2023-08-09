@@ -227,7 +227,24 @@ const use_CodeMirror = false;
       </div>
       {% endif %}
      {% else %}
-       <div class="border border-info"><code>{{ escapedfile | safe }}</code></div>
+       <div class="border border-info"> <textarea  id="id_latexarea" class="w-100" readonly rows=16>{{ file | safe }}</textarea></div>
+       {% if USE_CODEMIRROR %}
+       {% include "codemirror_init.html" %}
+       <script>
+       function check_primary_tab() {return true; }
+       $('a[href="#blob"]').on('shown.bs.tab',
+	 function() {
+           const l = document.getElementById("id_latexarea");
+	   CodeMirror.fromTextArea(l, {
+	   mode: "text/x-latex",
+           matchBrackets: true,
+	   extraKeys: {"Alt-F": "findPersistent"},
+           lineNumbers:  true,
+           showTrailingSpace : true,
+	   readOnly: true      });
+	});
+       </script>
+       {% endif %}
      {% endif %}
     {% else %}
       (this is not text but {{ blobcontenttype }})
