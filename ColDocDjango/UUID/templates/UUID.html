@@ -37,7 +37,6 @@ const macros_json_url = "{% static 'UUID/js/macros.json' %}";
 
 </script>
 <script src="{% static 'UUID/js/UUID.js' %}"></script>
-<script src="{% static 'UUID/js/unique.js' %}"></script>
 <script src="{% static 'UUID/js/notifychange.js' %}"></script>
 
 {# style for diff block #}
@@ -211,6 +210,7 @@ const macros_json_url = "{% static 'UUID/js/macros.json' %}";
     {% if blobcontenttype == 'text' %}
      {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
      {{ blobeditform.media }}
+      <script src="{% static 'UUID/js/unique.js' %}"></script>
       <div id="id_blobeditform_div" class="border border-info p-1 m-1">
        {% include "blobeditform.html" %}
       </div>
