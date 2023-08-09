@@ -395,7 +395,8 @@ function cmlh_fulfill(m) {
     CodeMirror.registerHelper("hint", "stex", (cm) => m.LaTeXHint(cm, macros_json));
 };
 
-cmlh_p.then(cmlh_fulfill);
+if (use_CodeMirror) 
+ { cmlh_p.then(cmlh_fulfill); };
 
 function activate_BlobEditCodeMirror(e) {
   let textarea = document.getElementById("id_BlobEditTextarea");
