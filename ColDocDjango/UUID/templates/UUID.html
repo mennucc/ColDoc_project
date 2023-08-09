@@ -35,6 +35,11 @@ $( document ).ready(function() {
 
 const macros_json_url = "{% static 'UUID/js/macros.json' %}";
 
+{% if USE_CODEMIRROR %}
+const use_CodeMirror = true;
+{% else %}
+const use_CodeMirror = false;
+{% endif %}
 </script>
 <script src="{% static 'UUID/js/UUID.js' %}"></script>
 <script src="{% static 'UUID/js/notifychange.js' %}"></script>

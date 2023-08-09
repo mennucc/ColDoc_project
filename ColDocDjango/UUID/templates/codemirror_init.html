@@ -2,7 +2,6 @@
 {% load i18n %}
 
 {% if USE_CODEMIRROR %}
-<script> const use_CodeMirror = true; </script>
 <link href="{% static 'UUID/cm/lib/codemirror.css' %}" rel="stylesheet">
 <link href="{% static 'UUID/cm/addon/dialog/dialog.css' %}" rel="stylesheet">
 <link href="{% static 'UUID/cm/addon/search/matchesonscrollbar.css' %}" rel="stylesheet">
@@ -39,7 +38,4 @@
 <script src="{% static 'UUID/cm/addon/hint/show-hint.js' %}"></script>
 <script type="module" src="{% static 'UUID/js/cmlh.mjs' %}"></script>
 
-
-{% else %}
-<script> const use_CodeMirror = false; </script>
 {% endif %}
