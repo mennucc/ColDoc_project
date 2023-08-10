@@ -1524,7 +1524,7 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
         messages.add_message(request, a, b)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
-def __prepare_views(metadata, blobs_dir, languages = None):
+def __prepare_views(metadata, blobs_dir, languages = None, highlight = None):
     uuid_dir = uuid_to_dir(metadata.uuid)
     if languages is None:
         Blangs = metadata.get_languages()
@@ -1541,8 +1541,12 @@ def __prepare_views(metadata, blobs_dir, languages = None):
         if os.path.isfile(f):
             md5 = hashlib.md5(open(f,'rb').read()).hexdigest()
             h = open(f).read()
-            h = _html_replace(h, url[:-4], metadata.uuid, ll, True, children)
+            h = _html_replace(h, url[:-4], metadata.uuid, ll, True, children, highlight)
             views.append( (ll, h, view, md5) )
+        else:
+            # force immediate translation
+            h = str(_('[NO HTML AVAILABLE]'))
+            views.append( (ll, h, '', '') )
     return views
 
 
@@ -2400,34 +2404,11 @@ def index(request, NICK, UUID):
           if lang is None and (request.user.is_editor or request.user.is_author) and \
                                  all((j not in Blangs) for j in ('xzz','und')  ):
             llll =  CDlangs
-          for ll in  llll:
-            pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
-                '?lang=%s&ext=%s'%(ll,blob_ext)
-            view_md5 =''
-            html = _('[NO HTML AVAILABLE]')
-            try:
-                a = 'view'
-                if ll:
-                    a += '_' + ll
-                a += '_html'
-                a = osjoin(a , 'index.html')
-                f = osjoin(blob__dir, a )
-                #
-                view_md5 = hashlib.md5(open(f,'rb').read()).hexdigest()
-                VIEW = a
-                get_view_md5_url =   django.urls.reverse('UUID:md5', kwargs ={'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW } )
-                #
-                html = open(f).read()
-                u = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})
-                #
-                html = _html_replace(html, u[:-4], uuid, ll, True, children, highlight)
-            except FileNotFoundError:
-                messages.add_message(request, messages.WARNING, _("HTML preview not available"))
-            except:
-                logger.exception('Problem when preparing HTML for %r',UUID)
-                messages.add_message(request, messages.ERROR ,_("HTML preview not available, internal error"))
-            #
-            all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl, iso3lang2iso2(ll) or '' ))
+          for ll, html, VIEW, view_md5  in __prepare_views(metadata, blobs_dir, llll, highlight):
+                pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
+                    '?lang=%s&ext=%s'%(ll,blob_ext)
+                all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl, iso3lang2iso2(ll) or '' ))
+          get_view_md5_url =  django.urls.reverse('UUID:md5', kwargs ={'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW } )
     else:
         blobcontenttype = 'image' if (blob_ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
         file = html = escapedfile = ''
