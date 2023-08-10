@@ -302,7 +302,10 @@ function blob_post(type) {
 		  if( BlobEditCodeMirror != undefined ){
 		     // trick 'setValue' will emit a 'change' but we inhibit it
 		     last_textarea_keypress = 1;
+		     blobeditform.selection_end.value = blobeditform.selection_start.value;
 		     BlobEditCodeMirror.setValue(b);
+		     // it is triggered after the edit area is refreshed,  in update_blobedit_timestamp()
+		     // restore_editform_cm_once()
 	            }
 	       } else { console.log("Did not get blobeditarea"); }
 		last_textarea_keypress = 0;
@@ -339,6 +342,10 @@ function update_blobedit_timestamp()
        $("#id_blobeditform_save_no_reload").removeClass("btn-primary").addClass("btn-warning");
        $("#id_blobeditform_compile").removeClass("btn-outline-info").addClass("btn-warning");
        prevent_unload_add();
+   }
+   // trick to restore position of cursor after compiling
+   if( last_textarea_keypress == 1 && BlobEditCodeMirror) {
+     restore_editform_cm_once();
    }
    last_textarea_keypress = new Date().getTime();
    // once the user starts editing, the polling is reduced to 10 seconds
