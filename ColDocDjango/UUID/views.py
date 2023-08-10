@@ -1525,16 +1525,18 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
         messages.add_message(request, a, b)
     return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}) + '?lang=%s&ext=%s'%(lang_,ext_) + '#blob')
 
-def __prepare_views(metadata, blobs_dir):
+def __prepare_views(metadata, blobs_dir, languages = None):
     uuid_dir = uuid_to_dir(metadata.uuid)
-    Blangs = metadata.get_languages()
-    CDlangs = metadata.coldoc.get_languages()
+    if languages is None:
+        Blangs = metadata.get_languages()
+        CDlangs = metadata.coldoc.get_languages()
+        languages = set(Blangs + CDlangs)
     d = os.path.join( blobs_dir, uuid_dir)
     # fixme this works fine only for TeX to HTML
     views = []
     children = metadata.get('child_uuid')
     url = django.urls.reverse('UUID:index', kwargs={'NICK':metadata.coldoc.nickname,'UUID':'000'})
-    for ll in  set(Blangs + CDlangs):
+    for ll in  languages:
         f = os.path.join(d,'view_' + ll + '_html' , 'index.html')
         if os.path.isfile(f):
             h = open(f).read()
