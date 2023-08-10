@@ -2395,20 +2395,20 @@ def index(request, NICK, UUID):
             html+='</ul>'
             all_views = [( blob_lang, iso3lang2word_H(blob_lang), html, '', iso3lang2iso2(blob_lang) or '')]
         else:
-          all_views = []
-          llll = [view_lang]
-          if lang == "mul" or view_lang is None:
-            llll =  CDlangs
-          # show all languages to authors and editors, but not for non-linguistic content
-          # TODO maybe add : 'biblio' not in env and
-          if lang is None and (request.user.is_editor or request.user.is_author) and \
-                                 all((j not in Blangs) for j in ('xzz','und')  ):
-            llll =  CDlangs
-          for ll, html, VIEW, view_md5  in __prepare_views(metadata, blobs_dir, llll, highlight):
+            all_views = []
+            llll = [view_lang]
+            if lang == "mul" or view_lang is None:
+                llll =  CDlangs
+            # show all languages to authors and editors, but not for non-linguistic content
+            # TODO maybe add : 'biblio' not in env and
+            if lang is None and (request.user.is_editor or request.user.is_author) and \
+                                   all((j not in Blangs) for j in ('xzz','und')  ):
+                llll =  CDlangs
+            for ll, html, VIEW, view_md5  in __prepare_views(metadata, blobs_dir, llll, highlight):
                 pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
                     '?lang=%s&ext=%s'%(ll,blob_ext)
                 all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl, iso3lang2iso2(ll) or '' ))
-          get_view_md5_url =  django.urls.reverse('UUID:md5', kwargs ={'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW } )
+            get_view_md5_url =  django.urls.reverse('UUID:md5', kwargs ={'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW } )
     else:
         blobcontenttype = 'image' if (blob_ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
         file = html = escapedfile = ''
