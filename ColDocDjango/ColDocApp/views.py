@@ -281,7 +281,6 @@ def pdfframe(request, NICK, subpath=None):
     FILENAME = os.path.basename(filename)
     UUID = coldoc.root_uuid
     view_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
-    view_mtime = str(os.path.getmtime(filename))
     # use effective language
     a = [ 'lang=%s' % lang ]
     #

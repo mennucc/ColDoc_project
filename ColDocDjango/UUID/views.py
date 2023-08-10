@@ -549,8 +549,7 @@ def md5(request, NICK, UUID, ACCESS, FILE):
     if not os.path.isfile(filename):
         return HttpResponse('File not found', status=http.HTTPStatus.NOT_FOUND)
     real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
-    real_file_mtime = str(os.path.getmtime(filename))
-    return JsonResponse({'file_md5':real_file_md5, 'file_mtime': real_file_mtime})
+    return JsonResponse({'file_md5':real_file_md5, })
 
 
 def _interested_emails(coldoc,metadata):
@@ -2265,7 +2264,6 @@ def index(request, NICK, UUID):
     #
     BLOB = os.path.basename(blob_filename)
     blob_md5 = hashlib.md5(open(blob_filename,'rb').read()).hexdigest()
-    blob_mtime = str(os.path.getmtime(blob_filename))
     uncompiled = 0;
     #
     envs = metadata.get('environ')
@@ -2348,7 +2346,6 @@ def index(request, NICK, UUID):
     else: pdfUUIDurl = htmlUUIDurl = ''
     #
     view_md5 = ''
-    view_mtime = ''
     VIEW = ''
     get_view_md5_url = ''
     #
@@ -2407,7 +2404,6 @@ def index(request, NICK, UUID):
             pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
                 '?lang=%s&ext=%s'%(ll,blob_ext)
             view_md5 =''
-            view_mtime = 0
             html = _('[NO HTML AVAILABLE]')
             try:
                 a = 'view'
@@ -2418,7 +2414,6 @@ def index(request, NICK, UUID):
                 f = osjoin(blob__dir, a )
                 #
                 view_md5 = hashlib.md5(open(f,'rb').read()).hexdigest()
-                view_mtime = str(os.path.getmtime(f))
                 VIEW = a
                 get_view_md5_url =   django.urls.reverse('UUID:md5', kwargs ={'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW } )
                 #
@@ -2440,7 +2435,6 @@ def index(request, NICK, UUID):
         #  a = ... see in `show()`
         # VIEW = 
         #view_md5 = hashlib.md5(open(a,'rb').read()).hexdigest()
-        #view_mtime = str(os.path.getmtime(a))
     #
     if lang not in (None,''):
         lang_ = '_' + lang

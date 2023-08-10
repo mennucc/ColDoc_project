@@ -4,7 +4,7 @@
 
 {% block extrahead %}
 <script>
-var view_md5="{{view_md5}}"; var view_mtime="{{view_mtime}}";
+var view_md5="{{view_md5}}";
 const get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS=ACCESS FILE=FILENAME %}";
 </script>
 <script src="{% static 'UUID/js/notifychange.js' %}"></script>

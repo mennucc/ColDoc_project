@@ -1,7 +1,7 @@
 {% load static %}
 {% load i18n %}
 <script>
-var blob_md5="{{blob_md5}}"; var blob_mtime="{{blob_mtime}}";
+var blob_md5="{{blob_md5}}";
 {% if BLOB %}
   const get_blob_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=BLOB %}";
 {% else %}
