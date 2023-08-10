@@ -2346,6 +2346,7 @@ def index(request, NICK, UUID):
     view_md5 = ''
     view_mtime = ''
     VIEW = ''
+    get_view_md5_url = ''
     #
     if blob_ext in ColDoc.config.ColDoc_show_as_text:
         blobcontenttype = 'text'
@@ -2415,6 +2416,7 @@ def index(request, NICK, UUID):
                 view_md5 = hashlib.md5(open(f,'rb').read()).hexdigest()
                 view_mtime = str(os.path.getmtime(f))
                 VIEW = a
+                get_view_md5_url =   django.urls.reverse('UUID:md5', kwargs ={'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW } )
                 #
                 html = open(f).read()
                 u = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':'000'})

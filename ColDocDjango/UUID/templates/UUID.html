@@ -12,11 +12,7 @@ const csrf_token = "{{ csrf_token }}";
 // even though actual LaTeX compilation may be yet working in a forked process.
 // The variable that stores if a compilation is in progress is `compilation_in_progress`.
 var blob_uncompiled={{ uncompiled }};
-{% if VIEW %}
-  const get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS="undefined" FILE=VIEW %}";
-{% else %}
-  const get_view_md5_url = "";
-{% endif %}
+const get_view_md5_url = "{{ get_view_md5_url }}";
 
 const python_main_class = "{{ MAIN_CONTAINER_CLASS }}";
 var previous_main_class = "{{ MAIN_CONTAINER_CLASS | default:"container" }}";
