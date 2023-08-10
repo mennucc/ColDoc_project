@@ -1537,11 +1537,13 @@ def __prepare_views(metadata, blobs_dir, languages = None):
     children = metadata.get('child_uuid')
     url = django.urls.reverse('UUID:index', kwargs={'NICK':metadata.coldoc.nickname,'UUID':'000'})
     for ll in  languages:
-        f = os.path.join(d,'view_' + ll + '_html' , 'index.html')
+        view = osjoin('view_' + ll + '_html' , 'index.html')
+        f = osjoin(d, view)
         if os.path.isfile(f):
+            md5 = hashlib.md5(open(f,'rb').read()).hexdigest()
             h = open(f).read()
             h = _html_replace(h, url[:-4], metadata.uuid, ll, True, children)
-            views.append( (ll,h) )
+            views.append( (ll, h, view, md5) )
     return views
 
 

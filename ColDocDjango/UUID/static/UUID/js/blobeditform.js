@@ -145,8 +145,13 @@ function update_viewarea(b)
     b.forEach( (v,i,a) => {
        let l=v[0];
        let h=v[1];
+       let view=v[2];
+       let md5=v[3];
        let id="id_view_html_" +  l;
        let e = document.getElementById(id);
+       if ( view == VIEW ) {
+	    view_md5 = md5;
+       }
        //$('#'+id).replaceWith(h);
        if(e) {
             MathJax.typesetClear([e])
