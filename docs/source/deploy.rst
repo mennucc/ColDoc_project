@@ -134,7 +134,7 @@ you may want to create a file `${COLDOC_SRC_ROOT}/ColDocDjango/settings_local.py
 to setup some variables to enable email sending, as in this example.
 
 
-.. code:: shell
+.. code:: Python
 
 	  MAIL_HOST = "smtp.server"
 	  EMAIL_PORT = "587"
