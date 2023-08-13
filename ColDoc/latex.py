@@ -591,7 +591,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             f_.write(f_html)
         subproc2 = fork_class()
         subproc2.run(plastex_engine,blobs_dir, fake_name2, save_name, environ, uuid, lang, options,
-                            levels = True, tok = True, strip_head = False)
+                            levels = True, tok = True, strip_head = False, load_main_paux=False)
         subprocs.append((lang, subproc, subproc2))
     # wait on all subprocesses and process results
     return_values = {}
@@ -761,7 +761,7 @@ def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
 
 @ColDoc.utils.log_debug
 def plastex_engine(blobs_dir, fake_name, save_name, environ, uuid, lang, options,
-                   levels = False, tok = False, strip_head = True, plastex_theme=None):
+                   levels = False, tok = False, strip_head = True, plastex_theme=None, load_main_paux=True):
     " compiles the `fake_name` latex, and generates the `save_name` result ; note that extensions are missing "
     save_abs_name = os.path.join(blobs_dir, save_name)
     fake_abs_name = os.path.join(blobs_dir, fake_name)
@@ -800,7 +800,7 @@ def plastex_engine(blobs_dir, fake_name, save_name, environ, uuid, lang, options
         argv.append( '--no-display-toc' )
     #
     n =  osjoin(blobs_dir,'main_'+lang+'_plastex.paux')
-    if os.path.isfile(n):
+    if load_main_paux and os.path.isfile(n):
         argv += ['--load-paux', n]
     #
     argv += ['--log',F]
