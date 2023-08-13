@@ -35,6 +35,17 @@ LANGUAGES = [
 ]
 
 
+
+#########
+
+## if you activate this, you may then insert into the directory
+## templates that will override the shipped ones
+
+TEMPLATES[0]['DIRS'].insert(0,os.path.join(COLDOC_SITE_ROOT, 'templates'))
+
+
+#########
+
 ## as per https://bugs.freedesktop.org/show_bug.cgi?id=5455
 ## or https://en.wikibooks.org/wiki/Gnuplot#Syntax_highlighting
 

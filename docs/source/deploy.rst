@@ -335,5 +335,37 @@ as follows
 This may improve security.
 
 
+Customize templates
+===================
 
+If you uncomment the line
 
+.. code:: Python
+
+	  TEMPLATES[0]['DIRS'].insert(0,os.path.join(COLDOC_SITE_ROOT, 'templates'))
+
+in `${COLDOC_SITE_ROOT}/settings.py`
+then you may use that directory to install templates
+that will override the shipped ones: see following
+sections for some useful examples.
+
+Analytics
+---------
+
+`ColDocDjango/templates/analytics.html` containes code to use
+*Google Analytics 4*, that will be activated simply by defining
+(in `${COLDOC_SITE_ROOT}/settings.py`) the variable
+`GOOGLE_ANALYTICS4` to contain the the correct key.
+
+If you wish to use another *analytics* method, create
+the file `${COLDOC_SITE_ROOT}/templates/analytics.html`
+and fill it with the needed code,
+and this will override the above template.
+
+Extra header
+------------
+
+Any other extra information you want to include in the
+`html` headers may be put into
+`${COLDOC_SITE_ROOT}/templates/extrahead.html` ---
+as for example, *favicon*, *apple-touch-icon* and so on.
