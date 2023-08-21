@@ -16,4 +16,5 @@ urlpatterns = [
     path('<str:NICK>/postcoldocedit', views.post_coldoc_edit, name='postcoldocedit'),
     path('<str:NICK>/latex', views.latex, name='latex'),
     path('<str:NICK>/reparse', views.reparse, name='reparse'),
+    path('<str:NICK>/bookindex', views.bookindex, name='bookindex'),
 ]

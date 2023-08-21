@@ -53,7 +53,7 @@ from ColDocApp import text_catalog
 from ColDocDjango.users import user_has_perm , UUID_view_view , UUID_view_blob #, UUID_download  #, user_has_perm_uuid_blob
 from ColDocDjango.utils import check_login_timeout, build_hreflang_links
 
-
+from ColDoc.utils import parse_index_command
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 
 def iso3lang2word(*v , **k):
@@ -335,6 +335,40 @@ def search_text_list(request, coldoc, searchtoken):
             link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid}) + '?lang=' + lang
             text_list.append((blob.uuid, lang, link, result.text)) 
     return text_list
+
+def bookindex(request, NICK):
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+    coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    #
+    user = request.user
+    user.associate_coldoc_blob_for_has_perm(coldoc, None)
+    ## permissions
+    user_can_view = lambda extra :  user.has_perm (  UUID_view_view ,  extra.blob )
+    #user_can_blob = lambda extra :  user.has_perm (  UUID_view_blob ,  extra.blob )
+    
+    i_ = ExtraMetadata.objects.filter(Q(key__contains='M_index') & 
+                                              Q(blob__coldoc=coldoc))
+    i_ = filter(user_can_view, i_)
+    #
+    I = {}
+    for E in i_:
+        try:
+            language, key, see, value = parse_index_command(E.value)
+        except ValueError:
+            continue
+        L = I.setdefault(key,[])
+        html = ( _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else E.blob.uuid
+        L.append( (E.blob.uuid, html) )
+    index = []
+    for k,vv in I.items():
+        index.append((k,vv))
+    index.sort()
+    #
+    return render(request, 'bookindex.html',
+                  {'coldoc':coldoc, 'NICK':coldoc.nickname,
+                   'index':index,
+                   })
 
 def search(request, NICK):
     if not slug_re.match(NICK):

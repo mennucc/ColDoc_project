@@ -1,0 +1,27 @@
+{% extends "bootstrapbase.html" %}
+{% load i18n %}
+{% block title %} ColDoc — {{ coldoc.nickname }} — {% translate 'book index' %} {% endblock %}
+{% block content %}
+
+<h1>{% if coldoc.title %} {{coldoc.title}} {% else %}
+ColDoc  — {{ coldoc.nickname }} {% endif %} —
+{% translate 'book index' %}
+</h1>
+
+{% if index %}
+    <ul>
+    {% for key, uuids in index %}
+        <li>
+        <code> {{key}} </code>,
+        {% for uuid, html in uuids %}
+            <a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=uuid %}">{{ html | safe }}</a>,
+        {% endfor %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p><i>The index is empty.</i></p>
+{% endif %}
+
+
+{% endblock %}
