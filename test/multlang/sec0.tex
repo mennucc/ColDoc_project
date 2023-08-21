@@ -1,9 +1,13 @@
 \section*{\ifCDLeng The introduction \fi  \ifCDLita La introduzione\fi}
 \ifCDLeng The fancy introduction \fi  \ifCDLita La simpatica introduzione\fi
 
+\indexLita{introduzione}
+\indexLeng{introduction}
+
 \begin{abstract}
   \CDLeng  This simple \LaTeX\ tests some features  of \texttt{plasTeX} and \texttt{ColDoc}.
   \CDLita Questo semplice file  \LaTeX\ mostra le funzionalità di  \texttt{plasTeX} e \texttt{ColDoc}.
+  \index{latex|textbf}
 
   \ifetex Using  \TeX \fi ;
   \ifxetex Using \texttt{XeTeX} \fi ;
@@ -21,6 +25,8 @@ Stress test  \texttt{plasTeX} embedding \texttt{HTML}
 <a href="http://www.debian.org">Debian</a>
 \end{verbatim}
 \[ \hbox{<a href="http://www.debian.org">Debian</a>} \]
+\index{plasTeX!stress test}
+
 
 BBM test for bold ``1''
 \[f={\mathbbm{1}}_A\]
@@ -28,8 +34,12 @@ BBM test for bold ``1''
 test for unicode characters
 \[ 𝛾 = 𝛼 ∪ 𝛽 ⧵ 𝜁  \]
 
-\index{text for $\alpha$}
-\index{unicode for  $𝛼$}
+\index{$alpha$@$\alpha$}
+\index{$gamma$@$\gamma$}
+\indexLeng{text for $\alpha$}
+\indexLita{testo per $\alpha$}
+\indexLeng{unicode for  $𝛼$}
+\indexLita{unicode per  $𝛼$}
 
 \begin{buyablecontent}
   \CDLeng  This content is reserved but it may be bought
@@ -39,6 +49,8 @@ test for unicode characters
 \begin{privateremark}
   \CDLeng This is a private remark that only the author will see
   \CDLita Questo è un commento privato che solo l'autore può leggere
+  \indexLita{commento privato}
+  \indexLeng{private remark}
 \end{privateremark}
 
 %%% Local Variables:

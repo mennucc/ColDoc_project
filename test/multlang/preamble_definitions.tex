@@ -5,6 +5,19 @@
 \usepackage{makeidx}
 \makeindex
 
+% use \index for language-agnostic content
+% use \indexLita for italian keywords
+% use \indexLeng for english keywords
+\ifCDLita
+ \newcommand\indexLita[1]{\index{#1}}
+\else
+ \newcommand\indexLita[1]{}
+\fi
+\ifCDLeng
+ \newcommand\indexLeng[1]{\index{#1}}
+\else
+ \newcommand\indexLeng[1]{}
+\fi
 
 \usepackage{lipsum}
 
