@@ -159,7 +159,8 @@ def parse_index_arg(key):
         elif e in ('emph', 'textit', 'textsl'):
             text_class = 'font-italic'
         # FIXME support textbf or emph
-    key = key.replace('!',',')
+    key = key.replace('!',', ')
+    key = key.replace('   ',' ')
     key = key.replace('  ',' ')
     if '@' in key:
         key = key.split('@',1)[1]
