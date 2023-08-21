@@ -428,10 +428,20 @@ def search(request, NICK):
     is_author = functools.partial(is_author_, username_ = request.user.username)
     #
     if True :
-        index_list = ExtraMetadata.objects.filter(Q(key__contains='M_index') & 
+        i_ = ExtraMetadata.objects.filter(Q(key__contains='M_index') & 
                                                   Q(blob__coldoc=coldoc) &
                                                   Q(value__contains=searchtoken))
-        index_list = list(filter(user_can_view, index_list))
+        index_list = []
+        for E in filter(user_can_view, i_):
+            try:
+                l = re_index_lang.findall(E.key)
+                language = ('/' + l[0]) if l else ''
+                key, see, value, text_class = parse_index_arg(E.value)
+            except ValueError:
+                continue
+            html = (',' +  _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else ''
+            index_list.append( (language, key, E.blob.uuid, html, text_class ) )
+        index_list.sort()
     else:
         index_list = []
     #

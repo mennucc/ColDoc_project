@@ -27,9 +27,9 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
 <h2>Blob index</h2>
 {% if index_list %}
     <ul>
-    {% for extra in index_list %}
-        <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=extra.blob.uuid %}">
-        {{ extra.blob.uuid }}</a>: {{extra.key}} = <code> {{extra.value}} </code></li>
+    {% for lang, key, uuid, html, text_class in index_list %}
+        <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=uuid %}" class="{{ text_class }}">{{ uuid }} {{ lang }}</a>:
+            {{ key }}  {{ html | safe }}  </li>
     {% endfor %}
     </ul>
 {% else %}
