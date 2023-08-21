@@ -140,6 +140,7 @@ def parse_index_arg(key):
     r""" returns key, see, value, text_class
     similar `parse_index_command` but parses only the argument to the \index command
     """
+    key = key.strip().rstrip('}').lstrip('{')
     value = see = None
     text_class = ''
     if '|' in key:
@@ -159,7 +160,6 @@ def parse_index_arg(key):
             text_class = 'font-italic'
         # FIXME support textbf or emph
     key = key.replace('!',',')
-    key = key.strip()
     key = key.replace('  ',' ')
     if '@' in key:
         key = key.split('@',1)[1]
