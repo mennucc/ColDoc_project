@@ -328,7 +328,7 @@ def search_text_list(request, coldoc, searchtoken):
     user = request.user
     for result in text_catalog.search_text_catalog(searchtoken, coldoc):
         uuid = result.uuid
-        blob = DMetadata.objects.filter(uuid=uuid).get()
+        blob = DMetadata.objects.filter(uuid=uuid,coldoc=coldoc).get()
         user.associate_coldoc_blob_for_has_perm(coldoc, blob)
         if user.has_perm(UUID_view_view):
             lang = result.lang 
