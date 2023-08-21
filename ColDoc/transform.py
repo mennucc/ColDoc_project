@@ -202,7 +202,7 @@ class squash_helper_item_begin_end(squash_helper_stack):
     "add newlines after item or theorem"
     present_to_GUI = True
     def process_macro(self,tok):
-        macroname = str(tok.macroName)
+        macroname = str(str(tok.macroName))
         if macroname == 'item':
             s = self.thetex.readOptionalSpaces()
             return '\\item\n'
@@ -245,7 +245,7 @@ class filter_accents_to_unicode(object):
             if not isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                 yield tok
             else:
-                m = tok.macroName
+                m = str(str(tok.macroName))
                 if m not in latexaccents2unicode:
                     yield tok
                 else:
@@ -281,7 +281,7 @@ class filterdict(object):
                 if not isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
                     yield tok
                 else:
-                    m = '\\' + tok.macroName
+                    m = '\\' + str(str(tok.macroName))
                     c = self.D.get(m,-1)
                     if c >= 0 :
                         yield plasTeX.Tokenizer.Letter(chr(c))
@@ -312,7 +312,7 @@ class filter_greek_to_unicode(filterdict):
 class squash_helper_accents_to_unicode(squash_helper_stack):
     def process_macro(self, tok):
         #print('tok  '+tok.macroName+'\n')
-        m = tok.macroName
+        m = str(str(tok.macroName))
         if m in latexaccents2unicode:
             s = self.thetex.readArgument(type=str)
             if len(s) != 1:
@@ -346,7 +346,8 @@ class squash_input_uuid(squash_helper_stack):
         super().__init__(options = options, **k)
     #
     def process_macro(self, tok):
-        macroname = str(tok.macroName)
+        # no this is not a typo, we really need to str str
+        macroname = str(str(tok.macroName))
         if macroname in (self.input_macros + self.input_macros_with_parameters):
             argSource = ''
             if macroname in self.input_macros_with_parameters:
@@ -451,7 +452,7 @@ class squash_helper_reparse_metadata(squash_input_uuid):
         super().__init__(blobs_dir, metadata, options, *v, **k)
     #
     def process_macro(self, tok, environ=None):
-        macroname = str(tok.macroName)
+        macroname = str(str(tok.macroName))
         r = super().process_macro(tok)
         if r is not None:
             return r
@@ -577,13 +578,13 @@ class squash_helper_token2unicode(squash_helper_stack):
         return self.__remap(s)
     #
     def process_macro(self, tok):
-        macroname = str(tok.macroName)
+        macroname = str(str(tok.macroName))
         obj = self.thetex.ownerDocument.createElement(macroname)
         s = tok.source
         if s and s[-1] == ' ':
             s = s[:-1]
         if s in (r'\(', r'\['):
-            e = '\\' + macros_begin_end[tok.macroName]
+            e = '\\' + macros_begin_end[macroname]
             s +=  self.__recurse(e, e)
             #print('tokenized this ',repr(s))
             return (helper_command.WRITE, self.__remap(s), helper_command.NORECURSE)
@@ -715,7 +716,7 @@ def squash_recurse(out, thetex, options, helper, popmacro=None):
                 pass
         #
         if isinstance(tok, plasTeX.Tokenizer.EscapeSequence):
-            macroname = str(tok.macroName)
+            macroname = str(str(tok.macroName))
             if macroname == 'begin':
                 begin = thetex.readArgument(type=str)
                 if begin in options.get("verbatim_environment",['verbatim']):
