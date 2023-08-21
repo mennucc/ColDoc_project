@@ -354,12 +354,12 @@ def bookindex(request, NICK):
     I = {}
     for E in i_:
         try:
-            language, key, see, value = parse_index_command(E.value)
+            language, key, see, value, text_class = parse_index_command(E.value)
         except ValueError:
             continue
         L = I.setdefault(key,[])
         html = ( _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else E.blob.uuid
-        L.append( (E.blob.uuid, html) )
+        L.append( (E.blob.uuid, html, text_class) )
     index = []
     for k,vv in I.items():
         index.append((k,vv))

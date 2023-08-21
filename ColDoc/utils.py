@@ -105,22 +105,24 @@ re_index_lang = re.compile(r'indexL(...)')
 
 
 def parse_index_command(cmd):
-    r""" returns language, key, see, value
+    r""" returns language, key, see, value, text_class
 
     `language` is the language of the index entry
     \indexLeng -> 'eng'
     \index -> ''
+    
+    `text_class` is the HTML class for bootstrap
 
-    `key` `see` `value` is best explained by two examples
+    `key` `see` `value` `test_class` is best explained by two examples
 
-    \indexLeng{space!totally disconnected ---|textbf}
-    gives  key='space, totally disconnected ---' see='' value=''
+    \indexLeng{space!totally disconnected ---}
+    gives  key='space, totally disconnected ---' see=None value=None text_class=''
     
     \indexLeng{linear! order|seealso{order, total}}
-    gives key='linear, order'  see='see also' value='order, total'
-    
-    TODO parse
+    gives key='linear, order'  see='see also' value='order, total' text_class=''
+
     \indexLeng{linear! order|textbf}
+    gives key='linear, order'  see=None value=None text_class='font-weight-bold'
     """
     if not '{' in cmd or cmd[-1] != '}':
         logger.warning('Wrong index entry %r', cmd)
@@ -131,14 +133,15 @@ def parse_index_command(cmd):
     l = re_index_lang.findall(ind)
     if l:
         language = l.pop()
-    key, see, value = parse_index_arg(key)
-    return language, key, see, value
+    key, see, value, text_class = parse_index_arg(key)
+    return language, key, see, value, text_class
 
 def parse_index_arg(key):
-    r""" returns key, see, value
+    r""" returns key, see, value, text_class
     similar `parse_index_command` but parses only the argument to the \index command
     """
     value = see = None
+    text_class = ''
     if '|' in key:
         key, e = key.split('|',1)
         e=e.strip()
@@ -150,11 +153,15 @@ def parse_index_arg(key):
             else:
                 see = _('see')
             value = value.rstrip('}')
+        elif e == 'textbf':
+            text_class = 'font-weight-bold'
+        elif e == 'emph':
+            text_class = 'font-italic'
         # FIXME support textbf or emph
     key = key.replace('!',',')
     key = key.strip()
     key = key.replace('  ',' ')
-    return key, see, value
+    return key, see, value, text_class
 
 ######################
 # 

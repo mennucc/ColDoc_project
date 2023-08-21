@@ -13,8 +13,8 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
     {% for key, uuids in index %}
         <li>
         <code> {{key}} </code>,
-        {% for uuid, html in uuids %}
-            <a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=uuid %}">{{ html | safe }}</a>,
+        {% for uuid, html, text_class in uuids %}
+            <a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=uuid %}" class="{{ text_class }}">{{ html | safe }}</a>,
         {% endfor %}
         </li>
     {% endfor %}
