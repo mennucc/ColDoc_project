@@ -161,6 +161,8 @@ def parse_index_arg(key):
     key = key.replace('!',',')
     key = key.strip()
     key = key.replace('  ',' ')
+    if '@' in key:
+        key = key.split('@',1)[1]
     return key, see, value, text_class
 
 ######################
