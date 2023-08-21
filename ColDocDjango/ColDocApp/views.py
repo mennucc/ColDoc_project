@@ -53,7 +53,7 @@ from ColDocApp import text_catalog
 from ColDocDjango.users import user_has_perm , UUID_view_view , UUID_view_blob #, UUID_download  #, user_has_perm_uuid_blob
 from ColDocDjango.utils import check_login_timeout, build_hreflang_links
 
-from ColDoc.utils import parse_index_command
+from ColDoc.utils import parse_index_arg, re_index_lang
 from ColDoc.utils import iso3lang2word as iso3lang2word_untranslated
 
 def iso3lang2word(*v , **k):
@@ -351,19 +351,28 @@ def bookindex(request, NICK):
                                               Q(blob__coldoc=coldoc))
     i_ = filter(user_can_view, i_)
     #
-    I = {}
+    indexes_by_lang = {}
     for E in i_:
         try:
-            language, key, see, value, text_class = parse_index_command(E.value)
+            l = re_index_lang.findall(E.key)
+            language = l[0] if l else ''
+            key, see, value, text_class = parse_index_arg(E.value)
         except ValueError:
             continue
-        L = I.setdefault(key,[])
+        L = indexes_by_lang.setdefault(language, {})
+        lis = L.setdefault(key, [])
         html = ( _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else E.blob.uuid
-        L.append( (E.blob.uuid, html, text_class) )
+        lis.append( (E.blob.uuid, html, text_class) )
+    nolanguage = _("Any language") if (len(indexes_by_lang.keys())>1) else ''
     index = []
-    for k,vv in I.items():
-        index.append((k,vv))
-    index.sort()
+    for language in indexes_by_lang:
+        L = indexes_by_lang[language]
+        I = []
+        for k,vv in L.items():
+            I.append((k,vv))
+        I.sort()
+        index.append( (iso3lang2word(language) if language else nolanguage,
+                       I) )
     #
     return render(request, 'bookindex.html',
                   {'coldoc':coldoc, 'NICK':coldoc.nickname,

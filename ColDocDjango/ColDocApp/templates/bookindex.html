@@ -9,8 +9,10 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
 </h1>
 
 {% if index %}
+ {% for language, subindex in index %}
+   <h2> {{ language }}</h2>
     <ul>
-    {% for key, uuids in index %}
+    {% for key, uuids in subindex %}
         <li>
         <code> {{key}} </code>,
         {% for uuid, html, text_class in uuids %}
@@ -19,6 +21,7 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
         </li>
     {% endfor %}
     </ul>
+  {% endfor %}
 {% else %}
     <p><i>The index is empty.</i></p>
 {% endif %}
