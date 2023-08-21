@@ -69,6 +69,7 @@ __all__ = ( "slugify", "slug_re", "slugp_re",
             'recreate_symlinks',
             'TeX_add_packages',
             'log_debug', 'set_file_readonly', 'print_fun_call',
+            'parse_index_command', 'parse_index_arg',
             'strip_delimiters',
             )
 
@@ -97,6 +98,63 @@ def strip_delimiters(src, delimiters='{}'):
         d2 = ''
     return d1, src, d2
 
+######################
+
+re_index_lang = re.compile(r'indexL(...)')
+
+
+
+def parse_index_command(cmd):
+    r""" returns language, key, see, value
+
+    `language` is the language of the index entry
+    \indexLeng -> 'eng'
+    \index -> ''
+
+    `key` `see` `value` is best explained by two examples
+
+    \indexLeng{space!totally disconnected ---|textbf}
+    gives  key='space, totally disconnected ---' see='' value=''
+    
+    \indexLeng{linear! order|seealso{order, total}}
+    gives key='linear, order'  see='see also' value='order, total'
+    
+    TODO parse
+    \indexLeng{linear! order|textbf}
+    """
+    if not '{' in cmd or cmd[-1] != '}':
+        logger.warning('Wrong index entry %r', cmd)
+        raise ValueError()
+    cmd = cmd[:-1]
+    ind, key = cmd.split('{',1)
+    language = ''
+    l = re_index_lang.findall(ind)
+    if l:
+        language = l.pop()
+    key, see, value = parse_index_arg(key)
+    return language, key, see, value
+
+def parse_index_arg(key):
+    r""" returns key, see, value
+    similar `parse_index_command` but parses only the argument to the \index command
+    """
+    value = see = None
+    if '|' in key:
+        key, e = key.split('|',1)
+        e=e.strip()
+        if e.startswith('see') and '{' in e:
+            e, value = e.split('{',1)
+            e = e.strip()
+            if e.startswith('seealso'):
+                see = _('see also')
+            else:
+                see = _('see')
+            value = value.rstrip('}')
+        # FIXME support textbf or emph
+    key = key.replace('!',',')
+    key = key.strip()
+    key = key.replace('  ',' ')
+    return key, see, value
 
 ######################
 # 
