@@ -156,7 +156,7 @@ def parse_index_arg(key):
             value = value.rstrip('}')
         elif e == 'textbf':
             text_class = 'font-weight-bold'
-        elif e == 'emph':
+        elif e in ('emph', 'textit', 'textsl'):
             text_class = 'font-italic'
         # FIXME support textbf or emph
     key = key.replace('!',',')
