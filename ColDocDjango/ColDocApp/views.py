@@ -326,14 +326,19 @@ def search_text_list(request, coldoc, searchtoken):
     searchtoken = searchtoken.lower()
     searchtoken = re.sub('\s+',' ',searchtoken)
     user = request.user
+    #
+    @functools.lru_cache()
+    def can_view(uuid_):
+        blob = DMetadata.objects.filter(uuid=uuid_,coldoc=coldoc).get()
+        user.associate_coldoc_blob_for_has_perm(coldoc, blob)
+        return user.has_perm(UUID_view_view)
+    #
     for result in text_catalog.search_text_catalog(searchtoken, coldoc):
         uuid = result.uuid
-        blob = DMetadata.objects.filter(uuid=uuid,coldoc=coldoc).get()
-        user.associate_coldoc_blob_for_has_perm(coldoc, blob)
-        if user.has_perm(UUID_view_view):
+        if can_view(uuid):
             lang = result.lang 
             link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid}) + '?lang=' + lang
-            text_list.append((blob.uuid, lang, link, result.text)) 
+            text_list.append((uuid, lang, link, result.text)) 
     return text_list
 
 def bookindex(request, NICK):
