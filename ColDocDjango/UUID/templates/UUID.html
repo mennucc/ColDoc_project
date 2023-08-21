@@ -184,6 +184,8 @@ const use_CodeMirror = false;
                 <a href="{{ link }}">  {{ val }}  </a>
 		{#% if u == bibliofiles.last %} . {% else %} ; {% endif %} {% endfor #}
          {% endfor %}
+	 —
+	 <a href="{% url 'ColDoc:bookindex' NICK=NICK %}"> {% translate "Book index" %}</a>
      </div>
      {% endif %}
    </div>
