@@ -141,11 +141,11 @@ const use_CodeMirror = false;
       </div>
      {% endif %}
      {% if blobcontenttype == 'text' %}
-     <div class="row m-1" id="id_view">
+     <div class="row" id="id_view">
       {% for thislang,thislanguage,html,pdfurl,thislang2 in all_views %}
        <div class="col">
        {# if thislanguage and ( ('mul' == lang) or (len(Blangs) > 1) or (len(CDlangs) > 1) ) #} <h3> {% translate thislanguage %}</h3> {# endif #}
-        <div class="border border-info p-1 m-1" id="id_view_html_{{ thislang }}" lang="{{ thislang2 }}">
+        <div class="border border-info" id="id_view_html_{{ thislang }}" lang="{{ thislang2 }}">
          {{ html|safe }}
         </div>
          {% if pdfurl %}
@@ -159,7 +159,7 @@ const use_CodeMirror = false;
       <iframe src="{{ showurl|safe }}"   width="100%"   height="640px">(View should be displayed here)</iframe>
      {% endif %}
      
-      <div class="border border-info mt-2">
+      <div class="border border-info mt-1 mb-1">
       {% translate "Authors" %}:
       {% with metadata.M_author as MA %}
        {% for  u in MA %} {{ u }} ; {% endfor %}
@@ -171,13 +171,13 @@ const use_CodeMirror = false;
       {% endwith %}
       </div>
      {% if replaces %}
-     <div class="border border-info mt-2">
+     <div class="border border-info  mt-1 mb-1">
       {% translate "This element replaces" %}  &nbsp;{{ replaces | safe }}
      </div>
      {% endif %}
 
      {% if bibliofiles or bibliolink %}
-     <div class="border border-info mt-2">
+     <div class="border border-info mt-1 mb-1">
          {% if bibliolink %} <a href="{{ bibliolink }}"> {% translate "Bibliography" %}</a>
 	 {% else %}  {% translate "Bibliography" %} {% endif %}
          {% for val,link in bibliofiles %}
@@ -196,7 +196,7 @@ const use_CodeMirror = false;
  {% if perms.UUID.view_blob %}
   <div class="tab-pane fade show" id="blob" role="tabpanel" aria-labelledby="blob-tab">
     <h2>Blob</h2>
-    <div class="border border-info p-1 m-1">
+    <div class="border border-info">
     <ul>
     {% if env %}<li>{% translate "Environment:" %} {{ env }} </li>{% endif %}
     {% if blob_language %}<li>{% translate "Selected language:" %} {{ blob_language }}</li>{% endif %}
@@ -206,13 +206,13 @@ const use_CodeMirror = false;
      {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
      {{ blobeditform.media }}
       <script src="{% static 'UUID/js/unique.js' %}"></script>
-      <div id="id_blobeditform_div" class="border border-info p-1 m-1">
+      <div id="id_blobeditform_div" class="border border-info p-1">
        {% include "blobeditform.html" %}
       </div>
       {% if perms.UUID.change_blob %}
       <h3>Diff</h3>
  
-      <div id="id_blob_diff" class="border border-info p-1 m-1">
+      <div id="id_blob_diff" class="border border-info">
        {{blobdiff | safe}} 
       </div>
       {% endif %}
@@ -248,7 +248,7 @@ const use_CodeMirror = false;
       </form></div>
       {% endif %}
     {% endif %}
-      <div id="id_latex_error_logs" class="border border-info mt-2">
+      <div id="id_latex_error_logs" class="border border-info">
         {% include "latex_error_logs.html" %}
       </div>
     </div>
@@ -260,7 +260,7 @@ const use_CodeMirror = false;
   <div class="tab-pane fade" id="metadata" role="tabpanel" aria-labelledby="metadata-tab">
   <h2>Metadata</h2>
     {% if perms.UUID.change_dmetadata %}
-     <div class="border border-info mt-2">
+     <div class="border border-info p-1">
       <h3>Editable metadata</h3>
       <form action="{% url 'UUID:postmetadataedit' NICK=NICK UUID=UUID %}" id="{{ metadataform.htmlid }}" method="post" class="w-100">
       {% csrf_token %}{{ metadataform.non_field_errors }}
@@ -272,13 +272,13 @@ const use_CodeMirror = false;
      </div>
     {% endif %}
     {% if user.is_authenticated and user.is_staff %}
-         <div class="border border-info mt-2">
+         <div class="border border-info">
         <a href="/admin/UUID/dmetadata/{{ metadata.id }}/change/"  class="btn btn-outline-primary btn-sm">
          {% translate "Edit using administrative interface" %}
          </a>
          </div>
     {% endif %}
-    <div class="border border-info mt-2">
+    <div class="border border-info">
       <h3>All metadata</h3>
       <ul>
         {% for key,vals in metadata.htmlitems %}
@@ -384,7 +384,7 @@ const use_CodeMirror = false;
     <h2>{% translate "Language tools" %}</h2>
     {% for form, label, tooltip, buttonclass in langforms %}
       <!--<div class="border border-info mt-2">-->
-        <form action="{% url 'UUID:postlang' NICK=NICK UUID=UUID %}" method="post" class="border border-info mt-2">
+        <form action="{% url 'UUID:postlang' NICK=NICK UUID=UUID %}" method="post" class="border border-info mt-2 p-1">
         {% csrf_token %}
         <span class="font-weight-bold">{{ tooltip | safe }}</span>
         <table>
@@ -406,7 +406,7 @@ const use_CodeMirror = false;
 
 {% if perms.UUID.view_view %}
       {% if  uuid_languages %}
-        <div class="border border-info mt-4 mb-4">
+        <div class="border border-info mt-2 mb-2">
           {% translate "This content is available in:" %}
           {% for val,link in uuid_languages %}
             <a href="{{ link }}">  {{ val }} </a>
