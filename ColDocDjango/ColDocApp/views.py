@@ -362,9 +362,11 @@ def bookindex(request, NICK):
     #
     indexes_by_lang = {}
     for E in i_:
+        l = re_index_lang.findall(E.key)
+        language = l[0] if l else ''
+        if lang and language not in ('', lang):
+            continue
         try:
-            l = re_index_lang.findall(E.key)
-            language = l[0] if l else ''
             key, see, value, text_class = parse_index_arg(E.value)
         except ValueError:
             continue
