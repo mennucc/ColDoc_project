@@ -9,8 +9,8 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
 </h1>
 
 {% if index %}
- {% for language, subindex in index %}
-   <h2> {{ language }}</h2>
+ {% for lang3, language, subindex in index %}
+   <h2>   {{ language }}   </h2>
     <ul>
     {% for key, uuids in subindex %}
         <li>
@@ -21,7 +21,18 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
         </li>
     {% endfor %}
     </ul>
+   {% if n_languages_after_merge > 1 and lang3 %}
+   <a href="{% url 'ColDoc:bookindex' NICK=coldoc.nickname %}?lang={{ lang3 }}"  class="btn  btn-outline-primary btn-sm">
+   {% translate 'Show only' %} {{ language }}   </a>
+   {% endif %}
   {% endfor %}
+
+   {% if n_languages_before_merge > 1 and n_languages_after_merge <= 1 %}
+   <a href="{% url 'ColDoc:bookindex' NICK=coldoc.nickname %}"  class="btn  btn-outline-primary btn-sm">
+   {% translate 'Show index broken down by language' %}</a>
+   {% endif %}
+
+
 {% else %}
     <p><i>{% translate 'The index is empty.' %}</i></p>
 {% endif %}

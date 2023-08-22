@@ -346,6 +346,10 @@ def bookindex(request, NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
     #
+    lang = request.GET.get('lang')
+    if lang is not None and not lang_re.match(lang):
+            raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
+    #
     user = request.user
     user.associate_coldoc_blob_for_has_perm(coldoc, None)
     ## permissions
@@ -368,7 +372,23 @@ def bookindex(request, NICK):
         lis = L.setdefault(key, [])
         html = ( _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else E.blob.uuid
         lis.append( (E.blob.uuid, html, text_class) )
-    nolanguage = _("Any language") if (len(indexes_by_lang.keys())>1) else ''
+    # if a language is specified, merge the "any language" indexes in it
+    n_languages_before_merge = len(indexes_by_lang.keys())
+    if lang in indexes_by_lang and '' in indexes_by_lang:
+        I = indexes_by_lang[lang]
+        S = indexes_by_lang['']
+        for key in S:
+            if key in I:
+                I[key] += S[key]
+            else:
+                I[key] = S[key]
+        # delete all other languages
+        for l in list(indexes_by_lang.keys()):
+            if l != lang:
+                del indexes_by_lang[l]
+    #
+    n_languages_after_merge = len(indexes_by_lang.keys())
+    nolanguage = _("Any language") if (n_languages_after_merge > 1) else ''
     index = []
     for language in indexes_by_lang:
         L = indexes_by_lang[language]
@@ -376,11 +396,13 @@ def bookindex(request, NICK):
         for k,vv in L.items():
             I.append((k,vv))
         I.sort()
-        index.append( (iso3lang2word(language) if language else nolanguage,
+        index.append( (language, iso3lang2word(language) if language else nolanguage,
                        I) )
     #
     return render(request, 'bookindex.html',
                   {'coldoc':coldoc, 'NICK':coldoc.nickname,
+                   'n_languages_after_merge': n_languages_after_merge,
+                   'n_languages_before_merge': n_languages_before_merge,
                    'index':index,
                    })
 
