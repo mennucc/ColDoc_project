@@ -2573,8 +2573,10 @@ def index(request, NICK, UUID):
     blob_language = iso3lang2word(blob_lang)
     if view_lang :
         view_language = iso3lang2word(view_lang)
+        view_query = '?lang=' + view_lang
     else:
         view_language = blob_language
+        view_query = ''
     logger.info('ip=%r user=%r coldoc=%r uuid=%r lang=%r ext=%r: file served',
                 request.META.get('REMOTE_ADDR'), request.user.username, NICK, UUID, lang, ext)
     #

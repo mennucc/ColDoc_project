@@ -185,7 +185,7 @@ const use_CodeMirror = false;
 		{#% if u == bibliofiles.last %} . {% else %} ; {% endif %} {% endfor #}
          {% endfor %}
 	 —
-	 <a href="{% url 'ColDoc:bookindex' NICK=NICK %}"> {% translate "Book index" %}</a>
+	 <a href="{% url 'ColDoc:bookindex' NICK=NICK %}{{ view_query }}"> {% translate "Book index" %}</a>
      </div>
      {% endif %}
    </div>
