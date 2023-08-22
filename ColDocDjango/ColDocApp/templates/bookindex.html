@@ -12,11 +12,12 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
  {% for lang3, language, subindex in index %}
    <h2>   {{ language }}   </h2>
     <ul>
-    {% for key, uuids in subindex %}
+    {% for sortkey, key, uuids in subindex %}
         <li>
-        <code> {{key}} </code>,
-        {% for uuid, html, text_class in uuids %}
-            <a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=uuid %}" class="{{ text_class }}">{{ html | safe }}</a>,
+        <code {% if sortkey %}data-toggle="tooltip" title="{{ sortkey }}"{%endif%}> {{key}} </code>,
+        {% for uuid, html, text_class, fullkey in uuids %}
+            <a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=uuid %}" class="{{ text_class }}"
+            {% if fullkey %} data-toggle="tooltip" title="{{ fullkey }}" {%endif%}>{{ html | safe }}</a>,
         {% endfor %}
         </li>
     {% endfor %}

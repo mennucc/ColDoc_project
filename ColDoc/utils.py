@@ -105,7 +105,7 @@ re_index_lang = re.compile(r'indexL(...)')
 
 
 def parse_index_command(cmd):
-    r""" returns language, key, see, value, text_class
+    r""" returns language, sortkey, key, see, value, text_class
 
     `language` is the language of the index entry
     \indexLeng -> 'eng'
@@ -113,16 +113,20 @@ def parse_index_command(cmd):
     
     `text_class` is the HTML class for bootstrap
 
-    `key` `see` `value` `test_class` is best explained by two examples
+    `sortkey` `key` `see` `value` `test_class` is best explained by two examples
 
     \indexLeng{space!totally disconnected ---}
-    gives  key='space, totally disconnected ---' see=None value=None text_class=''
+    gives  sortkey=key='space, totally disconnected ---' see=None value=None text_class=''
     
     \indexLeng{linear! order|seealso{order, total}}
-    gives key='linear, order'  see='see also' value='order, total' text_class=''
+    gives sortkey=key='linear, order'  see='see also' value='order, total' text_class=''
 
     \indexLeng{linear! order|textbf}
-    gives key='linear, order'  see=None value=None text_class='font-weight-bold'
+    gives sortkey=key='linear, order'  see=None value=None text_class='font-weight-bold'
+    
+    \indexLeng{$N$@$\mathbb N$|textbf}
+    gives sortkey=$N$ key='$\mathbb N$'  see=None value=None text_class='font-weight-bold'
+    
     """
     if not '{' in cmd or cmd[-1] != '}':
         logger.warning('Wrong index entry %r', cmd)
@@ -133,8 +137,30 @@ def parse_index_command(cmd):
     l = re_index_lang.findall(ind)
     if l:
         language = l.pop()
-    key, see, value, text_class = parse_index_arg(key)
-    return language, key, see, value, text_class
+    sortkey, key, see, value, text_class = parse_index_arg(key)
+    return sortkey, language, key, see, value, text_class
+
+_protect_index_chars = [
+    ('"!', '\ue000'),
+    ('"|', '\ue001'),
+    ('"@', '\ue002'),
+]
+
+def _protect_index(s):
+    ' substitute "!  "|  "@  with protecting chars '
+    if not isinstance(s,str):
+        return s
+    for c,r in _protect_index_chars:
+        s = s.replace(c,r)
+    return s
+
+def _unprotect_index(s):
+    ' unsubstitute protecting char of "!  "|  "@  to plain ! | @'
+    if not isinstance(s,str):
+        return s
+    for c,r in _protect_index_chars:
+        s = s.replace(r,c[1])
+    return s
 
 def parse_index_arg(key):
     r""" returns key, see, value, text_class
@@ -142,7 +168,10 @@ def parse_index_arg(key):
     
     see https://en.wikibooks.org/wiki/LaTeX/Indexing
     """
-    key = key.strip().rstrip('}').lstrip('{')
+    key = key.strip()
+    if key and key[0] == '{' and key[-1] =='}':
+        key = key[1:-1]
+    key = _protect_index(key)
     value = see = None
     text_class = ''
     if '|' in key:
@@ -160,13 +189,16 @@ def parse_index_arg(key):
             text_class = 'font-weight-bold'
         elif e in ('emph', 'textit', 'textsl'):
             text_class = 'font-italic'
-        # FIXME support textbf or emph
+        value = _unprotect_index(value)
     key = key.replace('!',', ')
-    key = key.replace('   ',' ')
-    key = key.replace('  ',' ')
+    while '  ' in key:
+        key = key.replace('  ',' ')
     if '@' in key:
-        key = key.split('@',1)[1]
-    return key, see, value, text_class
+        sortkey, key = key.split('@',1)
+        sortkey, key = _unprotect_index(sortkey), _unprotect_index(key)
+    else:
+        sortkey = key = _unprotect_index(key)
+    return sortkey, key, see, value, text_class
 
 ######################
 # 

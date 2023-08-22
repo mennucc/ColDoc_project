@@ -354,6 +354,7 @@ def bookindex(request, NICK):
     #
     user = request.user
     user.associate_coldoc_blob_for_has_perm(coldoc, None)
+    is_editor = request.user.is_editor
     ## permissions
     ## TODO should check if user has bought access to that blob
     user_can_view = lambda extra :  user.has_perm (  UUID_view_view ,  extra.blob )
@@ -370,13 +371,15 @@ def bookindex(request, NICK):
         if lang and language not in ('', lang):
             continue
         try:
-            key, see, value, text_class = parse_index_arg(E.value)
+            sortkey, key, see, value, text_class = parse_index_arg(E.value)
         except ValueError:
             continue
         L = indexes_by_lang.setdefault(language, {})
-        lis = L.setdefault(key, [])
+        lis = L.setdefault( (sortkey, key), [])
         html = ( _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else E.blob.uuid
-        lis.append( (E.blob.uuid, html, text_class) )
+        lis.append( (E.blob.uuid, html, text_class,
+                     (E.key+E.value) if is_editor else '',
+                     ) )
     # if a language is specified, merge the "any language" indexes in it
     n_languages_before_merge = len(indexes_by_lang.keys())
     if lang in indexes_by_lang and '' in indexes_by_lang:
@@ -401,6 +404,10 @@ def bookindex(request, NICK):
         for k,vv in L.items():
             I.append((k,vv))
         I.sort()
+        # pass sorting key before key, but delete if they are equal
+        I = [ ( ((_('sorted as:')+' '+kk[0]) if kk[0]!= kk[1] else ''),
+                kk[1], vv)
+              for (kk,vv) in I]
         index.append( (language, iso3lang2word(language) if language else nolanguage,
                        I) )
     #
@@ -468,7 +475,7 @@ def search(request, NICK):
             try:
                 l = re_index_lang.findall(E.key)
                 language = ('/' + l[0]) if l else ''
-                key, see, value, text_class = parse_index_arg(E.value)
+                sortkey, key, see, value, text_class = parse_index_arg(E.value)
             except ValueError:
                 continue
             html = (',' +  _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else ''
