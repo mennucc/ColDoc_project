@@ -355,6 +355,7 @@ def bookindex(request, NICK):
     user = request.user
     user.associate_coldoc_blob_for_has_perm(coldoc, None)
     ## permissions
+    ## TODO should check if user has bought access to that blob
     user_can_view = lambda extra :  user.has_perm (  UUID_view_view ,  extra.blob )
     #user_can_blob = lambda extra :  user.has_perm (  UUID_view_blob ,  extra.blob )
     

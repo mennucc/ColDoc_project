@@ -139,6 +139,8 @@ def parse_index_command(cmd):
 def parse_index_arg(key):
     r""" returns key, see, value, text_class
     similar `parse_index_command` but parses only the argument to the \index command
+    
+    see https://en.wikibooks.org/wiki/LaTeX/Indexing
     """
     key = key.strip().rstrip('}').lstrip('{')
     value = see = None
