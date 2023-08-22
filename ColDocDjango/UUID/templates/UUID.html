@@ -134,7 +134,6 @@ const use_CodeMirror = false;
  {% if perms.UUID.view_view %}
   <div class="tab-pane fade show active" id="view" role="tabpanel" aria-labelledby="view-tab">
     <h2>{% translate "View" %}</h2>
-    <div class="border m-1">
      {% if replacedby %}
       <div class="border border-warning mt-2">
        {% translate "This element was replaced by" %} &nbsp;{{ replacedby  | safe }}
@@ -189,14 +188,12 @@ const use_CodeMirror = false;
      </div>
      {% endif %}
    </div>
-  </div>
  {% endif %}
 
 
  {% if perms.UUID.view_blob %}
   <div class="tab-pane fade show" id="blob" role="tabpanel" aria-labelledby="blob-tab">
     <h2>Blob</h2>
-    <div class="border border-info">
     <ul>
     {% if env %}<li>{% translate "Environment:" %} {{ env }} </li>{% endif %}
     {% if blob_language %}<li>{% translate "Selected language:" %} {{ blob_language }}</li>{% endif %}
@@ -251,7 +248,6 @@ const use_CodeMirror = false;
       <div id="id_latex_error_logs" class="border border-info">
         {% include "latex_error_logs.html" %}
       </div>
-    </div>
   </div>
  {% endif %}
  
