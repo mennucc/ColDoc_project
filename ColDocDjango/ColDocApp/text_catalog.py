@@ -27,7 +27,7 @@ def  search_text_catalog(searchtext, coldoc, uuid=None, lang=None ):
         O = O.filter(uuid=uuid)
     if lang is not None:
         O = O.filter(lang=lang)
-    O = O.filter(Q(text__contains=searchtext))
+    O = O.filter(Q(text__icontains=searchtext))
     return O.all()
 
 def create_text_catalog(coldoc, blobs_dir):

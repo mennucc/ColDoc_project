@@ -739,7 +739,7 @@ def dedup_html(src, options):
 
 def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
     s = open(IN).read()
-    s = ColDoc.utils.html2text(s).lower()
+    s = ColDoc.utils.html2text(s)
     if unicode2latex:
         extra = options.get('unicode_to_latex')
         s = unicode2latex.uni2tex(s, extra, add_font_modifiers=False, convert_accents=False)
