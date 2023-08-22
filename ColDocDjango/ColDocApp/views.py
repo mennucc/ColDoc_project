@@ -349,6 +349,8 @@ def bookindex(request, NICK):
     lang = request.GET.get('lang')
     if lang is not None and not lang_re.match(lang):
             raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
+    if lang and lang not in coldoc.get_languages():
+        messages.add_message(request, messages.WARNING, 'Invalid language' )
     #
     user = request.user
     user.associate_coldoc_blob_for_has_perm(coldoc, None)
