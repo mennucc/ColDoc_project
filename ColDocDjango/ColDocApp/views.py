@@ -1,4 +1,4 @@
-import os, sys, mimetypes, http, pathlib, pickle, base64, functools, copy, re, hashlib
+import os, sys, mimetypes, http, pathlib, pickle, base64, functools, copy, re, hashlib, json
 from os.path import join as osjoin
 
 import logging
@@ -371,9 +371,16 @@ def bookindex(request, NICK):
         if lang and language not in ('', lang):
             continue
         try:
-            sortkey, key, see, value, text_class = parse_index_arg(E.value)
-        except ValueError:
+            if  E.second_value:
+                parsed = json.loads(E.second_value)
+            else:
+                parsed =  parse_index_arg(E.value)
+                E.second_value = json.dumps(parsed)
+                E.save()
+        except:
+            logger.exception('While parsing index entry, key %r value %r second_value %r', E.key, E.value, E.second_value)
             continue
+        sortkey, key, see, value, text_class = parsed
         L = indexes_by_lang.setdefault(language, {})
         lis = L.setdefault( (sortkey, key), [])
         html = E.blob.uuid

@@ -1479,6 +1479,14 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
                          {"value":value,'uuid':metadata.uuid})
                 if not ignore_uuid:
                     metadata.add(key,value)
+            elif 'M_index' in  key:
+                try:
+                    parsed = parse_index_arg(value)
+                    second_value = json.dumps(parsed)
+                    metadata.add2(key, value, second_value)
+                except:
+                    logger.exception('While parsing index entry, key %r value %r', key, value)
+                    metadata.add(key,value)
             else:
                 metadata.add(key,value)
           except DuplicateLabel:
