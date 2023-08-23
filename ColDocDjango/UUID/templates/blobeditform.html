@@ -58,14 +58,14 @@ if ( compilation_in_progress ) {
          id="id_blobeditform_revert" name="revert" value="Revert">
 
          <br>
-         <div class="border border-info mt-1">
-         <input type="submit" class="btn btn-primary" 
+         <div class="border border-info mt-1 p-1">
+         <input type="submit" class="btn btn-primary m-1" 
          data-toggle="tooltip" title="Normalize LaTeX"
          onclick="blob_post('normalize'); return false;"
          id="id_blobeditform_normalize" name="normalize" value="Normalize">
          
          {% for field in blobeditform %} {% if field.name in blobform_filters %}
-           <span class="border m-2 p-2" data-toggle="tooltip" title="{{ field.help_text|safe }}">
+           <span class="border bg-light text-nowrap d-inline-block m-1 pt-1" data-toggle="tooltip" title="{{ field.help_text|safe }}">
              {{ field.errors }}    {{ field.label_tag }} {{ field }}
            </span>  
           {% endif %}
