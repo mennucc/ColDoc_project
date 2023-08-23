@@ -209,7 +209,7 @@ const use_CodeMirror = false;
       {% if perms.UUID.change_blob %}
       <h3>Diff</h3>
  
-      <div id="id_blob_diff" class="border border-info">
+      <div id="id_blob_diff" class="table-responsive">
        {{blobdiff | safe}} 
       </div>
       {% endif %}
