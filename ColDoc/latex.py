@@ -737,21 +737,69 @@ def dedup_html(src, options):
                             replacements.append( ( o, (dedup_url + '/' + dedup + '/' + r) ) )
     return replacements
 
+_math_replacement_table = [
+    (r'\\\(', '\ue000'),
+    (r'\\\)', '\ue001'),
+    (r'\\\[', '\ue002'),
+    (r'\\\]', '\ue003'),
+    (r'\\begin{(equation|array|align|eqnarray|gather)(\*?})', '\ue004'),
+    (r'\\end{(equation|array|align|eqnarray|gather)(\*?})' , '\ue005'),
+]
+
+def _replace_math_delimiters(s):
+    ' substitute math  with single chars '
+    if not isinstance(s,str):
+        return s
+    for c,r in _math_replacement_table:
+        s = re.sub(c, r, s)
+    return s
+
+
 def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
     s = open(IN).read()
     s = ColDoc.utils.html2text(s)
     if unicode2latex:
         extra = options.get('unicode_to_latex')
         s = unicode2latex.uni2tex(s, extra, add_font_modifiers=False, convert_accents=False)
-    #s = s.replace('\n\t',' ')
+    # delete labels
+    z = r'\\label{[^}]*}'
+    s = re.sub(z,' ',s)
+    # reduce number of spaces
     s = re.sub(r'\s+',' ',s)
-    l = re.split(r'([.;\]\)}])', s)
-    s = ''
-    while len(l) > 1:
-        s += l[0] + l[1] + '\n'
-        l = l[2:]
-    if l:
-        s += l[0] + '\n'
+    #
+    s = _replace_math_delimiters(s)
+    z = r'([\ue000\ue001\ue002\ue003\ue004\ue005])'
+    fl = re.split(z, s)
+    #
+    mathmode = False
+    S = []
+    for j in fl:
+        j = j.strip()
+        if len(j) == 1:
+            o = ord(j)
+            if o >= 0xe00 and o <= 0xe006:
+                mathmode = not ( o % 2 )
+                continue
+        if mathmode:
+            S.append( r'\(' + j + r'\)')
+        elif len(j) <= 16:
+            S.append(j)
+        else:
+            # split at . ; ] ) }
+            z = r'([.;\]\)}])'
+            l = re.split(z, j)
+            s = ''
+            if len(l) % 2:
+                l.append('')
+            while l:
+                a , b = l[:2]
+                a = a.strip()
+                if not a and S:
+                    S[-1] += b
+                else:
+                    S.append( a + b )
+                l = l[2:]
+    s = '\n'.join(S)
     with open(OUT,'w') as f_:
         f_.write(s)
     callback =  options.get('html_to_text_callback')
