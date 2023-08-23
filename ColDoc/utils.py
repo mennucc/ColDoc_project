@@ -189,10 +189,11 @@ def parse_index_arg(key):
             text_class = 'font-weight-bold'
         elif e in ('emph', 'textit', 'textsl'):
             text_class = 'font-italic'
+        elif e in '()':
+            see = e
         value = _unprotect_index(value)
     key = key.replace('!',', ')
-    while '  ' in key:
-        key = key.replace('  ',' ')
+    key = re.sub(r'\s+',' ', key)
     if '@' in key:
         sortkey, key = key.split('@',1)
         sortkey, key = _unprotect_index(sortkey), _unprotect_index(key)
