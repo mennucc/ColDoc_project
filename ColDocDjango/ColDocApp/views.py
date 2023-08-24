@@ -432,6 +432,7 @@ def bookindex(request, NICK):
                    'n_languages_after_merge': n_languages_after_merge,
                    'n_languages_before_merge': n_languages_before_merge,
                    'index':index,
+                   'keyclass' : '' if is_editor else 'mathjaxme',
                    })
 
 def search(request, NICK):
