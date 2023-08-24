@@ -362,7 +362,8 @@ def bookindex(request, NICK):
     
     i_ = ExtraMetadata.objects.filter(Q(key__contains='M_index') & 
                                               Q(blob__coldoc=coldoc))
-    i_ = filter(user_can_view, i_)
+    if not is_editor:
+        i_ = filter(user_can_view, i_)
     #
     indexes_by_lang = {}
     for E in i_:
