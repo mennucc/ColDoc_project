@@ -34,7 +34,7 @@ function html_retrieve_substitute(url, identP, identA, identB, identC, identD)
              D.innerHTML = response;
              D.style.display = "block";
 	     D.append(C);
-	     MathJax.typeset();
+	     MathJax.typesetPromise([D]);
 	     },
 	   error: function(){
 	     B.style.display = "none";
