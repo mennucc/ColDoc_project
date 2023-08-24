@@ -21,6 +21,7 @@
   <script>
   MathJax = {
       tex: {  tags: 'ams' ,}, // should be 'ams', 'none', or 'all'
+      startup: {  elements: null  },
       tex2jax: {inlineMath: [ ['\\(','\\)'] ] },
   };
   var COLDOC_COOKIE_CONSENT_NAME = 'coldoc_cookie_consent';
@@ -176,6 +177,8 @@
     })
     // 
     $('.toast').toast("show");
+    // render mathjax where the 'mathjaxme' class is
+    $(function () { $('.mathjaxme').each( () => { MathJax.typesetPromise([this]); } ) ; } );
 </script>
   </body>
 </html>
