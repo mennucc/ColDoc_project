@@ -199,6 +199,15 @@ def parse_index_arg(key):
         sortkey, key = _unprotect_index(sortkey), _unprotect_index(key)
     else:
         sortkey = key = _unprotect_index(key)
+    # mathjax does not process $, so we convert it to \(\)
+    if '$' in key:
+        # import here to avoid circular imports
+        from ColDoc import transform as T
+        helper=T.squash_helper_dedollarize()
+        inp = io.StringIO(key)
+        out = io.StringIO()
+        T.squash_latex(inp,out,{},helper)
+        key = out.getvalue()
     return sortkey, key, see, value, text_class
 
 ######################
