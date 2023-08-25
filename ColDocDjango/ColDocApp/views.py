@@ -16,6 +16,12 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
+# make sure these appear
+_ = lambda x:x
+_('see')
+_('see also')
+
+
 from django.utils.translation import gettext, gettext_lazy, gettext_noop
 if django.VERSION[0] >= 4 :
     _ = gettext_lazy

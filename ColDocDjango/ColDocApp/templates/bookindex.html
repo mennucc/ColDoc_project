@@ -24,7 +24,7 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
     </ul>
    {% if n_languages_after_merge > 1 and lang3 %}
    <a href="{% url 'ColDoc:bookindex' NICK=coldoc.nickname %}?lang={{ lang3 }}"  class="btn  btn-outline-primary btn-sm">
-   {% translate 'Show only' %} {{ language }}   </a>
+   {% blocktranslate %}Show only {{ language }}.{% endblocktranslate %}   </a>
    {% endif %}
   {% endfor %}
 
