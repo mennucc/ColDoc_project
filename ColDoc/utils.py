@@ -180,9 +180,10 @@ def parse_index_arg(key):
         if e.startswith('see') and '{' in e:
             e, value = e.split('{',1)
             e = e.strip()
-            if e.startswith('seealso'):
+            if e == 'seealso':
+                # this is not really translated
                 see = _('see also')
-            else:
+            elif e == 'see':
                 see = _('see')
             value = value.rstrip('}')
         elif e == 'textbf':
