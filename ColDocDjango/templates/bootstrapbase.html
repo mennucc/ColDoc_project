@@ -19,11 +19,18 @@
     <script src="{% static 'ColDoc/js/js.cookie.js' %}"></script>
     <!--and eventually MathJax-->
   <script>
+  // render mathjax only where the class contains 'mathjaxme', and async
   MathJax = {
       tex: {  tags: 'ams' ,}, // should be 'ams', 'none', or 'all'
-      startup: {  elements: null  },
+      startup: {  elements: null , typeset: false , ready: mathjaxall, },
       tex2jax: {inlineMath: [ ['\\(','\\)'] ] },
   };
+
+  async function mathjaxall () {
+	MathJax.startup.defaultReady();
+	var arr = [...document.querySelectorAll('.mathjaxme')]; MathJax.typeset(arr ); console.log('mathjax rendered ', arr.length, ' nodes');
+    };
+    
   var COLDOC_COOKIE_CONSENT_NAME = 'coldoc_cookie_consent';
   
   var user_can_save = false;
@@ -177,8 +184,6 @@
     })
     // 
     $('.toast').toast("show");
-    // render mathjax where the 'mathjaxme' class is
-    $(function () { $('.mathjaxme').each( () => { MathJax.typesetPromise([this]); } ) ; } );
 </script>
   </body>
 </html>
