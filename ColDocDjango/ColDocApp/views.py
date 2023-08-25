@@ -345,6 +345,17 @@ def bookindex(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    a = osjoin(coldoc_dir,'math_to_unicode.json')
+    math_to_unicode = []
+    try:
+        if os.path.isfile(a):
+            b = json.load(open(a))
+            if isinstance(b,dict):
+                b = b.items()
+            math_to_unicode = [ (k+' ',chr(v)+' ') for k,v in b  ]
+    except:
+        logger.exception('while loading %r', a)
     #
     lang = request.GET.get('lang')
     if lang is not None and not lang_re.match(lang):
@@ -382,6 +393,11 @@ def bookindex(request, NICK):
             logger.exception('While parsing index entry, key %r value %r second_value %r', E.key, E.value, E.second_value)
             continue
         sortkey, key, see, value, text_class = parsed
+        # convert our special macros to unicode, since these are usually not known to mathjax
+        if '\\' in key:
+            for c,r in math_to_unicode:
+                key = key.replace(c,r)
+        #
         L = indexes_by_lang.setdefault(language, {})
         lis = L.setdefault( (sortkey, key), [])
         html = E.blob.uuid
