@@ -502,6 +502,9 @@ def search(request, NICK):
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
     CDlangs = coldoc.get_languages()
     #
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    math_to_unicode = _load_math_to_unicode(coldoc_dir)
+    #
     user = request.user
     user.associate_coldoc_blob_for_has_perm(coldoc, None)
     # UUID
@@ -540,6 +543,14 @@ def search(request, NICK):
                 sortkey, key, see, value, text_class = parse_index_arg(E.value)
             except ValueError:
                 continue
+            # convert personal macros
+            if '\\' in key:
+                for c,r in math_to_unicode:
+                    key = key.replace(c,r)
+            if value and  '\\' in value:
+                for c,r in math_to_unicode:
+                    value = value.replace(c,r)
+            #
             if lang:
                 keylist = uuidlang_index_dict.setdefault( (E.blob.uuid,lang), [])
                 keylist.append(key)
