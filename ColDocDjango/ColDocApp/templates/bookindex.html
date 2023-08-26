@@ -21,6 +21,7 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
              <span class="{{ text_class }}">{{ marker }}</span>
              {% if refkey %}<span class="mathjaxme">{{ refkey }}</span>{% endif %}
             </a>
+            {% if forloop.last %}.{% else %},{%endif%}
         {% endfor %}
         </li>
     {% endfor %}
