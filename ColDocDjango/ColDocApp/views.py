@@ -359,21 +359,24 @@ def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):
             text_list.append((uuid, lang, link, link_class, result.text, text_class))
     return text_list
 
-def bookindex(request, NICK):
-    if not slug_re.match(NICK):
-        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    coldoc = DColDoc.objects.filter(nickname = NICK).get()
-    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+def _load_math_to_unicode(coldoc_dir):
     a = osjoin(coldoc_dir,'math_to_unicode.json')
-    math_to_unicode = []
     try:
         if os.path.isfile(a):
             b = json.load(open(a))
             if isinstance(b,dict):
                 b = b.items()
-            math_to_unicode = [ (k+' ',chr(v)+' ') for k,v in b  ]
+            return [ (k+' ',chr(v)+' ') for k,v in b  ]
     except:
         logger.exception('while loading %r', a)
+    return []
+
+def bookindex(request, NICK):
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+    coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+    math_to_unicode = _load_math_to_unicode(coldoc_dir)
     #
     lang = request.GET.get('lang')
     if lang is not None and not lang_re.match(lang):
