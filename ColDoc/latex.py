@@ -58,7 +58,7 @@ from coldoc_tasks.simple_tasks import nofork_class
 ####
 
 try:
-    import unicode2latex
+    import unicode2latex.u2l as unicode2latex
 except ImportError:
     logger.warning('Please install `unicode2latex` ')
     unicode2latex = None
