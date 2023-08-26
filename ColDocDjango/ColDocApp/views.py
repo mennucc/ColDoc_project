@@ -418,6 +418,9 @@ def bookindex(request, NICK):
         if '\\' in key:
             for c,r in math_to_unicode:
                 key = key.replace(c,r)
+        if value and  '\\' in value:
+            for c,r in math_to_unicode:
+                value = value.replace(c,r)
         #
         L = indexes_by_lang.setdefault(language, {})
         lis = L.setdefault( (sortkey, key), [])
