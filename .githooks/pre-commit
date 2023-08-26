@@ -28,9 +28,9 @@ pushd $t
 
 ## fix symlink
 
-if test -L ColDocDjango/unicode2latex.py ; then
-    rm -r ColDocDjango/unicode2latex.py
-    ln -s "$origdir"/sub/unicode2latex/unicode2latex ColDocDjango/unicode2latex.py
+if test -L ColDocDjango/unicode2latex ; then
+    rm -r ColDocDjango/unicode2latex
+    ln -s "$origdir"/sub/unicode2latex ColDocDjango/unicode2latex
 fi
 
 if test -L ColDocDjango/wallet ; then
