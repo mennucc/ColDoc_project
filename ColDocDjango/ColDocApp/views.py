@@ -339,12 +339,15 @@ def search_text_list(request, coldoc, searchtoken):
         user.associate_coldoc_blob_for_has_perm(coldoc, blob)
         return user.has_perm(UUID_view_view)
     #
+    link_class = 'bg-light'
+    text_class = ''
+    #
     for result in text_catalog.search_text_catalog(searchtoken, coldoc):
         uuid = result.uuid
         if can_view(uuid):
             lang = result.lang 
             link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid}) + '?lang=' + lang
-            text_list.append((uuid, lang, link, result.text)) 
+            text_list.append((uuid, lang, link, link_class, result.text, text_class))
     return text_list
 
 def bookindex(request, NICK):

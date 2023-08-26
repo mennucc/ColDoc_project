@@ -87,9 +87,9 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
 <h2>Blob text</h2>
 {% if text_list %}
     <ul>
-    {% for uuid, lang, link, text in text_list %}
-        <li><a href="{{ link }}">
-        {{ uuid }}/{{ lang }}</a>: <code> {{text}} </code></li>
+    {% for uuid, lang, link, link_class, text, text_class in text_list %}
+        <li><a href="{{ link }}" class="{{ link_class }}">
+        {{ uuid }}/{{ lang }}</a>: <span class="{{ text_class }}"> {{text}} </span></li>
     {% endfor %}
     </ul>
 {% else %}
