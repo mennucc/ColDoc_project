@@ -430,7 +430,7 @@ def bookindex(request, NICK):
             if see in ('see', 'seealso', 'see also' ) and value:
                 marker = _(see)
                 refkey = value
-                text_class = 'font_italic'
+                text_class = 'font-italic'
             elif see == '(':
                 marker = _('%(uuid)s and following') % {'uuid' : E.blob.uuid }
             elif see == ')':
