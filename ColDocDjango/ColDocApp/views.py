@@ -340,7 +340,7 @@ def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):
         return user.has_perm(UUID_view_view)
     #
     link_class = 'bg-light'
-    text_class = ''
+    text_class = "" if user.is_editor else "mathjaxme"
     #
     for result in text_catalog.search_text_catalog(searchtoken, coldoc):
         uuid = result.uuid
@@ -531,6 +531,8 @@ def search(request, NICK):
     def is_author_(extra, username_):
         return extra.blob.author.filter(username = username_).exists()
     is_author = functools.partial(is_author_, username_ = request.user.username)
+    is_editor = user.is_editor
+    keyclass = "" if is_editor else "mathjaxme"
     #
     uuidlang_index_dict = {}
     if True :
@@ -561,8 +563,9 @@ def search(request, NICK):
                 for l in CDlangs:
                     keylist = uuidlang_index_dict.setdefault( (E.blob.uuid,l), [])
                     keylist.append(key)
-            html = (',' +  _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else ''
-            index_list.append( (language, key, E.blob.uuid, html, text_class ) )
+            if see:
+                see = _(see)
+            index_list.append( (language, key, E.blob.uuid, see, value, text_class ) )
         index_list.sort()
     else:
         index_list = []
@@ -603,6 +606,7 @@ def search(request, NICK):
                    'uuid_list':uuid_list,'label_list':label_list,'ref_list':ref_list,
                    'index_list':index_list, 'meta_list':meta_list,
                    'text_list': text_list, 'searchpreset' : searchtoken,
+                   'keyclass': keyclass,
                    })
 
 

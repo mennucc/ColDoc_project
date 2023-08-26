@@ -27,9 +27,12 @@ ColDoc  — {{ coldoc.nickname }} {% endif %} —
 <h2>Blob index</h2>
 {% if index_list %}
     <ul>
-    {% for lang, key, uuid, html, text_class in index_list %}
+    {% for lang, key, uuid, see, refkey, text_class in index_list %}
         <li><a href="{% url 'UUID:index' NICK=coldoc.nickname UUID=uuid %}" class="{{ text_class }}">{{ uuid }} {{ lang }}</a>:
-            {{ key }}  {{ html | safe }}  </li>
+            <span class="{{keyclass}}">{{ key }}</span>
+            {% if see %}<span class="font-italic">{{ see }}</span>{% endif %}
+            {% if refkey %}<span class="{{keyclass}}">{{ refkey }}</span>{% endif %}
+        </li>
     {% endfor %}
     </ul>
 {% else %}
