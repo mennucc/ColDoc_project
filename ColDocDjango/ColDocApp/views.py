@@ -566,7 +566,7 @@ def search(request, NICK):
         blobs_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK,'blobs')
         blobinator_args = get_blobinator_args(blobs_dir)
         for j in blobinator_args["metadata_command"]:
-            if j not in ('label','ref','eqref','pageref','index'):
+            if j not in ('label','ref','eqref','pageref','index') and not j.startswith('indexL'):
                 meta_list += list(ExtraMetadata.objects.filter(Q(key__endswith=('M_'+j)) & 
                                                       Q(blob__coldoc=coldoc) &
                                                       Q(value__contains=searchtoken)))
