@@ -115,8 +115,8 @@ def parse_index_command(cmd):
 
     `sortkey` `key` `see` `value` `test_class` is best explained by two examples
 
-    \indexLeng{space!totally disconnected ---}
-    gives  sortkey=key='space, totally disconnected ---' see=None value=None text_class=''
+    \indexLeng{space! totally disconnected ---|textit}
+    gives  sortkey=key='space, totally disconnected ---' see=None value=None text_class='font-italic'
     
     \indexLeng{linear! order|seealso{order, total}}
     gives sortkey=key='linear, order'  see='see also' value='order, total' text_class=''
@@ -124,8 +124,13 @@ def parse_index_command(cmd):
     \indexLeng{linear! order|textbf}
     gives sortkey=key='linear, order'  see=None value=None text_class='font-weight-bold'
     
+    note that keys are dedollarized so as to be rendered by mathjax
+
+    \indexLeng{$\alpha$|emph}
+    gives sortkey='$\alpha$' key='\(\alpha \)'  see=None value=None text_class='font-italic'
+
     \indexLeng{$N$@$\mathbb N$|textbf}
-    gives sortkey=$N$ key='$\mathbb N$'  see=None value=None text_class='font-weight-bold'
+    gives sortkey='$N$' key='\(\mathbb N\)'  see=None value=None text_class='font-weight-bold'
     
     """
     if not '{' in cmd or cmd[-1] != '}':
