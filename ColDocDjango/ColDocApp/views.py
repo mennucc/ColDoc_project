@@ -320,7 +320,7 @@ def pdfframe(request, NICK, subpath=None):
     return render(request, 'pdfframe.html', locals() )
 
 
-def search_text_list(request, coldoc, searchtoken):
+def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):
     NICK = coldoc.nickname
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs', NICK)
     blobs_dir = osjoin(coldoc_dir,'blobs')
@@ -347,6 +347,15 @@ def search_text_list(request, coldoc, searchtoken):
         if can_view(uuid):
             lang = result.lang 
             link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid}) + '?lang=' + lang
+            #
+            kk = (uuid,lang)
+            if kk in uuidlang_index_dict:
+                for key in uuidlang_index_dict[kk]:
+                    text_list.append((uuid, lang, link, link_class + ' font-italic' ,
+                                      _("also indexed by key: «{key}»").format(key=key) ,
+                                      text_class + ' font-italic' ))
+                del uuidlang_index_dict[kk]
+            #
             text_list.append((uuid, lang, link, link_class, result.text, text_class))
     return text_list
 
@@ -485,6 +494,7 @@ def search(request, NICK):
         return index(request, NICK)
     #
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    CDlangs = coldoc.get_languages()
     #
     user = request.user
     user.associate_coldoc_blob_for_has_perm(coldoc, None)
@@ -510,6 +520,7 @@ def search(request, NICK):
         return extra.blob.author.filter(username = username_).exists()
     is_author = functools.partial(is_author_, username_ = request.user.username)
     #
+    uuidlang_index_dict = {}
     if True :
         i_ = ExtraMetadata.objects.filter(Q(key__contains='M_index') & 
                                                   Q(blob__coldoc=coldoc) &
@@ -518,10 +529,18 @@ def search(request, NICK):
         for E in filter(user_can_view, i_):
             try:
                 l = re_index_lang.findall(E.key)
+                lang =  l[0] if l else ''
                 language = ('/' + l[0]) if l else ''
                 sortkey, key, see, value, text_class = parse_index_arg(E.value)
             except ValueError:
                 continue
+            if lang:
+                keylist = uuidlang_index_dict.setdefault( (E.blob.uuid,lang), [])
+                keylist.append(key)
+            else:
+                for l in CDlangs:
+                    keylist = uuidlang_index_dict.setdefault( (E.blob.uuid,l), [])
+                    keylist.append(key)
             html = (',' +  _(see) + ' <span class="font-italic">' + value + '</span>') if (see and value) else ''
             index_list.append( (language, key, E.blob.uuid, html, text_class ) )
         index_list.sort()
@@ -553,7 +572,7 @@ def search(request, NICK):
                                                       Q(value__contains=searchtoken)))
         meta_list = list(filter(user_can_blob, meta_list))
     # search in text
-    text_list = search_text_list(request, coldoc, searchtoken)
+    text_list = search_text_list(request, coldoc, searchtoken, uuidlang_index_dict)
     # shortcut
     if len(uuid_list)==1 and not label_list and not index_list and not ref_list and not meta_list and not text_list:
         return redirect(django.urls.reverse('UUID:index',
