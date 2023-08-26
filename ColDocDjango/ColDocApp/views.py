@@ -424,18 +424,21 @@ def bookindex(request, NICK):
         #
         L = indexes_by_lang.setdefault(language, {})
         lis = L.setdefault( (sortkey, key), [])
-        html = E.blob.uuid
+        refkey = ''
+        marker = E.blob.uuid
         if see:
-            if see in ('see', 'seealso' ) and value:
-                html =  _(see) + ' <span class="font-italic">' + value + '</span>'
+            if see in ('see', 'seealso', 'see also' ) and value:
+                marker = _(see)
+                refkey = value
+                text_class = 'font_italic'
             elif see == '(':
-                html = _('%(uuid)s and following') % {'uuid' : E.blob.uuid }
+                marker = _('%(uuid)s and following') % {'uuid' : E.blob.uuid }
             elif see == ')':
                 if is_editor:
-                    html = _('up to %(uuid)s') % {'uuid' : E.blob.uuid }
+                    marker = _('up to %(uuid)s') % {'uuid' : E.blob.uuid }
                 else:   # skip end of sequence
                     continue
-        lis.append( (E.blob.uuid, html, text_class,
+        lis.append( (E.blob.uuid, marker, refkey, text_class,
                      (E.key+E.value) if is_editor else '',
                      ) )
     # if a language is specified, merge the "any language" indexes in it
