@@ -1,8 +1,9 @@
  {% if uplink %}<a class="btn btn-outline-primary" href="{{uplink|safe}}">↑</a>
- {% else %}<div class="btn btn-outline-light disabled">↑</div>{% endif %}
+ {% else %}<span class="btn btn-outline-light disabled">↑</span>{% endif %}
  {% if leftlink %}<a class="btn btn-outline-primary" href="{{leftlink|safe}}">←</a>
- {% else %}<div class="btn btn-outline-light disabled">←</div>{% endif %}
+ {% else %}<span class="btn btn-outline-light disabled">←</span>{% endif %}
  {% if rightlink %}<a class="btn btn-outline-primary" href="{{rightlink|safe}}">→</a>
- {% else %}<div class="btn btn-outline-light disabled">→</div>{% endif %}
+ {% else %}<span class="btn btn-outline-light disabled">→</span>{% endif %}
  {% if downlink %}<a class="btn btn-outline-primary" href="{{downlink|safe}}">↓</a>
- {% else %}<div class="btn btn-outline-light disabled">↓</div>{% endif %}
+ {% else %}<span class="btn btn-outline-light disabled">↓</span>{% endif %}
+
