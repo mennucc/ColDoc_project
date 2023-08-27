@@ -776,6 +776,7 @@ def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
     z = r'([' +  ''.join(a[1] for a in _math_replacement_table) + r'])'
     fl = re.split(z, s)
     #
+    maxline = 60
     mathmode = accepttab = False
     S = []
     for j in fl:
@@ -790,9 +791,10 @@ def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
             if accepttab:
                 S.append( r'\begin{eqnarray*}' + j + r'\end{eqnarray*}')
             else:
-                S.append( r'\(' + j + r'\)')
-        elif len(j) <= 16:
-            S.append(j)
+                if S and len(S[-1]) <= maxline:
+                    S[-1] += ( r' \(' + j + r'\)')
+                else:
+                    S.append( r'\(' + j + r'\)')
         else:
             # split at . ; ] ) }
             z = r'([.;\]\)}])'
@@ -803,10 +805,11 @@ def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
             while l:
                 a , b = l[:2]
                 a = a.strip()
-                if not a and S:
-                    S[-1] += b
+                k = a + b
+                if S and (len(k)+len(S[-1])) <= maxline:
+                    S[-1] += (' ' + k)
                 else:
-                    S.append( a + b )
+                    S.append(k)
                 l = l[2:]
     s = '\n'.join(S)
     with open(OUT,'w') as f_:
