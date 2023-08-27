@@ -22,6 +22,11 @@ DEFAULT_FROM_EMAIL = "helpdesk@that_email"
 # To load it, uncomment this line
 exec(open(os.path.join(COLDOC_SITE_ROOT,'settings_mysql.py')).read())
 
+##########
+
+# you may want to set the timezone
+
+TIME_ZONE = 'Europe/Berlin'
 
 ##########
 
