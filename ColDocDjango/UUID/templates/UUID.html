@@ -1,6 +1,7 @@
 {% extends "bootstrapbase.html" %}
 {% load static %}
 {% load i18n %}
+{% load tz %}
 {% block extrahead %}
 <script>
 "use strict";
@@ -198,6 +199,10 @@ const use_CodeMirror = false;
     {% if env %}<li>{% translate "Environment:" %} {{ env }} </li>{% endif %}
     {% if blob_language %}<li>{% translate "Selected language:" %} {{ blob_language }}</li>{% endif %}
     {% if blob_ext %}<li>{% translate "Selected extension:" %} {{ blob_ext }}</li> {% endif %}
+    <li>{% translate "Last updated" %}
+       {{ metadata.blob_modification_time | localtime}}
+       {{ metadata.blob_modification_time | localtime  | date:"e"}}
+    </li>
     </ul>
     {% if blobcontenttype == 'text' %}
      {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}

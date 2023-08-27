@@ -1,6 +1,7 @@
 {% extends "bootstrapbase.html" %}
 {% load i18n %}
 {% load static %}
+{% load tz %}
 {% block title %} ColDoc — {{ coldoc.nickname }}{% endblock %}
 {% block extrahead %}<script src="{% static 'ColDoc/js/dyna.js' %}"></script>{% endblock %}
 {% block content %}
@@ -9,7 +10,15 @@
 <h1>{% if coldoc.title %} {{coldoc.title}} {% else %}
 ColDoc  — {{ coldoc.nickname }} {% endif %}</h1>
 
-{% translate "First published" %} {{ coldoc.publication_time }}
+{% translate "First published" %}
+{{ coldoc.publication_time  | localtime }}
+{{ coldoc.publication_time  | localtime |  date:"e"}}
+<br>
+{% translate "Last updated" %}
+{{ coldoc.blob_modification_time  | localtime }}
+{{ coldoc.blob_modification_time  | localtime  | date:"e"}}
+
+
 {% if coldoc.authors %}
 <h2>{% translate "Authors" %}</h2>
 <p> {{ coldoc.authors|escape|linebreaks }}</p>
