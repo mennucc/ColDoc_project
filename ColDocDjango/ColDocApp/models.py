@@ -160,12 +160,14 @@ class DColDoc(models.Model):
     def blob_modification_time_update(self, default=None):
         if default is None: default=DT.now()
         self.blob_modification_time = default
+        self.save()
     #
     latex_time = models.DateTimeField(_('time of last run of latex'),
                                       default=None, null=True, blank=True)
     def latex_time_update(self, default=None):
         if default is None: default=DT.now()
         self.latex_time = default
+        self.save()
     #
     # see description in the `permission` section of the documentation
     latex_macros_private = models.TextField(max_length=1000, blank=True,

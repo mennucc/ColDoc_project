@@ -114,12 +114,16 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     def blob_modification_time_update(self, default=None):
         if default is None: default=DT.now()
         self.blob_modification_time = default
+        self.save()
+        self.coldoc.blob_modification_time_update(default)
     #
     latex_time = models.DateTimeField(_('time of last run of latex'),
                                       default=None, null=True, blank=True)
     def latex_time_update(self, default=None):
         if default is None: default=DT.now()
         self.latex_time = default
+        self.save()
+        self.coldoc.latex_time_update(default)
     # blank means that no error occoured
     latex_return_codes = models.CharField(max_length=2000, blank=True)
     #
