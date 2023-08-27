@@ -738,12 +738,16 @@ def dedup_html(src, options):
     return replacements
 
 _math_replacement_table = [
+    # these do not accept tab characters
     (r'\\\(', '\ue000'),
     (r'\\\)', '\ue001'),
     (r'\\\[', '\ue002'),
     (r'\\\]', '\ue003'),
-    (r'\\begin{(equation|array|align|eqnarray|gather)(\*?})', '\ue004'),
-    (r'\\end{(equation|array|align|eqnarray|gather)(\*?})' , '\ue005'),
+    (r'\\begin{(equation|gather|math|displaymath)(\*?})', '\ue004'),
+    (r'\\end{(equation|gather|math|displaymath)(\*?})' , '\ue005'),
+    # these accept tab characters
+    (r'\\begin{(align|eqnarray)(\*?})', '\ue006'),
+    (r'\\end{(align|eqnarray)(\*?})' , '\ue007'),
 ]
 
 def _replace_math_delimiters(s):
@@ -768,20 +772,25 @@ def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
     s = re.sub(r'\s+',' ',s)
     #
     s = _replace_math_delimiters(s)
-    z = r'([\ue000\ue001\ue002\ue003\ue004\ue005])'
+    # split at replacement characters
+    z = r'([' +  ''.join(a[1] for a in _math_replacement_table) + r'])'
     fl = re.split(z, s)
     #
-    mathmode = False
+    mathmode = accepttab = False
     S = []
     for j in fl:
         j = j.strip()
         if len(j) == 1:
             o = ord(j)
-            if o >= 0xe00 and o <= 0xe006:
+            if o >= 0xE000 and o <= 0xF8FF:
                 mathmode = not ( o % 2 )
+                accepttab = ( o == 0xE006)
                 continue
         if mathmode:
-            S.append( r'\(' + j + r'\)')
+            if accepttab:
+                S.append( r'\begin{eqnarray*}' + j + r'\end{eqnarray*}')
+            else:
+                S.append( r'\(' + j + r'\)')
         elif len(j) <= 16:
             S.append(j)
         else:
