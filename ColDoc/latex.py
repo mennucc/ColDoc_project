@@ -26,7 +26,7 @@ Command help:
        all of the above
 """)
 
-import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm
+import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm, functools, datetime, zoneinfo
 
 
 from os.path import join as osjoin
@@ -1094,17 +1094,26 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_
     if uuid is None:
         logger.warning('Assuming root_uuid = 001')
         uuid = '001'
-    uuid_, uuid_dir, metadata = ColDoc.utils.resolve_uuid(uuid=uuid, uuid_dir=None,
-                                                   blobs_dir = blobs_dir,
-                                                   coldoc = coldoc,
-                                                   metadata_class=metadata_class)
+    #
+    from ColDoc.utils import recurse_tree
+    blobs = []
+    def action(uuid, metadata, branch):
+        if metadata.environ in environments_we_wont_latex:
+            logger.log(log_level, 'Cannot `latex` environ %r , UUID = %r'%(metadata.environ, uuid,))
+        else:
+            blobs.append(metadata)
+        return True
+    load_by_uuid = functools.partial(metadata_class.load_by_uuid, coldoc=coldoc)
+    recurse_tree(load_by_uuid, action, uuid)
+    #
+    utc = zoneinfo.ZoneInfo('UTC')
+    then = datetime.datetime(1900, 1 , 1, tzinfo=utc)
+    blobs.sort(key = lambda x : (x.latex_time or then ))
     #
     ret = True
-    if metadata.environ in environments_we_wont_latex:
-        logger.log(log_level, 'Cannot `latex` environ %r , UUID = %r'%(metadata.environ, uuid,))
-    else:
+    for metadata in blobs:
         try:
-            r = latex_uuid(blobs_dir, uuid=uuid, metadata=metadata, lang=lang, warn=warn,
+            r = latex_uuid(blobs_dir, uuid=metadata.uuid, metadata=metadata, lang=lang, warn=warn,
                            fork_class=fork_class,
                            options=options)
             r = all(r.values())
@@ -1113,10 +1122,6 @@ def latex_tree(blobs_dir, uuid=None, lang=None, warn=False, options={}, verbose_
             # when using sqlite for database, sometimes the database is locked and latex_uuid fails
             logger.exception(" while compiling %r ",uuid)
             ret = False
-    for u in metadata.get('child_uuid'):
-        logger.debug('moving down from node %r to node %r',uuid,u)
-        r = latex_tree(blobs_dir, uuid=u, lang=lang, warn=warn, options=options, fork_class=fork_class)
-        ret = ret and r
     return ret
 
 
