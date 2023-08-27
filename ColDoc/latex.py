@@ -806,7 +806,9 @@ def convert_html_to_text(IN, OUT, blobs_dir, uuid, lang, options):
                 a , b = l[:2]
                 a = a.strip()
                 k = a + b
-                if S and (len(k)+len(S[-1])) <= maxline:
+                if S and not a:
+                    S[-1] += b
+                elif S and (len(k)+len(S[-1])) <= maxline:
                     S[-1] += (' ' + k)
                 else:
                     S.append(k)
