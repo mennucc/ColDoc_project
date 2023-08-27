@@ -1,0 +1,70 @@
+
+\section{test of different ways to compile math}
+
+inline
+$
+   \cos  \sin \\ \tan  \exp
+$
+end
+
+math
+\begin{math}
+  \cos \\ \sin
+\end{math}
+end
+
+displayed
+\[
+  \cos\\ \sin 
+\]
+end
+
+
+displaymath
+\begin{displaymath}
+  \cos\\ \sin
+\end{displaymath}
+end
+
+
+equation
+\begin{equation}
+  \cos\\ \sin
+\end{equation}
+end
+
+gather
+\begin{gather}
+   \cos + \sin \\ \tan + \exp
+\end{gather}
+end
+
+These accept tabulation
+
+array
+\[\begin{array}[h]{cc}
+  \cos & \sin \\ \tan & \exp
+\end{array}\]
+end
+
+align
+\begin{align}
+  \cos & \sin \\ \tan & \exp
+\end{align}
+end
+
+
+eqnarray
+\begin{eqnarray}
+  \label{eq:adff}
+  \cos & \sin \\ \tan & \exp
+\end{eqnarray}
+end
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: "paper"
+%%% TeX-engine: xetex
+%%% End:
