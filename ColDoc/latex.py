@@ -1231,20 +1231,22 @@ def main_by_args(args,options):
     else:
         UUID = '001'
     #
+    fork_class = options.get('fork_class', nofork_class)
+    #
     ret = True
     if argv[0] == 'blob':
-        ret = latex_uuid(blobs_dir, uuid=UUID, lang=lang, options=options)
+        ret = latex_uuid(blobs_dir, uuid=UUID, lang=lang, options=options, fork_class=fork_class)
         ret = all(ret.values())
     elif argv[0] == 'tree':
-        ret = latex_tree(blobs_dir, uuid=UUID, lang=lang, options=options)
+        ret = latex_tree(blobs_dir, uuid=UUID, lang=lang, options=options, fork_class=fork_class)
     elif argv[0] == 'main_private':
-        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private')[0]
+        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private', fork_class=fork_class)[0]
     elif argv[0] == 'main_public':
-        ret = latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public')[0]
+        ret = latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public', fork_class=fork_class)[0]
     elif argv[0] == 'all':
-        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private')[0]
-        ret &= latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public')[0]
-        ret &= latex_tree(blobs_dir, uuid=UUID, lang=lang, options=options)
+        ret = latex_main(blobs_dir, uuid=UUID, lang=lang, options=options, access='private', fork_class=fork_class)[0]
+        ret &= latex_anon(coldoc_dir, uuid=UUID, lang=lang, options=options, access='public', fork_class=fork_class)[0]
+        ret &= latex_tree(blobs_dir, uuid=UUID, lang=lang, options=options, fork_class=fork_class)
     else:
         sys.stderr.write('Unknown command, see --help')
         return False

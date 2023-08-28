@@ -85,6 +85,10 @@ def main(argv):
     # read options
     options = _prepare_latex_options(None, coldoc_dir, blobs_dir, coldoc)
     options['coldoc'] = coldoc
+    #
+    import ColDocDjango.utils
+    options['fork_class'] = ColDocDjango.utils.get_django_fork_class()
+    #
     ### normalzile URL, add path
     url = args.url_UUID
     p =  urllib.parse.urlparse(url)
