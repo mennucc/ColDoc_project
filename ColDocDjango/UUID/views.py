@@ -93,18 +93,7 @@ from ColDoc.utils import iso3lang2iso2
 from ColDocDjango.utils import convert_latex_return_codes, latex_error_fix_line_numbers, build_hreflang_links
 from ColDocDjango.middleware import redirect_by_exception
 
-import coldoc_tasks.task_utils
-
-def _fork_class_callback(f):
-    if f.fork_type in ('simple',) and  settings.CLOSE_CONNECTION_ON_FORK:
-        logger.critical('Using %s forks for subprocesses , is incompatible with certain databases',
-                        f.fork_type)
-
-fork_class_default = \
-    coldoc_tasks.task_utils.choose_best_fork_class(getattr(settings,'COLDOC_TASKS_INFOFILE',None),
-                                                   getattr(settings,'COLDOC_TASKS_CELERYCONFIG',None),
-                                                   callback=_fork_class_callback)
-
+fork_class_default = ColDocDjango.utils.get_django_fork_class()
 
 
 def iso3lang2word(*v , **k):

@@ -298,3 +298,17 @@ def build_hreflang_links(path, view_ext, langs, CDlangs=None):
         if l2:
             a.append( (l2, path + l ) )
     return a
+
+def _fork_class_callback(f):
+    if f.fork_type in ('simple',) and  settings.CLOSE_CONNECTION_ON_FORK:
+        logger.critical('Using %s forks for subprocesses , is incompatible with certain databases',
+                        f.fork_type)
+
+
+def get_django_fork_class():
+    #
+    import coldoc_tasks.task_utils
+    #
+    return    coldoc_tasks.task_utils.choose_best_fork_class(getattr(settings,'COLDOC_TASKS_INFOFILE',None),
+                                                             getattr(settings,'COLDOC_TASKS_CELERYCONFIG',None),
+                                                             callback=_fork_class_callback)
