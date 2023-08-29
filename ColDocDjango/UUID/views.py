@@ -2437,7 +2437,9 @@ def index(request, NICK, UUID):
                             see = ''
                         key = _math_to_unicode_convert(key, math_to_unicode)
                         value = _math_to_unicode_convert(value, math_to_unicode)
-                        index_list.append( (key, see, value) )
+                        kk = (key, see, value)
+                        if kk not in index_list:
+                            index_list.append( kk )
             except:
                 logger.exception('while index')
     else:
