@@ -2423,7 +2423,12 @@ def index(request, NICK, UUID):
                 if len(i_):
                     math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
                     _math_to_unicode_convert = ColDocDjango.utils.math_to_unicode_convert
+                    from ColDoc.utils import re_index_lang
                     for E in i_:
+                        l = re_index_lang.findall(E.key)
+                        l = l[0] if l else ''
+                        if l and l not in llll:
+                            continue 
                         parsed = json.loads(E.second_value)
                         sortkey, key, see, value, text_class = parsed
                         if see in ('see', 'seealso', 'see also' ) and value:
