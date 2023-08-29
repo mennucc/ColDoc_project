@@ -53,6 +53,7 @@ from django.utils.translation import gettext, gettext_lazy, gettext_noop
 from django.utils.text import format_lazy
 from django.utils.functional import lazy
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 
 full_escape_translate_lazy = lazy ( lambda s : py_html_escape(gettext_lazy (s ) , quote=True) , str )
 full_escape_lazy = lazy ( lambda s : py_html_escape(s , quote=True) , str )
@@ -106,7 +107,7 @@ def iso3lang2word_H(*v , **k):
     return gettext_lazy(iso3lang2word_untranslated(*v, **k))
 
 
-from .models import DMetadata, DColDoc, uuid_replaced_by
+from .models import DMetadata, ExtraMetadata, DColDoc, uuid_replaced_by
 
 from .shop import encoded_contract_to_buy_permission, can_buy_permission
 
@@ -2398,6 +2399,42 @@ def index(request, NICK, UUID):
                     '?lang=%s&ext=%s'%(ll,blob_ext)
                 all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl, iso3lang2iso2(ll) or '' ))
             get_view_md5_url =  django.urls.reverse('UUID:md5', kwargs ={'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW } )
+            # load biblio and index stuff
+            biblio_list = []
+            index_list = []
+            try:
+                n =  osjoin(blobs_dir,'main_' + llll[0] + '_plastex.paux')
+                if os.path.isfile(n):
+                    _biblio = pickle.load(open(n,'rb'))
+                    _bibitems = _biblio.get('_bibitems', {})
+                    _bibcites = _biblio.get('_bibcites', {})
+                    i_ = ExtraMetadata.objects.filter(Q(key__contains='M_cite') &  Q(blob=metadata) & Q(blob__coldoc=coldoc))
+                    for E in i_:
+                        v = E.value
+                        v = v.rstrip('}').lstrip('{')
+                        if v in _bibitems:
+                            n = _bibcites.get(v)
+                            m = _bibitems.get(v)[0]
+                            biblio_list.append( (n, m ))
+            except:
+                logger.exception('while biblio')
+            try:
+                i_ = ExtraMetadata.objects.filter(Q(key__contains='M_index') &  Q(blob=metadata) & Q(blob__coldoc=coldoc))
+                if len(i_):
+                    math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
+                    _math_to_unicode_convert = ColDocDjango.utils.math_to_unicode_convert
+                    for E in i_:
+                        parsed = json.loads(E.second_value)
+                        sortkey, key, see, value, text_class = parsed
+                        if see in ('see', 'seealso', 'see also' ) and value:
+                            see = ', ' + _(see)
+                        else:
+                            see = ''
+                        key = _math_to_unicode_convert(key, math_to_unicode)
+                        value = _math_to_unicode_convert(value, math_to_unicode)
+                        index_list.append( (key, see, value) )
+            except:
+                logger.exception('while index')
     else:
         blobcontenttype = 'image' if (blob_ext in ColDoc.config.ColDoc_show_as_image)  else 'other'
         file = html = escapedfile = ''
