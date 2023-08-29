@@ -319,11 +319,7 @@ def pdfframe(request, NICK, subpath=None):
     MAIN_CONTAINER_CLASS = "container-fluid"
     return render(request, 'pdfframe.html', locals() )
 
-def _math_to_unicode_convert(value, math_to_unicode):
-    if value and '\\' in value:
-        for c,r in math_to_unicode:
-            value = re.sub(c,r,value)
-    return value
+_math_to_unicode_convert = ColDocDjango.utils.math_to_unicode_convert
 
 
 def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):

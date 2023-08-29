@@ -222,6 +222,12 @@ def load_latex_to_unicode_resub(coldoc_dir):
             logger.exception('while loading %r', a)
     return []
 
+def math_to_unicode_convert(value, math_to_unicode):
+    " use patterns obtained via `load_latex_to_unicode_resub` on `value` "
+    if value and '\\' in value:
+        for c,r in math_to_unicode:
+            value = re.sub(c,r,value)
+    return value
 
 #################### parse for labels
 
