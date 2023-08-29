@@ -171,8 +171,10 @@ def get_email_for_user(user):
         email = user.email
     return email
 
+###################
 
 def load_unicode_to_latex(coldoc_dir):
+    " math_to_unicode.json as dict unicode -> latex"
     f = osjoin(coldoc_dir, 'math_to_unicode.json')
     if os.path.isfile(f):
         try:
@@ -181,6 +183,45 @@ def load_unicode_to_latex(coldoc_dir):
         except:
             logger.exception('while loading %r',f)
     return {}
+
+def load_latex_to_unicode(coldoc_dir):
+    " math_to_unicode.json as dict latex -> unicode"
+    f = osjoin(coldoc_dir, 'math_to_unicode.json')
+    if os.path.isfile(f):
+        try:
+            d = json.load(open(f))
+            return d
+        except:
+            logger.exception('while loading %r',f)
+    return {}
+
+
+@functools.lru_cache()
+def _load_math_to_unicode_cached(file_, mtime):
+    " math_to_unicode.json as patterns for re.sub"
+    b = json.load(open(file_))
+    if isinstance(b,dict):
+        b = b.items()
+    l = []
+    ok = re.compile(r'\\[a-zA-Z]+')
+    for k,v in b:
+        # only a proper LaTeX command can be accepted
+        assert ok.fullmatch(k), k
+        k = re.compile( '(\\' + k + r')([^a-zA-Z])' )
+        v = chr(v) + r'\2'
+        l.append( (k,v) )
+    return l
+
+def load_latex_to_unicode_resub(coldoc_dir):
+    " math_to_unicode.json as list of pairs (pattern, repl) for re.sub"
+    a = osjoin(coldoc_dir,'math_to_unicode.json')
+    if os.path.isfile(a):
+        try:
+            return _load_math_to_unicode_cached(a, os.path.getmtime(a))
+        except:
+            logger.exception('while loading %r', a)
+    return []
+
 
 #################### parse for labels
 
