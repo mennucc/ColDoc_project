@@ -319,10 +319,17 @@ def pdfframe(request, NICK, subpath=None):
     MAIN_CONTAINER_CLASS = "container-fluid"
     return render(request, 'pdfframe.html', locals() )
 
+def _math_to_unicode_convert(value, math_to_unicode):
+    if value and '\\' in value:
+        for c,r in math_to_unicode:
+            value = re.sub(c,r,value)
+    return value
+
 
 def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):
     NICK = coldoc.nickname
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs', NICK)
+    math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
     blobs_dir = osjoin(coldoc_dir,'blobs')
     accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
     cookie = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
@@ -356,27 +363,17 @@ def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):
                                       text_class + ' font-italic' ))
                 del uuidlang_index_dict[kk]
             #
-            text_list.append((uuid, lang, link, link_class, result.text, text_class))
+            value = _math_to_unicode_convert(result.text, math_to_unicode)
+            #
+            text_list.append((uuid, lang, link, link_class, value, text_class))
     return text_list
-
-def _load_math_to_unicode(coldoc_dir):
-    a = osjoin(coldoc_dir,'math_to_unicode.json')
-    try:
-        if os.path.isfile(a):
-            b = json.load(open(a))
-            if isinstance(b,dict):
-                b = b.items()
-            return [ (k+' ',chr(v)+' ') for k,v in b  ]
-    except:
-        logger.exception('while loading %r', a)
-    return []
 
 def bookindex(request, NICK):
     if not slug_re.match(NICK):
         return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
     coldoc = DColDoc.objects.filter(nickname = NICK).get()
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
-    math_to_unicode = _load_math_to_unicode(coldoc_dir)
+    math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
     #
     lang = request.GET.get('lang')
     if lang is not None and not lang_re.match(lang):
@@ -415,12 +412,8 @@ def bookindex(request, NICK):
             continue
         sortkey, key, see, value, text_class = parsed
         # convert our special macros to unicode, since these are usually not known to mathjax
-        if '\\' in key:
-            for c,r in math_to_unicode:
-                key = key.replace(c,r)
-        if value and  '\\' in value:
-            for c,r in math_to_unicode:
-                value = value.replace(c,r)
+        key = _math_to_unicode_convert(key, math_to_unicode)
+        value = _math_to_unicode_convert(value, math_to_unicode)
         #
         L = indexes_by_lang.setdefault(language, {})
         lis = L.setdefault( (sortkey, key), [])
@@ -506,7 +499,7 @@ def search(request, NICK):
     CDlangs = coldoc.get_languages()
     #
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
-    math_to_unicode = _load_math_to_unicode(coldoc_dir)
+    math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
     #
     user = request.user
     user.associate_coldoc_blob_for_has_perm(coldoc, None)
@@ -549,12 +542,8 @@ def search(request, NICK):
             except ValueError:
                 continue
             # convert personal macros
-            if '\\' in key:
-                for c,r in math_to_unicode:
-                    key = key.replace(c,r)
-            if value and  '\\' in value:
-                for c,r in math_to_unicode:
-                    value = value.replace(c,r)
+            key = _math_to_unicode_convert(key, math_to_unicode)
+            value = _math_to_unicode_convert(value, math_to_unicode)
             #
             if lang:
                 keylist = uuidlang_index_dict.setdefault( (E.blob.uuid,lang), [])
