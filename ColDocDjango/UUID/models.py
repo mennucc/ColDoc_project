@@ -339,7 +339,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     def items2(self):
         " yields key,[(a1,a2),(b1,b2),(c1,c2),...] "
         seen = set()
-        for key in ExtraMetadata.objects.filter(blob=self).values_list('key', flat=True):
+        for key in ExtraMetadata.objects.filter(blob=self).exclude(second_value=None).values_list('key', flat=True):
             if key not in seen:
                 yield key, ExtraMetadata.objects.filter(blob=self, key=key).exclude(second_value=None).values_list('value', 'second_value')
             seen.add(key)
@@ -400,7 +400,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         #key == 'child_uuid':
         yield 'child_uuid', UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid).values_list('child',flat=True)
         seen = set()
-        for key in ExtraMetadata.objects.filter(blob=self).values_list('key', flat=True):
+        for key in ExtraMetadata.objects.filter(blob=self).filter(second_value=None).values_list('key', flat=True):
             if key not in seen:
                 yield key, ExtraMetadata.objects.filter(blob=self, key=key).filter(second_value=None).values_list('value', flat=True)
             seen.add(key)
