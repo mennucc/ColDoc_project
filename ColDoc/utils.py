@@ -694,7 +694,13 @@ def metadata_html_items(metadata, nick):
                     link="/UUID/{nick}/{val}".format(val=val,nick=nick)
                 elif  key ==  'extension' :
                     link="/UUID/{nick}/{UUID}/?ext={val}".format(UUID=metadata.uuid,nick=nick,val=val)
-                vallik.append((val,link))
+                vallik.append((val,None,link))
+            yield (key,vallik)
+        for key,vals in metadata.items2():
+            link=''
+            vallik = []
+            for val1,val2 in vals:
+                vallik.append((val1,val2,link))
             yield (key,vallik)
 
 ###############

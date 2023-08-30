@@ -296,9 +296,10 @@ const use_CodeMirror = false;
         {% for key,vals in metadata.htmlitems %}
         <li>  {{ key  }}
           <ul>
-            {% for val,link in vals %}
+            {% for val,val2,link in vals %}
             <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
-                <code>{{ val }}</code>
+                <code class="bg-light">{{ val }}</code>
+		{% if val2 %} / <code class="bg-light">{{ val2 }}</code>    {% endif %}
                 {% if link %}  </a>   {% endif %}
               {% endfor %}
 	    </li>
