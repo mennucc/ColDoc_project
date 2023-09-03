@@ -551,7 +551,7 @@ def search(request, NICK):
             if see:
                 see = _(see)
             index_list.append( (language, key, E.blob.uuid, see, value, text_class ) )
-        index_list.sort()
+        index_list.sort(key=lambda x:x[:2])
     else:
         index_list = []
     #
