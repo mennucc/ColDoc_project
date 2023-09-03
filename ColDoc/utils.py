@@ -1433,6 +1433,13 @@ def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch, problems):
 
 ############################
 
+def name_of_rangeindex(key):
+    l = re_index_lang.findall(key)
+    if l:
+        return 'rangeindexL' + l[0]
+    else:
+        return 'rangeindex'
+
 
 def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignore_uuid=True, load_uuid=None, options=None):
     " reparse a blob to extract and update all metadata ; `warn(s,a)` is a function where `s` is a translatable string, `a` its arguments"
@@ -1447,7 +1454,24 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
     parsed_back_map, parsed_metadata, errors = reparse_metadata(filename, metadata, lang, blobs_dir, options, load_uuid=load_uuid)
     for s,a in errors:
         warn(s, a)
-    #
+    # delete index ranges
+    for key, value in metadata.items2():
+        if 'M_index' in key:
+            for v1, v2 in value:
+                try:
+                    parsed = json.loads(v2)
+                    see = parsed[2] or ''
+                    if '(' in see:
+                        mk = name_of_rangeindex(key)
+                        # to be consistent with standard indexing, it should be
+                        # ik = '{' + parsed[1] + '|—}'
+                        ik = parsed[1]
+                        def delaction(uuid2, metadata2, branch):
+                            metadata2.delete(mk, ik)
+                            return True
+                        recurse_tree(load_uuid, delaction, metadata.uuid)
+                except:
+                    logger.exception('when deleting index range %r', key)
     # insert changes regarding children
     old_children = metadata.get('child_uuid')
     old_children_set = set(old_children)
@@ -1462,6 +1486,7 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
             #else:
             metadata.add('child_uuid',childuuid)
             new_children_set.add(childuuid)
+        metadata.save()
     else:
         new_children_set = set(parsed_back_map)
     #
@@ -1502,6 +1527,8 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
         for key in metadata.keys():
             if key.startswith('M_') or key.startswith('S_'):
                 del metadata[key]
+        index_start = set()
+        index_end   = set()
         for key, value in parsed_metadata:
           try:
             if key == 'M_uuid':
@@ -1515,6 +1542,14 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
                     parsed = parse_index_arg(value)
                     second_value = json.dumps(parsed)
                     metadata.add2(key, value, second_value)
+                    # store index key and language for range processing
+                    l = re_index_lang.findall(key)
+                    l = l[0] if l else ''
+                    see = parsed[2] or ''  # sortkey, key, see, value, text_class = parsed
+                    if '(' in see:
+                        index_start.add( (parsed[1],l) )
+                    if ')' in see:
+                        index_end.add( (parsed[1],l) )
                 except:
                     logger.exception('While parsing index entry, key %r value %r', key, value)
                     metadata.add(key,value)
@@ -1529,6 +1564,29 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
                 logger.exception(a % o)
                 warn(a, o)
     metadata.save()
+    # add index ranges
+    for kl in index_start:
+        if kl not in index_end:
+            warn(_('Index range starts here but does not end here: %r %r '), kl)
+        else:
+            index_end.discard(kl)
+            try:
+                # index key and language
+                ik, il = kl
+                # metadata key
+                mk = name_of_rangeindex(ik)
+                # sortkey, key, see, value, text_class = parsed
+                v2 = json.dumps( (ik, ik, '—', '', '') )
+                def action(uuid2, metadata2, branch2):
+                    metadata2.add2(mk, ik, v2)
+                    metadata2.save()
+                    return True
+                recurse_tree(load_uuid, action, metadata.uuid)
+            except:
+                logger.exception('when adding index range %r', kl) 
+    for kl in index_end:
+        warn(_('Index range ends here but does not start here: %r %r'), kl)
+
 
 ############################
 
