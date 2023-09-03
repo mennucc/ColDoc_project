@@ -534,8 +534,9 @@ def search(request, NICK):
                 l = re_index_lang.findall(E.key)
                 lang =  l[0] if l else ''
                 language = ('/' + l[0]) if l else ''
-                sortkey, key, see, value, text_class = parse_index_arg(E.value)
-            except ValueError:
+                sortkey, key, see, value, text_class = json.loads(E.second_value)
+            except:
+                logger.exception('when loading index key %r json %r', E.key, E.second_value)
                 continue
             # convert personal macros
             key = _math_to_unicode_convert(key, math_to_unicode)
