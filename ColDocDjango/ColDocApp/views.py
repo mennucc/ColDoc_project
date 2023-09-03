@@ -385,7 +385,7 @@ def bookindex(request, NICK):
     user_can_view = lambda extra :  user.has_perm (  UUID_view_view ,  extra.blob )
     #user_can_blob = lambda extra :  user.has_perm (  UUID_view_blob ,  extra.blob )
     
-    i_ = ExtraMetadata.objects.filter(Q(key__contains='M_index') & 
+    i_ = ExtraMetadata.objects.filter(( Q(key__contains='M_index') | Q(key__contains='rangeindex')) & 
                                               Q(blob__coldoc=coldoc))
     if not is_editor:
         i_ = filter(user_can_view, i_)
@@ -420,6 +420,8 @@ def bookindex(request, NICK):
                 marker = _(see)
                 refkey = value
                 text_class = 'font-italic'
+            elif see == '—':
+                marker = '—'
             elif see == '(':
                 marker = _('%(uuid)s and following') % {'uuid' : E.blob.uuid }
             elif see == ')':
@@ -525,7 +527,7 @@ def search(request, NICK):
     #
     uuidlang_index_dict = {}
     if True :
-        i_ = ExtraMetadata.objects.filter(Q(key__contains='M_index') & 
+        i_ = ExtraMetadata.objects.filter(( Q(key__contains='M_index') | Q(key__contains='rangeindex')) &
                                                   Q(blob__coldoc=coldoc) &
                                                   Q(value__contains=searchtoken))
         index_list = []

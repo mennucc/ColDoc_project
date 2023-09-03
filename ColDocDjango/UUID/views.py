@@ -2419,7 +2419,8 @@ def index(request, NICK, UUID):
             except:
                 logger.exception('while biblio')
             try:
-                i_ = ExtraMetadata.objects.filter(Q(key__contains='M_index') &  Q(blob=metadata) & Q(blob__coldoc=coldoc))
+                i_ = ExtraMetadata.objects.filter(( Q(key__contains='M_index') | Q(key='rangeindex'))
+                                                  &  Q(blob=metadata) & Q(blob__coldoc=coldoc))
                 if len(i_):
                     math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
                     _math_to_unicode_convert = ColDocDjango.utils.math_to_unicode_convert
