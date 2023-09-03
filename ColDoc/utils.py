@@ -1477,11 +1477,17 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
     if metadata.environ in environments_we_wont_latex:
         metadata.save()
         return
+    # store list of old metadata, to compute differences
     old_metadata_set = set()
     for key, value in metadata.items():
         if key.startswith('M_') or key.startswith('S_'):
             for v in value:
                 old_metadata_set.add( (key,v) )
+    for key, value in metadata.items2():
+        if key.startswith('M_') or key.startswith('S_'):
+            for v1, v2 in value:
+                old_metadata_set.add( (key,v1) )
+    #
     if ignore_uuid:
         new_metadata_set = set((k,v) for k,v in parsed_metadata if k!='M_uuid')
     else:
