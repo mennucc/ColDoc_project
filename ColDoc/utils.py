@@ -1574,7 +1574,9 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
                 # index key and language
                 ik, il = kl
                 # metadata key
-                mk = name_of_rangeindex(ik)
+                mk = 'rangeindex'
+                if il:
+                    mk += 'L' + il
                 # sortkey, key, see, value, text_class = parsed
                 v2 = json.dumps( (ik, ik, '—', '', '') )
                 def action(uuid2, metadata2, branch2):
