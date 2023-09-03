@@ -1559,14 +1559,18 @@ def ajax_views(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uui
                 request.session.save()
             if b is not None:
                 fork1,fork2 = pickle.loads(base64.a85decode(b))
-        #
-            if fork1 is not None:
-                res1 = fork1.wait()
-                __relatex_msg(res1, all_messages)
+                fork1,fork2,fork_reparse1,fork_reparse2 = pickle.loads(base64.a85decode(b))
             #
-            if fork2 is not None:
-                res2 = fork1.wait()
-                __relatex_new_msg(res2, all_messages)
+            for fork in (fork1, fork2):
+                if fork is not None:
+                    try:
+                        res = fork.wait()
+                        __relatex_msg(res, all_messages)
+                    except Exception as e:
+                        logger.exception('while managing latex job')
+                        all_messages.append( (messages.ERROR, 'while latex : ' + py_html_escape(str(e))  ) )
+            #
+            #
         except RuntimeWarning as e:
             logger.warning(str(e))
             all_messages.append( (messages.WARNING, py_html_escape(str(e))  ) )
