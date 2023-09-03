@@ -1352,11 +1352,11 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
     fork1 = fork2 = None
     #
     from ColDoc.latex import environments_we_wont_latex
-    from ColDoc.utils import reparse_blob
     #
     reparse_options = {'unicode_to_latex' : load_unicode_to_latex(coldoc_dir)}
     load_uuid = functools.partial(DMetadata.load_by_uuid, coldoc=coldoc)
     #
+    fork_reparse2 = None
     if split_selection_:
         from helper import add_blob
         addsuccess, addmessage, addnew_uuid = \
@@ -1385,7 +1385,7 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
                                          ext = ext_, lang = lang_,
                                          metadata_class=DMetadata, coldoc=NICK)
             # parse it for metadata
-            wl = reparse_blob(addfilename, addmetadata, lang, blobs_dir, load_uuid=load_uuid, options=reparse_options)
+            fork_reparse2, wl = _forked_reparse_blob(addfilename, addmetadata, lang, blobs_dir, load_uuid=load_uuid, options=reparse_options)
             for msg, args in wl:
                 msg =  _(msg) % args
                 all_messages.append( ( messages.INFO, _('Metadata change in new blob') + ': ' + msg) )
@@ -1397,7 +1397,7 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
                 __relatex_new_msg(ret, all_messages)
     #
     # parse it to refresh metadata (after splitting)
-    wl = reparse_blob(filename, metadata, lang, blobs_dir, load_uuid=load_uuid, options=reparse_options)
+    fork_reparse1, wl = _forked_reparse_blob(filename, metadata, lang, blobs_dir, load_uuid=load_uuid, options=reparse_options)
     for msg, args in wl:
         msg = _(msg) % args
         all_messages.append( (messages.INFO,  _('Metadata change in blob') + ': ' + msg) )
@@ -1473,7 +1473,7 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
     #
     if do_fork:
         a = 'compilation_in_progress_' + metadata.uuid
-        request.session[a] = base64.a85encode(pickle.dumps((fork1,fork2))).decode('ascii')
+        request.session[a] = base64.a85encode(pickle.dumps((fork1, fork2, fork_reparse1 , fork_reparse2))).decode('ascii')
         request.session.save()
     #
     if the_action == 'compile_no_reload' :
@@ -1552,13 +1552,12 @@ def ajax_views(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uui
     all_messages = []
     a = 'compilation_in_progress_' + metadata.uuid
     if a in  request.session:
-        fork1 = fork2 = None
+        fork1 = fork2 = fork_reparse1 = fork_reparse2 = None
         try:
             with transaction.atomic():
                 b =  request.session.pop(a)
                 request.session.save()
             if b is not None:
-                fork1,fork2 = pickle.loads(base64.a85decode(b))
                 fork1,fork2,fork_reparse1,fork_reparse2 = pickle.loads(base64.a85decode(b))
             #
             for fork in (fork1, fork2):
@@ -1570,7 +1569,17 @@ def ajax_views(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uui
                         logger.exception('while managing latex job')
                         all_messages.append( (messages.ERROR, 'while latex : ' + py_html_escape(str(e))  ) )
             #
-            #
+            for fork, head in [(fork_reparse1, _('Metadata change in blob')),
+                                (fork_reparse2, _('Metadata change in new blob'))]:
+                if fork  is not None:
+                    try:
+                        wl = fork.wait()
+                        for msg, args in wl:
+                            msg =  _(msg) % args
+                            all_messages.append( (messages.INFO,  head + ': ' + msg) )
+                    except Exception as e:
+                        logger.exception('while reparsing')
+                        all_messages.append( (messages.ERROR, 'while reparsing : ' + py_html_escape(str(e))  ) )
         except RuntimeWarning as e:
             logger.warning(str(e))
             all_messages.append( (messages.WARNING, py_html_escape(str(e))  ) )
@@ -1746,6 +1755,18 @@ def _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, metadata, fork=False):
         fork.run(latex.latex_uuid, blobs_dir, metadata=metadata, options=options,
                  forked=fork.use_fork, fork_class=fork_class_default)
         return fork
+
+def _forked_reparse_blob(filename, metadata, lang, blobs_dir, load_uuid, options):
+    from ColDoc.utils import reparse_blob
+    do_fork = fork_class_default().can_fork()
+    if not do_fork:
+        return None, reparse_blob(filename, metadata, lang, blobs_dir, load_uuid=load_uuid, options=options)
+    fork = fork_class_default()
+    if settings.CLOSE_CONNECTION_ON_FORK and fork_class_default.fork_type in ('simple',) :
+        from django import db
+        db.close_old_connections()
+    fork.run(reparse_blob, filename, metadata, lang, blobs_dir, load_uuid=load_uuid, options=options)
+    return fork, []
 
 ##############################################################
 
