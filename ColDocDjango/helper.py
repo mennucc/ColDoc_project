@@ -540,9 +540,9 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
             except ColDocException:
                 pass
             else:
-                def warn(msg, args):
+                wl = reparse_blob(filename, metadata, lang, blobs_dir, act=act, options=reparse_options)
+                for msg, args in wl:
                     writelog( _('Parsing uuid %r lang %r : %s'), (uuid, lang, msg%args))
-                reparse_blob(filename, metadata, lang, blobs_dir, warn, act=act, options=reparse_options)
 
 
 def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):

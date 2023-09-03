@@ -1385,10 +1385,10 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
                                          ext = ext_, lang = lang_,
                                          metadata_class=DMetadata, coldoc=NICK)
             # parse it for metadata
-            def warn(msg, args):
+            wl = reparse_blob(addfilename, addmetadata, lang, blobs_dir, load_uuid=load_uuid, options=reparse_options)
+            for msg, args in wl:
                 msg =  _(msg) % args
                 all_messages.append( ( messages.INFO, _('Metadata change in new blob') + ': ' + msg) )
-            reparse_blob(addfilename, addmetadata, lang, blobs_dir, warn, load_uuid=load_uuid, options=reparse_options)
             # compile it
             if do_fork:
                 fork2 = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata, fork=True)
@@ -1397,10 +1397,10 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
                 __relatex_new_msg(ret, all_messages)
     #
     # parse it to refresh metadata (after splitting)
-    def warn(msg, args):
+    wl = reparse_blob(filename, metadata, lang, blobs_dir, load_uuid=load_uuid, options=reparse_options)
+    for msg, args in wl:
         msg = _(msg) % args
         all_messages.append( (messages.INFO,  _('Metadata change in blob') + ': ' + msg) )
-    reparse_blob(filename, metadata, lang, blobs_dir, warn, load_uuid=load_uuid, options=reparse_options)
     #
     if ext_ in  ('.tex', '.bib'):
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())

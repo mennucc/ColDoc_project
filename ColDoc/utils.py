@@ -1441,11 +1441,12 @@ def name_of_rangeindex(key):
         return 'rangeindex'
 
 
-def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignore_uuid=True, load_uuid=None, options=None):
-    " reparse a blob to extract and update all metadata ; `warn(s,a)` is a function where `s` is a translatable string, `a` its arguments"
-    if warn is None:
-        def warn(s,a):
-            logger.warning(s % a)
+def reparse_blob(filename, metadata, lang, blobs_dir,  act=True, ignore_uuid=True, load_uuid=None, options=None):
+    """ reparse a blob to extract and update all metadata ;
+    returns a list of `(s,a)`  where `s` is a translatable string, `a` its arguments """
+    warn_list = []
+    def warn(s,a):
+        warn_list.append((s,a))
     #
     options = options if options is not None else {}
     options.update(get_blobinator_args(blobs_dir))
@@ -1501,7 +1502,7 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
     from ColDoc.latex import environments_we_wont_latex
     if metadata.environ in environments_we_wont_latex:
         metadata.save()
-        return
+        return warn_list
     # store list of old metadata, to compute differences
     old_metadata_set = set()
     for key, value in metadata.items():
@@ -1588,6 +1589,8 @@ def reparse_blob(filename, metadata, lang, blobs_dir, warn=None, act=True, ignor
                 logger.exception('when adding index range %r', kl) 
     for kl in index_end:
         warn(_('Index range ends here but does not start here: %r %r'), kl)
+    #
+    return warn_list
 
 
 ############################
