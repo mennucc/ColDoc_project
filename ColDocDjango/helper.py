@@ -587,7 +587,7 @@ def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
     load_by_uuid = partial(DMetadata.load_by_uuid, coldoc=coldoc)
     load_by_uuid = lambda uuid: all_metadata[uuid]
     #
-    def actor(teh, seen, available, warn, problems, uuid, branch, *v , **k):
+    def actor(uuid, metadata, branch, teh, seen, available, warn, problems, *v , **k):
         if uuid in branch:
             s,a = _("loop detected along branch %r") , (branch+[uuid],)
             warn(s,a)

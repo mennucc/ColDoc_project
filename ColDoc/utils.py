@@ -1378,7 +1378,7 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
 
 def recurse_tree(load_metadata_by_uuid, action, uuid='001', seen=None, branch=None, problems=None):
     """ recurse tree starting from `uuid` , for each node call 
-    `action(uuid=uuid, metadata=metadata, branch=branch)` which should return a boolean.
+    `action(uuid, metadata, branch)` which should return a boolean.
     `load_metadata_by_uuid(uuid)` is a function that returns the metadata
     `recurse_tree` will return `and` of all return values of `action`
     """
@@ -1411,7 +1411,7 @@ def recurse_tree__(load_metadata_by_uuid, action, uuid, seen, branch, problems):
     b = copy.copy(branch)
     b.append(uuid)
     #
-    ret = action(uuid=uuid, metadata=metadata, branch=branch)
+    ret = action(uuid, metadata, branch)
     #
     if uuid not in seen:
         seen.add(uuid)
