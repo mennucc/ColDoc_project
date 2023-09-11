@@ -40,8 +40,11 @@ This program does some actions that `manage` does not. Possible commands:
     send_test_email TO
         ditto
     
-    create_text_catalogs COLDOC
+    create_text_catalogs
         recreate the text catalogs
+
+    recompute_order
+        recompute the order of blobs along the document
     
 """)
 
@@ -544,6 +547,28 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
                 for msg, args in wl:
                     writelog( _('Parsing uuid %r lang %r : %s'), (uuid, lang, msg%args))
 
+def recompute_order_in_document(coldoc_nick):
+    from ColDocApp.models import DColDoc
+    from ColDoc.utils import recurse_tree
+    from UUID.models import DMetadata
+    from functools import partial
+    #
+    coldoc = DColDoc.objects.get(nickname = coldoc_nick)
+    load_by_uuid = partial(DMetadata.load_by_uuid, coldoc=coldoc)
+    #
+    available = set(DMetadata.objects.filter(coldoc = coldoc)) #.values_list('id',flat=True))
+    seen_list = []
+    def action(uuid, metadata, branch, *v , **k):
+        seen_list.append(metadata)
+        available.discard(metadata)
+        return True
+    recurse_tree(load_by_uuid, action)
+    for nr, met in enumerate(seen_list):
+        met.order_in_document = nr
+        met.save()
+    for met in available:
+        met.order_in_document = 0x7fffffff
+        met.save()
 
 def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
     " returns `problems`, a list of problems found in tree; `warn(s,a)` is a function where `s` is a translatable string, `a` its arguments"
@@ -914,6 +939,7 @@ def main(argv):
                         required=(COLDOC_SITE_ROOT is None))
     parser.add_argument('--verbose','-v',action='count',default=0)
     if any([j in sys.argv for j in ( 'add_blob' , 'reparse_all' , 'check_tree' , 'list_authors' , 'gen_lang',\
+                                     'recompute_order',\
                                      'count_untranslated_chars', 'create_text_catalogs') ]):
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
@@ -1036,6 +1062,9 @@ does not contain the file `config.ini`
         return True
     elif argv[0] == 'create_text_catalogs':
         create_text_catalogs(COLDOC_SITE_ROOT, None, args.coldoc_nick)
+        return True
+    elif argv[0] == "recompute_order":
+        recompute_order_in_document(args.coldoc_nick)
         return True
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
