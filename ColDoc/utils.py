@@ -1590,6 +1590,9 @@ def reparse_blob(filename, metadata, lang, blobs_dir,  act=True, ignore_uuid=Tru
     for kl in index_end:
         warn(_('Index range ends here but does not start here: %r %r'), kl)
     #
+    if old_children_set != new_children_set:
+        from helper import recompute_order_in_document
+        recompute_order_in_document(metadata.coldoc.nickname)
     return warn_list
 
 
