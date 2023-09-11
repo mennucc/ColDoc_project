@@ -364,7 +364,7 @@ def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):
             text_list.append((uuid, lang, link, link_class, value, text_class))
     return text_list
 
-def _prepare_index(user, coldoc, lang):
+def _prepare_index(user, coldoc, lang, query_string = None):
     " prepare a database of index entries, keys are languages,  "
     coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',coldoc.nickname)
     math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
@@ -375,9 +375,12 @@ def _prepare_index(user, coldoc, lang):
     ## TODO should check if user has bought access to that blob
     user_can_view = lambda extra :  user.has_perm (  UUID_view_view ,  extra.blob )
     #user_can_blob = lambda extra :  user.has_perm (  UUID_view_blob ,  extra.blob )
-    
-    i_ = ExtraMetadata.objects.order_by('blob__order_in_document').filter(( Q(key__contains='M_index') | Q(key__contains='rangeindex')) & 
-                                              Q(blob__coldoc=coldoc))
+    #
+    query =  (Q(key__contains='M_index') | Q(key__contains='rangeindex')) &   Q(blob__coldoc=coldoc)
+    if query_string is not None:
+        query = query & Q(value__contains=query_string)
+    #
+    i_ = ExtraMetadata.objects.order_by('blob__order_in_document').filter(query)
     if not is_editor:
         i_ = filter(user_can_view, i_)
     #
