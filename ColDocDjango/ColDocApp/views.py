@@ -364,22 +364,13 @@ def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):
             text_list.append((uuid, lang, link, link_class, value, text_class))
     return text_list
 
-def bookindex(request, NICK):
-    if not slug_re.match(NICK):
-        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
-    coldoc = DColDoc.objects.filter(nickname = NICK).get()
-    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',NICK)
+def _prepare_index(user, coldoc, lang):
+    " prepare a database of index entries, keys are languages,  "
+    coldoc_dir = osjoin(settings.COLDOC_SITE_ROOT,'coldocs',coldoc.nickname)
     math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
     #
-    lang = request.GET.get('lang')
-    if lang is not None and not lang_re.match(lang):
-            raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
-    if lang and lang not in coldoc.get_languages():
-        messages.add_message(request, messages.WARNING, 'Invalid language' )
-    #
-    user = request.user
     user.associate_coldoc_blob_for_has_perm(coldoc, None)
-    is_editor = request.user.is_editor
+    is_editor = user.is_editor
     ## permissions
     ## TODO should check if user has bought access to that blob
     user_can_view = lambda extra :  user.has_perm (  UUID_view_view ,  extra.blob )
@@ -432,6 +423,20 @@ def bookindex(request, NICK):
         lis.append( (E.blob.uuid, marker, refkey, text_class,
                      (E.key+E.value) if is_editor else '',
                      ) )
+    return indexes_by_lang
+
+def bookindex(request, NICK):
+    if not slug_re.match(NICK):
+        return HttpResponse("Invalid ColDoc %r." % (NICK,), status=http.HTTPStatus.BAD_REQUEST)
+    coldoc = DColDoc.objects.filter(nickname = NICK).get()
+    #
+    lang = request.GET.get('lang')
+    if lang is not None and not lang_re.match(lang):
+            raise SuspiciousOperation("Invalid lang %r in query." % (lang,))
+    if lang and lang not in coldoc.get_languages():
+        messages.add_message(request, messages.WARNING, 'Invalid language' )
+    #
+    indexes_by_lang = _prepare_index(request.user, coldoc, lang)
     # if a language is specified, merge the "any language" indexes in it
     n_languages_before_merge = len(indexes_by_lang.keys())
     if lang in indexes_by_lang and '' in indexes_by_lang:
@@ -462,6 +467,8 @@ def bookindex(request, NICK):
               for (kk,vv) in I]
         index.append( (language, iso3lang2word(language) if language else nolanguage,
                        I) )
+    #
+    is_editor = request.user.is_editor
     #
     return render(request, 'bookindex.html',
                   {'coldoc':coldoc, 'NICK':coldoc.nickname,
