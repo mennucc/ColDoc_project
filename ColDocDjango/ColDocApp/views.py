@@ -537,35 +537,15 @@ def search(request, NICK):
     #
     uuidlang_index_dict = {}
     if True :
-        i_ = ExtraMetadata.objects.order_by('blob__order_in_document').filter(
-                                                  ( Q(key__contains='M_index') | Q(key__contains='rangeindex')) &
-                                                  Q(blob__coldoc=coldoc) &
-                                                  Q(value__contains=searchtoken))
+        L = _prepare_index(user, coldoc, None, query_string = searchtoken)
         index_list = []
-        for E in filter(user_can_view, i_):
-            try:
-                l = re_index_lang.findall(E.key)
-                lang =  l[0] if l else ''
-                language = ('/' + l[0]) if l else ''
-                sortkey, key, see, value, text_class = json.loads(E.second_value)
-            except:
-                logger.exception('when loading index key %r json %r', E.key, E.second_value)
-                continue
-            # convert personal macros
-            key = _math_to_unicode_convert(key, math_to_unicode)
-            value = _math_to_unicode_convert(value, math_to_unicode)
-            #
-            if lang:
-                keylist = uuidlang_index_dict.setdefault( (E.blob.uuid,lang), [])
-                keylist.append(key)
-            else:
-                for l in CDlangs:
-                    keylist = uuidlang_index_dict.setdefault( (E.blob.uuid,l), [])
-                    keylist.append(key)
-            if see:
-                see = _(see)
-            index_list.append( (language, key, E.blob.uuid, see, value, text_class ) )
-        index_list.sort(key=lambda x:x[:2])
+        for l in L:
+            l_ = ( '/ ' + l ) if l else l
+            for kk in L[l]:
+                Llkk = L[l][kk]
+                sortkey, key = kk
+                index_list.append( (l_, sortkey, key , Llkk ) )
+        index_list.sort(key=lambda x:x[:1])
     else:
         index_list = []
     #
