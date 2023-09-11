@@ -60,6 +60,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     # -) these are singled-value and are internal
     __single_valued = ('id', 'coldoc', 'uuid', 'environ', 'optarg', 'original_filename',
                        'latex_documentclass_choice', 'access',
+                       'order_in_document',
                        'creation_time','blob_modification_time','latex_time','latex_return_codes')
     # -) then there is 'author' that is a ManyToMany,
     # -) some fields cannot be changed or deleted
@@ -143,6 +144,9 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
     ]
     latex_documentclass_choice = models.CharField(_("documentclass used to compile"), max_length=15,
                                            choices=BLOB_DOCUMENTCLASS,   default='auto')
+    #
+    order_in_document = models.PositiveIntegerField(_('enumerates blobs in the order in which they appear in the document'),
+                                                    default=0x7fffffff )
     ####
     # these calls implement part of the interface `classes.MetadataBase`
     #
