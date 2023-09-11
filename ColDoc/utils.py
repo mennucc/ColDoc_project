@@ -1572,6 +1572,7 @@ def reparse_blob(filename, metadata, lang, blobs_dir,  act=True, ignore_uuid=Tru
         else:
             index_end.discard(kl)
             try:
+                p_id = metadata.id
                 # index key and language
                 ik, il = kl
                 # metadata key
@@ -1581,8 +1582,9 @@ def reparse_blob(filename, metadata, lang, blobs_dir,  act=True, ignore_uuid=Tru
                 # sortkey, key, see, value, text_class = parsed
                 v2 = json.dumps( (ik, ik, '—', '', '') )
                 def action(uuid2, metadata2, branch2):
-                    metadata2.add2(mk, ik, v2)
-                    metadata2.save()
+                    if metadata2.id != p_id:
+                        metadata2.add2(mk, ik, v2)
+                        metadata2.save()
                     return True
                 recurse_tree(load_uuid, action, metadata.uuid)
             except:
