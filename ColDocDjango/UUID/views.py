@@ -2423,7 +2423,11 @@ def index(request, NICK, UUID):
                 pdfurl = django.urls.reverse('UUID:pdf', kwargs={'NICK':NICK,'UUID':UUID}) +\
                     '?lang=%s&ext=%s'%(ll,blob_ext)
                 all_views.append(( ll, iso3lang2word_H(ll), html, pdfurl, iso3lang2iso2(ll) or '' ))
-            get_view_md5_url =  django.urls.reverse('UUID:md5', kwargs ={'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW } )
+            try:
+                k = {'NICK':NICK, "UUID":UUID, 'ACCESS':"undefined", 'FILE':VIEW }
+                get_view_md5_url =  django.urls.reverse('UUID:md5', kwargs=k )
+            except:
+                logger.exception(' while reversing md5 %r', k)
             # load biblio and index stuff
             biblio_list = []
             index_list = []
