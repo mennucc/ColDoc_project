@@ -226,13 +226,11 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             yield obj.key, obj.value
     #
     def save(self, *save_args, **save_kwargs):
-        for k in self.__internal_multiple_valued_keys:
-            v = getattr(self,k)
-            v = v.replace('\r','')
-            if v and v[-1] != '\n':
-                logger.warning('save: UUID %r key %r was missing final newline: %r',self.uuid,k,v)
-                v += '\n'
-            setattr(self,k, v)
+        if settings.DEBUG:
+            for k in self.__internal_multiple_valued_keys:
+                v = getattr(self, k)
+                if (v and v[-1] != '\n') or '\r' in v:
+                    logger.debug('save: UUID %r key %r missing final newline, or contains \\r: %r',self.uuid,k,v)
         #
         r = super().save(*save_args, **save_kwargs)
         #
