@@ -225,7 +225,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
         for obj in ExtraMetadata.objects.filter(blob=self):
             yield obj.key, obj.value
     #
-    def save(self):
+    def save(self, *save_args, **save_kwargs):
         for k in self.__internal_multiple_valued_keys:
             v = getattr(self,k)
             v = v.replace('\r','')
@@ -233,7 +233,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 logger.warning('save: UUID %r key %r was missing final newline: %r',self.uuid,k,v)
                 v += '\n'
             setattr(self,k, v)
-        r = super().save()
+        r = super().save(*save_args, **save_kwargs)
         a = UUID_Tree_Edge.objects.filter(coldoc=self.coldoc, parent = self.uuid).values_list('child_ordering', flat=True)
         j = max( a, default=0 ) + 1
         for n,c in enumerate(self._children):
