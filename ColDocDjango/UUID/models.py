@@ -232,6 +232,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 if (v and v[-1] != '\n') or '\r' in v:
                     logger.debug('save: UUID %r key %r missing final newline, or contains \\r: %r',self.uuid,k,v)
         #
+        write_metadata_backup_file = save_kwargs.pop('write_metadata_backup_file',True)
         r = super().save(*save_args, **save_kwargs)
         #
         if self._children:
@@ -259,7 +260,8 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
                 ExtraMetadata(blob = self, key =  k, value = v).save()
         self._extra_metadata = []
         #
-        self.__write()
+        if write_metadata_backup_file:
+            self.__write()
         return r
     #
     def add(self, key, value):

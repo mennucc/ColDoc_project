@@ -565,10 +565,10 @@ def recompute_order_in_document(coldoc_nick):
     recurse_tree(load_by_uuid, action)
     for nr, met in enumerate(seen_list):
         met.order_in_document = nr
-        met.save()
+        met.save(write_metadata_backup_file=False)
     for met in available:
         met.order_in_document = 0x7fffffff
-        met.save()
+        met.save(write_metadata_backup_file=False)
 
 def check_tree(warn, COLDOC_SITE_ROOT, coldoc_nick, checklang = None):
     " returns `problems`, a list of problems found in tree; `warn(s,a)` is a function where `s` is a translatable string, `a` its arguments"
