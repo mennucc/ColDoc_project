@@ -562,7 +562,7 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
             logger.warning(r" cannot locate '\begin{document}' ") 
         if True:
             conditionals = lang_conditionals(lang, metadata = metadata)
-            preamble = [ColDoc.config.ColDoc_api_version_macro, latex_macros] + conditionals + preamble
+            preamble = [ColDoc.config.ColDoc_api_version_macro + '\n', latex_macros] + conditionals + preamble
             import re
             r = re.compile(r'\\usepackage{ColDocUUID}')
             if not any(r.match(a) for a in preamble):
