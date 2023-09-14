@@ -2841,7 +2841,7 @@ def download(request, NICK, UUID):
     #
     options.setdefault('latex_macros',metadata.coldoc.latex_macros_uuid)
     options.setdefault('lang',lang)
-    options['language_conditionals'] = '\n'.join(ColDoc.latex.lang_conditionals(lang, langs = coldoc.get_languages()))
+    options['language_conditionals'] = ''.join(ColDoc.latex.lang_conditionals(lang, langs = coldoc.get_languages()))
     options['coldoc_api'] = ColDoc.config.ColDoc_api_version_macro
     #
     options['begin']=''

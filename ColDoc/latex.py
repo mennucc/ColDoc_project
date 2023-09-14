@@ -151,7 +151,7 @@ def lang_conditionals(thelang, langs = None, metadata = None):
         langs.update(l for l in metadata.coldoc.get_languages() if l not in e)
     return [(r'\newif\if{I}{L}\{I}{L}{V}'.format(I=ColDoc.config.ColDoc_language_conditional_infix,\
                                                  V='true' if a == thelang else 'false',\
-                                                 L=a)) \
+                                                 L=a) + '\n' ) \
             for a in langs]
 
 
