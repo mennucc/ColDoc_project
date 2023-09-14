@@ -532,6 +532,8 @@ def  latex_main(blobs_dir, uuid='001', lang=None, options = {}, access=None, ver
     else:
         options['plastex_theme'] = 'green'
         latex_macros = metadata.coldoc.latex_macros_private
+    if latex_macros and latex_macros[-1] != '\n':
+        latex_macros += '\n'
     #
     if lang is not None:
         langs = [lang]
