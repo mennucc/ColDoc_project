@@ -14,8 +14,14 @@
 
 \usepackage{amsmath}
 
+%% makeindex before hyperref
+\usepackage{makeidx}
+\makeindex
+
 %% some older versions of `hyperref` clash with `iftex`
 \usepackage[backref]{hyperref}
+
+
 
 %%%%%%%%%% prepare conditionals
 % http://ctan.mirror.garr.it/mirrors/CTAN/macros/latex/contrib/iftex/iftex.pdf
@@ -35,8 +41,6 @@
    \input{preamble_pdflatex}
 \fi\fi
 
-\usepackage{makeidx}
-\makeindex
 
 
 %%%%%%%%% following are general definitions
