@@ -201,3 +201,11 @@ ColDoc_language_conditional_infix = r'CDL'
 # lines to advise that a .tex file was automatically generated
 ColDoc_auto_line1 = '% this content was automatically generated from '
 ColDoc_auto_line2 = '% ********** DO NOT EDIT ***********'
+
+
+# cmdline options to fortify latex invocation
+ColDoc_latex_fortify = {
+    'pdflatex': ['-no-shell-escape',],
+    'xelatex': ['-no-shell-escape',],
+    'lualatex': ['-no-shell-escape','--nosocket'], # '--safer' would disable the OTF loader
+}

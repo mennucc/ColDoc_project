@@ -980,12 +980,16 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     engine = options.get('latex_engine','pdflatex')
     logger.debug('Using engine %r',engine)
     args = [engine,'-file-line-error','-interaction','batchmode',
-            '-recorder','-no-shell-escape','-no-parse-first-line',
+            '-recorder','-no-parse-first-line',
             ##TODO may use -output-directory directory
             ## TODO TEST THIS
             ##( r"\def\uuidbaseurl{%s}" % (options['url_UUID'],)),   r"\input",
-            ## TODO for luatex may add --nosocket --safer
-            fake_name+'.tex']
+            ]
+    if engine in ColDoc.config.ColDoc_latex_fortify:
+        args += ColDoc.config.ColDoc_latex_fortify[engine]
+    else:
+        logger.error('engine %r not in ColDoc.config.ColDoc_latex_fortify', engine)
+    args.append(fake_name+'.tex')
     #
     return_values = {}
     #
