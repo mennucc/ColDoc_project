@@ -145,6 +145,7 @@ def parse_index_command(cmd):
     sortkey, key, see, value, text_class = parse_index_arg(key)
     return sortkey, language, key, see, value, text_class
 
+# https://en.wikibooks.org/wiki/LaTeX/Indexing
 _protect_index_chars = [
     ('"!', '\ue000'),
     ('"|', '\ue001'),
@@ -1539,6 +1540,15 @@ def reparse_blob(filename, metadata, lang, blobs_dir,  act=True, ignore_uuid=Tru
                 if not ignore_uuid:
                     metadata.add(key,value)
             elif 'M_index' in  key:
+                # # https://tex.stackexchange.com/questions/628308/math-symbols-in-index-makeindex
+                # the double norm symbol \| may be entered as "\"|
+                # but the machinery reparsing adds a space "\" |
+                # we must delete it
+                value = re.sub(r'\\" *\|', r'\"|', value)
+                # still, this is incompatible with `hyperref` , so \Vert should be used
+                if r'\|' in value or r'\"|' in value:
+                    warn(_(r'The LaTeX command  \| (for double norm) should be entered as \Vert in \index commands, please change this index entry : %s'),
+                         value)
                 try:
                     parsed = parse_index_arg(value)
                     second_value = json.dumps(parsed)
