@@ -545,6 +545,17 @@ def search(request, NICK):
                 Llkk = L[l][kk]
                 sortkey, key = kk
                 index_list.append( (l_, sortkey, key , Llkk ) )
+                # store it so that it is recalled in the text search
+                for eles in Llkk:
+                    uuid = eles[0]
+                    if l:
+                        keylist = uuidlang_index_dict.setdefault( (uuid,l), [])
+                        keylist.append(key)
+                    else:
+                        for al in CDlangs:
+                            keylist = uuidlang_index_dict.setdefault( (uuid,al), [])
+                            keylist.append(key)
+                #
         index_list.sort(key=lambda x:x[:1])
     else:
         index_list = []
