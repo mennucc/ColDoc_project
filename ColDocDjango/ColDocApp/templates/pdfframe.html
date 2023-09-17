@@ -9,7 +9,7 @@ const get_view_md5_url = "{% url 'UUID:md5' NICK=NICK UUID=UUID ACCESS=ACCESS FI
 </script>
 <script src="{% static 'UUID/js/notifychange.js' %}"></script>
 {% endblock %}
-{% block title %} ColDoc — PDF — {{ NICK  }}{% endblock %}
+{% block title %} {{ NICK  }} — PDF — ColDoc{% endblock %}
 
 {% block content %}
 <div class="container-fluid">

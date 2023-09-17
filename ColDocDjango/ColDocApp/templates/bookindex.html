@@ -1,6 +1,6 @@
 {% extends "bootstrapbase.html" %}
 {% load i18n %}
-{% block title %} ColDoc — {{ coldoc.nickname }} — {% translate 'book index' %} {% endblock %}
+{% block title %} {% translate 'book index' %} — {{ coldoc.nickname }} — ColDoc{% endblock %}
 {% block content %}
 
 <h1>{% if coldoc.title %} {{coldoc.title}} {% else %}
