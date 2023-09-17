@@ -59,7 +59,7 @@ except ImportError:
     latexaccents2unicode = {}
     latex2mathgreek = {}
 else:
-    latex2unicodemath = unicode2latex.math_latex2unicode
+    latex2unicodemath = { k:v[0] for k,v in unicode2latex.math_latex2unicode.items() }
     latexaccents2unicode = unicode2latex.accents_latex2unicode
     latex2mathgreek = unicode2latex.greek_latex2unicode
 
