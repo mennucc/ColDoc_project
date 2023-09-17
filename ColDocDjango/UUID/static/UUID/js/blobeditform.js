@@ -196,6 +196,7 @@ function _parse_response(response) {
 }
 
 function ajax_error_handler(jqXHR, error_code, exception_object)  {
+	window.document.title  = '⚠ ' + UUID + ' — ' + NICK + ' — Coldoc ';
 	let ne = document.getElementById("id_network_error");
 	if (ne) { ne.style.display = 'inline'; }
 	$("#id_blobeditform_compile").removeClass("progress-bar-striped progress-bar-animated");
@@ -224,6 +225,7 @@ function ajax_views_post() {
 	   data: { csrfmiddlewaretoken:  csrf_token },
 	   error: ajax_error_handler,
 	   success: function(response, success_code, jqXHR) {
+		window.document.title  = UUID + ' — ' + NICK + ' — Coldoc ';
 		let ne = document.getElementById("id_network_error");
 		if (ne) { ne.style.display = 'none'; }
 		last_textarea_keypress = 0;
@@ -259,6 +261,7 @@ function blob_post(type) {
     $("#id_blobeditform_compile").removeClass("btn-outline-info btn-warning bg-info").addClass("bg-warning progress-bar-striped progress-bar-animated");
     blob_polling = 0 ; view_polling = 0 ;
     compilation_in_progress = 1;
+    window.document.title  = '⏲ ' + UUID + ' — ' + NICK + ' — Coldoc ';
    }
    if ( type == "save_no_reload" ) {
     $("#id_blobeditform_save_no_reload").addClass("progress-bar-striped progress-bar-animated");

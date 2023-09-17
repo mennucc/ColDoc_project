@@ -176,7 +176,7 @@ function windowUpdated()
 {
     //"this" is a reference to the WindowStateManager
     let isMain = this.isMainWindow();
-    window.document.title  = 'Coldoc '+ NICKUUID + ( isMain ? "" : "(duplicate tab)") ;
+    window.document.title  = ( isMain ? "" : "⛔ ")  + UUID + ' — ' + NICK + ' — Coldoc '+ ( isMain ? "" : "(duplicate tab)") ;
     if ( (text_was_locked) && (isMain) ) {
         setTimeout( function() { alert("This page will be reloaded"); window.location.reload(); }, 100);
     }
