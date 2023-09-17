@@ -1918,7 +1918,7 @@ def view_(request, NICK, UUID, _view_ext, _content_type, subpath = None, prefix=
             f = _html_replace(f, a[:-4], uuid, lang, expandbuttons, child_uuid, hreflang_links=hreflanglinks )
             response = HttpResponse(f, content_type=_content_type, charset=_content_encoding)
         elif _content_type.startswith('text/'):
-            f = open(n)
+            f = open(n, 'rb')
             response = HttpResponse(f, content_type=_content_type, charset=_content_encoding)
         else:
             fsock = open(n,'rb')
