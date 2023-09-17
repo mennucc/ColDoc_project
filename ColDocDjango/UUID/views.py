@@ -1388,7 +1388,7 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
             fork_reparse2, wl = _forked_reparse_blob(addfilename, addmetadata, lang, blobs_dir, load_uuid=load_uuid, options=reparse_options)
             for msg, args in wl:
                 msg =  _(msg) % args
-                all_messages.append( ( messages.INFO, _('Metadata change in new blob') + ': ' + msg) )
+                all_messages.append( ( messages.INFO, _('In new blob:') + msg) )
             # compile it
             if do_fork:
                 fork2 = _latex_uuid(request, coldoc_dir, blobs_dir, coldoc, addmetadata, fork=True)
@@ -1400,7 +1400,7 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
     fork_reparse1, wl = _forked_reparse_blob(filename, metadata, lang, blobs_dir, load_uuid=load_uuid, options=reparse_options)
     for msg, args in wl:
         msg = _(msg) % args
-        all_messages.append( (messages.INFO,  _('Metadata change in blob') + ': ' + msg) )
+        all_messages.append( (messages.INFO,  msg) )
     #
     if ext_ in  ('.tex', '.bib'):
         gen_lang_metadata(metadata, blobs_dir, coldoc.get_languages())
@@ -1569,14 +1569,14 @@ def ajax_views(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uui
                         logger.exception('while managing latex job')
                         all_messages.append( (messages.ERROR, 'while latex : ' + py_html_escape(str(e))  ) )
             #
-            for fork, head in [(fork_reparse1, _('Metadata change in blob')),
-                                (fork_reparse2, _('Metadata change in new blob'))]:
+            for fork, head in [(fork_reparse1, ''),
+                                (fork_reparse2, _('In new blob:')  )]:
                 if fork  is not None:
                     try:
                         wl = fork.wait()
                         for msg, args in wl:
                             msg =  _(msg) % args
-                            all_messages.append( (messages.INFO,  head + ': ' + msg) )
+                            all_messages.append( (messages.INFO,  head + msg) )
                     except Exception as e:
                         logger.exception('while reparsing')
                         all_messages.append( (messages.ERROR, 'while reparsing : ' + py_html_escape(str(e))  ) )
