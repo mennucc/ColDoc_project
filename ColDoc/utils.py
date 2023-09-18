@@ -1452,6 +1452,8 @@ def reparse_blob(filename, metadata, lang, blobs_dir,  act=True, ignore_uuid=Tru
     options = options if options is not None else {}
     options.update(get_blobinator_args(blobs_dir))
     #
+    metadata_cite = [ ('M_' + j) for j in ColDoc_metadata_cite] + [ ('M_' + j.capitalize()) for j in ColDoc_metadata_cite]
+    #
     from ColDoc.transform import reparse_metadata
     parsed_back_map, parsed_metadata, errors = reparse_metadata(filename, metadata, lang, blobs_dir, options, load_uuid=load_uuid)
     for s,a in errors:
@@ -1533,12 +1535,17 @@ def reparse_blob(filename, metadata, lang, blobs_dir,  act=True, ignore_uuid=Tru
         index_end   = set()
         for key, value in parsed_metadata:
           try:
+            is_citation = any( key.endswith(j)  for j in metadata_cite )
             if key == 'M_uuid':
                 if value != ('{'+metadata.uuid+'}'):
                     warn(_('Warning: there is a `uuid` command with value %(value)s instead of {%(uuid)s}'),
                          {"value":value,'uuid':metadata.uuid})
                 if not ignore_uuid:
                     metadata.add(key,value)
+            elif  is_citation:
+                d1 , v, d2 = strip_delimiters(value)
+                for j in [ (d1 + j + d2) for j in v.split(',')]:
+                    metadata.add(key, j)
             elif 'M_index' in  key:
                 # # https://tex.stackexchange.com/questions/628308/math-symbols-in-index-makeindex
                 # the double norm symbol \| may be entered as "\"|
