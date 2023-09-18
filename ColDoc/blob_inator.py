@@ -1186,6 +1186,11 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                     logger.info('metadata %r  %r' % (tok,args))
                     j = stack.top
                     a = '' if j == stack.topstream else ('S_'+stack.topenv+'_')
+                    stack.topstream.write('\\'+macroname+''.join(args))
+                    if macroname.lower() in ColDoc_metadata_cite:
+                        # assuming that there is only one argument
+                        d1 , args, d2 = strip_delimiters(args[0])
+                        args = [ (d1 + j + d2) for j in args.split(',')]
                     for j in args:
                         j =  j.translate({10:32})
                         try:
@@ -1193,7 +1198,6 @@ def blob_inator(thetex, thedocument, thecontext, cmdargs, metadata_class, coldoc
                         except DuplicateLabel:
                             logger.warning('In blob %r file %s line %s ',  stack.topstream.uuid,
                                            thetex.filename, thetex.lineNumber)
-                    stack.topstream.write('\\'+macroname+''.join(args))
                     del j,a
                 elif macroname == '[':
                     logger.debug(' entering math mode')
