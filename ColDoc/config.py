@@ -209,7 +209,13 @@ ColDoc_latex_fortify = {
     'xelatex': ['-no-shell-escape',],
     'lualatex': ['-no-shell-escape','--nosocket'], # '--safer' would disable the OTF loader
 }
+
+# we may add more of these https://ctan.org/pkg/natbib
+# note that starred versions may not work properly
+ColDoc_metadata_cite = ['cite', 'citep', 'citet', 'citealt', 'citealp', 'citenum', 'citeyear', 'citeauthor', 'citenum', 'citetext' ]
+# the uppercased versions are automatically dealt with
+
 # default metadata when blob-ifying
 
 ColDoc_default_metadata = [ 'label', 'uuid', 'index', 'author', 'date',
-                            'replaces', 'title', 'ref', 'eqref', 'pageref', 'cite']
+                            'replaces', 'title', 'ref', 'eqref', 'pageref'] + ColDoc_metadata_cite 
