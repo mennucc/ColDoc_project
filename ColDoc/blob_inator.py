@@ -12,8 +12,6 @@ splits the input into blobs
 (this version is not integrated with Django)
 """
 
-default_metadata = [ 'label', 'uuid', 'index', 'author', 'date',
-                     'replaces', 'title', 'ref', 'eqref', 'pageref', 'cite' ]
 
 # these keys are parameters used when first calling blob_inator
 # that are then shadowed (prepending 'orig_') when saving 
@@ -61,6 +59,7 @@ from ColDoc.classes import MetadataBase, DuplicateLabel
 
 from ColDoc.latex import ColDoc_latex_engines
 
+default_metadata = ColDoc_default_metadata
 
 #########################################################################
 from ColDoc import TokenizerPassThru

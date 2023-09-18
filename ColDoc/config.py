@@ -209,3 +209,7 @@ ColDoc_latex_fortify = {
     'xelatex': ['-no-shell-escape',],
     'lualatex': ['-no-shell-escape','--nosocket'], # '--safer' would disable the OTF loader
 }
+# default metadata when blob-ifying
+
+ColDoc_default_metadata = [ 'label', 'uuid', 'index', 'author', 'date',
+                            'replaces', 'title', 'ref', 'eqref', 'pageref', 'cite']
