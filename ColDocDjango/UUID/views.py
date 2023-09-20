@@ -1558,7 +1558,13 @@ def ajax_views(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uui
                 b =  request.session.pop(a)
                 request.session.save()
             if b is not None:
-                fork1,fork2,fork_reparse1,fork_reparse2 = pickle.loads(base64.a85decode(b))
+                a = pickle.loads(base64.a85decode(b))
+                if len(a) == 4:
+                    fork1,fork2,fork_reparse1,fork_reparse2 = a
+                elif len(a) == 2:
+                    fork1,fork2 = a
+                else:
+                    raise RuntimeError('internal program error')
             #
             for fork in (fork1, fork2):
                 if fork is not None:
