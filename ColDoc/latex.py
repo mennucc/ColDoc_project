@@ -1004,24 +1004,27 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     bibtex_cmd = 'bibtex'
     if environ in ( 'main_file', 'E_document') and os.path.isfile(fake_abs_name+'.aux'):
         if '\\bibdata' in open(fake_abs_name+'.aux').read():
-            subcommands.append( (bibtex_cmd, '.bbl', '.blg') )
+            subcommands.append( (bibtex_cmd, [], '.bbl', '.blg') )
         #
         if os.path.isfile(fake_abs_name+'.idx'):
-            subcommands.append( ('makeindex','.ind','.ilg') )
+            a = []
+            if os.path.isfile(osjoin(blobs_dir, 'makeindex.sty')):
+                a = ['-s','makeindex.sty']
+            subcommands.append( ('makeindex', a,'.ind','.ilg') )
     #
-    for cmd,cmdext,logext in subcommands:
+    for cmd,opt,cmdext,logext in subcommands:
         logger.debug('Running '+cmd)
         if os.path.isfile(fake_abs_name+cmdext):
             file_md5 = hashlib.md5(open(fake_abs_name+cmdext,'rb').read()).hexdigest()
         else:
             file_md5 = None
-        p = subprocess.Popen([cmd,fake_name],
+        p = subprocess.Popen([cmd]+opt+[fake_name],
                              cwd=blobs_dir,stdin=open(os.devnull),
                              stdout=subprocess.PIPE ,stderr=subprocess.STDOUT)
         a = p.stdout.read()
         r2 = p.wait()
         if r2 != 0:
-            logger.warning('%s fails, see %r', cmd, save_abs_name+logext)
+            logger.warning('%s %s fails, see %r', cmd, ' '.join(opt), save_abs_name+logext)
             logger.warning('%s output: %r', cmd, a)
             return_values[cmd] = 'failed'
         else:

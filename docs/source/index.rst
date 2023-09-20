@@ -24,6 +24,7 @@ Welcome to ColDoc's documentation!
   blobify
   editing
   multilingual
+  misc
   issues
   devel
   ack
