@@ -45,10 +45,12 @@ This program does some actions that `manage` does not. Possible commands:
 
     recompute_order
         recompute the order of blobs along the document
-    
+
+     list_uncompiled_saves
+         list blobs where there are uncompiled saves
 """)
 
-import os, sys, argparse, json, pickle, io, copy, tempfile
+import os, sys, argparse, json, pickle, io, copy, tempfile, re
 from os.path import join as osjoin
 
 
@@ -547,6 +549,44 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
                 for msg, args in wl:
                     writelog( _('Parsing uuid %r lang %r : %s'), (uuid, lang, msg%args))
 
+def list_uncompiled_saves(COLDOC_SITE_ROOT, coldoc_nick):
+    from ColDocApp.models import DColDoc
+    from ColDoc.utils import recurse_tree, uuid_to_dir
+    from UUID.models import DMetadata
+    from functools import partial
+    #
+    coldoc = DColDoc.objects.get(nickname = coldoc_nick)
+    coldoc_dir = osjoin(COLDOC_SITE_ROOT,'coldocs', coldoc_nick)
+    blobs_dir = osjoin(coldoc_dir, 'blobs')
+    load_by_uuid = partial(DMetadata.load_by_uuid, coldoc=coldoc)
+    #
+    myre_ = re.compile( r'blob_(...)_([0-9]*)_editstate.json'  )
+    user_uuid_dict = {}
+    def action(uuid, metadata, branch, *v , **k):
+        dir_ = uuid_to_dir(uuid, blobs_dir)
+        for fn in os.listdir( osjoin(blobs_dir, dir_) ):
+            m = myre_.match(fn)
+            if m:
+                lang, user = m.groups()
+                dfn = osjoin(blobs_dir, dir_, fn)
+                try:
+                    with open(dfn) as f:
+                        j = json.load( f )
+                    if 'BlobEditTextarea' in j:
+                        d = user_uuid_dict.setdefault(user,[])
+                        d.append( (uuid,lang) )
+                except:
+                    logger.exception('while loading %r', dfn)
+                #d = user_uuid_dict.setdefault(user,[])
+                #d.append( (uuid,lang) )
+        return True
+    recurse_tree(load_by_uuid, action)
+    for user in user_uuid_dict:
+        print('** User, user')
+        for uuid,lang in user_uuid_dict[user]:
+            print('  uuid %r lang %r' % (uuid,lang))
+
+
 def recompute_order_in_document(coldoc_nick):
     from ColDocApp.models import DColDoc
     from ColDoc.utils import recurse_tree
@@ -939,7 +979,7 @@ def main(argv):
                         required=(COLDOC_SITE_ROOT is None))
     parser.add_argument('--verbose','-v',action='count',default=0)
     if any([j in sys.argv for j in ( 'add_blob' , 'reparse_all' , 'check_tree' , 'list_authors' , 'gen_lang',\
-                                     'recompute_order',\
+                                     'recompute_order','list_uncompiled_saves',\
                                      'count_untranslated_chars', 'create_text_catalogs') ]):
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
@@ -1064,6 +1104,9 @@ does not contain the file `config.ini`
         return True
     elif argv[0] == "recompute_order":
         recompute_order_in_document(args.coldoc_nick)
+        return True
+    elif argv[0] == "list_uncompiled_saves":
+        list_uncompiled_saves(COLDOC_SITE_ROOT, args.coldoc_nick)
         return True
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
