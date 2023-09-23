@@ -50,7 +50,7 @@ This program does some actions that `manage` does not. Possible commands:
          list blobs where there are uncompiled saves
 """)
 
-import os, sys, argparse, json, pickle, io, copy, tempfile, re
+import os, sys, argparse, json, pickle, io, copy, tempfile, re, functools
 from os.path import join as osjoin
 
 
@@ -549,6 +549,21 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
                 for msg, args in wl:
                     writelog( _('Parsing uuid %r lang %r : %s'), (uuid, lang, msg%args))
 
+
+@functools.lru_cache()
+def _get_user(userid, UsMo=None):
+    if UsMo is None:
+        from django.contrib.auth import get_user_model
+        UsMo = get_user_model()
+    user = None
+    userinfo = str(userid) + ' (not in database)'
+    try:
+        user = UsMo.objects.filter(id=userid).get()
+        userinfo = str(user)
+    except:
+        logger.exception(' while looking for user %r',userid)
+    return user, userinfo
+
 def list_uncompiled_saves(COLDOC_SITE_ROOT, coldoc_nick):
     from ColDocApp.models import DColDoc
     from ColDoc.utils import recurse_tree, uuid_to_dir
@@ -590,7 +605,8 @@ def list_uncompiled_saves(COLDOC_SITE_ROOT, coldoc_nick):
 
 def print_uncompiled_saves(user_uuid_dict):
     for userid in user_uuid_dict:
-        print('** User', userid)
+        user, userinfo = _get_user(userid)
+        print('** User', userinfo)
         for uuid,lang in user_uuid_dict[userid]:
             print('  uuid %r lang %r' % (uuid,lang))
 
