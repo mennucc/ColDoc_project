@@ -767,6 +767,17 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
     except OSError:
         pass
     #
+    re_editstate = re.compile( r'blob_(...)_([0-9]*)_editstate.json'  )
+    def disable_editstate(D, langs):
+        for f in os.listdir(D):
+            m = re_editstate.fullmatch(f)
+            if m:
+                thislang = m.groups()[0]
+                if thislang in langs:
+                    f = osjoin(D,f)
+                    logger.debug('disable by renaming %r to %r',f,f+'~disabled~')
+                    os.rename(f, f+'~disabled~')
+    #
     def set_lang(lang):
         with transaction.atomic():
             m = metadata.locked_fresh_copy()
@@ -777,6 +788,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
     Blangs = metadata.get_languages()
     if prefix == 'manual':
         assert len(Blangs) == 1 and 'mul' in Blangs
+        disable_editstate(D, ['mul'])
         for l in Clangs:
             src = osjoin(D,'blob_' + l + ext_)
             if os.path.isfile(src):
@@ -802,6 +814,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
             logmessage(messages.WARNING, a)
             logger.warning(a)
         origlang = Blangs[0]
+        disable_editstate(D, [origlang])
         src = osjoin(D,'blob_' + origlang + ext_)
         dst = osjoin(D,'blob_mul'+ext_)
         string = open(src).read()
@@ -835,6 +848,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
     if prefix == 'multlang':
         dst = osjoin(D,'blob_mul'+ext_)
         sources = {}
+        disable_editstate(D, Clangs)
         for ll in Clangs:
             llll = ColDoc.config.ColDoc_language_header_prefix + ll + ' '
             src = osjoin(D,'blob_'+ll+ext_)
@@ -871,6 +885,7 @@ def postlang_no_http(logmessage, metadata, prefix, lang_, ext_ , langchoice_):
         return redirect(django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':UUID}))
     #
     if prefix in ( 'add', 'translate', 'relabel'):
+        disable_editstate(D, [langchoice_])
         L = metadata.get_languages()
         #
         if prefix == 'add' and os.path.exists(dst+'~disable~'):
