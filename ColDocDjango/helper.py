@@ -946,6 +946,9 @@ def main(argv):
     if 'reparse_all' in sys.argv or 'check_tree' in sys.argv:
         parser.add_argument('--lang','--language',type=str,\
                             help='restrict operation to this language')
+    if 'reparse_all' in sys.argv:
+        parser.add_argument('--no-act',action='store_true',\
+                            help='apply changes')
     if 'add_blob' in sys.argv:
         parser.add_argument('--p_lang','--parent-language',type=str,\
                             required=True,
@@ -953,10 +956,6 @@ def main(argv):
         parser.add_argument('--c_lang','--child-language',type=str,\
                             required=True,
                             help='language of  newly created blob')
-    if 'reparse_all' in sys.argv:
-        parser.add_argument('--no-act',action='store_true',\
-                            help='apply changes')
-    if 'add_blob' in sys.argv:
         parser.add_argument('--parent-uuid',type=str,required=True,\
                             help='parent of the newly created blob')
         parser.add_argument('--user',type=str,required=True,\
