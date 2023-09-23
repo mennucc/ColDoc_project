@@ -50,7 +50,7 @@ This program does some actions that `manage` does not. Possible commands:
          list blobs where there are uncompiled saves
 """)
 
-import os, sys, argparse, json, pickle, io, copy, tempfile, re, functools
+import os, sys, argparse, json, pickle, io, copy, tempfile, re, functools, subprocess, difflib
 from os.path import join as osjoin
 
 
@@ -551,6 +551,15 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
 
 
 list_uncompiled_saves_html = _("""
+<style>
+   table.diff {font-family:Courier; border:medium;}
+   .diff_header {background-color:#e0e0e0}
+   td.diff_header {text-align:right}
+   .diff_next {background-color:#c0c0c0}
+   .diff_add {background-color:#aaffaa}
+   .diff_chg {background-color:#ffff77}
+   .diff_sub {background-color:#ffaaaa}
+   </style>
 Dear user,
 <br>
 here is a list of blobs where you saved a new version but never compiled it.
@@ -613,7 +622,7 @@ def list_uncompiled_saves(COLDOC_SITE_ROOT, coldoc_nick):
                         bco = j['blobcontent']
                         if  bco != bcn:
                             d = user_uuid_dict.setdefault(userid,[])
-                            d.append( (uuid,lang) )
+                            d.append( (uuid,lang,bfn,bco,bcn) )
                 except:
                     logger.exception('while loading %r', dfn)
                 #d = user_uuid_dict.setdefault(user,[])
@@ -622,15 +631,35 @@ def list_uncompiled_saves(COLDOC_SITE_ROOT, coldoc_nick):
     recurse_tree(load_by_uuid, action)
     return user_uuid_dict
 
-def print_uncompiled_saves(user_uuid_dict):
+def _txt_diff(bfn,bco,bcn):
+    " returns the diff of bco, bcn as a list of text stringss "
+    t =tempfile.NamedTemporaryFile('w',delete=False)
+    with t:
+        t.write(bco)
+    P = subprocess.run(['diff', '-su', bfn, t.name ],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                       check=False, universal_newlines=True )
+    os.unlink(t.name)
+    if P.returncode not in (0,1):
+        logger.warning('diff returned code %r and stderr %r',
+                       P.returncode, P.stderr)
+    s = P.stdout.splitlines()
+    s = s[2:]
+    return s
+
+def print_uncompiled_saves(user_uuid_dict, showdiff=True):
     for userid in user_uuid_dict:
         user, userinfo = _get_user(userid)
         print('** User', userinfo)
-        for uuid,lang in user_uuid_dict[userid]:
+        for uuid,lang,bfn,bco,bcn in user_uuid_dict[userid]:
             print('  uuid %r lang %r' % (uuid,lang))
+            if showdiff:
+                s = _txt_diff(bfn, bco, bcn)
+                s = [ ('     '+j) for j in s]
+                print('\n'.join(s))
 
 
-def email_uncompiled_saves(user_uuid_dict, coldoc_nick, url_base=None):
+def email_uncompiled_saves(user_uuid_dict, coldoc_nick, url_base=None, showdiff=True):
     assert url_base is None or isinstance(url_base,str)
     #
     ##from django.contrib.auth import get_user_model
@@ -660,14 +689,26 @@ def email_uncompiled_saves(user_uuid_dict, coldoc_nick, url_base=None):
                                        reply_to = [r])
             lit = []
             lih = []
-            for uuid,lang in user_uuid_dict[userid]:
+            for uuid,lang,bfn,bco,bcn in user_uuid_dict[userid]:
                 if url_base:
                     url = url_base + reverse('UUID:index', kwargs={'NICK':coldoc_nick,'UUID':uuid})
                     if lang not in ('mul', 'und', 'zxx'):
                         url +=  '?lang=' + lang
                 lit.append(  ' - %r / %r' %   (uuid,lang) )
-                lih.append( '<li> <a href="%s"> %s / %s </a> </li>' %   (url, uuid, lang) )
-            lit = '\n\n'.join( lit)
+                if showdiff:
+                    H = difflib.HtmlDiff()
+                    blobdiff = H.make_table(bco.splitlines(),
+                                            bcn.splitlines(),
+                                           _('Saved on disk'),_('Your content'), True)
+                    lih.append( '<li> <a href="%s"> %s / %s </a> %s </li>' %
+                                (url, uuid, lang, blobdiff) )
+                    s = _txt_diff(bfn, bco, bcn)
+                    lit += [ ('     '+j) for j in s]
+                else:
+                    lih.append( '<li> <a href="%s"> %s / %s </a> </li>' %
+                                (url, uuid, lang) )
+                lit.append('')
+            lit = '\n'.join( lit)
             lih = '\n'.join( lih )
             E.attach_alternative(list_uncompiled_saves_text % ( lit, ), 'text/plain')
             E.attach_alternative(list_uncompiled_saves_html % ( lih, ), 'text/html')
@@ -1080,6 +1121,8 @@ def main(argv):
     if 'list_uncompiled_saves'  in sys.argv:
         parser.add_argument('--email',action='store_true',\
                             help='send email to users')
+        parser.add_argument('--diff',action='store_true',\
+                            help='add diff to output')
         parser.add_argument('--url-base',type=str,\
                             help='URL of the website hosting the portal')
     if 'add_blob' in sys.argv:
@@ -1201,12 +1244,12 @@ does not contain the file `config.ini`
         return True
     elif argv[0] == "list_uncompiled_saves":
         list_ = list_uncompiled_saves(COLDOC_SITE_ROOT, args.coldoc_nick)
-        print_uncompiled_saves(list_)
+        print_uncompiled_saves(list_,args.diff)
         if args.email:
             if args.url_base is None:
                 args.url_base = 'http://' + settings.ALLOWED_HOSTS[0]
                 logger.warning(' parameter --url-base was set to %r', args.url_base)
-            email_uncompiled_saves(list_, args.coldoc_nick, args.url_base)
+            email_uncompiled_saves(list_, args.coldoc_nick, args.url_base,args.diff)
         return True
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
