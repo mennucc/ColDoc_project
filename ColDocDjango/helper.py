@@ -611,6 +611,10 @@ def list_uncompiled_saves(COLDOC_SITE_ROOT, coldoc_nick):
             m = myre_.fullmatch(fn)
             if m:
                 lang, userid = m.groups()
+                if lang not in metadata.get_languages():
+                    logger.warning('leftover edistate uuid %r userid %r lang %r',
+                                   uuid, userid, lang)
+                    continue
                 dfn = osjoin(blobs_dir, dir_, fn)
                 try:
                     with open(dfn) as f:
