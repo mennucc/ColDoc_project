@@ -565,25 +565,33 @@ def list_uncompiled_saves(COLDOC_SITE_ROOT, coldoc_nick):
     def action(uuid, metadata, branch, *v , **k):
         dir_ = uuid_to_dir(uuid, blobs_dir)
         for fn in os.listdir( osjoin(blobs_dir, dir_) ):
-            m = myre_.match(fn)
+            m = myre_.fullmatch(fn)
             if m:
-                lang, user = m.groups()
+                lang, userid = m.groups()
                 dfn = osjoin(blobs_dir, dir_, fn)
                 try:
                     with open(dfn) as f:
                         j = json.load( f )
-                    if 'BlobEditTextarea' in j:
-                        d = user_uuid_dict.setdefault(user,[])
-                        d.append( (uuid,lang) )
+                    if 'blobcontent' in j:
+                        bfn = osjoin(blobs_dir, dir_, 'blob_' + lang + j.get('ext','.tex') )
+                        with open(bfn) as b:
+                            bcn = b.read()
+                        bco = j['blobcontent']
+                        if  bco != bcn:
+                            d = user_uuid_dict.setdefault(userid,[])
+                            d.append( (uuid,lang) )
                 except:
                     logger.exception('while loading %r', dfn)
                 #d = user_uuid_dict.setdefault(user,[])
                 #d.append( (uuid,lang) )
         return True
     recurse_tree(load_by_uuid, action)
-    for user in user_uuid_dict:
-        print('** User, user')
-        for uuid,lang in user_uuid_dict[user]:
+    return user_uuid_dict
+
+def print_uncompiled_saves(user_uuid_dict):
+    for userid in user_uuid_dict:
+        print('** User', userid)
+        for uuid,lang in user_uuid_dict[userid]:
             print('  uuid %r lang %r' % (uuid,lang))
 
 
@@ -1106,7 +1114,8 @@ does not contain the file `config.ini`
         recompute_order_in_document(args.coldoc_nick)
         return True
     elif argv[0] == "list_uncompiled_saves":
-        list_uncompiled_saves(COLDOC_SITE_ROOT, args.coldoc_nick)
+        list_ = list_uncompiled_saves(COLDOC_SITE_ROOT, args.coldoc_nick)
+        print_uncompiled_saves(list_)
         return True
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
