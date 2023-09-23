@@ -1120,7 +1120,7 @@ def main(argv):
                             help='apply changes')
     if 'list_uncompiled_saves'  in sys.argv:
         parser.add_argument('--email',action='store_true',\
-                            help='send email to users')
+                            help='send email to users (instead of printing to stdout')
         parser.add_argument('--diff',action='store_true',\
                             help='add diff to output')
         parser.add_argument('--url-base',type=str,\
@@ -1244,12 +1244,13 @@ does not contain the file `config.ini`
         return True
     elif argv[0] == "list_uncompiled_saves":
         list_ = list_uncompiled_saves(COLDOC_SITE_ROOT, args.coldoc_nick)
-        print_uncompiled_saves(list_,args.diff)
         if args.email:
             if args.url_base is None:
                 args.url_base = 'http://' + settings.ALLOWED_HOSTS[0]
                 logger.warning(' parameter --url-base was set to %r', args.url_base)
             email_uncompiled_saves(list_, args.coldoc_nick, args.url_base,args.diff)
+        else:
+            print_uncompiled_saves(list_,args.diff)
         return True
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
