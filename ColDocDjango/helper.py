@@ -550,6 +550,25 @@ def reparse_all(writelog, COLDOC_SITE_ROOT, coldoc_nick, lang = None, act=True):
                     writelog( _('Parsing uuid %r lang %r : %s'), (uuid, lang, msg%args))
 
 
+list_uncompiled_saves_html = _("""
+Dear user,
+<br>
+here is a list of blobs where you saved a new version but never compiled it.
+<ul>
+%s
+</ul>
+""")
+
+list_uncompiled_saves_text = _("""
+Dear user,
+
+here is a list of blobs where you saved a new version but never compiled it.
+
+%s
+
+""")
+
+
 @functools.lru_cache()
 def _get_user(userid, UsMo=None):
     if UsMo is None:
@@ -610,6 +629,51 @@ def print_uncompiled_saves(user_uuid_dict):
         for uuid,lang in user_uuid_dict[userid]:
             print('  uuid %r lang %r' % (uuid,lang))
 
+
+def email_uncompiled_saves(user_uuid_dict, coldoc_nick, url_base=None):
+    assert url_base is None or isinstance(url_base,str)
+    #
+    ##from django.contrib.auth import get_user_model
+    ##UsMo = get_user_model()
+    from django.core.mail import EmailMultiAlternatives
+    from django.urls import reverse
+    from django.conf import settings
+    from ColDocDjango.utils import get_email_for_user
+    #
+    for userid in user_uuid_dict:
+        user, userinfo = _get_user(userid)
+        if not user:
+            continue
+        # default
+        url = '#'
+        if url_base and url_base[-1] == '/':
+            url_base = url_base[:-1]
+        try:
+            r = get_email_for_user(user)
+            if r is None:
+                logger.warning('No valid email for user %r', user)
+                continue
+            a = _('Uncompiled saves in %r') % (coldoc_nick,)
+            E = EmailMultiAlternatives(subject = a,
+                                       from_email = settings.DEFAULT_FROM_EMAIL,
+                                       to= [r],
+                                       reply_to = [r])
+            lit = []
+            lih = []
+            for uuid,lang in user_uuid_dict[userid]:
+                if url_base:
+                    url = url_base + reverse('UUID:index', kwargs={'NICK':coldoc_nick,'UUID':uuid})
+                    if lang not in ('mul', 'und', 'zxx'):
+                        url +=  '?lang=' + lang
+                lit.append(  ' - %r / %r' %   (uuid,lang) )
+                lih.append( '<li> <a href="%s"> %s / %s </a> </li>' %   (url, uuid, lang) )
+            lit = '\n\n'.join( lit)
+            lih = '\n'.join( lih )
+            E.attach_alternative(list_uncompiled_saves_text % ( lit, ), 'text/plain')
+            E.attach_alternative(list_uncompiled_saves_html % ( lih, ), 'text/html')
+            E.send()
+        except:
+            logger.exception(' while emailing user %r',userinfo)#
 
 def recompute_order_in_document(coldoc_nick):
     from ColDocApp.models import DColDoc
@@ -1013,6 +1077,11 @@ def main(argv):
     if 'reparse_all' in sys.argv:
         parser.add_argument('--no-act',action='store_true',\
                             help='apply changes')
+    if 'list_uncompiled_saves'  in sys.argv:
+        parser.add_argument('--email',action='store_true',\
+                            help='send email to users')
+        parser.add_argument('--url-base',type=str,\
+                            help='URL of the website hosting the portal')
     if 'add_blob' in sys.argv:
         parser.add_argument('--p_lang','--parent-language',type=str,\
                             required=True,
@@ -1060,6 +1129,7 @@ does not contain the file `config.ini`
         django.setup()
         from django.utils.translation import gettext, activate
         activate(os.environ.get('LANG','en-US'))
+        from django.conf import settings
     #
     if argv[0] == 'deploy':
         if args.database not in DEPLOY_DATABASES:
@@ -1132,6 +1202,11 @@ does not contain the file `config.ini`
     elif argv[0] == "list_uncompiled_saves":
         list_ = list_uncompiled_saves(COLDOC_SITE_ROOT, args.coldoc_nick)
         print_uncompiled_saves(list_)
+        if args.email:
+            if args.url_base is None:
+                args.url_base = 'http://' + settings.ALLOWED_HOSTS[0]
+                logger.warning(' parameter --url-base was set to %r', args.url_base)
+            email_uncompiled_saves(list_, args.coldoc_nick, args.url_base)
         return True
     else:
         sys.stderr.write("command not recognized : %r\n" % (argv,))
