@@ -1116,6 +1116,7 @@ def main(argv):
                                      'count_untranslated_chars', 'create_text_catalogs') ]):
         parser.add_argument('--coldoc-nick',type=str,required=True,\
                             help='nickname of the coldoc document')
+        parser.epilog = None
     if 'reparse_all' in sys.argv or 'check_tree' in sys.argv:
         parser.add_argument('--lang','--language',type=str,\
                             help='restrict operation to this language')
@@ -1124,7 +1125,7 @@ def main(argv):
                             help='apply changes')
     if 'list_uncompiled_saves'  in sys.argv:
         parser.add_argument('--email',action='store_true',\
-                            help='send email to users (instead of printing to stdout')
+                            help='send email to users (instead of printing to stdout)')
         parser.add_argument('--diff',action='store_true',\
                             help='add diff to output')
         parser.add_argument('--url-base',type=str,\
