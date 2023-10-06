@@ -234,12 +234,4 @@ class DColDoc(models.Model):
 
 
 
-class Text_Catalog(models.Model):
-    "edges for the graph parent-child of blobs in a coldoc"
-    class Meta:
-        ordering = ['coldoc','uuid','lang','text']
-    #
-    coldoc = models.ForeignKey(DColDoc, on_delete=models.CASCADE, db_index = True)
-    uuid = UUID_Field(db_index = True)
-    lang = models.CharField(max_length=4)
-    text = models.TextField(max_length=1000)
+

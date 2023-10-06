@@ -88,6 +88,7 @@ class DMetadata(models.Model): # cannot add `classes.MetadataBase`, it interfere
             a.update(set(self.__single_valued))
             a.add('author')
             a.add('extrametadata')
+            a.add('text_catalog')
             b = set(j.name for j in self._meta.get_fields())
             if a != b:
                 logger.warning('DMetadata fields unaliagned, a="documented" b="effective": a-b %r b-a %r'%( a.difference(b), b.difference(a) ))
@@ -449,3 +450,13 @@ def uuid_replaced_by(coldoc, UUID):
         if UUID in v:
             R.append(r.blob)
     return R
+
+class Text_Catalog(models.Model):
+    "text catalog strings"
+    class Meta:
+        ordering = ['blob__order_in_document','lang','text']
+    #
+    blob = models.ForeignKey(DMetadata, on_delete=models.CASCADE, db_index = True)
+    lang = models.CharField(max_length=4)
+    text = models.TextField(max_length=1000)
+    line = models.IntegerField(default=0)

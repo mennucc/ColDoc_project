@@ -346,7 +346,7 @@ def search_text_list(request, coldoc, searchtoken, uuidlang_index_dict={}):
     text_class = "" if user.is_editor else "mathjaxme"
     #
     for result in text_catalog.search_text_catalog(searchtoken, coldoc):
-        uuid = result.uuid
+        uuid = result.blob.uuid
         if can_view(uuid):
             lang = result.lang 
             link = django.urls.reverse('UUID:index', kwargs={'NICK':NICK,'UUID':uuid}) + '?lang=' + lang
