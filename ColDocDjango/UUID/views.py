@@ -1754,6 +1754,11 @@ def _prepare_latex_options(request, coldoc_dir, blobs_dir, coldoc, url=None):
     options['callback_after_blob_compiled'] = functools.partial(parse_for_labels_callback,  coldoc_dir=coldoc_dir, coldoc=coldoc)
     #
     options['unicode_to_latex'] = load_unicode_to_latex(coldoc_dir)
+    #
+    if  coldoc.pdflatex_fortify:
+        options['pdflatex_fortify'] = ColDoc.config.ColDoc_latex_fortify
+    else:
+        options['pdflatex_fortify'] = False
     # floating preamble
     try:
         m = DMetadata.objects.filter(original_filename = '/preamble.tex').filter(coldoc = coldoc).get()
