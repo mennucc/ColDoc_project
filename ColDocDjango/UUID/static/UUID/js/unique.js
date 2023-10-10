@@ -167,7 +167,7 @@ function textareaUpdate(isMain)
       textarea.classList.remove("bg-light");
       textarea.classList.remove("bg-warning");
       textarea.classList.add(classname);
-      textarea.readOnly = ! isMain;
+      textarea.readOnly =  ( ! isMain ) || ( ! user_can_save );
       if ( ! isMain) text_was_locked = true;
    }
 }
