@@ -17,7 +17,7 @@ if ( compilation_in_progress ) {
 
 {% include "codemirror_init.html" %}
 
-{% if USE_CODEMIRROR %}
+{% if USE_CODEMIRROR and perms.UUID.change_blob %}
 {% include "CodeMirrorHelp.html" %}
 {% endif %}
 
@@ -33,6 +33,7 @@ if ( compilation_in_progress ) {
           {% endif %}
          </div>
         {% endif %}{% endfor %}
+       {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
         <input type="submit" class="btn {{ compile_button_class }}"
          data-toggle="tooltip" title="Save changes, update PDF and HTML"
          onclick="update_editform();  if ( check_primary_tab() ) { prevent_unload_remove (); blob_post('compile_no_reload'); }; return false;"
@@ -42,7 +43,7 @@ if ( compilation_in_progress ) {
              data-toggle="tooltip" title="{% translate 'There was a network error' %}"
              style="display: none;"
              src="{% static 'ColDoc/sync_problem_FILL0_wght400_GRAD0_opsz48.svg' %}"  style="height: 14pt" alt="Network error!">
-
+       {% endif %}
         
       {% if perms.UUID.change_blob %}
          <input type="submit" class="btn btn-primary" 
@@ -75,7 +76,7 @@ if ( compilation_in_progress ) {
       {% endif %}
 </form>
 <script>
-{% if USE_CODEMIRROR and can_change_blob %}
+{% if USE_CODEMIRROR  %}
 $('a[href="#blob"]').on('shown.bs.tab',activate_BlobEditCodeMirror_once);
 {% else %}
  {# non CodeMirror #}

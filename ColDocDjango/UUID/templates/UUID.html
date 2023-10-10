@@ -217,7 +217,6 @@ const use_CodeMirror = false;
     </li>
     </ul>
     {% if blobcontenttype == 'text' %}
-     {% if perms.UUID.change_blob or perms.ColDocApp.add_blob  %}
      {{ blobeditform.media }}
       <script src="{% static 'UUID/js/unique.js' %}"></script>
       <div id="id_blobeditform_div" class="border border-info p-1">
@@ -230,26 +229,6 @@ const use_CodeMirror = false;
        {{blobdiff | safe}} 
       </div>
       {% endif %}
-     {% else %}
-       <div class="border border-info"> <textarea  id="id_latexarea" class="w-100" readonly rows=16>{{ file | safe }}</textarea></div>
-       {% if USE_CODEMIRROR %}
-       {% include "codemirror_init.html" %}
-       <script>
-       function check_primary_tab() {return true; }
-       $('a[href="#blob"]').on('shown.bs.tab',
-	 function() {
-           const l = document.getElementById("id_latexarea");
-	   CodeMirror.fromTextArea(l, {
-	   mode: "text/x-latex",
-           matchBrackets: true,
-	   extraKeys: {"Alt-F": "findPersistent"},
-           lineNumbers:  true,
-           showTrailingSpace : true,
-	   readOnly: true      });
-	});
-       </script>
-       {% endif %}
-     {% endif %}
     {% else %}
       (this is not text but {{ blobcontenttype }})
       {% if perms.UUID.change_blob and blobuploadform %}

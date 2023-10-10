@@ -2558,9 +2558,8 @@ def index(request, NICK, UUID):
         file = _('[access denied]')
     elif  blobcontenttype == 'text' :
         choices = teh.list_allowed_choices(metadata.environ)
-        blobeditform = None
         user_can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
-        if  user_can_add_blob or can_change_blob:
+        if  True:
             msgs = []
             latex_filters = []
             for name, label, help, val, fun in transform.get_latex_filters():
@@ -2577,6 +2576,7 @@ def index(request, NICK, UUID):
             compile_button_class=  'btn-warning'  if uncompiled else 'btn-outline-info'
             for l, m in msgs:
                 messages.add_message(request, l, m)
+        if  user_can_add_blob or can_change_blob:
             H = difflib.HtmlDiff()
             H._table_template = diff_table_template
             blobdiff = H.make_table(open(blob_filename).read().split('\n'),
