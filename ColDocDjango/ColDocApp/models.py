@@ -186,6 +186,9 @@ class DColDoc(models.Model):
     #
     anonymous_can_view = models.BooleanField(default=True)
     #
+    pdflatex_fortify = models.BooleanField(_('add some parameters to `pdflatex` to fortify againsta hacks; disable only if you trust your users (and you wish to use `imakeidx`)'),
+                                           default=True)
+    #
     author_can_add_blob = models.BooleanField(_('An user can add a child node if s/he is the author of the blob'),default=True)
     #
     LATEX_ENGINES=ColDoc_latex_engines
