@@ -1159,6 +1159,10 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
     assert 1 == s, request.POST.keys()
     the_action = [a for a in actions if a in request.POST].pop()
     #
+    a = {'true':True, 'false':False}
+    user_could_add_blob = a.get(request.POST.get('user_can_add_blob'))
+    user_could_save = a.get(request.POST.get('user_can_save'))
+    #
     form=BlobEditForm(request.POST)
     #
     from ColDoc.utils import tree_environ_helper

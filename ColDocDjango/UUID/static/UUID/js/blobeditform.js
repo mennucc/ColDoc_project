@@ -284,6 +284,9 @@ function blob_post(type) {
   let blobeditform = document.getElementById("id_form_blobeditform");
    // serializes the form's elements.
   let data = $("#id_form_blobeditform").serializeArray();
+  // add permissions
+  data = data.concat([ {name: 'user_can_save', value: user_can_save},
+                       {name: 'user_can_add_blob', value: user_can_add_blob}],);
   // add fake button press
   data = data.concat([ {name: type, value: type},]);
   // post form
