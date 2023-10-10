@@ -2208,6 +2208,31 @@ diff_table_template = """
     </table>"""
 
 
+def list_available_logs(langs, accs, prefix, blob__anon__dir, blob__dir, nick, uuid):
+    availablelogs = []
+    for l in langs:
+        for ac_ in accs:
+            availablelogs2 = []
+            lt_ = iso3lang2word(l)
+            if ac_ :
+                lt_ += ' ' + _(ac_)
+            for e_ in sorted(ColDoc.config.ColDoc_allowed_logs):
+                if ac_ == 'public':
+                    a = osjoin(blob__anon__dir, prefix + '_' + l + e_)
+                else:
+                    a = osjoin(blob__dir, prefix + '_' + l + e_)
+                if os.path.exists(a):
+                    a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':nick,'UUID':uuid})
+                    if a[-1] != '/': a += '/'
+                    a += '?lang=%s&ext=%s'  % (l,e_)
+                    if ac_ :
+                        a += '&access=%s' % ac_
+                    availablelogs2.append(  (e_ , a ) )
+            availablelogs.append( ( lt_ , availablelogs2 ) )
+            del availablelogs2
+    return availablelogs
+
+
 def index(request, NICK, UUID):
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID, accept_anon=True)
     #
@@ -2508,30 +2533,15 @@ def index(request, NICK, UUID):
         lang_ = '_' + lang
     else:
         lang_ = ''
+    #
     availablelogs = []
     if  request.user.has_perm('UUID.view_log'):
         pref_ = 'main' if UUID == metadata.coldoc.root_uuid else 'view'
         accs_ = ('public','private') if UUID == metadata.coldoc.root_uuid else (None,)
-        for l in (Blangs if ('mul' not in Blangs) else CDlangs):
-          for ac_ in accs_:
-            availablelogs2 = []
-            lt_ = iso3lang2word(l)
-            if ac_ :
-                lt_ += ' ' + _(ac_)
-            for e_ in sorted(ColDoc.config.ColDoc_allowed_logs):
-                if ac_ == 'public':
-                    a = osjoin(blob__anon__dir, pref_ + '_' + l + e_)
-                else:
-                    a = osjoin(blob__dir, pref_ + '_' + l + e_)
-                if os.path.exists(a):
-                    a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':NICK,'UUID':UUID})
-                    if a[-1] != '/': a += '/'
-                    a += '?lang=%s&ext=%s'  % (l,e_)
-                    if ac_ :
-                        a += '&access=%s' % ac_
-                    availablelogs2.append(  (e_ , a ) )
-            availablelogs.append( ( lt_ , availablelogs2 ) )
-            del availablelogs2
+        langs  = (Blangs if ('mul' not in Blangs) else CDlangs)
+        availablelogs = list_available_logs(langs, accs_, pref_,
+                                            blob__anon__dir, blob__dir,
+                                            coldoc.nickname,  metadata.coldoc.root_uuid)
     #
     blobdiff = ''
     # just to be safe
