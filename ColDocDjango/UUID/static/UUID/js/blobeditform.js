@@ -77,6 +77,13 @@ function hide_and_show(){
     if ( ! blobeditform ) {
 	setTimeout(hide_and_show, 200);
     } else {
+        let o0 = document.getElementById("id_div_blobeditform_split_selection");
+        if ( user_can_add_blob) {
+	   o0.style.display = "block";
+	} else {
+	   o0.style.display = "none";
+	   blobeditform.split_selection.checked = false;
+	}
 	let value = blobeditform.split_selection.checked;
 	let o1 = document.getElementById("id_div_blobeditform_split_environment");
 	let o2 = document.getElementById("id_div_blobeditform_split_add_beginend");
