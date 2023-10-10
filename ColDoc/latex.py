@@ -985,10 +985,14 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
             ## TODO TEST THIS
             ##( r"\def\uuidbaseurl{%s}" % (options['url_UUID'],)),   r"\input",
             ]
-    if engine in ColDoc.config.ColDoc_latex_fortify:
-        args += ColDoc.config.ColDoc_latex_fortify[engine]
-    else:
-        logger.error('engine %r not in ColDoc.config.ColDoc_latex_fortify', engine)
+    pdflatex_fortify = options.get('pdflatex_fortify', ColDoc.config.ColDoc_latex_fortify)
+    if isinstance(pdflatex_fortify, dict):
+        if  engine in pdflatex_fortify:
+            args += pdflatex_fortify[engine]
+        else:
+            logger.error('engine %r not in ColDoc.config.ColDoc_latex_fortify', engine)
+    elif pdflatex_fortify:
+        logger.error('strange option latex_fortify %r', pdflatex_fortify)
     args.append(fake_name+'.tex')
     #
     return_values = {}
