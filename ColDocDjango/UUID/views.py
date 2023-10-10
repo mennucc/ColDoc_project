@@ -2259,6 +2259,8 @@ def index(request, NICK, UUID):
                                      accept_lang = accept_lang,
                                      metadata_class=DMetadata, coldoc=NICK, prefix = 'edit')
         blob__dir = os.path.dirname(blob_filename)
+        #
+        blob__anon__dir = osjoin(anon_dir, uuid_dir)
     except FileNotFoundError as E:
         # gentle redirect for yet untranslated blobs
         if lang and  ext is None and lang in coldoc.get_languages() and\
@@ -2516,8 +2518,11 @@ def index(request, NICK, UUID):
             lt_ = iso3lang2word(l)
             if ac_ :
                 lt_ += ' ' + _(ac_)
-            for e_ in ColDoc.config.ColDoc_allowed_logs:
-                a = osjoin(blob__dir, pref_ + '_' + l + e_)
+            for e_ in sorted(ColDoc.config.ColDoc_allowed_logs):
+                if ac_ == 'public':
+                    a = osjoin(blob__anon__dir, pref_ + '_' + l + e_)
+                else:
+                    a = osjoin(blob__dir, pref_ + '_' + l + e_)
                 if os.path.exists(a):
                     a = django.urls.reverse( 'UUID:log',   kwargs={'NICK':NICK,'UUID':UUID})
                     if a[-1] != '/': a += '/'
