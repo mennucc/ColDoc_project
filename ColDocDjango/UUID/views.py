@@ -485,7 +485,6 @@ def _build_blobeditform_data(metadata,
     #
     if not can_change_blob:
         blobeditform.fields['BlobEditTextarea'].widget.attrs['readonly'] = True
-        blobeditform.fields['BlobEditTextarea'].widget.attrs['disabled'] = True
     if not can_add_blob:
         blobeditform.fields['split_selection'].widget.attrs['readonly'] = True
         blobeditform.fields['split_selection'].widget.attrs['disabled'] = True
