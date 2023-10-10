@@ -132,7 +132,7 @@ ColDoc_pdflatex_fakemain_reuse_extensions = ['.aux','.toc','.idx','.ind','.bbl',
 
 # after compiling with latex a file, these files are saved as 
 # blobs/UUID/N/N/N/YYYY_LLL.XXX
-ColDoc_pdflatex_fakemain_preserve_extensions = ColDoc_pdflatex_fakemain_reuse_extensions + ['.tex','.log','.pdf','.fls','.blg','.ilg']
+ColDoc_pdflatex_fakemain_preserve_extensions = ColDoc_pdflatex_fakemain_reuse_extensions + ['.tex','.log','.pdf','.fls','.blg','.ilg','.stdout']
 
 # after compiling with plastex a file, these files are saved as 
 # blobs/UUID/N/N/N/YYYY_LLL_plastex.XXX or

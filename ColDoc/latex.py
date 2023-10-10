@@ -993,8 +993,11 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     #
     return_values = {}
     #
+    stdout_f = osjoin(blobs_dir, fake_name+'.stdout')
+    stdout_d = open(stdout_f, 'ab')
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
-                         stdout=open(os.devnull,'w'),stderr=subprocess.STDOUT)
+                         stdout=stdout_d,stderr=subprocess.STDOUT)
+    stdout_d.close()
     r=p.wait()
     return_values[engine] = 'success' if (r==0) else 'failed'
     logger.debug('Engine result %r',r)
