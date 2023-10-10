@@ -1014,10 +1014,16 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
             subcommands.append( (bibtex_cmd, [], '.bbl', '.blg') )
         #
         if os.path.isfile(fake_abs_name+'.idx'):
-            a = []
-            if os.path.isfile(osjoin(blobs_dir, 'makeindex.sty')):
-                a = ['-s','makeindex.sty']
-            subcommands.append( ('makeindex', a,'.ind','.ilg') )
+            stdout_c = open(stdout_f, 'rb').read()
+            if not b'makeindex' in stdout_c: 
+                # if using 'imakeidx.sty' and not fortified mode, it was already run
+                ## we may also check if imakeidx is loaded or not
+                #log__ = open(osjoin(blobs_dir, fake_name+'.stdout'), 'rb').read()
+                # if b'/imakeidx.sty' in log__......
+                a = []
+                if os.path.isfile(osjoin(blobs_dir, 'makeindex.sty')):
+                    a = ['-s','makeindex.sty']
+                subcommands.append( ('makeindex', a,'.ind','.ilg') )
     #
     for cmd,opt,cmdext,logext in subcommands:
         logger.debug('Running '+cmd)
