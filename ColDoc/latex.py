@@ -1107,6 +1107,12 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
             else:
                 logger.warning("Missing :%r"%(fake_abs_name+e,))
                 if e=='.pdf': res=False
+    for f in os.listdir(blobs_dir):
+        if f.startswith(fake_name):
+            try:
+                os.unlink( osjoin(blobs_dir, f) )
+            except:
+                logger.exception(' while os.unlink %r / %r', blobs_dir, f)
     return res, return_values
 
 
