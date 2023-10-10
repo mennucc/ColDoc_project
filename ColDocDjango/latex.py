@@ -86,6 +86,11 @@ def main(argv):
     options = _prepare_latex_options(None, coldoc_dir, blobs_dir, coldoc)
     options['coldoc'] = coldoc
     #
+    if  coldoc.pdflatex_fortify:
+        options['pdflatex_fortify'] = ColDoc.config.ColDoc_latex_fortify
+    else:
+        options['pdflatex_fortify'] = False
+    #
     import ColDocDjango.utils
     options['fork_class'] = ColDocDjango.utils.get_django_fork_class()
     #
