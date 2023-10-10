@@ -147,12 +147,28 @@ def index(request, NICK, coldocform=None):
             completed_tasks = [ CompletedTaskForm(instance=j, prefix=j.id) for j in CompletedTask.objects.all() ]
         #
     check_tree_url = django.urls.reverse('ColDoc:check_tree', kwargs={'NICK':NICK,})
+    #
+    availablelogs = []
+    if  request.user.has_perm('UUID.view_log'):
+        from UUID.views import list_available_logs
+        pref_ = 'main'
+        accs_ = ('public','private')
+        langs  = coldoc.get_languages()
+        uuid = coldoc.root_uuid
+        uuid_dir = ColDoc.utils.uuid_to_dir(uuid, blobs_dir=blobs_dir)
+        blob__dir = osjoin(blobs_dir, uuid_dir)
+        blob__anon__dir = osjoin(anon_dir, uuid_dir)
+        availablelogs = list_available_logs(langs, accs_, pref_,
+                                            blob__anon__dir, blob__dir,
+                                            coldoc.nickname, uuid)
+    #
     return render(request, 'coldoc.html', {'coldoc':coldoc,'NICK':coldoc.nickname,
                                            'coldocform' : coldocform,
                                            'failedblobs' : failed_blobs,
                                            'check_tree_url' : check_tree_url,
                                            'whole_button_class' : whole_button_class,
                                            'tasks' : tasks, 'completed_tasks' : completed_tasks,
+                                           'availablelogs' : availablelogs ,
                                            'latex_error_logs':latex_error_logs})
 
 ##################

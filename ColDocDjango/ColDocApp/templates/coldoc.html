@@ -83,6 +83,12 @@ ColDoc  — {{ coldoc.nickname }} {% endif %}</h1>
       {% translate "Settings" %}</a>
   </li>
  {% endif %}
+  {% if perms.UUID.view_log %}
+  <li class="nav-item">
+    <a class="nav-link" id="logs-tab" data-toggle="tab" href="#logs" role="tab" aria-controls="logs" aria-selected="false">
+    {% translate "Logs" %}</a>
+  </li>
+ {% endif %}
  {% if  USE_BACKGROUND_TASKS and user.is_editor %}
   <li class="nav-item">
     <a class="nav-link" id="tasks-tab" data-toggle="tab" href="#tasks" role="tab" aria-controls="tasks" aria-selected="false">
@@ -150,6 +156,26 @@ window.addEventListener("load", (event) => {
 {% endif %}
 </div>  <!-- settings tab -->
 
+ {% if perms.UUID.view_log %}
+  <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+    <div class="row">
+    {% for val1,availablelogs2 in availablelogs %}
+      <div class="col">
+       <h3>{{ val1 }}</h3>
+       <ul>
+       {% for val2,link in availablelogs2 %}
+                <li>{% if link  %}  <a href="{{ link }}">    {% endif %}
+                {{ val2 }}
+                {% if link %}  </a>   {% endif %}
+		</li>
+      {% endfor %}
+       </ul>
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+ {% endif %}
+ 
 
 {% if  USE_BACKGROUND_TASKS and user.is_editor %}
  <div class="tab-pane fade show border m-2 p-1" id="tasks" role="tabpanel" aria-labelledby="tasks-tab">
