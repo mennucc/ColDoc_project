@@ -152,7 +152,9 @@ ColDoc_anon_copy_paths = [ '.blob_inator-args.json', ]
 ColDoc_anon_copy_extensions = [ '.sty', ]
 
 # Logs that can be served to users with 'view_log' permission
-ColDoc_allowed_logs = ['.aux','.log','.out','.toc','.idx','.ilg','.bbl', '.blg', '.fls', '_plastex.bbl', '_plastex.log', '_plastex.stdout']
+ColDoc_allowed_logs = set(ColDoc_pdflatex_fakemain_preserve_extensions + [ '_plastex.bbl', '_plastex.log', '_plastex.stdout'])
+ColDoc_allowed_logs.discard('.pdf')
+ColDoc_allowed_logs.discard('.tex')
 
 # defaults for the values in the DColDoc
 # see description in the `permission` section of the documentation
