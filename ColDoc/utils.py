@@ -1319,6 +1319,8 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
     """ copy the whole tree, starting from `uuid`, and masking private content;
     returns `(n,anon)` , where `n` is the number of copied files, and
     `anon` is the anonymous directory (or `None` in case of failure).
+    It recreates all symlinks, and copies files as specified by configurations
+     `ColDoc_anon_copy_paths` , `ColDoc_anon_copy_extensions` , `ColDoc_anon_keep_extensions` .
     If `lang` is not None, skip any blob that has a language that is not None.
     """
     if uuid is None:
@@ -1346,6 +1348,14 @@ def prepare_anon_tree(coldoc_dir, uuid=None, lang=None,
                     shutil.copy2(src,dst, follow_symlinks=False)
                 #else:
                 #    logger.debug('not symlink %s',src)
+        for f in os.listdir(blobs_dir):
+            e = os.path.splitext(f)[1]
+            if e not in ColDoc_anon_copy_extensions:
+                continue
+            src = osjoin(blobs_dir, f)
+            if os.path.isfile(src) and not os.path.islink(src) and not f.startswith('fakemain'):
+                dst = osjoin(temp_dir, f)
+                shutil.copy2(src, dst, follow_symlinks=False)
         # preserve certain files when rebuilding anon tree
         assert all(isinstance(j,str)  for j in ColDoc_anon_keep_extensions)
         extensions = set(ColDoc_anon_keep_extensions)

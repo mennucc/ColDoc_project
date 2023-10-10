@@ -148,6 +148,9 @@ ColDoc_anon_keep_extensions = ColDoc_pdflatex_fakemain_reuse_extensions + ['.pau
 # copy these files from the `blobs` tree to the `anon` tree
 ColDoc_anon_copy_paths = [ '.blob_inator-args.json', ]
 
+# copy regular files in blobs_dir with these extensions from the `blobs` tree to the `anon` tree
+ColDoc_anon_copy_extensions = [ '.sty', ]
+
 # Logs that can be served to users with 'view_log' permission
 ColDoc_allowed_logs = ['.aux','.log','.out','.toc','.idx','.ilg','.bbl', '.blg', '.fls', '_plastex.bbl', '_plastex.log', '_plastex.stdout']
 
