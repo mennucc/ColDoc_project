@@ -26,7 +26,7 @@ Command help:
        all of the above
 """)
 
-import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm, functools, datetime, zoneinfo
+import os, sys, shutil, subprocess, json, argparse, pathlib, tempfile, hashlib, pickle, base64, re, json, dbm, functools, datetime, zoneinfo, time
 
 
 from os.path import join as osjoin
@@ -999,10 +999,19 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
     #
     stdout_f = osjoin(blobs_dir, fake_name+'.stdout')
     stdout_d = open(stdout_f, 'ab')
+    stdout_d.write(b'Command: %r\n'% (args,))
+    stdout_d.write(b'Start at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now()).encode()))
+    stdout_d.flush()
+    t = time.time()
+    #
     p = subprocess.Popen(args,cwd=blobs_dir,stdin=open(os.devnull),
                          stdout=stdout_d,stderr=subprocess.STDOUT)
-    stdout_d.close()
     r=p.wait()
+    #
+    stdout_d.write(b'End at %s\n'% (datetime.datetime.isoformat(datetime.datetime.now()).encode()))
+    stdout_d.write(b'Elapsed: %.3f\n' %  (time.time() - t))
+    stdout_d.close()
+    #
     return_values[engine] = 'success' if (r==0) else 'failed'
     logger.debug('Engine result %r',r)
     #
