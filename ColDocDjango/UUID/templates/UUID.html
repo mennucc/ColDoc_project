@@ -5,6 +5,7 @@
 {% block extrahead %}
 <script>
 "use strict";
+const user_can_add_blob = {{ user_can_add_blob }};
 const NICK="{{NICK}}"; const UUID="{{UUID}}"; const BLOB="{{BLOB}}"; const VIEW="{{VIEW}}"; 
 var view_md5="{{view_md5}}";
 const csrf_token = "{{ csrf_token }}";

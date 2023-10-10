@@ -2551,15 +2551,16 @@ def index(request, NICK, UUID):
     blobdiff = ''
     # just to be safe
     can_change_blob = request.user.has_perm('UUID.change_blob')
+    user_can_add_blob = False
     if not request.user.has_perm('UUID.view_view', metadata):
         html = _('[access denied]')
     if not request.user.has_perm('UUID.view_blob'):
         file = _('[access denied]')
     elif  blobcontenttype == 'text' :
         choices = teh.list_allowed_choices(metadata.environ)
-        can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
         blobeditform = None
-        if  can_add_blob or can_change_blob:
+        user_can_add_blob = request.user.has_perm('ColDocApp.add_blob') and choices and env != 'main_file'
+        if  user_can_add_blob or can_change_blob:
             msgs = []
             latex_filters = []
             for name, label, help, val, fun in transform.get_latex_filters():
@@ -2570,7 +2571,7 @@ def index(request, NICK, UUID):
                 latex_filters.append((name, label, help, val, fun))
             blobform_filters = [a[0] for a in latex_filters] 
             blobeditform , uncompiled = _build_blobeditform_data(metadata, request.user, blob_filename,
-                                                    blob_ext, blob_lang, choices, can_add_blob, can_change_blob, msgs,
+                                                    blob_ext, blob_lang, choices, user_can_add_blob, can_change_blob, msgs,
                                                     latex_filters)
             revert_button_class =  'btn-warning'  if uncompiled else 'btn-outline-info'
             compile_button_class=  'btn-warning'  if uncompiled else 'btn-outline-info'
@@ -2717,6 +2718,7 @@ def index(request, NICK, UUID):
     MAIN_CONTAINER_CLASS = 'container-fluid' if \
         request.COOKIES.get('main_width') == 'large' else 'container'
     #
+    user_can_add_blob = 'true' if user_can_add_blob else 'false'
     return render(request, 'UUID.html', locals() )
 
 
