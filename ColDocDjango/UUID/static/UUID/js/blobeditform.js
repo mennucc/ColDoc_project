@@ -387,7 +387,6 @@ function update_blobedit_timestamp()
 
 ////////////// CodeMirror specific code
 
-var BlobEditCodeMirror = undefined;
 
 
 function restore_editform_cm_once(){

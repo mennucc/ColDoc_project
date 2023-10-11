@@ -16,6 +16,8 @@ const csrf_token = "{{ csrf_token }}";
 var blob_uncompiled={{ uncompiled }};
 var blob_unsaved=false;
 
+var BlobEditCodeMirror = undefined;
+
 const get_view_md5_url = "{{ get_view_md5_url }}";
 
 const python_main_class = "{{ MAIN_CONTAINER_CLASS }}";
