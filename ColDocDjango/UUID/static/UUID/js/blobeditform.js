@@ -200,6 +200,13 @@ function _parse_response(response) {
 		div_errors.innerHTML = msg;
 		// console.log('error=',msg);
 	} // else console.log('no error');
+	if ( 'biblio_index_html' in response ) {
+		let msg = JSON.parse(response['biblio_index_html']);
+		let div_b_i = document.getElementById("id_biblio_index");
+		if ( div_b_i ) {
+		    div_b_i.innerHTML = msg;
+		}
+	}
 }
 
 function ajax_error_handler(jqXHR, error_code, exception_object)  {
