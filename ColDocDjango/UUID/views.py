@@ -2241,6 +2241,49 @@ def list_available_logs(langs, accs, prefix, blob__anon__dir, blob__dir, nick, u
     return availablelogs
 
 
+def index_make_index(blobs_dir, coldoc_dir, metadata, langs):
+    index_list = []
+    i_ = ExtraMetadata.objects.filter( ( Q(key__contains='M_index') | Q(key__contains='rangeindex'))
+                                    &  Q(blob=metadata) )
+    if len(i_):
+        math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
+        _math_to_unicode_convert = ColDocDjango.utils.math_to_unicode_convert
+        from ColDoc.utils import re_index_lang
+        for E in i_:
+            l = re_index_lang.findall(E.key)
+            l = l[0] if l else ''
+            if l and l not in langs:
+                continue 
+            parsed = json.loads(E.second_value)
+            sortkey, key, see, value, text_class = parsed
+            if see in ('see', 'seealso', 'see also' ) and value:
+                see = ', ' + _(see)
+            else:
+                see = ''
+            key = _math_to_unicode_convert(key, math_to_unicode)
+            value = _math_to_unicode_convert(value, math_to_unicode)
+            kk = (key, see, value)
+            if kk not in index_list:
+                index_list.append( kk )
+    return index_list
+
+def index_make_biblio(blobs_dir, coldoc_dir, metadata, langs):
+    biblio_list = []
+    n =  osjoin(blobs_dir, 'main_' + langs[0] + '_plastex.paux')
+    if os.path.isfile(n):
+        _biblio = pickle.load(open(n,'rb'))
+        _bibitems = _biblio.get('_bibitems', {})
+        _bibcites = _biblio.get('_bibcites', {})
+        i_ = ExtraMetadata.objects.filter(Q(key__contains='M_cite') &  Q(blob=metadata) )
+        for E in i_:
+            v = E.value
+            v = v.rstrip('}').lstrip('{')
+            if v in _bibitems:
+                n = _bibcites.get(v)
+                m = _bibitems.get(v)[0]
+                biblio_list.append( (n, m ))
+    return biblio_list
+
 def index(request, NICK, UUID):
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID, accept_anon=True)
     #
@@ -2489,44 +2532,11 @@ def index(request, NICK, UUID):
             biblio_list = []
             index_list = []
             try:
-                n =  osjoin(blobs_dir,'main_' + llll[0] + '_plastex.paux')
-                if os.path.isfile(n):
-                    _biblio = pickle.load(open(n,'rb'))
-                    _bibitems = _biblio.get('_bibitems', {})
-                    _bibcites = _biblio.get('_bibcites', {})
-                    i_ = ExtraMetadata.objects.filter(Q(key__contains='M_cite') &  Q(blob=metadata) & Q(blob__coldoc=coldoc))
-                    for E in i_:
-                        v = E.value
-                        v = v.rstrip('}').lstrip('{')
-                        if v in _bibitems:
-                            n = _bibcites.get(v)
-                            m = _bibitems.get(v)[0]
-                            biblio_list.append( (n, m ))
+                biblio_list = index_make_biblio(blobs_dir,  coldoc_dir, metadata, llll)
             except:
                 logger.exception('while biblio')
             try:
-                i_ = ExtraMetadata.objects.filter(( Q(key__contains='M_index') | Q(key__contains='rangeindex'))
-                                                  &  Q(blob=metadata) & Q(blob__coldoc=coldoc))
-                if len(i_):
-                    math_to_unicode = ColDocDjango.utils.load_latex_to_unicode_resub(coldoc_dir)
-                    _math_to_unicode_convert = ColDocDjango.utils.math_to_unicode_convert
-                    from ColDoc.utils import re_index_lang
-                    for E in i_:
-                        l = re_index_lang.findall(E.key)
-                        l = l[0] if l else ''
-                        if l and l not in llll:
-                            continue 
-                        parsed = json.loads(E.second_value)
-                        sortkey, key, see, value, text_class = parsed
-                        if see in ('see', 'seealso', 'see also' ) and value:
-                            see = ', ' + _(see)
-                        else:
-                            see = ''
-                        key = _math_to_unicode_convert(key, math_to_unicode)
-                        value = _math_to_unicode_convert(value, math_to_unicode)
-                        kk = (key, see, value)
-                        if kk not in index_list:
-                            index_list.append( kk )
+                index_list = index_make_index(blobs_dir, coldoc_dir, metadata, llll)
             except:
                 logger.exception('while index')
     else:
