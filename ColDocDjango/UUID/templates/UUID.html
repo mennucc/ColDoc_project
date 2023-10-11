@@ -246,7 +246,7 @@ const use_CodeMirror = false;
        <table class="w-100">{{ metadataform }}</table>
           {{ metadataform.media.js }}
          <input type="submit" class="btn btn-primary"
-	   onclick="return  check_primary_tab() && check_saved() && set_textarea_readonly();" value="Submit">
+	   onclick="return  check_primary_tab() && check_saved() && set_textarea_readonly() && reload_progress();" value="Submit">
       </form>
      </div>
     {% endif %}
@@ -319,19 +319,19 @@ const use_CodeMirror = false;
    <h2>{% translate "Download" %}</h2>
    <span class="border bg-light d-inline-block m-1 p-2">
    {% translate  'Download blob' %}:
-    {% if buy_download_link %} <a href="{{ buy_download_link | safe }}" class="btn btn-outline-primary"
+    {% if buy_download_link %} <a href="{{ buy_download_link | safe }}" class="btn btn-outline-primary" onclick=";"
             data-toggle="tooltip" title="{{ buy_download_tooltip }}">{{ buy_download_label }}</a>
     {% endif %}
     {% if buy_download_form %}
-      <form action="{% url 'wallet:authorize_purchase_encoded_post' %}" method="post" class="btn btn-outline-primary">
+      <form action="{% url 'wallet:authorize_purchase_encoded_post' %}" method="post">
         {% csrf_token %}
         <table>{{ buy_download_form.as_table }}</table>
-        <input type="submit"  data-toggle="tooltip" title="{{ buy_download_tooltip }}" value="{{ buy_download_label }}"  class="btn">
+        <input type="submit"  data-toggle="tooltip" title="{{ buy_download_tooltip }}" value="{{ buy_download_label }}"  class="btn" onclick=";">
       </form>
     {% endif %}
     {% for dlang, dlanguage in download_blob_buttons %}
        <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=blob&lang={{ dlang }}&ext={{ blob_ext }}"
-             class="btn btn-outline-primary btn-sm p-1" data-toggle="tooltip"
+             class="btn btn-outline-primary btn-sm p-1" data-toggle="tooltip" onclick=";"
              title="{% blocktranslate %}Download this blob in {{ dlanguage }}.{% endblocktranslate %}">{{ dlang }}</a>
     {% endfor %}
   </span>
@@ -340,11 +340,11 @@ const use_CodeMirror = false;
    <span data-toggle="tooltip" class="border bg-light d-inline-block m-1 p-2"
              title="{% blocktranslate %}Download this blob together with all parts that constitute a complete, compilable, {{ view_language }} LaTeX document.{% endblocktranslate %}">
        {% blocktranslate %}Download inside complete {{ view_language }} document{% endblocktranslate %}:
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=single&lang={{ view_lang }}"
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=single&lang={{ view_lang }}" onclick=";"
              class="btn btn-outline-primary btn-sm" data-toggle="tooltip"
              title="{% translate 'Download this blob embedded in a complete, compilable, LaTeX document.' %}">
        {% translate 'as single document' %};</a>
-   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=zip&lang={{ view_lang }}"
+   <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=zip&lang={{ view_lang }}" onclick=";"
              class="btn btn-outline-primary" data-toggle="tooltip" title="{% translate 'All pieces are shipped in a ZIP file' %}">
        {% translate 'as ZIP' %};</a>
    <a href="{% url 'UUID:download' NICK=NICK UUID=UUID  %}?as=email&lang={{ view_lang }}"
@@ -375,7 +375,7 @@ const use_CodeMirror = false;
         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
         <input type="submit"  
            {# data-toggle="tooltip" title="{{ tooltip | safe }}" #}
-        onclick="return check_compiled() && set_textarea_readonly();"
+        onclick="return check_compiled() && set_textarea_readonly()  && reload_progress();"
         value="{{ label }}" name="button"  class="btn {{ buttonclass }}">
       </form>
       <!--</div>-->
@@ -396,5 +396,16 @@ const use_CodeMirror = false;
 {% endif %}
 
 </div>
+
+<script>
+$( ".btn" ).each(function( index ) {
+  let old = $( this ).attr("onclick");
+  if ( undefined == old ) {
+    //console.log('added : ' + $( this ).text());
+    $(this).on("click", () => { return check_saved() && set_textarea_readonly() && reload_progress() ; } );
+   }
+   //else {     console.log('not added : ' + $( this ).text() + ' WAS  '+ old); };
+}   );
+</script>
 
 {% endblock %}
