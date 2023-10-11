@@ -2285,6 +2285,23 @@ def index_make_biblio(blobs_dir, coldoc_dir, metadata, langs):
                 biblio_list.append( (n, m ))
     return biblio_list
 
+def index_make_bibliolinks(coldoc, user):
+    def reverse_uuid_link(u):
+        return django.urls.reverse('UUID:index', kwargs={'NICK':coldoc.nickname, 'UUID':u}) 
+    #
+    bibliofiles = DMetadata.objects.filter(environ__contains='bibliography').filter(coldoc=coldoc).all()
+    bibliolink = ''
+    if not bibliofiles:
+        bibliofiles = []
+    elif user.is_editor or user.is_author:
+        bibliofiles = [ ( (  (b.original_filename.strip() or b.uuid.strip()) + b.extension.strip())  ,\
+                          reverse_uuid_link(b.uuid) ) for b in bibliofiles]
+    else:
+        bibliolink = reverse_uuid_link(bibliofiles[0].uuid) if bibliofiles else ''
+        bibliofiles = []
+    return bibliolink, bibliofiles
+
+
 def index(request, NICK, UUID):
     coldoc, coldoc_dir, blobs_dir = common_checks(request, NICK, UUID, accept_anon=True)
     #
@@ -2715,16 +2732,7 @@ def index(request, NICK, UUID):
     #
     replacedby = ',\n'.join([reverse_uuid(blob.uuid)  for blob in  uuid_replaced_by(coldoc, UUID) ])
     #
-    bibliofiles = DMetadata.objects.filter(environ__contains='bibliography').filter(coldoc=coldoc).all()
-    bibliolink = ''
-    if not bibliofiles:
-        bibliofiles = []
-    elif request.user.is_editor or request.user.is_author:
-        bibliofiles = [ ( (  (b.original_filename.strip() or b.uuid.strip()) + b.extension.strip())  ,\
-                          reverse_uuid_link(b.uuid) ) for b in bibliofiles]
-    else:
-        bibliolink = reverse_uuid_link(bibliofiles[0].uuid) if bibliofiles else ''
-        bibliofiles = []
+    bibliolink, bibliofiles = index_make_bibliolinks(coldoc, request.user)
     #
     compilation_in_progress = int( ('compilation_in_progress_' + metadata.uuid) in request.session)
     ajax_views_url = django.urls.reverse('UUID:ajax_views', kwargs={'NICK':NICK,'UUID':UUID})
