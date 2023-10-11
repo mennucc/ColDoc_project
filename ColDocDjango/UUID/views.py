@@ -2281,6 +2281,7 @@ def index_make_biblio(blobs_dir, coldoc_dir, metadata, langs):
             if v in _bibitems:
                 n = _bibcites.get(v)
                 m = _bibitems.get(v)[0]
+                m = m.replace('</p>','').replace('<p>','')
                 biblio_list.append( (n, m ))
     return biblio_list
 
