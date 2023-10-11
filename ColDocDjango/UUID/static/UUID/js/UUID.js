@@ -75,4 +75,32 @@ function mainClassUpdate(classname)
      Cookies.set(main_width_cookie_name, 'large', { expires: 180, SameSite: 'Lax'})
    }
 }
+   
+function set_textarea_readonly() {
+   user_can_save = false;
+   let textarea = document.getElementById("id_BlobEditTextarea");
+    if (   textarea )  {
+      textarea.classList.remove("bg-light");
+      textarea.classList.add("bg-warning");
+      textarea.readOnly = true;
+    }
+    if( BlobEditCodeMirror ) {
+      BlobEditCodeMirror.options.readOnly = true;
+    }
+    return true;
+}
 
+
+function check_compiled() {
+   if(blob_uncompiled) {
+     alert('Cannot proceed, there are uncompiled changes'); return false;
+   };
+   return true;
+};
+
+function check_saved() {
+   if(blob_unsaved) {
+     alert('Cannot proceed, there are unsaved changes'); return false;
+   };
+   return true;
+};

@@ -245,7 +245,8 @@ const use_CodeMirror = false;
                 {{ metadataform.media.css }}
        <table class="w-100">{{ metadataform }}</table>
           {{ metadataform.media.js }}
-         <input type="submit" class="btn btn-primary" onclick="return check_primary_tab();" value="Submit">
+         <input type="submit" class="btn btn-primary"
+	   onclick="return  check_primary_tab() && check_saved() && set_textarea_readonly();" value="Submit">
       </form>
      </div>
     {% endif %}
@@ -374,7 +375,7 @@ const use_CodeMirror = false;
         {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
         <input type="submit"  
            {# data-toggle="tooltip" title="{{ tooltip | safe }}" #}
-        onclick="if(blob_uncompiled != 0) { alert('Cannot proceed, there are uncompiled changes'); return false;}"
+        onclick="return check_compiled() && set_textarea_readonly();"
         value="{{ label }}" name="button"  class="btn {{ buttonclass }}">
       </form>
       <!--</div>-->
