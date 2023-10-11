@@ -20,6 +20,7 @@ function prevent_unload(e) {
 var prevent_unload_added = false;
 
 function prevent_unload_remove () {
+    blob_unsaved=false;
     if (  prevent_unload_added ) {
 // according to https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
 // it is not really needed to remove events
@@ -29,6 +30,7 @@ function prevent_unload_remove () {
 };
 
 function prevent_unload_add() {
+    blob_unsaved=true;
     if ( ! prevent_unload_added ) {
        prevent_unload_added = true;
        window.addEventListener("beforeunload", prevent_unload);
