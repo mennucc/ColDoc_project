@@ -1,0 +1,21 @@
+{% load static %}
+{% load i18n %}
+         {% if bibliolink %} <a href="{{ bibliolink }}"> {% translate "Bibliography" %}</a>
+	 {% else %}  {% translate "Bibliography" %} {% endif %}
+         {% for val,link in bibliofiles %}
+                <a href="{{ link }}">  {{ val }}  </a>
+		{#% if u == bibliofiles.last %} . {% else %} ; {% endif %} {% endfor #}
+         {% endfor %}
+	 {% if biblio_list %}
+	 <ul> {% for k,v in biblio_list %} <li> [{{k}}] <span class="bg-light">{{v | safe}}</span> </li> {% endfor %} </ul>
+	 {% endif %}
+	 {% if biblio_list or index_list %} <br> {% else %}  —  {% endif %}
+	 <a href="{% url 'ColDoc:bookindex' NICK=NICK %}{{ view_query }}"> {% translate "Book index" %}</a>
+	 {% if index_list %}
+	 <ul> {% for k,s,v in index_list %}
+	      <li> <span class="bg-light font-italic mathjaxme">{{k}}</span> {{s}}
+	           {% if v %} <span class="bg-light font-italic  mathjaxme">{{v}}</span> {% endif %}
+	      </li> 
+	    {% endfor %}
+	 </ul>
+	 {% endif %}
