@@ -90,6 +90,10 @@ function set_textarea_readonly() {
     return true;
 }
 
+function reload_progress() {
+    $("main").prepend( '<div class="progress fixed-top">  <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning w-100"></div></div>');
+    return true;
+}
 
 function check_compiled() {
    if(blob_uncompiled) {
