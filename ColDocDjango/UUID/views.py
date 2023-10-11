@@ -1636,10 +1636,17 @@ def ajax_views(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uui
                               context = locals(),
                               request=request)
     #
+    CDlangs = coldoc.get_languages() # fixme this may be more languages than the user sees
+    bibliolink, bibliofiles = index_make_bibliolinks(coldoc, request.user)
+    biblio_list = index_make_biblio(blobs_dir,  coldoc_dir, metadata, CDlangs)
+    index_list = index_make_index(blobs_dir, coldoc_dir, metadata, CDlangs)
+    biblio_index_html = render_to_string(template_name="UUID_biblio_index.html", request=request, context=locals())
+    #
     return JsonResponse( {"message"  : json.dumps(str(message)),
                           "latex_errors_html" : json.dumps(str(latex_errors_html)),
                           "arrows_html" : json.dumps(str(arrows)),
                           "alert"  : json.dumps(str(alert)),
+                          "biblio_index_html" : json.dumps(str(biblio_index_html)),
                           "viewarea" : json.dumps(views),  })
 
 @decorator_url()
