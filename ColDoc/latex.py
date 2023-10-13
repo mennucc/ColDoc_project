@@ -1064,13 +1064,20 @@ def pdflatex_engine(blobs_dir, fake_name, save_name, environ, lang, options, rep
             else:
                 logger.warning('%s failed to create the %s file',cmd,cmdext)
     #
-    a = 'Rerun to get cross-references right'
-    if r == 0:
-        if repeat is None and a in  open(fake_abs_name+'.log').read():
-            logger.debug('%r reports %r in log, will rerun',engine,a)
-            repeat = 1
-        elif repeat is None:
-            logger.debug('%r does not report %r in log, will not rerun',engine,a)
+    flags = ( b'rerunfilecheck Warning',
+              b'Rerun to get cross-references right',
+              b'Rerun to get outlines right',
+              b'Rerun to get bibliographical references right')
+    if r == 0 and repeat is None:
+        log = open(fake_abs_name+'.log','rb').read()
+        for  j in flags:
+            if j in log :
+                logger.debug('%r reports %r in log, will rerun', engine, j)
+                repeat = 1
+                break
+        if not repeat:
+            repeat = 0
+            logger.debug('%r does not report anything in log, will not rerun', engine)
     #
     j = 1
     while isinstance(repeat,int) and j <= repeat:
