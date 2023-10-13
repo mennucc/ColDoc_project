@@ -1827,6 +1827,10 @@ def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = [],
     skipuuid = CP + uuid
     soup = BeautifulSoup(html, features="html.parser")
     for a in soup.findAll('a'):
+        if 'class' in a:
+            a['class'] += ' btn btn-sm'
+        else:
+            a['class'] = 'btn btn-sm'
         ids += 1
         if 'href' in a.attrs and a['href'].startswith(CP):
             thisuuid = a['href'][lCP:]
@@ -1854,9 +1858,9 @@ def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = [],
                 a['id'] = identA
             #
             c_ = 'success' if thisuuid in children else 'dark'
+            a['class'] += " btn-outline-" + c_ + (' bg-warning' if (highlight == thisuuid) else '' )
             # span
             s = soup.new_tag('span', id=identS)
-            s['class'] = "border border-" + c_ + (' bg-warning' if (highlight == thisuuid) else '' )
             a = a.replaceWith(s)
             s.append(a)
             #
