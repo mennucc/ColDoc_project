@@ -1827,12 +1827,14 @@ def _html_replace_bs(html, url, uuid, lang, expandbuttons=True, children = [],
     skipuuid = CP + uuid
     soup = BeautifulSoup(html, features="html.parser")
     for a in soup.findAll('a'):
-        if 'class' in a:
-            a['class'] += ' btn btn-sm'
-        else:
-            a['class'] = 'btn btn-sm'
-        ids += 1
         if 'href' in a.attrs and a['href'].startswith(CP):
+            if 'class' in a:
+                a['class'] += ' btn btn-sm'
+            else:
+                a['class'] = 'btn btn-sm'
+            #
+            ids += 1
+            #
             thisuuid = a['href'][lCP:]
             if not expandbuttons or a['href'].startswith(skipuuid) :
                 a['href'] = url + thisuuid
