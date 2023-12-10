@@ -46,6 +46,12 @@ fork_class_default = \
                                                    getattr(settings,'COLDOC_TASKS_CELERYCONFIG',None),
                                                    callback=_fork_class_callback)
 
+
+if False:
+    # to debug, use a non forking class
+    import coldoc_tasks.simple_tasks
+    fork_class_default = coldoc_tasks.simple_tasks.nofork_class
+
 ################
 
 import ColDoc.utils, ColDocDjango

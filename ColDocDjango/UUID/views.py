@@ -96,6 +96,10 @@ from ColDocDjango.middleware import redirect_by_exception
 
 fork_class_default = ColDocDjango.utils.get_django_fork_class()
 
+if False:
+    # to debug, use a non forking class
+    import coldoc_tasks.simple_tasks
+    fork_class_default = coldoc_tasks.simple_tasks.nofork_class
 
 def iso3lang2word(*v , **k):
     return gettext_lazy(iso3lang2word_untranslated(*v, **k))
