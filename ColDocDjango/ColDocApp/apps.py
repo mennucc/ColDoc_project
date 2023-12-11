@@ -23,9 +23,20 @@ def remove_locks():
     except:
         logger.exception("While cleaning locks")
 
+def run_init_code():
+    from django.conf import settings
+    try:
+        init = osjoin(settings.COLDOC_SITE_ROOT, 'init.py')
+        if not os.path.isfile(init):
+            return
+        exec(compile(open(init).read(),init,'exec'))
+    except:
+        logger.exception("While running site init code from %r", init)
+
 
 class ColdocappConfig(AppConfig):
     name = 'ColDocApp'
     default_auto_field = 'django.db.models.AutoField'
     def ready(self):
         remove_locks()
+        run_init_code()

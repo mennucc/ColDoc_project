@@ -151,6 +151,12 @@ def deploy(target, database = 'sqlite3', coldoc_src_root=None):
     F.write('\n'.join(a))
     F.close()
     #
+    init = os.path.join(target,'init.py')
+    F = open(init,'w')
+    F.write("""# initialization code specific for this instance
+# This file will be executed after all the apps are loaded
+""")
+    #
     newconfig = config.get_config(target)
     for j in ( 'coldocs' , 'www' , 'lock', 'run'):
         os.mkdir(osjoin(target,j))
