@@ -29,7 +29,7 @@ def run_init_code():
         init = osjoin(settings.COLDOC_SITE_ROOT, 'init.py')
         if not os.path.isfile(init):
             return
-        exec(compile(open(init).read(),init,'exec'))
+        exec(compile(open(init).read(),init,'exec'),globals(),globals())
     except:
         logger.exception("While running site init code from %r", init)
 
