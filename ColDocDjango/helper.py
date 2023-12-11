@@ -155,6 +155,7 @@ def deploy(target, database = 'sqlite3', coldoc_src_root=None):
     F = open(init,'w')
     F.write("""# initialization code specific for this instance
 # This file will be executed after all the apps are loaded
+# see in ColDocDjango/init_example.py for some example code
 """)
     #
     newconfig = config.get_config(target)
