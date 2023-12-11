@@ -1449,9 +1449,8 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
                          reply_to = r)
         # html version
         H = difflib.HtmlDiff()
-        file_lines_after = open(filename).readlines()
         blobdiff = H.make_file(file_lines_before,
-                               file_lines_after,
+                               open(filename).readlines(),
                                _('Previous'),_('Current'), True)
         try:
             j  = blobdiff.index('<body>') + 6
@@ -1501,7 +1500,7 @@ def postedit(request, NICK, UUID, coldoc, metadata, coldoc_dir, blobs_dir, uuid_
     if the_action == 'compile_no_reload' :
         H = difflib.HtmlDiff()
         blobdiff = H.make_table(file_lines_before,
-                               file_lines_after,
+                               open(filename).readlines(),
                                _('Previous'),_('Current'), True)
         #
         real_file_md5 = hashlib.md5(open(filename,'rb').read()).hexdigest()
